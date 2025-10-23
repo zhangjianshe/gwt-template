@@ -28,7 +28,7 @@ public class AppProxy {
             if (context.endsWith("/")) {
                 context = context.substring(0, context.length() - 1);
             }
-            String entryPoint = context + "/" + AppConstant.DEFAULT_SERVER_PATH;
+            String entryPoint = context + AppConstant.DEFAULT_SERVER_PATH;
             t.setServiceEntryPoint(entryPoint);
             t.setRpcRequestBuilder(requestBuilder);
         }

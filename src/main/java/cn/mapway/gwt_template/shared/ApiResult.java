@@ -1,7 +1,5 @@
 package cn.mapway.gwt_template.shared;
 
-import cn.mapway.biz.api.SystemCodeEnum;
-import cn.mapway.biz.constant.IBizCode;
 import cn.mapway.document.annotation.ApiField;
 import cn.mapway.document.annotation.Doc;
 import com.google.gwt.user.client.rpc.IsSerializable;
@@ -43,23 +41,6 @@ public class ApiResult<T> implements Serializable, IsSerializable {
 
 
     /**
-     * 根据ErrorCode 创建返回结果集
-     *
-     * @param <T>        返回的数据实体类型
-     * @param resultCode 返回码枚举接口
-     * @param data       可以为 null
-     * @param parameters 返回消息需要格式化的参数
-     * @return data
-     */
-    public static <T> ApiResult<T> result(IBizCode resultCode, T data, String parameters) {
-        ApiResult result = new ApiResult();
-        result.setCode(resultCode.getCode());
-        result.setMessage(resultCode.bind(parameters).getMessage());
-        result.setData(data);
-        return result;
-    }
-
-    /**
      * @param code    daode
      * @param message message
      * @param data    data
@@ -91,7 +72,7 @@ public class ApiResult<T> implements Serializable, IsSerializable {
      * @return data
      */
     public static <T> ApiResult success(T data) {
-        ApiResult result = result(SystemCodeEnum.SUCCESS, data, null);
+        ApiResult result = result(200, null, data);
         result.setData(data);
         return result;
     }
@@ -113,7 +94,7 @@ public class ApiResult<T> implements Serializable, IsSerializable {
      * @return
      */
     public boolean isSuccess() {
-        return Objects.equals(code, SystemCodeEnum.SUCCESS.getCode());
+        return Objects.equals(code, 200);
     }
 
     /**
