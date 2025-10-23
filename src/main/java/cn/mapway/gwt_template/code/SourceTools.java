@@ -26,10 +26,10 @@ import java.util.Map;
 public class SourceTools {
     public static void main(String[] args) {
         SourceTools tools = new SourceTools();
-        String packageBean = "cn.mapway.gwt_template.shared.rpc.dns";
-        String packageService = "cn.mapway.gwt_template.server.service.dns";
+        String packageBean = "cn.mapway.gwt_template.shared.rpc.user";
+        String packageService = "cn.mapway.gwt_template.server.service.user";
         ArrayList<String> methods = Lang.list(
-                "queryAllDomains","deleteDomain","updateDomain"
+                "login","logout"
         );
         methods.stream().forEach(n -> {
             tools.gen(n, packageBean, packageService);
@@ -49,7 +49,7 @@ public class SourceTools {
 
     private void genMethod(String methodName, String packageBean, String packageService) {
         String beanName = Strings.upperFirst(methodName);
-        String method = ("RpcResult<" + beanName + "Response> " + methodName + "(" + beanName + "Request request);");
+        String method = ("ApiResult<" + beanName + "Response> " + methodName + "(" + beanName + "Request request);");
         log.info(method);
 
         String source = "src/main/java/cn/mapway/gwt_template/client/rpc/IAppServer.java";
@@ -67,7 +67,7 @@ public class SourceTools {
         }
         //异步接口   void login(UserLoginRequest request, AsyncCallback<RpcResult<CurrentUserResponse>> async);
        source = "src/main/java/cn/mapway/gwt_template/client/rpc/IAppServerAsync.java";
-       String asyncMethod="void "+methodName+"("+beanName+"Request request, AsyncCallback<RpcResult<"+beanName+"Response>> async);";
+       String asyncMethod="void "+methodName+"("+beanName+"Request request, AsyncCallback<ApiResult<"+beanName+"Response>> async);";
         try {
             file = ResourceUtils.getFile(source);
             String content = Files.read(file);

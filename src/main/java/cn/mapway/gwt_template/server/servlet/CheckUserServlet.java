@@ -1,5 +1,9 @@
 package cn.mapway.gwt_template.server.servlet;
 
+import cn.mapway.biz.api.ApiResult;
+import cn.mapway.biz.core.BizResult;
+import cn.mapway.gwt_template.shared.AppConstant;
+import cn.mapway.gwt_template.shared.Messages;
 import com.google.gwt.user.client.rpc.SerializationException;
 import com.google.gwt.user.server.rpc.RPC;
 import com.google.gwt.user.server.rpc.RPCRequest;
@@ -26,8 +30,20 @@ import java.util.List;
 @Slf4j
 public abstract class CheckUserServlet<T> extends RemoteServiceServlet {
     /**
+     * 将BizResult 转换为RpcResult
+     *
+     * @param result
+     * @param <T>
+     * @return
+     */
+    protected  <T> ApiResult<T> toApiResult(BizResult<T> result) {
+        return ApiResult.result(result.getCode(), result.getMessage(), result.getData());
+    }
+
+    /**
      * 调用接口需要TOKEN
      */
+
 
     private final ArrayList<String> excludesMethod = new ArrayList<>();
 
@@ -56,7 +72,7 @@ public abstract class CheckUserServlet<T> extends RemoteServiceServlet {
 
         boolean canCall = checkToken(rpcRequest);
         if (!canCall) {
-            RpcResult result = RpcResult.fail(Messages.NSG_NEED_LOGIN.getCode(), getTheme());
+            ApiResult result = ApiResult.result(Messages.NSG_NEED_LOGIN.getCode(), Messages.NSG_NEED_LOGIN.getMessage(), null);
             return RPC.encodeResponseForSuccess(rpcRequest.getMethod(), result);
         }
         String r = "";
@@ -64,7 +80,7 @@ public abstract class CheckUserServlet<T> extends RemoteServiceServlet {
             r = super.processCall(rpcRequest);
         } catch (Exception e) {
             log.error(e.getMessage());
-            RpcResult result = RpcResult.fail(500, "操作错误:" + e.getMessage());
+            ApiResult result = ApiResult.result(500, "操作错误:" + e.getMessage(),null);
             return RPC.encodeResponseForSuccess(rpcRequest.getMethod(), result);
         }
         return r;
@@ -118,8 +134,8 @@ public abstract class CheckUserServlet<T> extends RemoteServiceServlet {
     public String getToken(HttpServletRequest request) {
 
         String token = request.getHeader(getHeadTokenTag());
-        if (Strings.isNotBlank(token) && token.startsWith(CommonConstant.TOKEN_PREFIX)) {
-            token = token.replace(CommonConstant.TOKEN_PREFIX, "");
+        if (Strings.isNotBlank(token) && token.startsWith(AppConstant.API_TOKEN)) {
+            token = token.replace(AppConstant.API_TOKEN, "");
         }
         return token;
     }

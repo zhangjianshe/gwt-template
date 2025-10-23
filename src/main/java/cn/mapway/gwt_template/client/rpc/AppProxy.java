@@ -1,130 +1,39 @@
 package cn.mapway.gwt_template.client.rpc;
 
-import com.google.gwt.core.client.Callback;
+import cn.mapway.gwt_template.shared.AppConstant;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.http.client.URL;
-import com.google.gwt.typedarrays.shared.ArrayBuffer;
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.rpc.ServiceDefTarget;
-import com.google.gwt.xhr.client.XMLHttpRequest;
-import elemental2.core.Global;
-import elemental2.dom.DomGlobal;
-import elemental2.dom.RequestInit;
-import elemental2.promise.Promise;
-import jsinterop.base.JsPropertyMap;
-
 
 
 public class AppProxy {
     /**
      * The proxy.
      */
-    private static IAppServer PROXY;
+    private static IAppServerAsync PROXY;
     private static AppServerRequestWithToken requestBuilder;
 
-    public static Promise<ArrayBuffer> getBinary(String url) {
-
-        RequestInit init = RequestInit.create();
-        init.setMethod("GET");
-        init.setHeaders(ImageBotRequestWithToken.getHeaders());
-        init.setKeepalive(false);
-        return new Promise<>((resolve, reject) -> {
-            DomGlobal.fetch(url, init).then(response -> {
-                if (response.status == 200) {
-                    response.arrayBuffer().then(buffer -> {
-                        resolve.onInvoke(buffer);
-                        return null;
-                    }, error -> {
-                        reject.onInvoke(error.toString());
-                        return null;
-                    });
-                } else {
-                    reject.onInvoke(String.valueOf(response.status));
-                }
-                return null;
-            }, error ->{
-                reject.onInvoke(error.toString());
-                return null;
-            } );
-        });
-    }
-
-    public static void httpFetch(String method, String url, JsPropertyMap headers, String data, Callback<String, String> callback) {
-        XMLHttpRequest request = new XMLHttpRequest();
-        request.open(method, url);
-        if (headers != null) {
-            headers.forEach(key -> request.setRequestHeader(key, DataCastor.castToString(headers.get(key))));
-        }
-        request.setRequestHeader("Content-Type", "application/json");
-        request.onreadystatechange = new XMLHttpRequest.OnreadystatechangeFn() {
-            @Override
-            public Object onInvoke(Event p0) {
-                if (request.readyState == XMLHttpRequest.DONE) {
-                    if (callback != null) {
-                        if (request.status == 200) {
-                            callback.onSuccess(request.responseText);
-                        } else {
-                            callback.onFailure(request.responseText);
-                        }
-                    }
-                }
-                return true;
-            }
-        };
-        request.onerror = p0 -> {
-            if (callback != null) {
-                callback.onFailure(p0.toString());
-            }
-            return null;
-        };
-        request.send(data);
-    }
-
-    public static void httpGet(String url, String data, Callback<String, String> callback) {
-        XMLHttpRequest request = new XMLHttpRequest();
-        request.open("get", url);
-        ImageBotRequestWithToken.appendHeader(request);
-        request.onreadystatechange = p0 -> {
-            if (request.readyState == XMLHttpRequest.DONE) {
-                if (callback != null) {
-                    if (request.status == 200) {
-                        callback.onSuccess(request.responseText);
-                    } else {
-                        callback.onFailure(request.responseText);
-                    }
-                }
-            }
-            return true;
-        };
-        request.send(data);
-    }
 
     /**
      * Gets the.
      *
      * @return the i ui server async
      */
-    public static IImageBotServerAsync get() {
+    public static IAppServerAsync get() {
         if (PROXY == null) {
-            PROXY = GWT.create(IImageBotServer.class);
-            requestBuilder = new ImageBotRequestWithToken();
+            PROXY = GWT.create(IAppServer.class);
+            requestBuilder = new AppServerRequestWithToken();
             ServiceDefTarget t = (ServiceDefTarget) PROXY;
             String context = GWT.getHostPageBaseURL();
             if (context.endsWith("/")) {
                 context = context.substring(0, context.length() - 1);
             }
-            //context = "https://ib.cangling.io";
-//            context="https://nmgwxyy.cn/cl";
-            //context="http://water.mapway.cn:7200/";
-            //context="http://nanyang.mapway.cn:7600/";
-            // context = "http://192.168.100.163:7100/";
-            String entryPoint = context + "/" + BizConstant.DEFAULT_SERVER_PATH;
+            String entryPoint = context + "/" + AppConstant.DEFAULT_SERVER_PATH;
             t.setServiceEntryPoint(entryPoint);
             t.setRpcRequestBuilder(requestBuilder);
         }
         return PROXY;
     }
-
 
 
     /**
@@ -134,7 +43,7 @@ public class AppProxy {
      * @return
      */
     public static String getAuthorizationToken() {
-        String cookieToken = Cookies.getCookie("Admin-Cis-Token");
+        String cookieToken = Cookies.getCookie(AppConstant.AUTH_COOKIE_NAME);
         if (cookieToken == null || cookieToken.length() == 0) {
             return "";
         } else {
@@ -142,31 +51,4 @@ public class AppProxy {
         }
     }
 
-    /**
-     * 通过接口上传文件
-     * @param name
-     * @param relativePath
-     * @param blob
-     * @param callback
-     */
-    public static void uploadImage(String name, String relativePath, Blob blob, Callback<UploadReturn, String> callback) {
-        String sb = "relPath=" + URL.encodeQueryString(relativePath);
-        String actionUrl =GWT.getHostPageBaseURL() + "/fileUpload?" + sb;
-        XMLHttpRequest request = new XMLHttpRequest();
-        FormData data = new FormData();
-        data.set("file", blob);
-        request.open("POST", actionUrl);
-        request.onloadend = (p0) -> {
-            if(callback!=null){
-                UploadReturn r = (UploadReturn) Global.JSON.parse(request.responseText);
-                r.extra=name;
-                if (r.retCode == 0) {
-                    callback.onSuccess(r);
-                } else {
-                    callback.onFailure(r.msg);
-                }
-            }
-        };
-        request.send(data);
-    }
 }

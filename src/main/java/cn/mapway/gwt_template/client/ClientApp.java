@@ -1,10 +1,33 @@
 package cn.mapway.gwt_template.client;
 
+import cn.mapway.biz.api.ApiResult;
+import cn.mapway.gwt_template.client.rpc.AppProxy;
+import cn.mapway.gwt_template.server.servlet.AppServlet;
+import cn.mapway.gwt_template.shared.rpc.user.LoginRequest;
+import cn.mapway.gwt_template.shared.rpc.user.LoginResponse;
 import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 
 public class ClientApp implements EntryPoint {
     public void onModuleLoad() {
-        RootLayoutPanel.get().add(new Label("Hello World!"));
+        final Label label = new Label("loading login information");
+        RootLayoutPanel.get().add(label);
+        AppProxy.get().login(new LoginRequest(), new AsyncCallback<ApiResult<LoginResponse>>() {
+            @Override
+            public void onFailure(Throwable throwable) {
+                label.setText(throwable.getMessage());
+            }
+
+            @Override
+            public void onSuccess(ApiResult<LoginResponse> loginResponseApiResult) {
+                if(loginResponseApiResult.isSuccess()) {
+                    label.setText(loginResponseApiResult.getData().getUser().getServerTime());
+                }
+                else {
+                    label.setText(loginResponseApiResult.getMessage());
+                }
+            }
+        });
     }
 }
