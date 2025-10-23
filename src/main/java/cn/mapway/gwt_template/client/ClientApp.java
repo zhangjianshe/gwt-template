@@ -1,13 +1,13 @@
 package cn.mapway.gwt_template.client;
 
-import cn.mapway.biz.api.ApiResult;
 import cn.mapway.gwt_template.client.rpc.AppProxy;
-import cn.mapway.gwt_template.server.servlet.AppServlet;
+import cn.mapway.gwt_template.shared.ApiResult;
 import cn.mapway.gwt_template.shared.rpc.user.LoginRequest;
 import cn.mapway.gwt_template.shared.rpc.user.LoginResponse;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.RootLayoutPanel;
 
 public class ClientApp implements EntryPoint {
     public void onModuleLoad() {
@@ -21,10 +21,9 @@ public class ClientApp implements EntryPoint {
 
             @Override
             public void onSuccess(ApiResult<LoginResponse> loginResponseApiResult) {
-                if(loginResponseApiResult.isSuccess()) {
+                if (loginResponseApiResult.isSuccess()) {
                     label.setText(loginResponseApiResult.getData().getUser().getServerTime());
-                }
-                else {
+                } else {
                     label.setText(loginResponseApiResult.getMessage());
                 }
             }

@@ -4,6 +4,7 @@ package cn.mapway.gwt_template.server.api;
 import cn.mapway.biz.core.BizContext;
 import cn.mapway.biz.core.BizResult;
 import cn.mapway.gwt_template.server.service.user.TokenService;
+import cn.mapway.gwt_template.shared.ApiResult;
 import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
 
@@ -25,4 +26,11 @@ public class ApiBaseController {
         context.put(AppConstant.KEY_LOGIN_USER, user);
         return context;
     }
+    /**
+     * @return ApiResult
+     */
+    public <X> ApiResult<X> toApiResult(BizResult<X> result) {
+        return (ApiResult<X>) ApiResult.result(result.getCode(), result.getMessage(), result.getData());
+    }
+
 }

@@ -1,7 +1,7 @@
 package cn.mapway.gwt_template.server.servlet;
 
-import cn.mapway.biz.api.ApiResult;
 import cn.mapway.biz.core.BizResult;
+import cn.mapway.gwt_template.shared.ApiResult;
 import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.Messages;
 import com.google.gwt.user.client.rpc.SerializationException;
