@@ -1,10 +1,12 @@
 package cn.mapway.gwt_template.client;
 
 import cn.mapway.gwt_template.shared.AppConstant;
+import cn.mapway.ui.client.mvc.Size;
 import cn.mapway.ui.client.widget.dialog.Dialog;
 import cn.mapway.ui.client.widget.panel.MessagePanel;
 import com.google.gwt.storage.client.Storage;
 import com.google.gwt.user.client.Cookies;
+import com.google.gwt.user.client.Window;
 
 
 public class ClientContext {
@@ -58,5 +60,9 @@ public class ClientContext {
         dialog.getContent().setHtml(message);
         dialog.setText("提示");
         dialog.center();
+    }
+
+    public static Size getDialogSize() {
+        return new Size(Window.getClientWidth() - 300 / 2, Window.getClientHeight() - 300 / 2);
     }
 }

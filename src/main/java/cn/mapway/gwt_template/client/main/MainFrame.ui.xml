@@ -14,6 +14,5 @@
         <g:north size="70">
             <main:MainMenuBar addStyleNames="{style.menuBar} ai-border-bottom" ui:field="menuBar"/>
         </g:north>
-
     </g:DockLayoutPanel>
 </ui:UiBinder>

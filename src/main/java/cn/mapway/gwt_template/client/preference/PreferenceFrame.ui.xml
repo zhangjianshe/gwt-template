@@ -1,0 +1,36 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:dialog="urn:import:cn.mapway.ui.client.widget.dialog"
+>
+    <ui:style>
+        .head {
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .box {
+            padding: 0 10px;
+        }</ui:style>
+    <g:DockLayoutPanel ui:field="root">
+        <g:south size="68">
+            <dialog:SaveBar ui:field="saveBar"/>
+        </g:south>
+        <g:west size="350">
+            <g:DockLayoutPanel addStyleNames="ai-border-right">
+                <g:north size="80">
+                    <g:Label addStyleNames="{style.head}">系统设置</g:Label>
+                </g:north>
+                <g:center>
+                    <g:ScrollPanel styleName="{style.box}">
+                        <g:HTMLPanel ui:field="list">
+                        </g:HTMLPanel>
+                    </g:ScrollPanel>
+                </g:center>
+            </g:DockLayoutPanel>
+        </g:west>
+
+    </g:DockLayoutPanel>
+</ui:UiBinder>

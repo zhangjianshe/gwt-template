@@ -1,13 +1,18 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
-             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+             xmlns:g='urn:import:com.google.gwt.user.client.ui' xmlns:widget="urn:import:cn.mapway.ui.client.widget">
     <ui:style>
         .box {
             display: flex;
             align-items: center;
-            justify-content: flex-start;
+            justify-content: space-between;
             padding: 10px;
         }</ui:style>
     <g:HTMLPanel styleName="{style.box}">
-        <g:Button ui:field="btnDns">DNS配置</g:Button>
+        <g:HorizontalPanel>
+            <g:Button ui:field="btnDns">DNS配置</g:Button>
+        </g:HorizontalPanel>
+        <g:HorizontalPanel>
+            <widget:FontIcon color="white" ui:field="btnPreference"/>
+        </g:HorizontalPanel>
     </g:HTMLPanel>
 </ui:UiBinder>
