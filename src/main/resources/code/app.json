@@ -1,0 +1,10 @@
+{
+  "targetFile": "/mapway/app.json",
+  "port":8080,
+  "jdbc": {
+    "driver": "org.postgresql.Driver",
+    "url": "jdbc:postgresql://localhost:6114/mapway",
+    "username": "cangling",
+    "password": "cangling-postgis"
+  }
+}

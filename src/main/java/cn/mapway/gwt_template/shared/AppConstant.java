@@ -9,4 +9,5 @@ public class AppConstant {
     public static final String TOKEN_PREFIX = "";
     public static final String AUTH_COOKIE_NAME = "auth-token";
     public static final String KEY_LOGIN_USER = "login_user";
+    public static final String KEY_DB_VERSION = "db_version";
 }
