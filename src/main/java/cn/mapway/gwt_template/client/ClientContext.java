@@ -1,10 +1,15 @@
 package cn.mapway.gwt_template.client;
 
 import cn.mapway.gwt_template.shared.AppConstant;
+import cn.mapway.ui.client.widget.dialog.Dialog;
+import cn.mapway.ui.client.widget.panel.MessagePanel;
 import com.google.gwt.storage.client.Storage;
 import com.google.gwt.user.client.Cookies;
 
+
 public class ClientContext {
+
+    private static Dialog<MessagePanel> messagePanelDialog;
 
     public static String adminCookie() {
         String cookie = cookie(AppConstant.API_TOKEN);
@@ -34,4 +39,24 @@ public class ClientContext {
         return cookieToken;
     }
 
+    private static Dialog<MessagePanel> getMessagePanel(boolean reuse) {
+        if (reuse) {
+            if (messagePanelDialog == null) {
+                MessagePanel messagePanel = new MessagePanel();
+                messagePanelDialog = new Dialog<>(messagePanel, "");
+            }
+            return messagePanelDialog;
+        } else {
+            MessagePanel messagePanel = new MessagePanel();
+            messagePanel.setHtml("");
+            return new Dialog<>(messagePanel, "");
+        }
+    }
+
+    public static void alert(String message) {
+        Dialog<MessagePanel> dialog = getMessagePanel(true);
+        dialog.getContent().setHtml(message);
+        dialog.setText("提示");
+        dialog.center();
+    }
 }

@@ -11,5 +11,17 @@
     <inherits name="cn.mapway.ui.MapwayBase"/>
     <source path="shared"/>
     <source path="client"/>
+
+    <generate-with
+            class="cn.mapway.ui.server.mvc.ModuleFactoryGenerator">
+        <when-type-assignable
+                class="cn.mapway.ui.client.mvc.ModuleFactory"/>
+    </generate-with>
+    
+    <generate-with
+            class="cn.mapway.ui.server.mvc.AttributeEditorGenerator">
+        <when-type-assignable
+                class="cn.mapway.ui.client.mvc.attribute.editor.IAttributeEditorFactory"/>
+    </generate-with>
     <entry-point class='cn.mapway.gwt_template.client.ClientApp'/>
 </module>

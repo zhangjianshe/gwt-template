@@ -1,6 +1,19 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
-             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
-    <g:DockLayoutPanel>
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:main="urn:import:cn.mapway.gwt_template.client.main">
+    <ui:style>
+        .menuBar {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            background-color: #393e6d;
+        }
+    </ui:style>
+    <g:DockLayoutPanel ui:field="root">
+        <g:north size="70">
+            <main:MainMenuBar addStyleNames="{style.menuBar} ai-border-bottom" ui:field="menuBar"/>
+        </g:north>
 
     </g:DockLayoutPanel>
 </ui:UiBinder>
