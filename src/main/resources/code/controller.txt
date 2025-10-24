@@ -9,7 +9,7 @@
      */
     @Doc(value = "__NAME__", retClazz = {__NAME__Response.class})
     @RequestMapping(value = "/__name__", method = RequestMethod.POST)
-    public ApiResult<__NAME__Response> __name__(@RequestBody __NAME__Request request) {
+    public RpcResult<__NAME__Response> __name__(@RequestBody __NAME__Request request) {
         BizResult<__NAME__Response> bizResult = __name__Executor.execute(getBizContext(), BizRequest.wrap("", request));
         return toApiResult(bizResult);
     }

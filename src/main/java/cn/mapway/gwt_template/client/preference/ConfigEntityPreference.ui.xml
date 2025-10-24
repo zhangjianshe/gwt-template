@@ -1,9 +1,31 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
              xmlns:g='urn:import:com.google.gwt.user.client.ui'>
     <ui:style>
-        
-    </ui:style>
-    <g:DockLayoutPanel ui:field="root">
+        .lb {
+            font-weight: bold;
+            font-size: 1rem;
+            width: 150px;
+        }
 
+        .item {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        .pad {
+            padding: 10px;
+        }</ui:style>
+    <g:DockLayoutPanel ui:field="root">
+        <g:center>
+            <g:ScrollPanel addStyleNames="{style.pad}">
+                <g:VerticalPanel ui:field="list" spacing="8">
+                    <g:HTMLPanel addStyleNames="{style.item}">
+                        <g:Label addStyleNames="{style.lb}">Cloudflare Token</g:Label>
+                        <g:TextBox ui:field="txtCloudflare" width="300px" addStyleNames="ai-input"/>
+                    </g:HTMLPanel>
+                </g:VerticalPanel>
+            </g:ScrollPanel>
+        </g:center>
     </g:DockLayoutPanel>
 </ui:UiBinder>

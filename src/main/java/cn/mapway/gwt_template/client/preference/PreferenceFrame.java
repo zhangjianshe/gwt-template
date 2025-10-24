@@ -8,9 +8,12 @@ import cn.mapway.ui.client.mvc.*;
 import cn.mapway.ui.client.widget.dialog.Dialog;
 import cn.mapway.ui.client.widget.dialog.SaveBar;
 import cn.mapway.ui.shared.CommonEvent;
+import cn.mapway.ui.shared.CommonEventHandler;
+import cn.mapway.ui.shared.HasCommonHandlers;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -45,6 +48,15 @@ public class PreferenceFrame extends BaseAbstractModule {
     HTMLPanel list;
     IModule currentModule = null;
     ListItem selectedItem = null;
+    HandlerRegistration registration = null;
+    CommonEventHandler processPreferenceHandler = new CommonEventHandler() {
+        @Override
+        public void onCommonEvent(CommonEvent event) {
+            if (event.isMessage()) {
+                saveBar.msg(event.getValue());
+            }
+        }
+    };
     ClickHandler itemClicked = new ClickHandler() {
         @Override
         public void onClick(ClickEvent clickEvent) {
@@ -145,6 +157,10 @@ public class PreferenceFrame extends BaseAbstractModule {
                 // do nothing
                 return;
             }
+            if (registration != null) {
+                registration.removeHandler();
+                registration = null;
+            }
             root.remove(currentModule.getRootWidget());
             currentModule = null;
         }
@@ -155,8 +171,11 @@ public class PreferenceFrame extends BaseAbstractModule {
         }
         currentModule = module;
         Widget rootWidget = currentModule.getRootWidget();
-        saveBar.enableSave(!(rootWidget instanceof ISaveble));
-
+        saveBar.enableSave(rootWidget instanceof ISaveble);
+        root.add(rootWidget);
+        if (rootWidget instanceof HasCommonHandlers) {
+            registration = ((HasCommonHandlers) rootWidget).addCommonHandler(processPreferenceHandler);
+        }
         currentModule.initialize(null, new ModuleParameter());
 
     }
