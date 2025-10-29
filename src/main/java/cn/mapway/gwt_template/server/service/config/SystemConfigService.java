@@ -3,14 +3,17 @@ package cn.mapway.gwt_template.server.service.config;
 import cn.mapway.biz.core.BizResult;
 import cn.mapway.gwt_template.server.config.startup.ApplicationConfig;
 import cn.mapway.gwt_template.shared.db.SysConfigEntity;
-import cn.mapway.ui.client.util.StringUtil;
 import org.nutz.dao.Dao;
 import org.nutz.json.Json;
 import org.nutz.lang.Files;
+import org.nutz.lang.Strings;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * 系统配置信息服务
@@ -67,7 +70,7 @@ public class SystemConfigService {
      * @return
      */
     public BizResult<SysConfigEntity> findConfig(String key) {
-        if (StringUtil.isBlank(key)) {
+        if (Strings.isBlank(key)) {
             return BizResult.error(404, "没有Key" + key);
         }
         SysConfigEntity fetch = dao.fetch(SysConfigEntity.class, key);
@@ -77,4 +80,40 @@ public class SystemConfigService {
         return BizResult.success(fetch);
     }
 
+    /**
+     * 将KEY转化为列表返回
+     *
+     * @param key
+     * @param clazz
+     * @param <T>
+     * @return
+     */
+    public <T> List<T> getConfigFromKeyAsList(String key, Class<T> clazz) {
+        BizResult<SysConfigEntity> config = findConfig(key);
+        if (config.isSuccess()) {
+            if (Strings.isBlank(config.getData().getValue())) {
+                return new ArrayList<>();
+            }
+            List<T> configs = Json.fromJsonAsList(clazz, config.getData().getValue());
+            return Objects.requireNonNullElseGet(configs, ArrayList::new);
+        }
+        return new ArrayList<>();
+    }
+
+    /**
+     * @param key
+     * @param clazz
+     * @param <T>
+     * @return
+     */
+    public <T> T getConfigFromKeyAsObject(String key, Class<T> clazz) {
+        BizResult<SysConfigEntity> config = findConfig(key);
+        if (config.isSuccess()) {
+            if (Strings.isBlank(config.getData().getValue())) {
+                return null;
+            }
+            return Json.fromJson(clazz, config.getData().getValue());
+        }
+        return null;
+    }
 }

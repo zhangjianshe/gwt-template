@@ -4,8 +4,7 @@ import cn.mapway.gwt_template.shared.rpc.config.QueryConfigListRequest;
 import cn.mapway.gwt_template.shared.rpc.config.QueryConfigListResponse;
 import cn.mapway.gwt_template.shared.rpc.config.UpdateConfigListRequest;
 import cn.mapway.gwt_template.shared.rpc.config.UpdateConfigListResponse;
-import cn.mapway.gwt_template.shared.rpc.dns.QueryDnsRequest;
-import cn.mapway.gwt_template.shared.rpc.dns.QueryDnsResponse;
+import cn.mapway.gwt_template.shared.rpc.dns.*;
 import cn.mapway.gwt_template.shared.rpc.user.LoginRequest;
 import cn.mapway.gwt_template.shared.rpc.user.LoginResponse;
 import cn.mapway.gwt_template.shared.rpc.user.LogoutRequest;
@@ -15,6 +14,8 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public interface IAppServerAsync {
     /// CODE_GEN_INSERT_POINT///
+
+
     void updateConfigList(UpdateConfigListRequest request, AsyncCallback<RpcResult<UpdateConfigListResponse>> async);
 
     void queryConfigList(QueryConfigListRequest request, AsyncCallback<RpcResult<QueryConfigListResponse>> async);
@@ -25,4 +26,9 @@ public interface IAppServerAsync {
 
     void login(LoginRequest request, AsyncCallback<RpcResult<LoginResponse>> async);
 
+    void deleteDns(DeleteDnsRequest request, AsyncCallback<RpcResult<DeleteDnsResponse>> async);
+
+    void updateDns(UpdateDnsRequest request, AsyncCallback<RpcResult<UpdateDnsResponse>> async);
+
+    void updateIp(UpdateIpRequest request, AsyncCallback<RpcResult<UpdateIpResponse>> async);
 }

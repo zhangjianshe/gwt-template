@@ -1,0 +1,32 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:dialog="urn:import:cn.mapway.ui.client.widget.dialog"
+             xmlns:widget="urn:import:cn.mapway.gwt_template.client.widget">
+    <ui:style>
+        .item {
+            display: grid;
+            grid-template-columns: 120px 1fr;
+            margin: 15px;
+            gap: 4px;
+            align-items: center;
+            grid-auto-rows: auto;
+        }
+    </ui:style>
+    <g:DockLayoutPanel>
+        <g:south size="68">
+            <dialog:SaveBar ui:field="saveBar"/>
+        </g:south>
+        <g:center>
+            <g:ScrollPanel>
+                <g:HTMLPanel styleName="{style.item}">
+                    <g:Label>域名</g:Label>
+                    <widget:TextBox ui:field="txtName" width="300px" enabled="false"/>
+                    <g:Label>内容(IP)</g:Label>
+                    <widget:TextBox ui:field="txtIp" width="300px"/>
+                    <g:Label>注释</g:Label>
+                    <widget:TextArea height="120px" ui:field="txtComment" width="300px"/>
+                </g:HTMLPanel>
+            </g:ScrollPanel>
+        </g:center>
+    </g:DockLayoutPanel>
+</ui:UiBinder>

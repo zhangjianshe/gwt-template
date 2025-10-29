@@ -12,4 +12,5 @@ import java.io.Serializable;
  */
 @Data
 public class QueryDnsRequest implements Serializable, IsSerializable {
+    String zonId;
 }

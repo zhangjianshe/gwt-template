@@ -36,6 +36,7 @@
     </scm>
     <properties>
         <java.version>11</java.version>
+        <MAPWAY-GWT-SUITE-VERSION>1.0.0-SNAPSHOT</MAPWAY-GWT-SUITE-VERSION>
     </properties>
     <dependencies>
         <dependency>
@@ -106,7 +107,7 @@
         <dependency>
             <groupId>cn.mapway</groupId>
             <artifactId>mapway-gwt-common</artifactId>
-            <version>1.0.0</version>
+            <version>${MAPWAY-GWT-SUITE-VERSION}</version>
         </dependency>
         <dependency>
             <groupId>com.zaxxer</groupId>

@@ -7,7 +7,6 @@
     <script src="/js/app/app.nocache.js?r=${timestamp}"></script>
     <link rel="stylesheet" href="/css/main.css"/>
     <style>
-
         @font-face {
             font-family: 'Iosevka';
             src: url(./webfonts/iosevka.woff2) format('woff2'),

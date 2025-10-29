@@ -1,6 +1,7 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
              xmlns:g='urn:import:com.google.gwt.user.client.ui'
              xmlns:dialog="urn:import:cn.mapway.ui.client.widget.dialog"
+             xmlns:list="urn:import:cn.mapway.ui.client.widget.list"
 >
     <ui:style>
         .head {
@@ -20,13 +21,9 @@
         </g:south>
         <g:west size="350">
             <g:DockLayoutPanel addStyleNames="ai-border-right">
-                <g:north size="80">
-                    <g:Label addStyleNames="{style.head}">系统设置</g:Label>
-                </g:north>
                 <g:center>
                     <g:ScrollPanel styleName="{style.box}">
-                        <g:HTMLPanel ui:field="list">
-                        </g:HTMLPanel>
+                        <list:List ui:field="list" width="100%"/>
                     </g:ScrollPanel>
                 </g:center>
             </g:DockLayoutPanel>

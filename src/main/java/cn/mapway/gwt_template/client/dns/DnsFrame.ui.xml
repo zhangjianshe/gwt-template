@@ -1,10 +1,26 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
-             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:list="urn:import:cn.mapway.ui.client.widget.list"
+             xmlns:widget="urn:import:cn.mapway.ui.client.widget"
+>
     <g:DockLayoutPanel>
         <g:north size="0">
             <g:HorizontalPanel ui:field="tools" verticalAlignment="middle">
-                <g:Button ui:field="btnQuery">查询所有的域名</g:Button>
+                <widget:SearchBox width="250px" ui:field="searchBox"/>
+                <g:Button ui:field="btnUpdateIp" enabled="false">批量设置</g:Button>
             </g:HorizontalPanel>
         </g:north>
+        <g:west size="300">
+            <g:ScrollPanel addStyleNames="ai-panel-content">
+                <list:List ui:field="zoneList" width="100%"/>
+            </g:ScrollPanel>
+        </g:west>
+        <g:center>
+            <g:ScrollPanel addStyleNames="ai-panel-content">
+                <g:FlexTable ui:field="table" styleName="attr-table">
+
+                </g:FlexTable>
+            </g:ScrollPanel>
+        </g:center>
     </g:DockLayoutPanel>
 </ui:UiBinder>

@@ -6,7 +6,10 @@ import cn.mapway.biz.core.BizResult;
 import cn.mapway.gwt_template.client.rpc.IAppServer;
 import cn.mapway.gwt_template.server.service.config.QueryConfigListExecutor;
 import cn.mapway.gwt_template.server.service.config.UpdateConfigListExecutor;
+import cn.mapway.gwt_template.server.service.dns.DeleteDnsExecutor;
 import cn.mapway.gwt_template.server.service.dns.QueryDnsExecutor;
+import cn.mapway.gwt_template.server.service.dns.UpdateDnsExecutor;
+import cn.mapway.gwt_template.server.service.dns.UpdateIpExecutor;
 import cn.mapway.gwt_template.server.service.user.LoginExecutor;
 import cn.mapway.gwt_template.server.service.user.LogoutExecutor;
 import cn.mapway.gwt_template.shared.AppConstant;
@@ -14,8 +17,7 @@ import cn.mapway.gwt_template.shared.rpc.config.QueryConfigListRequest;
 import cn.mapway.gwt_template.shared.rpc.config.QueryConfigListResponse;
 import cn.mapway.gwt_template.shared.rpc.config.UpdateConfigListRequest;
 import cn.mapway.gwt_template.shared.rpc.config.UpdateConfigListResponse;
-import cn.mapway.gwt_template.shared.rpc.dns.QueryDnsRequest;
-import cn.mapway.gwt_template.shared.rpc.dns.QueryDnsResponse;
+import cn.mapway.gwt_template.shared.rpc.dns.*;
 import cn.mapway.gwt_template.shared.rpc.user.LoginRequest;
 import cn.mapway.gwt_template.shared.rpc.user.LoginResponse;
 import cn.mapway.gwt_template.shared.rpc.user.LogoutRequest;
@@ -45,6 +47,13 @@ public class AppServlet extends CheckUserServlet<String> implements IAppServer {
     LogoutExecutor logoutExecutor;
     @Resource
     LoginExecutor loginExecutor;
+    @Resource
+    UpdateDnsExecutor updateDnsExecutor;
+    @Resource
+    UpdateIpExecutor updateIpExecutor;
+    @Resource
+    DeleteDnsExecutor deleteDnsExecutor;
+
 
     @Override
     public String findUserByToken(String token) {
@@ -65,6 +74,24 @@ public class AppServlet extends CheckUserServlet<String> implements IAppServer {
         BizContext context = new BizContext();
         context.put(AppConstant.KEY_LOGIN_USER, requestUser());
         return context;
+    }
+
+    @Override
+    public  RpcResult<UpdateIpResponse> updateIp(UpdateIpRequest request) {
+        BizResult<UpdateIpResponse> bizResult = updateIpExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<DeleteDnsResponse> deleteDns(DeleteDnsRequest request) {
+        BizResult<DeleteDnsResponse> bizResult = deleteDnsExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<UpdateDnsResponse> updateDns(UpdateDnsRequest request) {
+        BizResult<UpdateDnsResponse> bizResult = updateDnsExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
     }
 
     @Override
@@ -108,5 +135,8 @@ public class AppServlet extends CheckUserServlet<String> implements IAppServer {
         methodList.add("queryConfigList");
         methodList.add("updateConfigList");
         methodList.add("queryDns");
+        methodList.add("updateDns");
+        methodList.add("deleteDns");
+        methodList.add("updateIp");
     }
 }

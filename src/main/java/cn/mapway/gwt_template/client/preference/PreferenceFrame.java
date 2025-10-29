@@ -1,24 +1,21 @@
 package cn.mapway.gwt_template.client.preference;
 
 import cn.mapway.gwt_template.client.ClientContext;
-import cn.mapway.gwt_template.client.main.ListItem;
 import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.ui.client.fonts.Fonts;
 import cn.mapway.ui.client.mvc.*;
+import cn.mapway.ui.client.widget.list.ListItem;
 import cn.mapway.ui.client.widget.dialog.Dialog;
 import cn.mapway.ui.client.widget.dialog.SaveBar;
 import cn.mapway.ui.shared.CommonEvent;
 import cn.mapway.ui.shared.CommonEventHandler;
 import cn.mapway.ui.shared.HasCommonHandlers;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
-import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 import java.util.Collections;
@@ -45,9 +42,8 @@ public class PreferenceFrame extends BaseAbstractModule {
     @UiField
     DockLayoutPanel root;
     @UiField
-    HTMLPanel list;
+    cn.mapway.ui.client.widget.list.List list;
     IModule currentModule = null;
-    ListItem selectedItem = null;
     HandlerRegistration registration = null;
     CommonEventHandler processPreferenceHandler = new CommonEventHandler() {
         @Override
@@ -56,14 +52,6 @@ public class PreferenceFrame extends BaseAbstractModule {
                 saveBar.msg(event.getValue());
             }
         }
-    };
-    ClickHandler itemClicked = new ClickHandler() {
-        @Override
-        public void onClick(ClickEvent clickEvent) {
-            ListItem source = (ListItem) clickEvent.getSource();
-            selectItem(source);
-        }
-
     };
 
     public PreferenceFrame() {
@@ -83,7 +71,7 @@ public class PreferenceFrame extends BaseAbstractModule {
 
     private static Dialog<PreferenceFrame> createOne() {
         PreferenceFrame frame = new PreferenceFrame();
-        return new Dialog<>(frame, "偏好设置");
+        return new Dialog<PreferenceFrame>(frame, "偏好设置");
     }
 
     @Override
@@ -98,17 +86,6 @@ public class PreferenceFrame extends BaseAbstractModule {
         return true;
     }
 
-    private void selectItem(ListItem source) {
-        if (selectedItem != null) {
-            selectedItem.setSelect(false);
-        }
-        selectedItem = source;
-        if (selectedItem != null) {
-            selectedItem.setSelect(true);
-            ModuleInfo moduleInfo = (ModuleInfo) selectedItem.getData();
-            switchTo(moduleInfo);
-        }
-    }
 
     private void loadPreference() {
         List<ModuleInfo> moduleInfos = getModuleFactory().getModules().stream().filter(m -> {
@@ -121,9 +98,7 @@ public class PreferenceFrame extends BaseAbstractModule {
             item.setData(moduleInfo);
             item.setIcon(moduleInfo.unicode);
             item.setText(moduleInfo.name);
-
-            item.addDomHandler(itemClicked, ClickEvent.getType());
-            list.add(item);
+            list.addItem(item);
         }
     }
 
@@ -142,6 +117,15 @@ public class PreferenceFrame extends BaseAbstractModule {
             }
         } else {
             fireEvent(event);
+        }
+    }
+
+    @UiHandler("list")
+    public void listCommon(CommonEvent event) {
+        if (event.isSelect()) {
+            ListItem item = event.getValue();
+            ModuleInfo moduleInfo = (ModuleInfo) item.getData();
+            switchTo(moduleInfo);
         }
     }
 

@@ -6,12 +6,8 @@ import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.db.SysConfigEntity;
 import cn.mapway.gwt_template.shared.rpc.config.QueryConfigListRequest;
 import cn.mapway.gwt_template.shared.rpc.config.QueryConfigListResponse;
-import cn.mapway.gwt_template.shared.rpc.config.UpdateConfigListRequest;
-import cn.mapway.gwt_template.shared.rpc.config.UpdateConfigListResponse;
-import cn.mapway.ui.client.event.MessageObject;
 import cn.mapway.ui.client.fonts.Fonts;
 import cn.mapway.ui.client.mvc.*;
-import cn.mapway.ui.shared.CommonEvent;
 import cn.mapway.ui.shared.rpc.RpcResult;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -19,7 +15,6 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.RequiresResize;
-import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 import java.util.ArrayList;
@@ -43,8 +38,6 @@ public class ConfigEntityPreference extends BaseAbstractModule implements ISaveb
     DockLayoutPanel root;
     @UiField
     VerticalPanel list;
-    @UiField
-    TextBox txtCloudflare;
 
     public ConfigEntityPreference() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -86,14 +79,7 @@ public class ConfigEntityPreference extends BaseAbstractModule implements ISaveb
      * @param configs
      */
     private void renderConfig(List<SysConfigEntity> configs) {
-        //初始化
-        txtCloudflare.setValue("");
 
-        for (SysConfigEntity config : configs) {
-            if (AppConstant.KEY_CLOUDFLARE_TOKEN.equals(config.getKey())) {
-                txtCloudflare.setValue(config.getValue());
-            }
-        }
     }
 
     @Override
@@ -103,10 +89,9 @@ public class ConfigEntityPreference extends BaseAbstractModule implements ISaveb
 
     @Override
     public boolean save() {
-        List<SysConfigEntity> configs = new ArrayList<>();
+        /*List<SysConfigEntity> configs = new ArrayList<>();
         SysConfigEntity cloudflare = new SysConfigEntity();
         cloudflare.setKey(AppConstant.KEY_CLOUDFLARE_TOKEN);
-        cloudflare.setValue(txtCloudflare.getValue());
         configs.add(cloudflare);
         UpdateConfigListRequest request = new UpdateConfigListRequest();
         request.setConfigList(configs);
@@ -124,7 +109,7 @@ public class ConfigEntityPreference extends BaseAbstractModule implements ISaveb
                     fireEvent(CommonEvent.messageEvent(MessageObject.info(0, result.getMessage())));
                 }
             }
-        });
+        });*/
         return true;
     }
 

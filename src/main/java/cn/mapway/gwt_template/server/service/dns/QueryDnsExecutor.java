@@ -34,7 +34,7 @@ public class QueryDnsExecutor extends AbstractBizExecutor<QueryDnsResponse, Quer
         log.info("QueryDnsExecutor {}", Json.toJson(request, JsonFormat.compact()));
         LoginUser user = (LoginUser) context.get(AppConstant.KEY_LOGIN_USER);
         QueryDnsResponse response = new QueryDnsResponse();
-        BizResult<List<DnsEntry>> listBizResult = cloudflareService.queryDnsList();
+        BizResult<List<DnsEntry>> listBizResult = cloudflareService.queryDnsList(request.getZonId());
         if (listBizResult.isFailed()) {
             return listBizResult.asBizResult();
         }
