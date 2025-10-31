@@ -1,0 +1,64 @@
+---
+services:
+  dev-db:
+    image: "hub.cangling.cn/cangling/postgis:17"
+    networks:
+      - cangling-network
+    volumes:
+      - postgis-volume:/var/lib/postgresql/data
+    #ports:
+    #  - "${POSTGIS_PORT:-5432}:5432"
+    expose:
+      - "5432"
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - ALLOW_IP_RANGE=0.0.0.0/0
+      - POSTGRES_MULTIPLE_EXTENSIONS=postgis,hstore,postgis_topology,postgis_raster,pgrouting
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB} || exit 1" ]
+      interval: 5s         # Check every 5 seconds
+      timeout: 5s          # Give the check 5 seconds to complete
+      retries: 5           # Try 5 times before marking as 'unhealthy'
+      start_period: 10s    # Give the service 10s grace period before counting failures
+  dev-app:
+    image: "hub.cangling.cn/cangling/gwt-template:1.0"
+    networks:
+      - cangling-network
+    expose:
+      - 8080
+    env_file:
+      - .env
+    depends_on:
+      dev-db:
+        condition: service_healthy
+    volumes:
+      - ./data/app/app.json:/mapway/app.json
+    restart: unless-stopped
+
+  dev-nginx:
+    image: hub.cangling.cn/mapway/nginx-rtmp:4.1
+    ports:
+      - "80:80"
+    volumes:
+      - ./data/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./data/logs/nginx:/logs
+    networks:
+      - cangling-network
+    restart: unless-stopped
+
+
+networks:
+  cangling-network:
+    external: true
+volumes:
+  postgis-volume:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: './data/postgis'

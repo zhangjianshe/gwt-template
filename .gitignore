@@ -32,3 +32,5 @@ build/
 ### VS Code ###
 .vscode/
 /src/main/resources/static/js/app/
+/deploy/docker/data/postgis
+/deploy/docker/data/logs

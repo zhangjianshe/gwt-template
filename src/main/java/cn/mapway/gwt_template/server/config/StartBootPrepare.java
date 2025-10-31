@@ -71,6 +71,7 @@ public class StartBootPrepare implements ApplicationContextAware {
             log.info("[SYS] 系统初始化检查 数据库连接正常");
         } catch (SQLException e) {
             String message = e.getMessage();
+            log.info(message);
             if (message.contains("database") && message.contains("does not exist")) {
                 //这是一个数据库不存在的错误 我们可以创建数据库
                 // FATAL: database "mapway" does not exist
@@ -84,7 +85,7 @@ public class StartBootPrepare implements ApplicationContextAware {
                     //不会走到这里
                     System.exit(-1);
                 }
-                adminSource.setJdbcUrl(config.getJdbc().getUrl().replace(databaseName, "postgres"));
+                adminSource.setJdbcUrl(config.getJdbc().getUrl().replace("/"+databaseName, "/postgres"));
                 adminSource.setUsername(config.getJdbc().getUsername());
                 adminSource.setPassword(config.getJdbc().getPassword());
                 try (Connection connectionAdmin = adminSource.getConnection()) {
