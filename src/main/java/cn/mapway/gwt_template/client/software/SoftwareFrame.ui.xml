@@ -1,0 +1,20 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:software="urn:import:cn.mapway.gwt_template.client.software">
+
+    <g:DockLayoutPanel>
+        <g:west size="350">
+            <g:ScrollPanel addStyleNames="ai-border-right">
+                <software:SoftwareTree ui:field="tree" width="100%"/>
+            </g:ScrollPanel>
+        </g:west>
+        <g:north size="0">
+            <g:HorizontalPanel ui:field="tools">
+                <g:Button ui:field="btnCreate">创建软件</g:Button>
+            </g:HorizontalPanel>
+        </g:north>
+        <g:center>
+            <software:SoftwareList ui:field="softwarePanel"/>
+        </g:center>
+    </g:DockLayoutPanel>
+</ui:UiBinder>

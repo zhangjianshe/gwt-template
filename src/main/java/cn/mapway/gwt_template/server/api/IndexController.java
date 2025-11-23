@@ -14,4 +14,5 @@ public class IndexController {
         model.addAttribute("timestamp", R.UU16());
         return "index";
     }
+
 }

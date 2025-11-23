@@ -2,6 +2,7 @@ package cn.mapway.gwt_template.client.main;
 
 import cn.mapway.gwt_template.client.dns.DnsFrame;
 import cn.mapway.gwt_template.client.preference.PreferenceFrame;
+import cn.mapway.gwt_template.client.software.SoftwareFrame;
 import cn.mapway.ui.client.fonts.Fonts;
 import cn.mapway.ui.client.mvc.ModuleParameter;
 import cn.mapway.ui.client.mvc.SwitchModuleData;
@@ -26,6 +27,8 @@ public class MainMenuBar extends CommonEventComposite {
     Button btnDns;
     @UiField
     FontIcon btnPreference;
+    @UiField
+    Button btnSoftware;
 
     public MainMenuBar() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -48,6 +51,12 @@ public class MainMenuBar extends CommonEventComposite {
         });
         dialog.getContent().initialize(null, new ModuleParameter());
         dialog.center();
+    }
+
+    @UiHandler("btnSoftware")
+    public void btnSoftwareClick(ClickEvent event) {
+        SwitchModuleData switchModuleData = new SwitchModuleData(SoftwareFrame.MODULE_CODE, "");
+        fireEvent(CommonEvent.switchEvent(switchModuleData));
     }
 
     interface MainMenuBarUiBinder extends UiBinder<HTMLPanel, MainMenuBar> {

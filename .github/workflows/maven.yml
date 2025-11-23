@@ -32,10 +32,6 @@ jobs:
           gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
           gpg-passphrase: ${{ secrets.GPG_PASSPHRASE }}
           cache: 'maven'
-      - name: Publish to Maven Central
-        run: mvn  --batch-mode clean  deploy -P release -ntp  -Dmaven.test.skip=true
-        env:
-          MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-          MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
-          MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
+      - name: build and package
+        run: ./build.sh
 

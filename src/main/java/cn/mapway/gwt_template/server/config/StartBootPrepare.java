@@ -4,6 +4,8 @@ import cn.mapway.gwt_template.server.config.startup.ApplicationConfig;
 import cn.mapway.gwt_template.server.service.config.SystemConfigService;
 import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.db.SysConfigEntity;
+import cn.mapway.gwt_template.shared.db.SysSoftwareEntity;
+import cn.mapway.gwt_template.shared.db.SysSoftwareFileEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.nutz.dao.Dao;
 import org.nutz.dao.Sqls;
@@ -30,10 +32,11 @@ import java.util.regex.Pattern;
 @Service
 @Slf4j
 public class StartBootPrepare implements ApplicationContextAware {
-    public final static String DB_VERSION = "2025-10-24";
+    public final static String DB_VERSION = "2025-11-23";
     @Resource
     Dao dao;
     ApplicationContext context;
+
 
     /**
      * 启动控制流程
@@ -85,7 +88,7 @@ public class StartBootPrepare implements ApplicationContextAware {
                     //不会走到这里
                     System.exit(-1);
                 }
-                adminSource.setJdbcUrl(config.getJdbc().getUrl().replace("/"+databaseName, "/postgres"));
+                adminSource.setJdbcUrl(config.getJdbc().getUrl().replace("/" + databaseName, "/postgres"));
                 adminSource.setUsername(config.getJdbc().getUsername());
                 adminSource.setPassword(config.getJdbc().getPassword());
                 try (Connection connectionAdmin = adminSource.getConnection()) {
@@ -171,6 +174,8 @@ public class StartBootPrepare implements ApplicationContextAware {
 
     private void createAllTables() {
         checkAndCreate(SysConfigEntity.class);
+        checkAndCreate(SysSoftwareEntity.class);
+        checkAndCreate(SysSoftwareFileEntity.class);
 
         log.info("[DB] 完成数据库表的初始化");
         SysConfigEntity dbVersion = new SysConfigEntity();

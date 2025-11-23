@@ -1,19 +1,38 @@
 package cn.mapway.gwt_template.client;
 
+import cn.mapway.gwt_template.client.resource.AppResource;
 import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.ui.client.mvc.Size;
+import cn.mapway.ui.client.widget.dialog.AiConfirm;
 import cn.mapway.ui.client.widget.dialog.Dialog;
 import cn.mapway.ui.client.widget.panel.MessagePanel;
 import cn.mapway.ui.shared.rpc.RpcResult;
+import com.google.gwt.core.client.Callback;
 import com.google.gwt.storage.client.Storage;
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Window;
+import elemental2.promise.Promise;
 
 
 public class ClientContext {
 
     private static Dialog<MessagePanel> messagePanelDialog;
+    public static Promise<Void> confirmDelete(String message) {
+        return new Promise((resolve, reject) -> {
+            Callback<Void, Void> handler = new Callback<Void, Void>() {
+                @Override
+                public void onFailure(Void reason) {
+                    reject.onInvoke("");
+                }
 
+                @Override
+                public void onSuccess(Void result) {
+                    resolve.onInvoke((Promise.PromiseExecutorCallbackFn.ResolveCallbackFn.ResolveUnionType) null);
+                }
+            };
+            AiConfirm.confirm("删除资源", AppResource.INSTANCE.delete(), message, handler);
+        });
+    }
     public static String adminCookie() {
         String cookie = cookie(AppConstant.API_TOKEN);
         if (cookie.isEmpty()) {

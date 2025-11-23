@@ -26,6 +26,7 @@
     <g:HTMLPanel styleName="{style.box}">
         <g:HorizontalPanel>
             <g:Button ui:field="btnDns">DNS配置</g:Button>
+            <g:Button ui:field="btnSoftware">软件仓库</g:Button>
         </g:HorizontalPanel>
         <g:HorizontalPanel>
             <widget:FontIcon color="white" addStyleNames="{style.btn}" ui:field="btnPreference"/>

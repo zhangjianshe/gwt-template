@@ -10,6 +10,10 @@ import cn.mapway.gwt_template.server.service.dns.DeleteDnsExecutor;
 import cn.mapway.gwt_template.server.service.dns.QueryDnsExecutor;
 import cn.mapway.gwt_template.server.service.dns.UpdateDnsExecutor;
 import cn.mapway.gwt_template.server.service.dns.UpdateIpExecutor;
+import cn.mapway.gwt_template.server.service.soft.CreateSoftwareExecutor;
+import cn.mapway.gwt_template.server.service.soft.DeleteSoftwareExecutor;
+import cn.mapway.gwt_template.server.service.soft.QuerySoftwareExecutor;
+import cn.mapway.gwt_template.server.service.soft.QuerySoftwareFilesExecutor;
 import cn.mapway.gwt_template.server.service.user.LoginExecutor;
 import cn.mapway.gwt_template.server.service.user.LogoutExecutor;
 import cn.mapway.gwt_template.shared.AppConstant;
@@ -18,6 +22,7 @@ import cn.mapway.gwt_template.shared.rpc.config.QueryConfigListResponse;
 import cn.mapway.gwt_template.shared.rpc.config.UpdateConfigListRequest;
 import cn.mapway.gwt_template.shared.rpc.config.UpdateConfigListResponse;
 import cn.mapway.gwt_template.shared.rpc.dns.*;
+import cn.mapway.gwt_template.shared.rpc.soft.*;
 import cn.mapway.gwt_template.shared.rpc.user.LoginRequest;
 import cn.mapway.gwt_template.shared.rpc.user.LoginResponse;
 import cn.mapway.gwt_template.shared.rpc.user.LogoutRequest;
@@ -29,6 +34,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import javax.servlet.annotation.WebServlet;
+import java.lang.reflect.Method;
 import java.util.List;
 
 @Component
@@ -53,7 +59,14 @@ public class AppServlet extends CheckUserServlet<String> implements IAppServer {
     UpdateIpExecutor updateIpExecutor;
     @Resource
     DeleteDnsExecutor deleteDnsExecutor;
-
+    @Resource
+    CreateSoftwareExecutor createSoftwareExecutor;
+    @Resource
+    DeleteSoftwareExecutor deleteSoftwareExecutor;
+    @Resource
+    QuerySoftwareExecutor querySoftwareExecutor;
+    @Resource
+    QuerySoftwareFilesExecutor querySoftwareFilesExecutor;
 
     @Override
     public String findUserByToken(String token) {
@@ -77,7 +90,31 @@ public class AppServlet extends CheckUserServlet<String> implements IAppServer {
     }
 
     @Override
-    public  RpcResult<UpdateIpResponse> updateIp(UpdateIpRequest request) {
+    public RpcResult<CreateSoftwareResponse> createSoftware(CreateSoftwareRequest request) {
+        BizResult<CreateSoftwareResponse> bizResult = createSoftwareExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<DeleteSoftwareResponse> deleteSoftware(DeleteSoftwareRequest request) {
+        BizResult<DeleteSoftwareResponse> bizResult = deleteSoftwareExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<QuerySoftwareResponse> querySoftware(QuerySoftwareRequest request) {
+        BizResult<QuerySoftwareResponse> bizResult = querySoftwareExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<QuerySoftwareFilesResponse> querySoftwareFiles(QuerySoftwareFilesRequest request) {
+        BizResult<QuerySoftwareFilesResponse> bizResult = querySoftwareFilesExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<UpdateIpResponse> updateIp(UpdateIpRequest request) {
         BizResult<UpdateIpResponse> bizResult = updateIpExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toRpcResult(bizResult);
     }
@@ -130,13 +167,18 @@ public class AppServlet extends CheckUserServlet<String> implements IAppServer {
 
     @Override
     public void extendCheckToken(List<String> methodList) {
-        methodList.add("login");
+
+        Method[] methods = this.getClass().getMethods();
+        for (Method method : methods) {
+            methodList.add(method.getName());
+        }
+        /*methodList.add("login");
         methodList.add("logout");
         methodList.add("queryConfigList");
         methodList.add("updateConfigList");
         methodList.add("queryDns");
         methodList.add("updateDns");
         methodList.add("deleteDns");
-        methodList.add("updateIp");
+        methodList.add("updateIp");*/
     }
 }
