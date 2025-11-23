@@ -14,8 +14,6 @@ import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
 import lombok.extern.slf4j.Slf4j;
 import org.nutz.dao.Cnd;
 import org.nutz.dao.Dao;
-import org.nutz.json.Json;
-import org.nutz.json.JsonFormat;
 import org.nutz.lang.Files;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
@@ -42,7 +40,6 @@ public class UploadSoftwareFileExecutor extends AbstractBizExecutor<UploadSoftwa
     @Override
     protected BizResult<UploadSoftwareFileResponse> process(BizContext context, BizRequest<UploadSoftwareFileRequest> bizParam) {
         UploadSoftwareFileRequest request = bizParam.getData();
-        log.info("UploadSoftwareFileExecutor {}", Json.toJson(request, JsonFormat.compact()));
         LoginUser user = (LoginUser) context.get(AppConstant.KEY_LOGIN_USER);
         assertTrue(Strings.isNotBlank(request.getToken()), "没有授权操作");
         SysSoftwareEntity software = dao.fetch(SysSoftwareEntity.class, Cnd.where(SysSoftwareEntity.FLD_TOKEN, "=", request.getToken()));
