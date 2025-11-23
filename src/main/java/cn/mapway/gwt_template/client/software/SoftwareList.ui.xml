@@ -27,9 +27,10 @@
 
         .grid {
             display: grid;
-            grid-template-columns: 160px 160px 160px 130px 160px 1fr;
+            grid-template-columns: 160px 160px 130px 160px 160px 1fr;
             gap: 1rem;
-            margin-left: 15px;
+            align-items: center;
+            grid-auto-columns: 38px;
         }
 
         .label {
