@@ -43,7 +43,7 @@ public class UploadSoftwareFileExecutor extends AbstractBizExecutor<UploadSoftwa
         LoginUser user = (LoginUser) context.get(AppConstant.KEY_LOGIN_USER);
         assertTrue(Strings.isNotBlank(request.getToken()), "没有授权操作");
         SysSoftwareEntity software = dao.fetch(SysSoftwareEntity.class, Cnd.where(SysSoftwareEntity.FLD_TOKEN, "=", request.getToken()));
-        assertNotNull(software, "没有软件信息" + request.getToken());
+        assertTrue(software!=null, "没有软件信息" + request.getToken());
         assertTrue(Strings.isNotBlank(request.getOs()), "没有OS");
         assertTrue(Strings.isNotBlank(request.getArch()), "没有Arch");
         assertTrue(Strings.isNotBlank(request.getVersion()), "没有Version");
@@ -52,12 +52,15 @@ public class UploadSoftwareFileExecutor extends AbstractBizExecutor<UploadSoftwa
         String targetPath = appConfig.getUploadPath() + "/software/";
         Files.createDirIfNoExists(targetPath);
 
+        String versionPath = appConfig.getUploadPath() + "/software/"+software.getId()+"/"+request.getVersion();
+        Files.createDirIfNoExists(versionPath);
+
         if (request.getFile() == null) {
             return BizResult.error(500, "没有文件 file 字段");
         }
 
         String name = request.getFile().getOriginalFilename();
-        String targetFileName = targetPath + "/" + name;
+        String targetFileName = versionPath + "/" + name;
 
         try {
             Files.write(targetFileName, request.getFile().getInputStream());

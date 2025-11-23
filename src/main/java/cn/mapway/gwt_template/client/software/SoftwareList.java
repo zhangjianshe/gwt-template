@@ -33,7 +33,7 @@ public class SoftwareList extends CommonEventComposite implements IData<SysSoftw
     @UiField
     Label lbSummary;
     @UiField
-    HTMLPanel list;
+    FlexTable list;
     @UiField
     SStyle style;
     private SysSoftwareEntity software;
@@ -82,25 +82,37 @@ public class SoftwareList extends CommonEventComposite implements IData<SysSoftw
             }
             list.add(item);
         }
-        list.clear();
+        list.removeAllRows();
+        int row = -1;
+        int col = 0;
+        HTMLTable.RowFormatter rowFormatter = list.getRowFormatter();
+        HTMLTable.ColumnFormatter columnFormatter = list.getColumnFormatter();
+        columnFormatter.setWidth(col++,"160px");
+        columnFormatter.setWidth(col++,"160px");
+        columnFormatter.setWidth(col++,"130px");
+        columnFormatter.setWidth(col++,"160px");
+        columnFormatter.setWidth(col++,"160px");
         for (String version : versions.keySet()) {
+            row++;
+            col = 0;
             Label label = new Label(version);
             label.addStyleName(style.label());
-            list.add(label);
-            HTMLPanel panel = new HTMLPanel("");
-            panel.addStyleName(style.grid());
+            list.setWidget(row, col++, label);
+
             for (SysSoftwareFileEntity item : versions.get(version)) {
-                panel.add(new Header(item.getName()));
-                panel.add(new Label(item.getOs() + "/" + item.getArch()));
-                panel.add(new Label(StringUtil.formatFileSize(item.getSize())));
-                panel.add(new Label(StringUtil.formatDate(item.getCreateTime())));
+                row++;
+                col = 0;
+                list.setWidget(row, col++, new Header(item.getName()));
+                list.setWidget(row, col++, new Label(item.getOs() + "/" + item.getArch()));
+                list.setWidget(row, col++, new Label(StringUtil.formatFileSize(item.getSize())));
+                list.setWidget(row, col++, new Label(StringUtil.formatDate(item.getCreateTime())));
                 Anchor anchor = new Anchor("下载");
                 anchor.setHref("/upload/" + item.getLocation());
                 anchor.setTarget("_blank");
-                panel.add(anchor);
-                panel.add(new Label(item.getSummary()));
+                list.setWidget(row, col++, anchor);
+                list.setWidget(row, col++, new Label(item.getSummary()));
+                rowFormatter.setStyleName(row, style.row());
             }
-            list.add(panel);
         }
     }
 
@@ -116,9 +128,11 @@ public class SoftwareList extends CommonEventComposite implements IData<SysSoftw
 
         String key();
 
-        String grid();
+        String row();
 
         String label();
+
+        String lh();
     }
 
     interface SoftwareListUiBinder extends UiBinder<ScrollPanel, SoftwareList> {

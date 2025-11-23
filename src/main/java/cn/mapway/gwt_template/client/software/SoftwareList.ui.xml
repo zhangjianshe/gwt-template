@@ -25,12 +25,16 @@
 
         }
 
-        .grid {
-            display: grid;
-            grid-template-columns: 160px 160px 130px 160px 160px 1fr;
-            gap: 1rem;
-            align-items: center;
-            grid-auto-columns: 38px;
+        .lh {
+            line-height: 36px;
+        }
+
+        .row {
+            height: 36px;
+        }
+
+        .row:hover {
+            background-color: #f0f0f0;
         }
 
         .label {
@@ -41,7 +45,7 @@
             background-color: #f0f0f0;
             padding: 4px 12px;
             display: inline-block;
-            margin-top: 16px;
+            margin: 8px 0;
         }
     </ui:style>
     <g:ScrollPanel>
@@ -54,9 +58,9 @@
                     <g:Label ui:field="lbKey" styleName="{style.key}"/>
                 </g:VerticalPanel>
             </g:HorizontalPanel>
-            <g:HTMLPanel ui:field="list" addStyleNames="{style.list}">
+            <g:FlexTable cellSpacing="0" cellPadding="6" ui:field="list" addStyleNames="{style.list}">
 
-            </g:HTMLPanel>
+            </g:FlexTable>
         </g:HTMLPanel>
     </g:ScrollPanel>
 </ui:UiBinder>
