@@ -1,13 +1,11 @@
 #!/bin/bash
-
-# Configuration
-POM_FILE="pom.xml"
-DRY_RUN=false
-
-# --- Utility Functions ---
-
-# Function to parse and bump the version number (patch version)
-# E.g., 1.2.3-SNAPSHOT becomes 1.2.4
+# 每一个新的版本 都会产生一个新的分支 在新的分支上打上标签 然后推送到中央仓库
+# master
+#    |---> v1.0.12
+#    |        |-> TAG v1.0.12
+#  version.txt is current released version
+set -e
+VERSION_FILE=version.txt
 bump_version() {
     local current_version=$1
     # Strip any trailing -SNAPSHOT or other qualifiers
@@ -30,16 +28,14 @@ bump_version() {
 
 # Function to execute a command or echo it if in dry-run mode
 execute() {
-    if $DRY_RUN; then
-        echo "DRY-RUN: $*"
-    else
-        echo "Executing: $*"
-        "$@"
-        if [ $? -ne 0 ]; then
-            echo "Error executing command: '$*'" >&2
-            exit 1
-        fi
+
+    echo "Executing: $*"
+    "$@"
+    if [ $? -ne 0 ]; then
+        echo "Error executing command: '$*'" >&2
+        exit 1
     fi
+
 }
 
 # --- Main Script Logic ---
@@ -56,11 +52,6 @@ if ! command -v git &> /dev/null || ! command -v sed &> /dev/null; then
     exit 1
 fi
 
-# 2. Check for the POM file
-if [ ! -f "$POM_FILE" ]; then
-    echo "Error: Maven POM file not found at $POM_FILE." >&2
-    exit 1
-fi
 
 # 3. Check for uncommitted changes (prevents tagging a dirty tree)
 if [ -n "$(git status --porcelain)" ]; then
@@ -69,12 +60,11 @@ if [ -n "$(git status --porcelain)" ]; then
 fi
 
 # 4. Extract current version from pom.xml
-echo "Reading current version from $POM_FILE..."
+echo "Reading current version from $VERSION_FILE..."
 # Use grep and sed to safely extract the version from the main <version> tag
-CURRENT_VERSION=$(grep -m 1 -A 3 '<groupId' "$POM_FILE" | grep -A 3 '<artifactId' | grep -A 1 '<version' | grep '<version' | sed -e 's/.*<version>//' -e 's/<\/version>.*//' | head -n 1 | sed 's/ //g')
-
+CURRENT_VERSION=$(cat "$VERSION_FILE")
 if [ -z "$CURRENT_VERSION" ]; then
-    echo "Error: Could not extract version from $POM_FILE. Ensure the main <version> tag is present." >&2
+    echo "Error: Could not extract version from $VERSION_FILE. Ensure version.txt tag is present." >&2
     exit 1
 fi
 
@@ -88,32 +78,21 @@ if [ $? -ne 0 ]; then
 fi
 
 echo "New Version: $NEW_VERSION"
+
+#  commit new version info to version.txt
+echo "$NEW_VERSION" > version.txt
+git add version.txt
+git commit -m "change to new version"
+
+
+
 TAG="v${NEW_VERSION}"
+NEW_BRANCH=${TAG}
 echo "New Tag: $TAG"
 
-# 6. Update the version in pom.xml
-echo "Updating $POM_FILE to version $NEW_VERSION..."
-# Use sed to replace the old version with the new one globally in the file.
-# The regex targets the first <version>...</version> block that does NOT contain -SNAPSHOT
-# Note: Using '-i.bak' for cross-platform compatibility with sed
-if $DRY_RUN; then
-    echo "DRY-RUN: sed -i.bak 's|<version>[^<]*</version>|<version>'"${NEW_VERSION}"'</version>|' $POM_FILE"
-else
-    # Find the main <version> tag and replace its content
-    sed -i.bak "0,/<version>.*<\/version>/s/<version>.*<\/version>/<version>${NEW_VERSION}<\/version>/" "$POM_FILE"
+git push origin
+#git checkout -b $NEW_BRANCH
 
-    if [ $? -ne 0 ]; then
-        echo "Error: Failed to modify $POM_FILE." >&2
-        exit 1
-    fi
-    # Remove the backup file created by sed
-    rm "${POM_FILE}.bak"
-fi
-
-# 7. Commit the version change
-COMMIT_MSG="Release: bump version to ${NEW_VERSION}"
-execute git add "$POM_FILE"
-execute git commit -m "$COMMIT_MSG"
 
 # 8. Tag the commit
 echo "Creating tag ${TAG}..."
@@ -121,13 +100,12 @@ execute git tag -a "$TAG" -m "Version ${NEW_VERSION}"
 
 # 9. Push the tag to origin
 echo "Pushing tag ${TAG} to origin..."
+#execute git push origin $NEW_BRANCH
 execute git push origin "$TAG"
+#execute git checkout master
 
 echo ""
-if $DRY_RUN; then
-    echo "--- DRY-RUN complete. Review the above commands. ---"
-    echo "To execute for real, run: ./version_bumper.sh"
-else
-    echo "✅ Success! Version updated to ${NEW_VERSION}, committed, and tag ${TAG} pushed."
-    echo "You may now continue with your deployment or push the main branch changes."
-fi
+
+echo "✅ Success! Version updated to ${NEW_VERSION}, committed, and tag ${TAG} pushed."
+echo "You may now continue with your deployment or push the main branch changes."
+
