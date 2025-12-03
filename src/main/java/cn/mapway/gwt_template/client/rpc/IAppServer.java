@@ -8,10 +8,6 @@ import cn.mapway.gwt_template.shared.rpc.config.UpdateConfigListResponse;
 import cn.mapway.gwt_template.shared.rpc.dev.*;
 import cn.mapway.gwt_template.shared.rpc.dns.*;
 import cn.mapway.gwt_template.shared.rpc.soft.*;
-import cn.mapway.gwt_template.shared.rpc.user.LoginRequest;
-import cn.mapway.gwt_template.shared.rpc.user.LoginResponse;
-import cn.mapway.gwt_template.shared.rpc.user.LogoutRequest;
-import cn.mapway.gwt_template.shared.rpc.user.LogoutResponse;
 import cn.mapway.ui.shared.rpc.RpcResult;
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
@@ -65,9 +61,5 @@ public interface IAppServer extends RemoteService {
 	RpcResult<QueryConfigListResponse> queryConfigList(QueryConfigListRequest request);
 
 	RpcResult<QueryDnsResponse> queryDns(QueryDnsRequest request);
-
-	RpcResult<LogoutResponse> logout(LogoutRequest request);
-
-	RpcResult<LoginResponse> login(LoginRequest request);
 
 }

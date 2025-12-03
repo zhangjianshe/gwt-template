@@ -1,6 +1,6 @@
 package cn.mapway.gwt_template;
 
-import cn.mapway.gwt_template.server.config.StartBootPrepare;
+import cn.mapway.gwt_template.server.config.startup.StartBootPrepare;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
@@ -8,7 +8,7 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerA
 import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication(exclude = {DataSourceAutoConfiguration.class, DataSourceTransactionManagerAutoConfiguration.class})
-@ComponentScan(value = {"cn.mapway.gwt_template"})
+@ComponentScan(value = {"cn.mapway.gwt_template","cn.mapway.rbac.server"})
 public class GwtTemplateApplication {
 
     public static void main(String[] args) {

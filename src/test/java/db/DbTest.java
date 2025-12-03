@@ -1,6 +1,6 @@
 package db;
 
-import cn.mapway.gwt_template.server.config.StartBootPrepare;
+import cn.mapway.gwt_template.server.config.startup.StartBootPrepare;
 
 public class DbTest {
     public static void main(String[] args) {

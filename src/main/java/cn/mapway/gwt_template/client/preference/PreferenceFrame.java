@@ -133,7 +133,7 @@ public class PreferenceFrame extends BaseAbstractModule {
         String moduleCode = switchModuleData.code;
         ModuleInfo moduleInfo = BaseAbstractModule.getModuleFactory().findModuleInfo(moduleCode);
         if (moduleInfo == null) {
-            ClientContext.alert("没有模块信息" + moduleCode);
+            ClientContext.get().alert("没有模块信息" + moduleCode);
             return;
         }
         if (currentModule != null) {
@@ -150,7 +150,7 @@ public class PreferenceFrame extends BaseAbstractModule {
         }
         IModule module = BaseAbstractModule.getModuleFactory().createModule(moduleInfo.code, true);
         if (module == null) {
-            ClientContext.alert("创建模块错误:" + moduleCode);
+            ClientContext.get().alert("创建模块错误:" + moduleCode);
             return;
         }
         currentModule = module;

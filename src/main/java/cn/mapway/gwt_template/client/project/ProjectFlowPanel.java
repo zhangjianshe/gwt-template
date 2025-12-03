@@ -18,8 +18,6 @@ public class ProjectFlowPanel extends CommonEventComposite implements IData<DevP
     @UiField
     Button btnRestart;
     @UiField
-    Button btnCompile;
-    @UiField
     Label lbSource;
     @UiField
     BuildPanel buildPanel;

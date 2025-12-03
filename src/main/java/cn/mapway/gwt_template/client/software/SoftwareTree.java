@@ -17,13 +17,22 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import elemental2.promise.IThenable;
 
 public class SoftwareTree extends Tree {
-    private ClickHandler confirmDelete=new ClickHandler() {
+    private void doDelete(SysSoftwareEntity software) {
+        DeleteSoftwareRequest request = new DeleteSoftwareRequest();
+        request.setSoftwareId(software.getId());
+        AppProxy.get().deleteSoftware(request, new AsyncAdaptor<RpcResult<DeleteSoftwareResponse>>() {
+            @Override
+            public void onData(RpcResult<DeleteSoftwareResponse> result) {
+                load();
+            }
+        });
+    }    private final ClickHandler confirmDelete = new ClickHandler() {
         @Override
         public void onClick(ClickEvent event) {
-            DeleteButton deleteButton=(DeleteButton) event.getSource();
-            SysSoftwareEntity software= (SysSoftwareEntity) deleteButton.getData();
-            String msg="删除软件"+software.getName()+"?";
-            ClientContext.confirmDelete(msg).then(new IThenable.ThenOnFulfilledCallbackFn<Void, Object>() {
+            DeleteButton deleteButton = (DeleteButton) event.getSource();
+            SysSoftwareEntity software = (SysSoftwareEntity) deleteButton.getData();
+            String msg = "删除软件" + software.getName() + "?";
+            ClientContext.get().confirmDelete(msg).then(new IThenable.ThenOnFulfilledCallbackFn<Void, Object>() {
                 @Override
                 public IThenable<Object> onInvoke(Void p0) {
                     doDelete(software);
@@ -32,17 +41,6 @@ public class SoftwareTree extends Tree {
             });
         }
     };
-
-    private void doDelete(SysSoftwareEntity software) {
-        DeleteSoftwareRequest request=new DeleteSoftwareRequest();
-        request.setSoftwareId(software.getId());
-        AppProxy.get().deleteSoftware(request, new AsyncAdaptor<RpcResult<DeleteSoftwareResponse>>() {
-            @Override
-            public void onData(RpcResult<DeleteSoftwareResponse> result) {
-                load();
-            }
-        });
-    }
 
     public void load() {
         AppProxy.get().querySoftware(new QuerySoftwareRequest(), new AsyncAdaptor<RpcResult<QuerySoftwareResponse>>() {
@@ -57,11 +55,13 @@ public class SoftwareTree extends Tree {
         clear();
         for (SysSoftwareEntity software : data.getSoftwares()) {
             TreeItem item = addItem(null, software.getName(), "");
-            DeleteButton deleteButton=new DeleteButton();
+            DeleteButton deleteButton = new DeleteButton();
             deleteButton.setData(software);
             deleteButton.addClickHandler(confirmDelete);
             item.appendRightWidget(deleteButton);
             item.setData(software);
         }
     }
+
+
 }

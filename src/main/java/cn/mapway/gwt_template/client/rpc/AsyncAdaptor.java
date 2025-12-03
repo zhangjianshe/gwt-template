@@ -27,7 +27,7 @@ public abstract class AsyncAdaptor<T extends RpcResult> implements AsyncCallback
     @Override
     public void onFailure(Throwable caught) {
         sendMsg();
-        ClientContext.hideWaiting();
+        ClientContext.get().hideWaiting();
     }
 
     /**
@@ -51,13 +51,13 @@ public abstract class AsyncAdaptor<T extends RpcResult> implements AsyncCallback
     public void onSuccess(T result) {
         if (result.isSuccess()) {
             sendMsg();
-            ClientContext.hideWaiting();
+            ClientContext.get().hideWaiting();
             onData(result);
         } else {
             if(!onError(result)){
                 onFailure(new Exception(result.getMessage()));
                 ClientContext.processServiceCode(result);
-                ClientContext.toast(0, 0, result.getMessage());
+                ClientContext.get().toast(0, 0, result.getMessage());
             }
         }
     }

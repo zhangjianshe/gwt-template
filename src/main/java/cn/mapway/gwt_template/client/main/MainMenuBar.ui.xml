@@ -22,6 +22,21 @@
         .btn:HOVER {
             background-color: rgba(0, 0, 0, 0.5);
         }
+
+        .exit {
+            color: whitesmoke;
+            height: 40px;
+            justify-content: center;
+            justify-items: center;
+            align-items: center;
+            display: flex;
+            border-radius: 5px;
+            padding: 0 5px;
+        }
+
+        .exit:hover {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
     </ui:style>
     <g:HTMLPanel styleName="{style.box}">
         <g:HorizontalPanel>
@@ -30,8 +45,11 @@
             <g:Button ui:field="btnProject">开发项目</g:Button>
             <g:Button ui:field="btnNode">计算节点</g:Button>
         </g:HorizontalPanel>
-        <g:HorizontalPanel>
-            <widget:FontIcon color="white" addStyleNames="{style.btn}" ui:field="btnPreference"/>
+        <g:HorizontalPanel horizontalAlignment="right">
+            <g:Label ui:field="lbExit" addStyleNames="{style.exit}"/>
+            <g:cell width="40px" horizontalAlignment="center">
+                <widget:FontIcon color="white" addStyleNames="{style.btn}" ui:field="btnPreference"/>
+            </g:cell>
         </g:HorizontalPanel>
     </g:HTMLPanel>
 </ui:UiBinder>

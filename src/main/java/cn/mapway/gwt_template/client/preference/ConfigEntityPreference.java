@@ -58,7 +58,7 @@ public class ConfigEntityPreference extends BaseAbstractModule implements ISaveb
         AppProxy.get().queryConfigList(quest, new AsyncCallback<RpcResult<QueryConfigListResponse>>() {
             @Override
             public void onFailure(Throwable throwable) {
-                ClientContext.alert(throwable.getMessage());
+                ClientContext.get().alert(throwable.getMessage());
             }
 
             @Override

@@ -143,15 +143,15 @@ public class CloudflareZoneConfigPreference extends ToolbarModule {
         AppProxy.get().updateConfigList(request, new AsyncCallback<RpcResult<UpdateConfigListResponse>>() {
             @Override
             public void onFailure(Throwable throwable) {
-                ClientContext.alert(throwable.getMessage());
+                ClientContext.get().alert(throwable.getMessage());
             }
 
             @Override
             public void onSuccess(RpcResult<UpdateConfigListResponse> result) {
                 if (result.isSuccess()) {
-                    ClientContext.alert("saved");
+                    ClientContext.get().alert("saved");
                 } else {
-                    ClientContext.alert(result.getMessage());
+                    ClientContext.get().alert(result.getMessage());
                 }
             }
         });

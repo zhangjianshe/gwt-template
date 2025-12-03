@@ -15,7 +15,7 @@
             </g:HorizontalPanel>
         </g:north>
         <g:west size="300">
-
+            <g:HTMLPanel></g:HTMLPanel>
         </g:west>
     </g:DockLayoutPanel>
 </ui:UiBinder>

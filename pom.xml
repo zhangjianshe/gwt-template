@@ -120,6 +120,11 @@
             <version>${MAPWAY-GWT-SUITE-VERSION}</version>
         </dependency>
         <dependency>
+            <groupId>cn.mapway</groupId>
+            <artifactId>mapway-module-rbac</artifactId>
+            <version>${MAPWAY-GWT-SUITE-VERSION}</version>
+        </dependency>
+        <dependency>
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
             <version>7.0.2</version>

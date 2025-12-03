@@ -15,8 +15,7 @@ import cn.mapway.gwt_template.server.service.soft.CreateSoftwareExecutor;
 import cn.mapway.gwt_template.server.service.soft.DeleteSoftwareExecutor;
 import cn.mapway.gwt_template.server.service.soft.QuerySoftwareExecutor;
 import cn.mapway.gwt_template.server.service.soft.QuerySoftwareFilesExecutor;
-import cn.mapway.gwt_template.server.service.user.LoginExecutor;
-import cn.mapway.gwt_template.server.service.user.LogoutExecutor;
+import cn.mapway.gwt_template.server.service.user.TokenService;
 import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.rpc.config.QueryConfigListRequest;
 import cn.mapway.gwt_template.shared.rpc.config.QueryConfigListResponse;
@@ -25,10 +24,8 @@ import cn.mapway.gwt_template.shared.rpc.config.UpdateConfigListResponse;
 import cn.mapway.gwt_template.shared.rpc.dev.*;
 import cn.mapway.gwt_template.shared.rpc.dns.*;
 import cn.mapway.gwt_template.shared.rpc.soft.*;
-import cn.mapway.gwt_template.shared.rpc.user.LoginRequest;
-import cn.mapway.gwt_template.shared.rpc.user.LoginResponse;
-import cn.mapway.gwt_template.shared.rpc.user.LogoutRequest;
-import cn.mapway.gwt_template.shared.rpc.user.LogoutResponse;
+import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
+import cn.mapway.rbac.shared.RbacConstant;
 import cn.mapway.ui.server.CheckUserServlet;
 import cn.mapway.ui.shared.rpc.RpcResult;
 import lombok.extern.slf4j.Slf4j;
@@ -36,17 +33,17 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import javax.servlet.annotation.WebServlet;
-import java.lang.reflect.Method;
 import java.util.List;
 
 @Component
 @Slf4j
 @WebServlet(urlPatterns = "/app/*", name = "appservlet", loadOnStartup = 1)
-public class AppServlet extends CheckUserServlet<String> implements IAppServer {
+public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServer {
     ///CODE_GEN_INSERT_POINT///
 	
     @Resource
     DeleteProjectBuildExecutor deleteProjectBuildExecutor;
+
     @Override
     public RpcResult<DeleteProjectBuildResponse> deleteProjectBuild(DeleteProjectBuildRequest request) {
         BizResult<DeleteProjectBuildResponse> bizResult = deleteProjectBuildExecutor.execute(getBizContext(), BizRequest.wrap("", request));
@@ -112,10 +109,6 @@ public class AppServlet extends CheckUserServlet<String> implements IAppServer {
     @Resource
     QueryDnsExecutor queryDnsExecutor;
     @Resource
-    LogoutExecutor logoutExecutor;
-    @Resource
-    LoginExecutor loginExecutor;
-    @Resource
     UpdateDnsExecutor updateDnsExecutor;
     @Resource
     UpdateIpExecutor updateIpExecutor;
@@ -129,15 +122,16 @@ public class AppServlet extends CheckUserServlet<String> implements IAppServer {
     QuerySoftwareExecutor querySoftwareExecutor;
     @Resource
     QuerySoftwareFilesExecutor querySoftwareFilesExecutor;
-
+    @Resource
+    TokenService tokenService;
     @Override
-    public String findUserByToken(String token) {
-        return "";
+    public LoginUser findUserByToken(String token) {
+        return tokenService.requestUser();
     }
 
     @Override
     public String getHeadTokenTag() {
-        return "";
+        return RbacConstant.TOKEN_HEADER_KEY;
     }
 
     /**
@@ -267,17 +261,7 @@ public class AppServlet extends CheckUserServlet<String> implements IAppServer {
         return toRpcResult(bizResult);
     }
 
-    @Override
-    public RpcResult<LogoutResponse> logout(LogoutRequest request) {
-        BizResult<LogoutResponse> bizResult = logoutExecutor.execute(getBizContext(), BizRequest.wrap("", request));
-        return toRpcResult(bizResult);
-    }
 
-    @Override
-    public RpcResult<LoginResponse> login(LoginRequest request) {
-        BizResult<LoginResponse> bizResult = loginExecutor.execute(getBizContext(), BizRequest.wrap("", request));
-        return toRpcResult(bizResult);
-    }
 
     private <T> RpcResult<T> toRpcResult(BizResult<T> bizResult) {
         return RpcResult.create(bizResult.getCode(), bizResult.getMessage(), bizResult.getData());
@@ -286,17 +270,7 @@ public class AppServlet extends CheckUserServlet<String> implements IAppServer {
     @Override
     public void extendCheckToken(List<String> methodList) {
 
-        Method[] methods = this.getClass().getMethods();
-        for (Method method : methods) {
-            methodList.add(method.getName());
-        }
-        /*methodList.add("login");
-        methodList.add("logout");
-        methodList.add("queryConfigList");
-        methodList.add("updateConfigList");
-        methodList.add("queryDns");
-        methodList.add("updateDns");
-        methodList.add("deleteDns");
-        methodList.add("updateIp");*/
+
+
     }
 }

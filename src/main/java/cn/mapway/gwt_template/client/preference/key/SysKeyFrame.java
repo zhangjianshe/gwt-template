@@ -125,7 +125,7 @@ public class SysKeyFrame extends BaseAbstractModule {
     @UiHandler("btnCreate")
     public void btnCreateClick(ClickEvent event) {
 
-        ClientContext.input("输入密钥的名称", "", "", "", new Callback() {
+        ClientContext.get().input("输入密钥的名称", "", "", "", new Callback() {
             @Override
             public void onFailure(Object reason) {
 
@@ -145,7 +145,7 @@ public class SysKeyFrame extends BaseAbstractModule {
         AppProxy.get().createKey(createKeyRequest, new AsyncCallback<RpcResult<CreateKeyResponse>>() {
             @Override
             public void onFailure(Throwable caught) {
-                ClientContext.alert(caught.getMessage());
+                ClientContext.get().alert(caught.getMessage());
             }
 
             @Override

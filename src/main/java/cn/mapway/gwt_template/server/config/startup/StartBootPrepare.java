@@ -1,6 +1,5 @@
-package cn.mapway.gwt_template.server.config;
+package cn.mapway.gwt_template.server.config.startup;
 
-import cn.mapway.gwt_template.server.config.startup.ApplicationConfig;
 import cn.mapway.gwt_template.server.service.config.SystemConfigService;
 import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.db.*;
@@ -168,6 +167,8 @@ public class StartBootPrepare implements ApplicationContextAware {
         } else {
             log.info("[DB] 系统数据库当前版本{}", DB_VERSION);
         }
+
+
     }
 
     private void createAllTables() {

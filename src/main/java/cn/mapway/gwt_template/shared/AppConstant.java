@@ -12,4 +12,6 @@ public class AppConstant {
     public static final String KEY_DB_VERSION = "db_version";
     public static final String TAG_PREFERENCE = "preference";
     public static final String KEY_CLOUDFLARE_TOKEN = "cloudflare_token";
+    public static final Object ADMIN_UID = 0L;
+    public static final String SYS_CODE = "SYS_SOFTWARE";
 }
