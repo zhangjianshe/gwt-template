@@ -1,0 +1,25 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:dialog="urn:import:cn.mapway.ui.client.widget.dialog"
+             xmlns:widget="urn:import:cn.mapway.ui.client.widget">
+    <ui:style>
+        .box {
+            padding: 26px;
+        }
+        .summary {
+            font-size: 0.8rem;
+            color: #404040;
+        }</ui:style>
+    <g:DockLayoutPanel>
+        <g:south size="68">
+            <dialog:SaveBar saveText="确认" ui:field="saveBar"/>
+        </g:south>
+        <g:center>
+            <g:VerticalPanel width="100%" styleName="{style.box}" spacing="10">
+                <widget:Header ui:field="tip"/>
+                <g:TextBox width="100%" styleName="ai-input" ui:field="txtBox"/>
+                <g:Label ui:field="lbSummary" styleName="{style.summary}"/>
+            </g:VerticalPanel>
+        </g:center>
+    </g:DockLayoutPanel>
+</ui:UiBinder>

@@ -4,6 +4,7 @@ import cn.mapway.gwt_template.shared.rpc.config.QueryConfigListRequest;
 import cn.mapway.gwt_template.shared.rpc.config.QueryConfigListResponse;
 import cn.mapway.gwt_template.shared.rpc.config.UpdateConfigListRequest;
 import cn.mapway.gwt_template.shared.rpc.config.UpdateConfigListResponse;
+import cn.mapway.gwt_template.shared.rpc.dev.*;
 import cn.mapway.gwt_template.shared.rpc.dns.*;
 import cn.mapway.gwt_template.shared.rpc.soft.*;
 import cn.mapway.gwt_template.shared.rpc.user.LoginRequest;
@@ -16,6 +17,32 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public interface IAppServerAsync {
 
     ///CODE_GEN_INSERT_POINT///
+	void deleteProjectBuild(DeleteProjectBuildRequest request, AsyncCallback<RpcResult<DeleteProjectBuildResponse>> async);
+
+	void queryProjectBuild(QueryProjectBuildRequest request, AsyncCallback<RpcResult<QueryProjectBuildResponse>> async);
+
+	void queryKey(QueryKeyRequest request, AsyncCallback<RpcResult<QueryKeyResponse>> async);
+
+	void queryNode(QueryNodeRequest request, AsyncCallback<RpcResult<QueryNodeResponse>> async);
+
+	void deleteProject(DeleteProjectRequest request, AsyncCallback<RpcResult<DeleteProjectResponse>> async);
+
+	void queryProject(QueryProjectRequest request, AsyncCallback<RpcResult<QueryProjectResponse>> async);
+
+	void deleteKey(DeleteKeyRequest request, AsyncCallback<RpcResult<DeleteKeyResponse>> async);
+
+	void createKey(CreateKeyRequest request, AsyncCallback<RpcResult<CreateKeyResponse>> async);
+
+	void deleteNode(DeleteNodeRequest request, AsyncCallback<RpcResult<DeleteNodeResponse>> async);
+
+	void updateNode(UpdateNodeRequest request, AsyncCallback<RpcResult<UpdateNodeResponse>> async);
+
+	void restartProject(RestartProjectRequest request, AsyncCallback<RpcResult<RestartProjectResponse>> async);
+
+	void compileProject(CompileProjectRequest request, AsyncCallback<RpcResult<CompileProjectResponse>> async);
+
+	void updateProject(UpdateProjectRequest request, AsyncCallback<RpcResult<UpdateProjectResponse>> async);
+
     
     void updateConfigList(UpdateConfigListRequest request, AsyncCallback<RpcResult<UpdateConfigListResponse>> async);
 

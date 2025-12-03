@@ -69,6 +69,16 @@
             <version>1.r.69.v20220703</version>
         </dependency>
         <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcutil-jdk18on</artifactId>
+            <version>1.80</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcpkix-jdk18on</artifactId>
+            <version>1.80</version>
+        </dependency>
+        <dependency>
             <groupId>org.gwtproject</groupId>
             <artifactId>gwt-user</artifactId>
             <version>2.12.2</version>

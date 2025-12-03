@@ -1,0 +1,15 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+    <g:DockLayoutPanel>
+        <g:north size="46">
+            <g:HorizontalPanel spacing="4" verticalAlignment="middle">
+                <g:Button ui:field="btnCreate">创建</g:Button>
+            </g:HorizontalPanel>
+        </g:north>
+        <g:center>
+            <g:ScrollPanel>
+                <g:FlexTable ui:field="table" addStyleNames="attr-table"/>
+            </g:ScrollPanel>
+        </g:center>
+    </g:DockLayoutPanel>
+</ui:UiBinder>

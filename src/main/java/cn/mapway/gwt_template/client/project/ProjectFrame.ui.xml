@@ -1,0 +1,24 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:project="urn:import:cn.mapway.gwt_template.client.project">
+    <g:DockLayoutPanel>
+        <g:west size="350">
+            <g:DockLayoutPanel addStyleNames="ai-border-right">
+                <g:north size="50">
+                    <g:HorizontalPanel ui:field="tools" width="100%" verticalAlignment="middle" height="100%">
+                        <g:Button ui:field="btnCreate">创建项目</g:Button>
+                        <g:Button ui:field="btnEdit" enabled="false">编辑项目</g:Button>
+                    </g:HorizontalPanel>
+                </g:north>
+                <g:center>
+                    <g:ScrollPanel addStyleNames="ai-border-top">
+                        <project:ProjectTree width="100%" ui:field="projectTree"/>
+                    </g:ScrollPanel>
+                </g:center>
+            </g:DockLayoutPanel>
+        </g:west>
+        <g:center>
+            <project:ProjectFlowPanel ui:field="projectPanel"/>
+        </g:center>
+    </g:DockLayoutPanel>
+</ui:UiBinder>

@@ -3,9 +3,7 @@ package cn.mapway.gwt_template.server.config;
 import cn.mapway.gwt_template.server.config.startup.ApplicationConfig;
 import cn.mapway.gwt_template.server.service.config.SystemConfigService;
 import cn.mapway.gwt_template.shared.AppConstant;
-import cn.mapway.gwt_template.shared.db.SysConfigEntity;
-import cn.mapway.gwt_template.shared.db.SysSoftwareEntity;
-import cn.mapway.gwt_template.shared.db.SysSoftwareFileEntity;
+import cn.mapway.gwt_template.shared.db.*;
 import lombok.extern.slf4j.Slf4j;
 import org.nutz.dao.Dao;
 import org.nutz.dao.Sqls;
@@ -32,7 +30,7 @@ import java.util.regex.Pattern;
 @Service
 @Slf4j
 public class StartBootPrepare implements ApplicationContextAware {
-    public final static String DB_VERSION = "2025-11-23";
+    public final static String DB_VERSION = "2025-12-08";
     @Resource
     Dao dao;
     ApplicationContext context;
@@ -176,6 +174,10 @@ public class StartBootPrepare implements ApplicationContextAware {
         checkAndCreate(SysConfigEntity.class);
         checkAndCreate(SysSoftwareEntity.class);
         checkAndCreate(SysSoftwareFileEntity.class);
+        checkAndCreate(DevKeyEntity.class);
+        checkAndCreate(DevNodeEntity.class);
+        checkAndCreate(DevProjectEntity.class);
+        checkAndCreate(DevBuildEntity.class);
 
         log.info("[DB] 完成数据库表的初始化");
         SysConfigEntity dbVersion = new SysConfigEntity();

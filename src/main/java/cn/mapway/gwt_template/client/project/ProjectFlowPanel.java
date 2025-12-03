@@ -1,0 +1,50 @@
+package cn.mapway.gwt_template.client.project;
+
+import cn.mapway.gwt_template.client.project.build.BuildPanel;
+import cn.mapway.gwt_template.shared.db.DevProjectEntity;
+import cn.mapway.ui.client.tools.IData;
+import cn.mapway.ui.client.widget.CommonEventComposite;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.uibinder.client.UiBinder;
+import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.DockLayoutPanel;
+import com.google.gwt.user.client.ui.Label;
+
+public class ProjectFlowPanel extends CommonEventComposite implements IData<DevProjectEntity> {
+    private static final ProjectFlowPanelUiBinder ourUiBinder = GWT.create(ProjectFlowPanelUiBinder.class);
+    @UiField
+    Label lbName;
+    @UiField
+    Button btnRestart;
+    @UiField
+    Button btnCompile;
+    @UiField
+    Label lbSource;
+    @UiField
+    BuildPanel buildPanel;
+    private DevProjectEntity project;
+
+    public ProjectFlowPanel() {
+        initWidget(ourUiBinder.createAndBindUi(this));
+    }
+
+    @Override
+    public DevProjectEntity getData() {
+        return project;
+    }
+
+    @Override
+    public void setData(DevProjectEntity obj) {
+        project = obj;
+        toUI();
+    }
+
+    private void toUI() {
+        lbName.setText(project.getName());
+        lbSource.setText(project.getSourceUrl());
+    }
+
+    interface ProjectFlowPanelUiBinder extends UiBinder<DockLayoutPanel, ProjectFlowPanel> {
+    }
+}

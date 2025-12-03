@@ -6,6 +6,7 @@ import cn.mapway.biz.core.BizResult;
 import cn.mapway.gwt_template.client.rpc.IAppServer;
 import cn.mapway.gwt_template.server.service.config.QueryConfigListExecutor;
 import cn.mapway.gwt_template.server.service.config.UpdateConfigListExecutor;
+import cn.mapway.gwt_template.server.service.dev.*;
 import cn.mapway.gwt_template.server.service.dns.DeleteDnsExecutor;
 import cn.mapway.gwt_template.server.service.dns.QueryDnsExecutor;
 import cn.mapway.gwt_template.server.service.dns.UpdateDnsExecutor;
@@ -21,6 +22,7 @@ import cn.mapway.gwt_template.shared.rpc.config.QueryConfigListRequest;
 import cn.mapway.gwt_template.shared.rpc.config.QueryConfigListResponse;
 import cn.mapway.gwt_template.shared.rpc.config.UpdateConfigListRequest;
 import cn.mapway.gwt_template.shared.rpc.config.UpdateConfigListResponse;
+import cn.mapway.gwt_template.shared.rpc.dev.*;
 import cn.mapway.gwt_template.shared.rpc.dns.*;
 import cn.mapway.gwt_template.shared.rpc.soft.*;
 import cn.mapway.gwt_template.shared.rpc.user.LoginRequest;
@@ -41,7 +43,67 @@ import java.util.List;
 @Slf4j
 @WebServlet(urlPatterns = "/app/*", name = "appservlet", loadOnStartup = 1)
 public class AppServlet extends CheckUserServlet<String> implements IAppServer {
-    /// CODE_GEN_INSERT_POINT///
+    ///CODE_GEN_INSERT_POINT///
+	
+    @Resource
+    DeleteProjectBuildExecutor deleteProjectBuildExecutor;
+    @Override
+    public RpcResult<DeleteProjectBuildResponse> deleteProjectBuild(DeleteProjectBuildRequest request) {
+        BizResult<DeleteProjectBuildResponse> bizResult = deleteProjectBuildExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    QueryProjectBuildExecutor queryProjectBuildExecutor;
+    @Override
+    public RpcResult<QueryProjectBuildResponse> queryProjectBuild(QueryProjectBuildRequest request) {
+        BizResult<QueryProjectBuildResponse> bizResult = queryProjectBuildExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    QueryKeyExecutor queryKeyExecutor;
+    @Override
+    public RpcResult<QueryKeyResponse> queryKey(QueryKeyRequest request) {
+        BizResult<QueryKeyResponse> bizResult = queryKeyExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    QueryNodeExecutor queryNodeExecutor;
+    @Override
+    public RpcResult<QueryNodeResponse> queryNode(QueryNodeRequest request) {
+        BizResult<QueryNodeResponse> bizResult = queryNodeExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    DeleteProjectExecutor deleteProjectExecutor;
+    @Override
+    public RpcResult<DeleteProjectResponse> deleteProject(DeleteProjectRequest request) {
+        BizResult<DeleteProjectResponse> bizResult = deleteProjectExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    QueryProjectExecutor queryProjectExecutor;
+    @Override
+    public RpcResult<QueryProjectResponse> queryProject(QueryProjectRequest request) {
+        BizResult<QueryProjectResponse> bizResult = queryProjectExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
 
     @Resource
     UpdateConfigListExecutor updateConfigListExecutor;
@@ -87,6 +149,62 @@ public class AppServlet extends CheckUserServlet<String> implements IAppServer {
         BizContext context = new BizContext();
         context.put(AppConstant.KEY_LOGIN_USER, requestUser());
         return context;
+    }
+
+    @Resource
+    UpdateProjectExecutor updateProjectExecutor;
+    @Override
+    public RpcResult<UpdateProjectResponse> updateProject(UpdateProjectRequest request) {
+        BizResult<UpdateProjectResponse> bizResult = updateProjectExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Resource
+    CompileProjectExecutor compileProjectExecutor;
+    @Override
+    public RpcResult<CompileProjectResponse> compileProject(CompileProjectRequest request) {
+        BizResult<CompileProjectResponse> bizResult = compileProjectExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Resource
+    RestartProjectExecutor restartProjectExecutor;
+    @Override
+    public RpcResult<RestartProjectResponse> restartProject(RestartProjectRequest request) {
+        BizResult<RestartProjectResponse> bizResult = restartProjectExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Resource
+    UpdateNodeExecutor updateNodeExecutor;
+    @Override
+    public RpcResult<UpdateNodeResponse> updateNode(UpdateNodeRequest request) {
+        BizResult<UpdateNodeResponse> bizResult = updateNodeExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Resource
+    DeleteNodeExecutor deleteNodeExecutor;
+    @Override
+    public RpcResult<DeleteNodeResponse> deleteNode(DeleteNodeRequest request) {
+        BizResult<DeleteNodeResponse> bizResult = deleteNodeExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Resource
+    CreateKeyExecutor createKeyExecutor;
+    @Override
+    public RpcResult<CreateKeyResponse> createKey(CreateKeyRequest request) {
+        BizResult<CreateKeyResponse> bizResult = createKeyExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Resource
+    DeleteKeyExecutor deleteKeyExecutor;
+    @Override
+    public RpcResult<DeleteKeyResponse> deleteKey(DeleteKeyRequest request) {
+        BizResult<DeleteKeyResponse> bizResult = deleteKeyExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
     }
 
     @Override

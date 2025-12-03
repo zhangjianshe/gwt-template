@@ -1,0 +1,35 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:build="urn:import:cn.mapway.gwt_template.client.project.build">
+    <g:DockLayoutPanel>
+        <g:center>
+            <g:TabLayoutPanel barHeight="50">
+                <g:tab>
+                    <g:header>项目信息</g:header>
+                    <g:HTMLPanel addStyleNames="ai-flex-panel">
+                        <g:VerticalPanel>
+                            <g:Label ui:field="lbName"/>
+                            <g:Label ui:field="lbSource"/>
+                        </g:VerticalPanel>
+                    </g:HTMLPanel>
+                </g:tab>
+                <g:tab>
+                    <g:header>编译</g:header>
+                    <build:BuildPanel ui:field="buildPanel"/>
+                </g:tab>
+                <g:tab>
+                    <g:header>部署</g:header>
+                    <g:DockLayoutPanel>
+                        <g:center>
+                            <g:HTMLPanel addStyleNames="ai-flex-panel">
+                                <g:Button ui:field="btnRestart">重新启动</g:Button>
+                            </g:HTMLPanel>
+                        </g:center>
+                    </g:DockLayoutPanel>
+                </g:tab>
+
+            </g:TabLayoutPanel>
+
+        </g:center>
+    </g:DockLayoutPanel>
+</ui:UiBinder>

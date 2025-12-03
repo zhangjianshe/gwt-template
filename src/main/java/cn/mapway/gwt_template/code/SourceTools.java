@@ -26,10 +26,10 @@ import java.util.Map;
 public class SourceTools {
     public static void main(String[] args) {
         SourceTools tools = new SourceTools();
-        String packageBean = "cn.mapway.gwt_template.shared.rpc.soft";
-        String packageService = "cn.mapway.gwt_template.server.service.soft";
+        String packageBean = "cn.mapway.gwt_template.shared.rpc.dev";
+        String packageService = "cn.mapway.gwt_template.server.service.dev";
         ArrayList<String> methods = Lang.list(
-                "uploadSoftwareFile"
+                "queryProjectBuild","deleteProjectBuild"
         );
         methods.stream().forEach(n -> {
             tools.gen(n, packageBean, packageService);

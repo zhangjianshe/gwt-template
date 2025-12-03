@@ -1,7 +1,9 @@
 package cn.mapway.gwt_template.client.main;
 
 import cn.mapway.gwt_template.client.dns.DnsFrame;
+import cn.mapway.gwt_template.client.node.NodeFrame;
 import cn.mapway.gwt_template.client.preference.PreferenceFrame;
+import cn.mapway.gwt_template.client.project.ProjectFrame;
 import cn.mapway.gwt_template.client.software.SoftwareFrame;
 import cn.mapway.ui.client.fonts.Fonts;
 import cn.mapway.ui.client.mvc.ModuleParameter;
@@ -29,6 +31,10 @@ public class MainMenuBar extends CommonEventComposite {
     FontIcon btnPreference;
     @UiField
     Button btnSoftware;
+    @UiField
+    Button btnProject;
+    @UiField
+    Button btnNode;
 
     public MainMenuBar() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -56,6 +62,18 @@ public class MainMenuBar extends CommonEventComposite {
     @UiHandler("btnSoftware")
     public void btnSoftwareClick(ClickEvent event) {
         SwitchModuleData switchModuleData = new SwitchModuleData(SoftwareFrame.MODULE_CODE, "");
+        fireEvent(CommonEvent.switchEvent(switchModuleData));
+    }
+
+    @UiHandler("btnProject")
+    public void btnProjectClick(ClickEvent event) {
+        SwitchModuleData switchModuleData = new SwitchModuleData(ProjectFrame.MODULE_CODE, "");
+        fireEvent(CommonEvent.switchEvent(switchModuleData));
+    }
+
+    @UiHandler("btnNode")
+    public void btnNodeClick(ClickEvent event) {
+        SwitchModuleData switchModuleData = new SwitchModuleData(NodeFrame.MODULE_CODE, "");
         fireEvent(CommonEvent.switchEvent(switchModuleData));
     }
 

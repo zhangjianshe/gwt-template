@@ -1,6 +1,7 @@
 package cn.mapway.gwt_template.client;
 
 import cn.mapway.gwt_template.client.resource.AppResource;
+import cn.mapway.gwt_template.client.widget.AiInputPanel;
 import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.ui.client.mvc.Size;
 import cn.mapway.ui.client.widget.dialog.AiConfirm;
@@ -98,4 +99,36 @@ public class ClientContext {
     public static void toast(int i, int i1, String message) {
 
     }
+
+
+    public static Promise<Void> confirm(String title, String message) {
+        return new Promise((resolve, reject) -> {
+            Callback<Void, Void> handler = new Callback<Void, Void>() {
+                @Override
+                public void onFailure(Void reason) {
+                    reject.onInvoke("");
+                }
+
+                @Override
+                public void onSuccess(Void result) {
+                    resolve.onInvoke((Promise.PromiseExecutorCallbackFn.ResolveCallbackFn.ResolveUnionType) null);
+                }
+            };
+            AiConfirm.confirm(title, AppResource.INSTANCE.info(), message, handler);
+        });
+    }
+
+    /**
+     * 输入一个值
+     *
+     * @param dialogTitle
+     * @param tip
+     * @param placeHolder
+     * @param initValue
+     * @param callback
+     */
+    public static void input(String dialogTitle, String tip, String placeHolder, String initValue, Callback callback) {
+        AiInputPanel.input(dialogTitle, tip, placeHolder, initValue, callback);
+    }
+
 }

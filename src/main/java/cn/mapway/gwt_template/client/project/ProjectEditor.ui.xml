@@ -1,0 +1,33 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:dialog="urn:import:cn.mapway.ui.client.widget.dialog"
+             xmlns:widget="urn:import:cn.mapway.ui.client.widget"
+             xmlns:node="urn:import:cn.mapway.gwt_template.client.node">
+    <ui:style>
+        .lb {
+            width: 150px;
+            font-weight: bold;
+        }
+    </ui:style>
+    <g:DockLayoutPanel>
+        <g:south size="68">
+            <dialog:SaveBar ui:field="saveBar"/>
+        </g:south>
+        <g:center>
+            <g:HTMLPanel addStyleNames="ai-panel-contetn">
+                <g:HorizontalPanel spacing="10">
+                    <g:Label addStyleNames="{style.lb}">名称</g:Label>
+                    <widget:AiTextBox ui:field="txtName"/>
+                </g:HorizontalPanel>
+                <g:HorizontalPanel spacing="10">
+                    <g:Label addStyleNames="{style.lb}">项目源代码路径</g:Label>
+                    <widget:AiTextBox ui:field="txtSource"/>
+                </g:HorizontalPanel>
+                <g:HorizontalPanel spacing="10">
+                    <g:Label addStyleNames="{style.lb}">部署计算节点</g:Label>
+                    <node:NodeListBox ui:field="ddlNodes" width="350px"/>
+                </g:HorizontalPanel>
+            </g:HTMLPanel>
+        </g:center>
+    </g:DockLayoutPanel>
+</ui:UiBinder>
