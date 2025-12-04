@@ -1,6 +1,6 @@
 package cn.mapway.gwt_template.server.config.startup;
 
-import cn.mapway.gwt_template.GwtTemplateApplication;
+import cn.mapway.gwt_template.server.rbac.Permissions;
 import cn.mapway.gwt_template.server.service.user.TokenService;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
 import cn.mapway.rbac.shared.RbacConstant;
@@ -115,7 +115,7 @@ public class ServerStartedOnce extends ApplicationObjectSupport implements IServ
     @Override
     public Collection<Class<?>> getScanPackages() {
         Collection<Class<?>> scans = new HashSet<>();
-        scans.add(GwtTemplateApplication.class);
+        scans.add(Permissions.class);
         return scans;
     }
 
