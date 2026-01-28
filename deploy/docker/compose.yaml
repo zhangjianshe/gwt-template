@@ -41,7 +41,7 @@ services:
     restart: unless-stopped
 
   dev-nginx:
-    image: hub.cangling.cn/mapway/nginx-rtmp:4.1
+    image: hub.cangling.cn/cangling/nginx-rtmp:4.1
     ports:
       - "80:80"
     volumes:
