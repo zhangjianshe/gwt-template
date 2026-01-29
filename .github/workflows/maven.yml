@@ -20,6 +20,17 @@ jobs:
       packages: write
     steps:
       - uses: actions/checkout@v4
+      - name: Get tag version
+        id: get_tag_version
+        run: |
+          # Extract the tag name, e.g., refs/tags/v1.0.0 -> 1.0.0
+          # If triggered manually or by branch, defaults to 'snapshot'
+          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            VERSION=${GITHUB_REF#refs/tags/v}
+          else
+            VERSION="snapshot"
+          fi
+          echo "TAG_VERSION=${VERSION}" >> $GITHUB_OUTPUT
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
