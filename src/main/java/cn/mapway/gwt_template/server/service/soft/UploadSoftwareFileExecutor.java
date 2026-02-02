@@ -4,7 +4,8 @@ import cn.mapway.biz.core.AbstractBizExecutor;
 import cn.mapway.biz.core.BizContext;
 import cn.mapway.biz.core.BizRequest;
 import cn.mapway.biz.core.BizResult;
-import cn.mapway.gwt_template.server.config.AppConfig;
+import cn.mapway.gwt_template.server.service.config.SystemConfigService;
+import cn.mapway.gwt_template.server.service.file.FileCustomUtils;
 import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.db.SysSoftwareEntity;
 import cn.mapway.gwt_template.shared.db.SysSoftwareFileEntity;
@@ -35,7 +36,7 @@ public class UploadSoftwareFileExecutor extends AbstractBizExecutor<UploadSoftwa
     @Resource
     Dao dao;
     @Resource
-    AppConfig appConfig;
+    SystemConfigService systemConfigService;
 
     @Override
     protected BizResult<UploadSoftwareFileResponse> process(BizContext context, BizRequest<UploadSoftwareFileRequest> bizParam) {
@@ -43,16 +44,16 @@ public class UploadSoftwareFileExecutor extends AbstractBizExecutor<UploadSoftwa
         LoginUser user = (LoginUser) context.get(AppConstant.KEY_LOGIN_USER);
         assertTrue(Strings.isNotBlank(request.getToken()), "没有授权操作");
         SysSoftwareEntity software = dao.fetch(SysSoftwareEntity.class, Cnd.where(SysSoftwareEntity.FLD_TOKEN, "=", request.getToken()));
-        assertTrue(software!=null, "没有软件信息" + request.getToken());
+        assertTrue(software != null, "没有软件信息" + request.getToken());
         assertTrue(Strings.isNotBlank(request.getOs()), "没有OS");
         assertTrue(Strings.isNotBlank(request.getArch()), "没有Arch");
         assertTrue(Strings.isNotBlank(request.getVersion()), "没有Version");
         assertTrue(Strings.isNotBlank(request.getName()), "没有Name");
 
-        String targetPath = appConfig.getUploadPath() + "/software/";
+        String targetPath = FileCustomUtils.concatPath(systemConfigService.getUploadPath(), "software");
         Files.createDirIfNoExists(targetPath);
 
-        String versionPath = appConfig.getUploadPath() + "/software/"+software.getId()+"/"+request.getVersion();
+        String versionPath = FileCustomUtils.concatPath(targetPath, String.valueOf(software.getId()), request.getVersion());
         Files.createDirIfNoExists(versionPath);
 
         if (request.getFile() == null) {
@@ -77,10 +78,10 @@ public class UploadSoftwareFileExecutor extends AbstractBizExecutor<UploadSoftwa
         fileEntity.setArch(request.getArch());
         fileEntity.setVersion(request.getVersion());
         fileEntity.setCreateTime(new Timestamp(System.currentTimeMillis()));
-        fileEntity.setLocation("/software/"+targetFileName.substring(targetPath.length()));
+        fileEntity.setLocation("/software/" + targetFileName.substring(targetPath.length()));
         dao.insert(fileEntity);
         UploadSoftwareFileResponse response = new UploadSoftwareFileResponse();
-        response.setUrl("/upload/"+fileEntity.getLocation());
+        response.setUrl("/upload/" + fileEntity.getLocation());
         return BizResult.success(response);
     }
 }

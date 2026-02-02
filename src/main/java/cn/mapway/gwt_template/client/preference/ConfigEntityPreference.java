@@ -6,6 +6,7 @@ import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.db.SysConfigEntity;
 import cn.mapway.gwt_template.shared.rpc.config.QueryConfigListRequest;
 import cn.mapway.gwt_template.shared.rpc.config.QueryConfigListResponse;
+import cn.mapway.ui.client.event.MessageObject;
 import cn.mapway.ui.client.fonts.Fonts;
 import cn.mapway.ui.client.mvc.*;
 import cn.mapway.ui.shared.rpc.RpcResult;
@@ -66,7 +67,7 @@ public class ConfigEntityPreference extends BaseAbstractModule implements ISaveb
                 if (result.isSuccess()) {
                     renderConfig(result.getData().getConfigs());
                 } else {
-                    processServiceCode(result);
+                    fireMessage(MessageObject.info(0,result.getMessage()));
                 }
             }
         });

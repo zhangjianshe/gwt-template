@@ -1,5 +1,7 @@
-package cn.mapway.gwt_template.server.config;
+package cn.mapway.gwt_template.server.config.security;
 
+import cn.mapway.gwt_template.server.service.config.SystemConfigService;
+import cn.mapway.gwt_template.server.service.file.FileCustomUtils;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.CacheControl;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -11,13 +13,15 @@ import java.util.concurrent.TimeUnit;
 @Configuration
 public class ResourceConfig implements WebMvcConfigurer {
     @Resource
-    AppConfig appConfig;
+    SystemConfigService systemConfigService;
 
     private String calUploadPath() {
-        if (appConfig.getUploadPath().endsWith("/")) {
-            return "file:" + appConfig.getUploadPath();
+
+        String path = FileCustomUtils.concatPath(systemConfigService.getUploadPath(),"upload");
+        if (path.endsWith("/")) {
+            return "file:" + path;
         } else {
-            return "file:" + appConfig.getUploadPath() + "/";
+            return "file:" + path + "/";
         }
     }
 

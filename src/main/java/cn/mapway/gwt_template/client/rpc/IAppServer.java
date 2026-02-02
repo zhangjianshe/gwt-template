@@ -1,6 +1,10 @@
 package cn.mapway.gwt_template.client.rpc;
 
 import cn.mapway.gwt_template.shared.AppConstant;
+import cn.mapway.gwt_template.shared.rpc.app.QueryAppInfoRequest;
+import cn.mapway.gwt_template.shared.rpc.app.QueryAppInfoResponse;
+import cn.mapway.gwt_template.shared.rpc.app.UpdateAppInfoRequest;
+import cn.mapway.gwt_template.shared.rpc.app.UpdateAppInfoResponse;
 import cn.mapway.gwt_template.shared.rpc.config.QueryConfigListRequest;
 import cn.mapway.gwt_template.shared.rpc.config.QueryConfigListResponse;
 import cn.mapway.gwt_template.shared.rpc.config.UpdateConfigListRequest;
@@ -15,6 +19,10 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 @RemoteServiceRelativePath(AppConstant.DEFAULT_SERVER_PATH)
 public interface IAppServer extends RemoteService {
     ///CODE_GEN_INSERT_POINT///
+	RpcResult<UpdateAppInfoResponse> updateAppInfo(UpdateAppInfoRequest request);
+
+	RpcResult<QueryAppInfoResponse> queryAppInfo(QueryAppInfoRequest request);
+
 	RpcResult<DeleteProjectBuildResponse> deleteProjectBuild(DeleteProjectBuildRequest request);
 
 	RpcResult<QueryProjectBuildResponse> queryProjectBuild(QueryProjectBuildRequest request);

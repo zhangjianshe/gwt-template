@@ -110,7 +110,6 @@ public class PreferenceFrame extends BaseAbstractModule {
     @UiHandler("saveBar")
     public void saveBarCommon(CommonEvent event) {
         if (event.isOk()) {
-            // dosave
             if (currentModule.getRootWidget() instanceof ISaveble) {
                 ISaveble saveble = (ISaveble) currentModule.getRootWidget();
                 saveble.save();

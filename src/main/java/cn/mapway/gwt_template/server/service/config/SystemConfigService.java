@@ -2,11 +2,16 @@ package cn.mapway.gwt_template.server.service.config;
 
 import cn.mapway.biz.core.BizResult;
 import cn.mapway.gwt_template.server.config.startup.ApplicationConfig;
+import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.db.SysConfigEntity;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.nutz.dao.Dao;
 import org.nutz.json.Json;
 import org.nutz.lang.Files;
 import org.nutz.lang.Strings;
+import org.springframework.context.EnvironmentAware;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -21,12 +26,17 @@ import java.util.Objects;
  * １. 系统初始化配置　需要持久化到配置文件中　比如数据库连接
  * ２. 系统应用的配置信息　比如图标　应用名称
  */
+@Slf4j
 @Service
-public class SystemConfigService {
+public class SystemConfigService implements EnvironmentAware {
 
     private static final String CONFIG_ROOT = "/mapway";
+    private static final String DEFAULT_UPLOAD_LOCATION = "/upload";
     @Resource
     Dao dao;
+    Environment environment;
+    @Getter
+    private String uploadPath = DEFAULT_UPLOAD_LOCATION;
 
     private static File getStartupConfigFile() {
         return new File(CONFIG_ROOT, "app.json");
@@ -61,7 +71,6 @@ public class SystemConfigService {
         config.setPort(8080);
         return config;
     }
-
 
     /**
      * 寻找配置信息
@@ -115,5 +124,23 @@ public class SystemConfigService {
             return Json.fromJson(clazz, config.getData().getValue());
         }
         return null;
+    }
+
+    public void saveOrUpdate(SysConfigEntity config) {
+        if (config == null || Strings.isBlank(config.getKey())) {
+            log.error("[CONFIG] 保存配置信息错误");
+            return;
+        }
+        dao.insertOrUpdate(config);
+    }
+
+    @Override
+    public void setEnvironment(Environment environment) {
+        this.environment = environment;
+        String property = environment.getProperty(AppConstant.DEFAULT_UPLOAD_LOCATION);
+        if (Strings.isNotBlank(property)) {
+            uploadPath = property;
+        }
+        Files.createDirIfNoExists(uploadPath);
     }
 }

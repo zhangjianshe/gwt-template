@@ -4,6 +4,8 @@ import cn.mapway.biz.core.BizContext;
 import cn.mapway.biz.core.BizRequest;
 import cn.mapway.biz.core.BizResult;
 import cn.mapway.gwt_template.client.rpc.IAppServer;
+import cn.mapway.gwt_template.server.service.app.QueryAppInfoExecutor;
+import cn.mapway.gwt_template.server.service.app.UpdateAppInfoExecutor;
 import cn.mapway.gwt_template.server.service.config.QueryConfigListExecutor;
 import cn.mapway.gwt_template.server.service.config.UpdateConfigListExecutor;
 import cn.mapway.gwt_template.server.service.dev.*;
@@ -17,6 +19,10 @@ import cn.mapway.gwt_template.server.service.soft.QuerySoftwareExecutor;
 import cn.mapway.gwt_template.server.service.soft.QuerySoftwareFilesExecutor;
 import cn.mapway.gwt_template.server.service.user.TokenService;
 import cn.mapway.gwt_template.shared.AppConstant;
+import cn.mapway.gwt_template.shared.rpc.app.QueryAppInfoRequest;
+import cn.mapway.gwt_template.shared.rpc.app.QueryAppInfoResponse;
+import cn.mapway.gwt_template.shared.rpc.app.UpdateAppInfoRequest;
+import cn.mapway.gwt_template.shared.rpc.app.UpdateAppInfoResponse;
 import cn.mapway.gwt_template.shared.rpc.config.QueryConfigListRequest;
 import cn.mapway.gwt_template.shared.rpc.config.QueryConfigListResponse;
 import cn.mapway.gwt_template.shared.rpc.config.UpdateConfigListRequest;
@@ -25,8 +31,9 @@ import cn.mapway.gwt_template.shared.rpc.dev.*;
 import cn.mapway.gwt_template.shared.rpc.dns.*;
 import cn.mapway.gwt_template.shared.rpc.soft.*;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
-import cn.mapway.rbac.shared.RbacConstant;
+import cn.mapway.rbac.server.service.RbacUserService;
 import cn.mapway.ui.server.CheckUserServlet;
+import cn.mapway.ui.shared.CommonConstant;
 import cn.mapway.ui.shared.rpc.RpcResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -40,6 +47,26 @@ import java.util.List;
 @WebServlet(urlPatterns = "/app/*", name = "appservlet", loadOnStartup = 1)
 public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServer {
     ///CODE_GEN_INSERT_POINT///
+	
+    @Resource
+    UpdateAppInfoExecutor updateAppInfoExecutor;
+    @Override
+    public RpcResult<UpdateAppInfoResponse> updateAppInfo(UpdateAppInfoRequest request) {
+        BizResult<UpdateAppInfoResponse> bizResult = updateAppInfoExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    QueryAppInfoExecutor queryAppInfoExecutor;
+    @Override
+    public RpcResult<QueryAppInfoResponse> queryAppInfo(QueryAppInfoRequest request) {
+        BizResult<QueryAppInfoResponse> bizResult = queryAppInfoExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
 	
     @Resource
     DeleteProjectBuildExecutor deleteProjectBuildExecutor;
@@ -124,14 +151,19 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
     QuerySoftwareFilesExecutor querySoftwareFilesExecutor;
     @Resource
     TokenService tokenService;
+    @Resource
+    RbacUserService rbacUserService;
     @Override
     public LoginUser findUserByToken(String token) {
         return tokenService.requestUser();
     }
-
+    @Override
+    public LoginUser requestUser() {
+        return tokenService.requestUser();
+    }
     @Override
     public String getHeadTokenTag() {
-        return RbacConstant.TOKEN_HEADER_KEY;
+        return CommonConstant.API_TOKEN;
     }
 
     /**
@@ -270,7 +302,7 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
     @Override
     public void extendCheckToken(List<String> methodList) {
 
-
+        methodList.add("queryAppInfo");
 
     }
 }

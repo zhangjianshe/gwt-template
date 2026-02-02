@@ -14,4 +14,7 @@ public class AppConstant {
     public static final String KEY_CLOUDFLARE_TOKEN = "cloudflare_token";
     public static final Object ADMIN_UID = 0L;
     public static final String SYS_CODE = "SYS_SOFTWARE";
+    public static final String KEY_APPLICATION_INFO = "APPLICATION_INFO";
+    public static final String DEFAULT_UPLOAD_LOCATION = "DEFAULT_UPLOAD_LOCATION";
+    public static final String TAG_HIDDEN = "hidden";
 }

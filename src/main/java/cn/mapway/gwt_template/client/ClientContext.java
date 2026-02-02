@@ -3,7 +3,11 @@ package cn.mapway.gwt_template.client;
 import cn.mapway.gwt_template.client.resource.AppResource;
 import cn.mapway.gwt_template.client.widget.AiInputPanel;
 import cn.mapway.gwt_template.shared.AppConstant;
+import cn.mapway.gwt_template.shared.rpc.app.AppData;
 import cn.mapway.rbac.client.RbacClient;
+import cn.mapway.rbac.shared.ResourceKind;
+import cn.mapway.rbac.shared.model.Res;
+import cn.mapway.rbac.shared.model.UserPermissions;
 import cn.mapway.ui.client.IClientContext;
 import cn.mapway.ui.client.IUserInfo;
 import cn.mapway.ui.client.mvc.Size;
@@ -23,17 +27,28 @@ import com.google.gwt.user.client.Window;
 import elemental2.core.JsArray;
 import elemental2.dom.DomGlobal;
 import elemental2.promise.Promise;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
-public class ClientContext implements IClientContext , HasCommonHandlers {
+public class ClientContext implements IClientContext, HasCommonHandlers {
     private static ClientContext instance;
     private static Dialog<MessagePanel> messagePanelDialog;
     SimpleEventBus eventBus;
     IUserInfo userInfo;
+    @Setter
+    @Getter
+    AppData appData;
+    @Setter
+    private UserPermissions userPermissions;
 
     public ClientContext() {
-        eventBus=new SimpleEventBus();
+        eventBus = new SimpleEventBus();
     }
+
     public static ClientContext get() {
         if (instance == null) {
             instance = new ClientContext();
@@ -41,54 +56,6 @@ public class ClientContext implements IClientContext , HasCommonHandlers {
         }
 
         return instance;
-    }
-
-    @Override
-    public IUserInfo getUserInfo() {
-        return userInfo;
-    }
-
-    @Override
-    public void setUserInfo(IUserInfo userInfo) {
-        this.userInfo = userInfo;
-    }
-
-    @Override
-    public boolean isAssignRole(String roleCode) {
-        return false;
-    }
-
-    public  Promise<Void> confirmDelete(String message) {
-        return confirm3( AppResource.INSTANCE.delete(),"删除", message);
-
-    }
-
-    @Override
-    public Promise<Void> confirm3(ImageResource icon, String title, String message) {
-        return new Promise((resolve, reject) -> {
-            Callback<Void, Void> handler = new Callback<Void, Void>() {
-                @Override
-                public void onFailure(Void reason) {
-                    reject.onInvoke("");
-                }
-
-                @Override
-                public void onSuccess(Void result) {
-                    resolve.onInvoke((Promise.PromiseExecutorCallbackFn.ResolveCallbackFn.ResolveUnionType) null);
-                }
-            };
-            AiConfirm.confirm("删除资源", icon, message, handler);
-        });
-    }
-
-    @Override
-    public Promise<Void> confirm2(String title, String message) {
-        return confirm3(AppResource.INSTANCE.info(), title, message);
-    }
-
-    @Override
-    public Promise<Void> confirm(String message) {
-        return null;
     }
 
     public static String adminCookie() {
@@ -133,7 +100,83 @@ public class ClientContext implements IClientContext , HasCommonHandlers {
         }
     }
 
-    public  void alert(String message) {
+    public static Size getDialogSize() {
+        return new Size(Window.getClientWidth() - 300 / 2, Window.getClientHeight() - 300 / 2);
+    }
+
+    public static <T extends RpcResult> void processServiceCode(T result) {
+        RpcResult result1 = result;
+        if (result1.getCode() == Messages.NSG_NEED_LOGIN.getCode()) {
+            ClientContext.get().fireEvent(CommonEvent.needLoginEvent(null));
+        }
+    }
+
+    public static Promise<Void> confirm(String title, String message) {
+        return new Promise((resolve, reject) -> {
+            Callback<Void, Void> handler = new Callback<Void, Void>() {
+                @Override
+                public void onFailure(Void reason) {
+                    reject.onInvoke("");
+                }
+
+                @Override
+                public void onSuccess(Void result) {
+                    resolve.onInvoke((Promise.PromiseExecutorCallbackFn.ResolveCallbackFn.ResolveUnionType) null);
+                }
+            };
+            AiConfirm.confirm(title, AppResource.INSTANCE.info(), message, handler);
+        });
+    }
+
+    @Override
+    public IUserInfo getUserInfo() {
+        return userInfo;
+    }
+
+    @Override
+    public void setUserInfo(IUserInfo userInfo) {
+        this.userInfo = userInfo;
+    }
+
+    @Override
+    public boolean isAssignRole(String roleCode) {
+        return false;
+    }
+
+    public Promise<Void> confirmDelete(String message) {
+        return confirm3(AppResource.INSTANCE.delete(), "删除", message);
+
+    }
+
+    @Override
+    public Promise<Void> confirm3(ImageResource icon, String title, String message) {
+        return new Promise((resolve, reject) -> {
+            Callback<Void, Void> handler = new Callback<Void, Void>() {
+                @Override
+                public void onFailure(Void reason) {
+                    reject.onInvoke("");
+                }
+
+                @Override
+                public void onSuccess(Void result) {
+                    resolve.onInvoke((Promise.PromiseExecutorCallbackFn.ResolveCallbackFn.ResolveUnionType) null);
+                }
+            };
+            AiConfirm.confirm("删除资源", icon, message, handler);
+        });
+    }
+
+    @Override
+    public Promise<Void> confirm2(String title, String message) {
+        return confirm3(AppResource.INSTANCE.info(), title, message);
+    }
+
+    @Override
+    public Promise<Void> confirm(String message) {
+        return confirm("信息提示", message);
+    }
+
+    public void alert(String message) {
         Dialog<MessagePanel> dialog = getMessagePanel(true);
         dialog.getContent().setHtml(message);
         dialog.setText("提示");
@@ -157,11 +200,7 @@ public class ClientContext implements IClientContext , HasCommonHandlers {
         return cookie;
     }
 
-    public static Size getDialogSize() {
-        return new Size(Window.getClientWidth() - 300 / 2, Window.getClientHeight() - 300 / 2);
-    }
-
-    public  void hideWaiting() {
+    public void hideWaiting() {
 
     }
 
@@ -180,32 +219,6 @@ public class ClientContext implements IClientContext , HasCommonHandlers {
         DomGlobal.console.log(message);
     }
 
-    public static <T extends RpcResult> void processServiceCode(T result) {
-        RpcResult result1=result;
-        if(result1.getCode()== Messages.NSG_NEED_LOGIN.getCode())
-        {
-            ClientContext.get().fireEvent(CommonEvent.needLoginEvent(null));
-        }
-    }
-
-
-    public static Promise<Void> confirm(String title, String message) {
-        return new Promise((resolve, reject) -> {
-            Callback<Void, Void> handler = new Callback<Void, Void>() {
-                @Override
-                public void onFailure(Void reason) {
-                    reject.onInvoke("");
-                }
-
-                @Override
-                public void onSuccess(Void result) {
-                    resolve.onInvoke((Promise.PromiseExecutorCallbackFn.ResolveCallbackFn.ResolveUnionType) null);
-                }
-            };
-            AiConfirm.confirm(title, AppResource.INSTANCE.info(), message, handler);
-        });
-    }
-
     /**
      * 输入一个值
      *
@@ -215,7 +228,7 @@ public class ClientContext implements IClientContext , HasCommonHandlers {
      * @param initValue
      * @param callback
      */
-    public  void input(String dialogTitle, String tip, String placeHolder, String initValue, Callback callback) {
+    public void input(String dialogTitle, String tip, String placeHolder, String initValue, Callback callback) {
         AiInputPanel.input(dialogTitle, tip, placeHolder, initValue, callback);
     }
 
@@ -232,5 +245,25 @@ public class ClientContext implements IClientContext , HasCommonHandlers {
     @Override
     public HandlerRegistration addCommonHandler(CommonEventHandler handler) {
         return eventBus.addHandler(CommonEvent.TYPE, handler);
+    }
+
+    public boolean isAssignResource(String resource) {
+        for (Res res : userPermissions.resources) {
+            if (res.resourceCode.equals(resource)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public List<Res> findUserResources(ResourceKind resourceKind) {
+        List<Res> ress = new ArrayList<Res>();
+        for (int i = 0; i < userPermissions.resources.length; i++) {
+            Res res = userPermissions.resources[i];
+            if (res.kind.equals(resourceKind.getCode())) {
+                ress.add(res);
+            }
+        }
+        return ress;
     }
 }

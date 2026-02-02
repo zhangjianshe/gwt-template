@@ -1,22 +1,26 @@
 package cn.mapway.gwt_template.client;
 
 import cn.mapway.gwt_template.client.main.MainFrame;
+import cn.mapway.gwt_template.client.rpc.AppProxy;
 import cn.mapway.gwt_template.client.user.AppLoginFrame;
+import cn.mapway.gwt_template.shared.rpc.app.AppData;
+import cn.mapway.gwt_template.shared.rpc.app.QueryAppInfoRequest;
+import cn.mapway.gwt_template.shared.rpc.app.QueryAppInfoResponse;
+import cn.mapway.rbac.client.RbacClient;
 import cn.mapway.rbac.client.RbacServerProxy;
 import cn.mapway.rbac.shared.rpc.QueryCurrentUserRequest;
 import cn.mapway.rbac.shared.rpc.QueryCurrentUserResponse;
-import cn.mapway.ui.client.IUserInfo;
 import cn.mapway.ui.client.mvc.BaseAbstractModule;
 import cn.mapway.ui.client.mvc.IModule;
 import cn.mapway.ui.client.mvc.ModuleParameter;
 import cn.mapway.ui.client.resource.MapwayResource;
-import cn.mapway.ui.shared.CommonEvent;
-import cn.mapway.ui.shared.CommonEventHandler;
 import cn.mapway.ui.shared.rpc.RpcResult;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
-import jsinterop.base.Js;
+import elemental2.dom.DomGlobal;
+
+import static cn.mapway.gwt_template.shared.AppConstant.SYS_CODE;
 
 public class ClientApp implements EntryPoint {
 
@@ -26,22 +30,43 @@ public class ClientApp implements EntryPoint {
 
     public void onModuleLoad() {
         MapwayResource.INSTANCE.css().ensureInjected();
-        ClientContext clientContext = ClientContext.get();
-        clientContext.addCommonHandler(new CommonEventHandler() {
+        AppProxy.get().queryAppInfo(new QueryAppInfoRequest(), new AsyncCallback<RpcResult<QueryAppInfoResponse>>() {
             @Override
-            public void onCommonEvent(CommonEvent event) {
-                if (event.isLogin()) {
-                    IUserInfo userInfo = Js.uncheckedCast(event.getValue());
-                    clientContext.setUserInfo(userInfo);
-                    gotoMainFrame();
-                } else if (event.isNeedLogin()) {
-                    gotoLogin();
-                }
+            public void onFailure(Throwable caught) {
+                DomGlobal.console.error(caught.getMessage());
             }
 
+            @Override
+            public void onSuccess(RpcResult<QueryAppInfoResponse> result) {
+                if (result.isSuccess()) {
+                    readyToStart(result.getData().getAppData());
+                } else {
+                    DomGlobal.console.error(result.getMessage());
+                }
+            }
         });
+    }
 
-        RbacServerProxy.get().queryCurrentUser(new QueryCurrentUserRequest(), new AsyncCallback<RpcResult<QueryCurrentUserResponse>>() {
+    private void readyToStart(AppData appData) {
+        ClientContext clientContext = ClientContext.get();
+        clientContext.setAppData(appData);
+        RbacClient.get().setClientContext(clientContext);
+
+        clientContext.addCommonHandler(event -> {
+            if (event.isLogin()) {
+                queryCurrentUser();
+            } else if (event.isNeedLogin()) {
+                gotoLogin();
+            }
+        });
+        queryCurrentUser();
+
+    }
+
+    private void queryCurrentUser() {
+        QueryCurrentUserRequest request = new QueryCurrentUserRequest();
+        request.setSystemCode(SYS_CODE);
+        RbacServerProxy.get().queryCurrentUser(request, new AsyncCallback<RpcResult<QueryCurrentUserResponse>>() {
             @Override
             public void onFailure(Throwable caught) {
                 ClientContext.get().toast(0, 0, caught.getMessage());
@@ -51,6 +76,7 @@ public class ClientApp implements EntryPoint {
             public void onSuccess(RpcResult<QueryCurrentUserResponse> result) {
                 if (result.isSuccess()) {
                     ClientContext.get().setUserInfo(result.getData().getCurrentUser());
+                    ClientContext.get().setUserPermissions(result.getData().getUserPermissions());
                     gotoMainFrame();
                 } else {
                     gotoLogin();

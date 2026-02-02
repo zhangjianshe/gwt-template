@@ -1,5 +1,9 @@
 package cn.mapway.gwt_template.client.rpc;
 
+import cn.mapway.gwt_template.shared.rpc.app.QueryAppInfoRequest;
+import cn.mapway.gwt_template.shared.rpc.app.QueryAppInfoResponse;
+import cn.mapway.gwt_template.shared.rpc.app.UpdateAppInfoRequest;
+import cn.mapway.gwt_template.shared.rpc.app.UpdateAppInfoResponse;
 import cn.mapway.gwt_template.shared.rpc.config.QueryConfigListRequest;
 import cn.mapway.gwt_template.shared.rpc.config.QueryConfigListResponse;
 import cn.mapway.gwt_template.shared.rpc.config.UpdateConfigListRequest;
@@ -13,6 +17,10 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public interface IAppServerAsync {
 
     ///CODE_GEN_INSERT_POINT///
+	void updateAppInfo(UpdateAppInfoRequest request, AsyncCallback<RpcResult<UpdateAppInfoResponse>> async);
+
+	void queryAppInfo(QueryAppInfoRequest request, AsyncCallback<RpcResult<QueryAppInfoResponse>> async);
+
 	void deleteProjectBuild(DeleteProjectBuildRequest request, AsyncCallback<RpcResult<DeleteProjectBuildResponse>> async);
 
 	void queryProjectBuild(QueryProjectBuildRequest request, AsyncCallback<RpcResult<QueryProjectBuildResponse>> async);

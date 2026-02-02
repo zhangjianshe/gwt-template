@@ -1,4 +1,4 @@
-package cn.mapway.gwt_template.server.config;
+package cn.mapway.gwt_template.server.config.security;
 
 
 import cn.mapway.gwt_template.server.servlet.AppServlet;

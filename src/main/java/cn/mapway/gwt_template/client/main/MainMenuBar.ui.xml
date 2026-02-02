@@ -37,13 +37,16 @@
         .exit:hover {
             background-color: rgba(0, 0, 0, 0.5);
         }
-    </ui:style>
+
+        .logo {
+            overflow: hidden;
+            object-fit: contain;
+        }</ui:style>
     <g:HTMLPanel styleName="{style.box}">
-        <g:HorizontalPanel>
-            <g:Button ui:field="btnDns">DNS配置</g:Button>
-            <g:Button ui:field="btnSoftware">软件仓库</g:Button>
-            <g:Button ui:field="btnProject">开发项目</g:Button>
-            <g:Button ui:field="btnNode">计算节点</g:Button>
+        <g:HorizontalPanel verticalAlignment="middle">
+            <g:Image ui:field="logo" addStyleNames="{style.logo}"/>
+            <g:HorizontalPanel ui:field="buttons">
+            </g:HorizontalPanel>
         </g:HorizontalPanel>
         <g:HorizontalPanel horizontalAlignment="right">
             <g:Label ui:field="lbExit" addStyleNames="{style.exit}"/>

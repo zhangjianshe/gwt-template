@@ -22,7 +22,8 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
         name = "开发项目",
         value = ProjectFrame.MODULE_CODE,
         unicode = Fonts.PROJECT,
-        summary = "我参与的开发项目"
+        summary = "我参与的开发项目",
+        order = 100
 )
 public class ProjectFrame extends BaseAbstractModule {
     public static final String MODULE_CODE = "dev_project_frame";

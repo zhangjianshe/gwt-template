@@ -1,7 +1,6 @@
 package cn.mapway.gwt_template.server.api;
 
 
-import cn.mapway.biz.api.ApiResult;
 import cn.mapway.biz.core.BizContext;
 import cn.mapway.biz.core.BizResult;
 import cn.mapway.gwt_template.server.service.user.TokenService;

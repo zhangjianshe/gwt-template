@@ -1,0 +1,9 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:inspector="urn:import:cn.mapway.ui.client.mvc.attribute.editor.inspector">
+    <g:DockLayoutPanel>
+        <g:west size="500">
+            <inspector:ObjectInspector vertical="true" ui:field="objectInspector" saveButtonVisible="false"/>
+        </g:west>
+    </g:DockLayoutPanel>
+</ui:UiBinder>

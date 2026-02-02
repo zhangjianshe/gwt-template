@@ -3,6 +3,7 @@ package cn.mapway.gwt_template.shared.rpc.user.module;
 import cn.mapway.document.annotation.ApiField;
 import cn.mapway.document.annotation.Doc;
 import cn.mapway.gwt_template.shared.AppConstant;
+import cn.mapway.rbac.shared.RbacConstant;
 import cn.mapway.rbac.shared.db.postgis.RbacUserEntity;
 import cn.mapway.ui.client.IUserInfo;
 import com.google.gwt.user.client.rpc.IsSerializable;
@@ -27,6 +28,11 @@ public class LoginUser implements Serializable, IsSerializable, IUserInfo {
     @ApiField("是否是API调用")
     boolean apiInvoke;
 
+
+    public boolean isAdmin()
+    {
+        return user!=null && user.getUserId().equals(RbacConstant.SUPER_USER_ID);
+    }
 
     public LoginUser(RbacUserEntity user) {
         this.user = user;

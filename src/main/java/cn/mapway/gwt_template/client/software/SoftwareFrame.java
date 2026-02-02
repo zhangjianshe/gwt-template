@@ -25,7 +25,8 @@ import static cn.mapway.gwt_template.client.software.SoftwareFrame.MODULE_CODE;
         value = MODULE_CODE,
         name = "软件仓库",
         summary = "software repo",
-        unicode = Fonts.APPS
+        unicode = Fonts.APPS,
+        order = 200
 )
 public class SoftwareFrame extends ToolbarModule {
     public static final String MODULE_CODE = "software_frame";
