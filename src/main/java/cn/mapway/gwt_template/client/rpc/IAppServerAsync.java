@@ -3,6 +3,7 @@ package cn.mapway.gwt_template.client.rpc;
 import cn.mapway.gwt_template.shared.rpc.config.*;
 import cn.mapway.gwt_template.shared.rpc.dev.*;
 import cn.mapway.gwt_template.shared.rpc.dns.*;
+import cn.mapway.gwt_template.shared.rpc.project.*;
 import cn.mapway.gwt_template.shared.rpc.soft.*;
 import cn.mapway.rbac.shared.rpc.LoginRequest;
 import cn.mapway.rbac.shared.rpc.LoginResponse;
@@ -11,7 +12,20 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public interface IAppServerAsync {
 
-    /// CODE_GEN_INSERT_POINT///
+    ///CODE_GEN_INSERT_POINT///
+	void queryGroupMember(QueryGroupMemberRequest request, AsyncCallback<RpcResult<QueryGroupMemberResponse>> async);
+
+	void deleteGroupMember(DeleteGroupMemberRequest request, AsyncCallback<RpcResult<DeleteGroupMemberResponse>> async);
+
+	void updateGroupMember(UpdateGroupMemberRequest request, AsyncCallback<RpcResult<UpdateGroupMemberResponse>> async);
+
+	void queryDevGroup(QueryDevGroupRequest request, AsyncCallback<RpcResult<QueryDevGroupResponse>> async);
+
+	void deleteDevGroup(DeleteDevGroupRequest request, AsyncCallback<RpcResult<DeleteDevGroupResponse>> async);
+
+	void updateDevGroup(UpdateDevGroupRequest request, AsyncCallback<RpcResult<UpdateDevGroupResponse>> async);
+
+
     void updateConfig(UpdateConfigRequest request, AsyncCallback<RpcResult<UpdateConfigResponse>> async);
 
     void queryConfig(QueryConfigRequest request, AsyncCallback<RpcResult<QueryConfigResponse>> async);

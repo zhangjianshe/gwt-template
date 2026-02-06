@@ -1,6 +1,7 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
              xmlns:g='urn:import:com.google.gwt.user.client.ui'
-             xmlns:project="urn:import:cn.mapway.gwt_template.client.project">
+             xmlns:project="urn:import:cn.mapway.gwt_template.client.project"
+             xmlns:group="urn:import:cn.mapway.gwt_template.client.project.group">
     <g:DockLayoutPanel>
         <g:west size="350">
             <g:DockLayoutPanel addStyleNames="ai-border-right">
@@ -16,6 +17,9 @@
                     </g:ScrollPanel>
                 </g:center>
             </g:DockLayoutPanel>
+        </g:west>
+        <g:west size="350">
+            <group:GroupList/>
         </g:west>
         <g:center>
             <project:ProjectFlowPanel ui:field="projectPanel"/>

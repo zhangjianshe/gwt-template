@@ -3,7 +3,7 @@
              xmlns:buttons="urn:import:cn.mapway.ui.client.widget.buttons"
              xmlns:tree="urn:import:cn.mapway.ui.client.widget.tree">
     <ui:style>
-        .header{
+        .header {
             display: flex;
             padding: 4px;
             align-items: center;
@@ -12,11 +12,13 @@
     </ui:style>
     <g:DockLayoutPanel>
         <g:north size="50">
-            <g:HorizontalPanel>
-                <widget:Header ui:field="lbName"/>
-                <g:Label ui:field="lbCount" addStyleNames="ai-code"/>
-            </g:HorizontalPanel>
-            <buttons:AiButton ui:field="btnCreate">创建组织</buttons:AiButton>
+            <g:HTMLPanel addStyleNames="{style.header}">
+                <g:HorizontalPanel verticalAlignment="middle">
+                    <widget:Header>我的组织</widget:Header>
+                    <g:Label ui:field="lbCount" addStyleNames="ai-code"/>
+                </g:HorizontalPanel>
+                <buttons:AiButton ui:field="btnCreate">创建组织</buttons:AiButton>
+            </g:HTMLPanel>
         </g:north>
         <g:center>
             <g:ScrollPanel>
