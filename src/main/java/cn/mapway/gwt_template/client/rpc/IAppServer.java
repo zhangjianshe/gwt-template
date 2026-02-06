@@ -27,6 +27,18 @@ public interface IAppServer extends RemoteService {
 
 	RpcResult<UpdateDevGroupResponse> updateDevGroup(UpdateDevGroupRequest request);
 
+	RpcResult<QueryGroupMemberResponse> queryGroupMember(QueryGroupMemberRequest request);
+
+	RpcResult<DeleteGroupMemberResponse> deleteGroupMember(DeleteGroupMemberRequest request);
+
+	RpcResult<UpdateGroupMemberResponse> updateGroupMember(UpdateGroupMemberRequest request);
+
+	RpcResult<QueryDevGroupResponse> queryDevGroup(QueryDevGroupRequest request);
+
+	RpcResult<DeleteDevGroupResponse> deleteDevGroup(DeleteDevGroupRequest request);
+
+	RpcResult<UpdateDevGroupResponse> updateDevGroup(UpdateDevGroupRequest request);
+
     RpcResult<UpdateConfigResponse> updateConfig(UpdateConfigRequest request);
 
     RpcResult<QueryConfigResponse> queryConfig(QueryConfigRequest request);

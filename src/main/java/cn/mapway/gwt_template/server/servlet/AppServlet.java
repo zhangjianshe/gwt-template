@@ -13,6 +13,7 @@ import cn.mapway.gwt_template.server.service.dns.DeleteDnsExecutor;
 import cn.mapway.gwt_template.server.service.dns.QueryDnsExecutor;
 import cn.mapway.gwt_template.server.service.dns.UpdateDnsExecutor;
 import cn.mapway.gwt_template.server.service.dns.UpdateIpExecutor;
+import cn.mapway.gwt_template.server.service.project.*;
 import cn.mapway.gwt_template.server.service.soft.CreateSoftwareExecutor;
 import cn.mapway.gwt_template.server.service.soft.DeleteSoftwareExecutor;
 import cn.mapway.gwt_template.server.service.soft.QuerySoftwareExecutor;
@@ -23,6 +24,7 @@ import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.rpc.config.*;
 import cn.mapway.gwt_template.shared.rpc.dev.*;
 import cn.mapway.gwt_template.shared.rpc.dns.*;
+import cn.mapway.gwt_template.shared.rpc.project.*;
 import cn.mapway.gwt_template.shared.rpc.soft.*;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
 import cn.mapway.rbac.shared.rpc.LoginRequest;
@@ -41,7 +43,7 @@ import java.util.List;
 @Slf4j
 @WebServlet(urlPatterns = "/app/*", name = "appservlet", loadOnStartup = 1)
 public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServer {
-    /// CODE_GEN_INSERT_POINT///
+
 
     @Resource
     DeleteProjectBuildExecutor deleteProjectBuildExecutor;
@@ -97,6 +99,67 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
     UpdateConfigExecutor updateConfigExecutor;
     @Resource
     QueryConfigExecutor queryConfigExecutor;
+
+    ///CODE_GEN_INSERT_POINT///
+	
+    @Resource
+    QueryGroupMemberExecutor queryGroupMemberExecutor;
+    @Override
+    public RpcResult<QueryGroupMemberResponse> queryGroupMember(QueryGroupMemberRequest request) {
+        BizResult<QueryGroupMemberResponse> bizResult = queryGroupMemberExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    DeleteGroupMemberExecutor deleteGroupMemberExecutor;
+    @Override
+    public RpcResult<DeleteGroupMemberResponse> deleteGroupMember(DeleteGroupMemberRequest request) {
+        BizResult<DeleteGroupMemberResponse> bizResult = deleteGroupMemberExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    UpdateGroupMemberExecutor updateGroupMemberExecutor;
+    @Override
+    public RpcResult<UpdateGroupMemberResponse> updateGroupMember(UpdateGroupMemberRequest request) {
+        BizResult<UpdateGroupMemberResponse> bizResult = updateGroupMemberExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    QueryDevGroupExecutor queryDevGroupExecutor;
+    @Override
+    public RpcResult<QueryDevGroupResponse> queryDevGroup(QueryDevGroupRequest request) {
+        BizResult<QueryDevGroupResponse> bizResult = queryDevGroupExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    DeleteDevGroupExecutor deleteDevGroupExecutor;
+    @Override
+    public RpcResult<DeleteDevGroupResponse> deleteDevGroup(DeleteDevGroupRequest request) {
+        BizResult<DeleteDevGroupResponse> bizResult = deleteDevGroupExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    UpdateDevGroupExecutor updateDevGroupExecutor;
+    @Override
+    public RpcResult<UpdateDevGroupResponse> updateDevGroup(UpdateDevGroupRequest request) {
+        BizResult<UpdateDevGroupResponse> bizResult = updateDevGroupExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
 
     @Override
     public RpcResult<UpdateConfigResponse> updateConfig(UpdateConfigRequest request) {
