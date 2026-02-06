@@ -15,17 +15,6 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 @RemoteServiceRelativePath(AppConstant.DEFAULT_SERVER_PATH)
 public interface IAppServer extends RemoteService {
     ///CODE_GEN_INSERT_POINT///
-	RpcResult<QueryGroupMemberResponse> queryGroupMember(QueryGroupMemberRequest request);
-
-	RpcResult<DeleteGroupMemberResponse> deleteGroupMember(DeleteGroupMemberRequest request);
-
-	RpcResult<UpdateGroupMemberResponse> updateGroupMember(UpdateGroupMemberRequest request);
-
-	RpcResult<QueryDevGroupResponse> queryDevGroup(QueryDevGroupRequest request);
-
-	RpcResult<DeleteDevGroupResponse> deleteDevGroup(DeleteDevGroupRequest request);
-
-	RpcResult<UpdateDevGroupResponse> updateDevGroup(UpdateDevGroupRequest request);
 
 	RpcResult<QueryGroupMemberResponse> queryGroupMember(QueryGroupMemberRequest request);
 
