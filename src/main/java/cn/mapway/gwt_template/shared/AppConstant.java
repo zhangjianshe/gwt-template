@@ -6,15 +6,10 @@ package cn.mapway.gwt_template.shared;
 public class AppConstant {
     public static final String DEFAULT_SERVER_PATH = "/app";
     public static final String API_TOKEN = "app-token";
-    public static final String TOKEN_PREFIX = "";
     public static final String AUTH_COOKIE_NAME = "auth-token";
     public static final String KEY_LOGIN_USER = "login_user";
     public static final String KEY_DB_VERSION = "db_version";
-    public static final String TAG_PREFERENCE = "preference";
     public static final String KEY_CLOUDFLARE_TOKEN = "cloudflare_token";
-    public static final Object ADMIN_UID = 0L;
     public static final String SYS_CODE = "SYS_SOFTWARE";
-    public static final String KEY_APPLICATION_INFO = "APPLICATION_INFO";
     public static final String DEFAULT_UPLOAD_LOCATION = "DEFAULT_UPLOAD_LOCATION";
-    public static final String TAG_HIDDEN = "hidden";
 }

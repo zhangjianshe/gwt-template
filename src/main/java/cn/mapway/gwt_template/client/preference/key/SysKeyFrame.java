@@ -3,7 +3,6 @@ package cn.mapway.gwt_template.client.preference.key;
 import cn.mapway.gwt_template.client.ClientContext;
 import cn.mapway.gwt_template.client.rpc.AppProxy;
 import cn.mapway.gwt_template.client.rpc.AsyncAdaptor;
-import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.db.DevKeyEntity;
 import cn.mapway.gwt_template.shared.rpc.dev.*;
 import cn.mapway.ui.client.event.MessageObject;
@@ -13,6 +12,7 @@ import cn.mapway.ui.client.mvc.ModuleMarker;
 import cn.mapway.ui.client.util.StringUtil;
 import cn.mapway.ui.client.widget.Header;
 import cn.mapway.ui.client.widget.buttons.DeleteButton;
+import cn.mapway.ui.shared.CommonConstant;
 import cn.mapway.ui.shared.rpc.RpcResult;
 import com.google.gwt.core.client.Callback;
 import com.google.gwt.core.client.GWT;
@@ -25,7 +25,6 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.FlexTable;
-import com.google.gwt.user.client.ui.Label;
 import elemental2.promise.IThenable;
 
 import static cn.mapway.gwt_template.client.preference.key.SysKeyFrame.MODULE_CODE;
@@ -35,7 +34,10 @@ import static cn.mapway.gwt_template.client.preference.key.SysKeyFrame.MODULE_CO
         value = MODULE_CODE,
         name = "系统密钥对",
         unicode = Fonts.KEY,
-        tags = AppConstant.TAG_PREFERENCE
+        tags = {
+                CommonConstant.TAG_PREFERENCE,
+                CommonConstant.TAG_ADMIN
+        }
 )
 public class SysKeyFrame extends BaseAbstractModule {
     public static final String MODULE_CODE = "sys_key_frame";

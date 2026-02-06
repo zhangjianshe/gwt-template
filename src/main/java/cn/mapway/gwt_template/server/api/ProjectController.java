@@ -4,7 +4,9 @@ import cn.mapway.biz.core.BizRequest;
 import cn.mapway.biz.core.BizResult;
 import cn.mapway.document.annotation.Doc;
 import cn.mapway.gwt_template.server.service.dev.*;
+import cn.mapway.gwt_template.server.service.project.*;
 import cn.mapway.gwt_template.shared.rpc.dev.*;
+import cn.mapway.gwt_template.shared.rpc.project.*;
 import cn.mapway.ui.shared.rpc.RpcResult;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,6 +43,101 @@ public class ProjectController extends ApiBaseController {
     QueryKeyExecutor queryKeyExecutor;
     @Resource
     QueryProjectBuildExecutor queryProjectBuildExecutor;
+
+
+    @Resource
+    UpdateDevGroupExecutor updateDevGroupExecutor;
+    @Resource
+    DeleteDevGroupExecutor deleteDevGroupExecutor;
+    @Resource
+    QueryDevGroupExecutor queryDevGroupExecutor;
+    @Resource
+    UpdateGroupMemberExecutor updateGroupMemberExecutor;
+    @Resource
+    DeleteGroupMemberExecutor deleteGroupMemberExecutor;
+    @Resource
+    QueryGroupMemberExecutor queryGroupMemberExecutor;
+    @Resource
+    DeleteProjectBuildExecutor deleteProjectBuildExecutor;
+
+    /**
+     * UpdateDevGroup
+     *
+     * @param request request
+     * @return data
+     */
+    @Doc(value = "UpdateDevGroup", retClazz = {UpdateDevGroupResponse.class})
+    @RequestMapping(value = "/updateDevGroup", method = RequestMethod.POST)
+    public RpcResult<UpdateDevGroupResponse> updateDevGroup(@RequestBody UpdateDevGroupRequest request) {
+        BizResult<UpdateDevGroupResponse> bizResult = updateDevGroupExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toApiResult(bizResult);
+    }
+
+    /**
+     * DeleteDevGroup
+     *
+     * @param request request
+     * @return data
+     */
+    @Doc(value = "DeleteDevGroup", retClazz = {DeleteDevGroupResponse.class})
+    @RequestMapping(value = "/deleteDevGroup", method = RequestMethod.POST)
+    public RpcResult<DeleteDevGroupResponse> deleteDevGroup(@RequestBody DeleteDevGroupRequest request) {
+        BizResult<DeleteDevGroupResponse> bizResult = deleteDevGroupExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toApiResult(bizResult);
+    }
+
+    /**
+     * QueryDevGroup
+     *
+     * @param request request
+     * @return data
+     */
+    @Doc(value = "QueryDevGroup", retClazz = {QueryDevGroupResponse.class})
+    @RequestMapping(value = "/queryDevGroup", method = RequestMethod.POST)
+    public RpcResult<QueryDevGroupResponse> queryDevGroup(@RequestBody QueryDevGroupRequest request) {
+        BizResult<QueryDevGroupResponse> bizResult = queryDevGroupExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toApiResult(bizResult);
+    }
+
+    /**
+     * UpdateGroupMember
+     *
+     * @param request request
+     * @return data
+     */
+    @Doc(value = "UpdateGroupMember", retClazz = {UpdateGroupMemberResponse.class})
+    @RequestMapping(value = "/updateGroupMember", method = RequestMethod.POST)
+    public RpcResult<UpdateGroupMemberResponse> updateGroupMember(@RequestBody UpdateGroupMemberRequest request) {
+        BizResult<UpdateGroupMemberResponse> bizResult = updateGroupMemberExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toApiResult(bizResult);
+    }
+
+    /**
+     * DeleteGroupMember
+     *
+     * @param request request
+     * @return data
+     */
+    @Doc(value = "DeleteGroupMember", retClazz = {DeleteGroupMemberResponse.class})
+    @RequestMapping(value = "/deleteGroupMember", method = RequestMethod.POST)
+    public RpcResult<DeleteGroupMemberResponse> deleteGroupMember(@RequestBody DeleteGroupMemberRequest request) {
+        BizResult<DeleteGroupMemberResponse> bizResult = deleteGroupMemberExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toApiResult(bizResult);
+    }
+
+    /**
+     * QueryGroupMember
+     *
+     * @param request request
+     * @return data
+     */
+    @Doc(value = "QueryGroupMember", retClazz = {QueryGroupMemberResponse.class})
+    @RequestMapping(value = "/queryGroupMember", method = RequestMethod.POST)
+    public RpcResult<QueryGroupMemberResponse> queryGroupMember(@RequestBody QueryGroupMemberRequest request) {
+        BizResult<QueryGroupMemberResponse> bizResult = queryGroupMemberExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toApiResult(bizResult);
+    }
+
     /**
      * QueryProjectBuild
      *
@@ -53,8 +150,7 @@ public class ProjectController extends ApiBaseController {
         BizResult<QueryProjectBuildResponse> bizResult = queryProjectBuildExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toApiResult(bizResult);
     }
-    @Resource
-    DeleteProjectBuildExecutor deleteProjectBuildExecutor;
+
     /**
      * DeleteProjectBuild
      *
@@ -67,6 +163,7 @@ public class ProjectController extends ApiBaseController {
         BizResult<DeleteProjectBuildResponse> bizResult = deleteProjectBuildExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toApiResult(bizResult);
     }
+
     /**
      * QueryProject
      *

@@ -24,7 +24,7 @@ import com.google.gwt.user.client.ui.TextBox;
  * dialog.addCommonEventHandler((event)->{
  * if(event.isOK())
  * {
- * String data=event.getValue();
+ * String data=event.getCode();
  * // check the value
  * }
  * else if(event.isClose())

@@ -3,6 +3,7 @@ package cn.mapway.gwt_template.client.project;
 import cn.mapway.gwt_template.client.node.NodeListBox;
 import cn.mapway.gwt_template.client.rpc.AppProxy;
 import cn.mapway.gwt_template.shared.db.DevProjectEntity;
+import cn.mapway.gwt_template.shared.db.VwProjectEntity;
 import cn.mapway.gwt_template.shared.rpc.dev.UpdateProjectRequest;
 import cn.mapway.gwt_template.shared.rpc.dev.UpdateProjectResponse;
 import cn.mapway.ui.client.mvc.Size;
@@ -20,7 +21,7 @@ import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
 
-public class ProjectEditor extends CommonEventComposite implements IData<DevProjectEntity> {
+public class ProjectEditor extends CommonEventComposite implements IData<VwProjectEntity> {
     private static final ProjectEditorUiBinder ourUiBinder = GWT.create(ProjectEditorUiBinder.class);
     private static Dialog<ProjectEditor> dialog;
     @UiField
@@ -31,7 +32,7 @@ public class ProjectEditor extends CommonEventComposite implements IData<DevProj
     AiTextBox txtSource;
     @UiField
     NodeListBox ddlNodes;
-    private DevProjectEntity project;
+    private VwProjectEntity project;
 
     public ProjectEditor() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -59,15 +60,15 @@ public class ProjectEditor extends CommonEventComposite implements IData<DevProj
     }
 
     @Override
-    public DevProjectEntity getData() {
+    public VwProjectEntity getData() {
         return project;
     }
 
     @Override
-    public void setData(DevProjectEntity obj) {
+    public void setData(VwProjectEntity obj) {
         project = obj;
         if (project == null) {
-            project = new DevProjectEntity();
+            project = new VwProjectEntity();
         }
         toUI();
     }

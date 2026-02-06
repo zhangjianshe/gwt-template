@@ -56,26 +56,42 @@
             align-items: center;
             justify-content: center;
             flex-flow: column;
+        }
+
+        .box1 {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-flow: column;
+        }
+
+        .msg {
+            max-width: 60%;
+            text-wrap: wrap;
+            word-break: break-all;
+            padding: 10px;
+            line-height: 150%;
+            color: brown;
         }</ui:style>
     <g:DockLayoutPanel ui:field="root">
-          <g:center>
-              <g:HTMLPanel addStyleNames="ai-flex-panel">
-                  <div class="{style.login-container}">
-                      <h2>Login</h2>
-                      <form method="POST" class="{style.box}">
-                          <div class="{style.input-group}">
-                              <label for="txtName">用户名</label>
-                              <widget:AiTextBox name="txtName" ui:field="txtName"/>
-                          </div>
-                          <div class="{style.input-group}">
-                              <label for="password">密码</label>
-                              <widget:AiTextBox name="password" ui:field="txtPassword"/>
-                          </div>
-                          <g:Button addStyleNames="{style.login-button}" ui:field="btnLogin">登录</g:Button>
-                      </form>
-                      <g:Label ui:field="lbMessage"/>
-                  </div>
-              </g:HTMLPanel>
-          </g:center>
+        <g:center>
+            <g:HTMLPanel addStyleNames="{style.box1}">
+                <div class="{style.login-container}">
+                    <h2>Login</h2>
+                    <form method="POST" class="{style.box}">
+                        <div class="{style.input-group}">
+                            <label for="txtName">用户名</label>
+                            <widget:AiTextBox name="txtName" ui:field="txtName"/>
+                        </div>
+                        <div class="{style.input-group}">
+                            <label for="password">密码</label>
+                            <widget:AiTextBox name="password" ui:field="txtPassword"/>
+                        </div>
+                        <g:Button addStyleNames="{style.login-button}" ui:field="btnLogin">登录</g:Button>
+                    </form>
+                </div>
+                <g:Label ui:field="lbMessage" addStyleNames="{style.msg}"/>
+            </g:HTMLPanel>
+        </g:center>
     </g:DockLayoutPanel>
 </ui:UiBinder>

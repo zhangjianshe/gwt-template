@@ -35,6 +35,10 @@ public class DevProjectEntity implements Serializable, IsSerializable {
     @Column(hump = true)
     Long userId;
 
+    @Comment("组ID")
+    @Column(hump = true)
+    String groupId;
+
     @Comment("源代码")
     @ColDefine(type = ColType.VARCHAR, width = 512)
     @Column(hump = true)
@@ -54,6 +58,12 @@ public class DevProjectEntity implements Serializable, IsSerializable {
     @ColDefine(type = ColType.VARCHAR, width = 512)
     @Column(hump = true)
     String  serviceUrl;
+
+    @Comment("拥有者类型")
+    @Column("owner_kind")
+    @Default("0")
+    Integer ownerKind;
+
 
 
 }

@@ -9,6 +9,7 @@ import cn.mapway.gwt_template.shared.rpc.config.QueryConfigListResponse;
 import cn.mapway.ui.client.event.MessageObject;
 import cn.mapway.ui.client.fonts.Fonts;
 import cn.mapway.ui.client.mvc.*;
+import cn.mapway.ui.shared.CommonConstant;
 import cn.mapway.ui.shared.rpc.RpcResult;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -30,7 +31,10 @@ import static cn.mapway.gwt_template.client.preference.ConfigEntityPreference.MO
         value = MODULE_CODE,
         name = "键值对配置",
         unicode = Fonts.LABEL_MAKER,
-        tags = AppConstant.TAG_PREFERENCE
+        tags = {
+                CommonConstant.TAG_PREFERENCE,
+                CommonConstant.TAG_ADMIN
+        }
 )
 public class ConfigEntityPreference extends BaseAbstractModule implements ISaveble, RequiresResize {
     public static final String MODULE_CODE = "config_preference";
@@ -67,7 +71,7 @@ public class ConfigEntityPreference extends BaseAbstractModule implements ISaveb
                 if (result.isSuccess()) {
                     renderConfig(result.getData().getConfigs());
                 } else {
-                    fireMessage(MessageObject.info(0,result.getMessage()));
+                    fireMessage(MessageObject.info(0, result.getMessage()));
                 }
             }
         });

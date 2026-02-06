@@ -1,8 +1,8 @@
 package cn.mapway.gwt_template.client.project;
 
-import cn.mapway.gwt_template.shared.db.DevProjectEntity;
+import cn.mapway.gwt_template.shared.db.VwProjectEntity;
 import cn.mapway.ui.client.fonts.Fonts;
-import cn.mapway.ui.client.mvc.BaseAbstractModule;
+import cn.mapway.ui.client.frame.SubsystemModule;
 import cn.mapway.ui.client.mvc.IModule;
 import cn.mapway.ui.client.mvc.ModuleMarker;
 import cn.mapway.ui.client.mvc.ModuleParameter;
@@ -25,7 +25,7 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
         summary = "我参与的开发项目",
         order = 100
 )
-public class ProjectFrame extends BaseAbstractModule {
+public class ProjectFrame extends SubsystemModule {
     public static final String MODULE_CODE = "dev_project_frame";
     private static final ProjectFrameUiBinder ourUiBinder = GWT.create(ProjectFrameUiBinder.class);
     @UiField
@@ -38,7 +38,7 @@ public class ProjectFrame extends BaseAbstractModule {
     ProjectFlowPanel projectPanel;
     @UiField
     HorizontalPanel tools;
-    DevProjectEntity currentProject = null;
+    VwProjectEntity currentProject = null;
 
     public ProjectFrame() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -52,6 +52,11 @@ public class ProjectFrame extends BaseAbstractModule {
     }
 
     @Override
+    protected void initializeSubsystem() {
+
+    }
+
+    @Override
     public String getModuleCode() {
         return MODULE_CODE;
     }
@@ -60,12 +65,12 @@ public class ProjectFrame extends BaseAbstractModule {
     public void projectTreeCommon(CommonEvent event) {
         if (event.isSelect()) {
             TreeItem item = event.getValue();
-            DevProjectEntity project = (DevProjectEntity) item.getData();
+            VwProjectEntity project = (VwProjectEntity) item.getData();
             showProject(project);
         }
     }
 
-    private void showProject(DevProjectEntity project) {
+    private void showProject(VwProjectEntity project) {
         currentProject = project;
         btnEdit.setEnabled(currentProject != null);
         projectPanel.setData(project);
@@ -81,7 +86,7 @@ public class ProjectFrame extends BaseAbstractModule {
         editProject(currentProject);
     }
 
-    private void editProject(DevProjectEntity project) {
+    private void editProject(VwProjectEntity project) {
         Dialog<ProjectEditor> dialog = ProjectEditor.getDialog(true);
         dialog.addCommonHandler(event -> {
             if (event.isOk()) {

@@ -1,7 +1,7 @@
 package cn.mapway.gwt_template.server.config.security;
 
 import cn.mapway.gwt_template.server.service.user.handler.AuthenticationEntryPointImpl;
-import org.springframework.beans.factory.annotation.Autowired;
+import cn.mapway.gwt_template.server.service.user.login.LoginProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -10,6 +10,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.firewall.DefaultHttpFirewall;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.web.filter.CorsFilter;
+
+import javax.annotation.Resource;
 
 /**
  * spring security配置
@@ -21,12 +23,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     /**
      * 认证失败处理类
      */
-    @Autowired
+    @Resource
     private AuthenticationEntryPointImpl unauthorizedHandler;
+    @Resource
+    private LoginProvider dynamicLdapProvider;
     /**
      * 跨域过滤器
      */
-    @Autowired
+    @Resource
     private CorsFilter corsFilter;
     @Bean
     public HttpFirewall allowNonAsciiCharacters() {
@@ -58,6 +62,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/app").permitAll();
                 httpSecurity.logout().logoutUrl("/logout").permitAll();
 
-
     }
+
+
+
 }

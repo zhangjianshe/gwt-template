@@ -2,10 +2,12 @@
              xmlns:g='urn:import:com.google.gwt.user.client.ui' xmlns:widget="urn:import:cn.mapway.ui.client.widget">
     <ui:style>
         .box {
-            display: flex;
+            display: grid;
+            grid-template-columns: 280px 1fr 160px 40px;
             align-items: center;
             justify-content: space-between;
-            padding: 10px;
+            gap: 1rem;
+            padding: 0 10px;
         }
 
         .btn {
@@ -31,7 +33,7 @@
             align-items: center;
             display: flex;
             border-radius: 5px;
-            padding: 0 5px;
+            padding: 0 15px;
         }
 
         .exit:hover {
@@ -41,18 +43,15 @@
         .logo {
             overflow: hidden;
             object-fit: contain;
-        }</ui:style>
+        }
+    </ui:style>
     <g:HTMLPanel styleName="{style.box}">
-        <g:HorizontalPanel verticalAlignment="middle">
-            <g:Image ui:field="logo" addStyleNames="{style.logo}"/>
-            <g:HorizontalPanel ui:field="buttons">
+        <g:Image ui:field="logo" addStyleNames="{style.logo}"/>
+        <g:HTMLPanel>
+            <g:HorizontalPanel ui:field="buttons" verticalAlignment="middle">
             </g:HorizontalPanel>
-        </g:HorizontalPanel>
-        <g:HorizontalPanel horizontalAlignment="right">
-            <g:Label ui:field="lbExit" addStyleNames="{style.exit}"/>
-            <g:cell width="40px" horizontalAlignment="center">
-                <widget:FontIcon color="white" addStyleNames="{style.btn}" ui:field="btnPreference"/>
-            </g:cell>
-        </g:HorizontalPanel>
+        </g:HTMLPanel>
+        <g:Label ui:field="lbExit" addStyleNames="{style.exit}"/>
+        <widget:FontIcon color="white" addStyleNames="{style.btn}" ui:field="btnPreference"/>
     </g:HTMLPanel>
 </ui:UiBinder>

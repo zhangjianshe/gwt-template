@@ -55,10 +55,12 @@ public class SoftwareTree extends Tree {
         clear();
         for (SysSoftwareEntity software : data.getSoftwares()) {
             TreeItem item = addItem(null, software.getName(), "");
-            DeleteButton deleteButton = new DeleteButton();
-            deleteButton.setData(software);
-            deleteButton.addClickHandler(confirmDelete);
-            item.appendRightWidget(deleteButton);
+            if(ClientContext.get().isAdmin() || ClientContext.get().isCurrentUser(software.getUserId())) {
+                DeleteButton deleteButton = new DeleteButton();
+                deleteButton.setData(software);
+                deleteButton.addClickHandler(confirmDelete);
+                item.appendRightWidget(deleteButton);
+            }
             item.setData(software);
         }
     }

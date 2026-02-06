@@ -1,7 +1,7 @@
 package cn.mapway.gwt_template.client.project;
 
 import cn.mapway.gwt_template.client.project.build.BuildPanel;
-import cn.mapway.gwt_template.shared.db.DevProjectEntity;
+import cn.mapway.gwt_template.shared.db.VwProjectEntity;
 import cn.mapway.ui.client.tools.IData;
 import cn.mapway.ui.client.widget.CommonEventComposite;
 import com.google.gwt.core.client.GWT;
@@ -11,7 +11,7 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.Label;
 
-public class ProjectFlowPanel extends CommonEventComposite implements IData<DevProjectEntity> {
+public class ProjectFlowPanel extends CommonEventComposite implements IData<VwProjectEntity> {
     private static final ProjectFlowPanelUiBinder ourUiBinder = GWT.create(ProjectFlowPanelUiBinder.class);
     @UiField
     Label lbName;
@@ -21,19 +21,19 @@ public class ProjectFlowPanel extends CommonEventComposite implements IData<DevP
     Label lbSource;
     @UiField
     BuildPanel buildPanel;
-    private DevProjectEntity project;
+    private VwProjectEntity project;
 
     public ProjectFlowPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
     }
 
     @Override
-    public DevProjectEntity getData() {
+    public VwProjectEntity getData() {
         return project;
     }
 
     @Override
-    public void setData(DevProjectEntity obj) {
+    public void setData(VwProjectEntity obj) {
         project = obj;
         toUI();
     }

@@ -1,7 +1,7 @@
 package cn.mapway.gwt_template.client.user;
 
 import cn.mapway.gwt_template.client.ClientContext;
-import cn.mapway.rbac.client.RbacServerProxy;
+import cn.mapway.gwt_template.client.rpc.AppProxy;
 import cn.mapway.rbac.shared.rpc.LoginRequest;
 import cn.mapway.rbac.shared.rpc.LoginResponse;
 import cn.mapway.ui.client.mvc.BaseAbstractModule;
@@ -68,7 +68,7 @@ public class AppLoginFrame extends BaseAbstractModule implements RequiresResize 
         LoginRequest request = new LoginRequest();
         request.setUserName(userName);
         request.setPassword(password);
-        RbacServerProxy.get().login(request, new AsyncCallback<RpcResult<LoginResponse>>() {
+        AppProxy.get().login(request, new AsyncCallback<RpcResult<LoginResponse>>() {
             @Override
             public void onFailure(Throwable caught) {
                 lbMessage.setText(caught.getMessage());

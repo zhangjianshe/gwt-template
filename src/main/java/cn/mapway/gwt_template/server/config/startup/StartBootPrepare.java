@@ -6,20 +6,27 @@ import cn.mapway.gwt_template.shared.db.*;
 import lombok.extern.slf4j.Slf4j;
 import org.nutz.dao.Dao;
 import org.nutz.dao.Sqls;
+import org.nutz.dao.impl.FileSqlManager;
 import org.nutz.dao.impl.SimpleDataSource;
 import org.nutz.dao.sql.Sql;
 import org.nutz.dao.util.Daos;
+import org.nutz.json.Json;
+import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
+import org.nutz.resource.NutResource;
+import org.nutz.resource.Scans;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -29,7 +36,7 @@ import java.util.regex.Pattern;
 @Service
 @Slf4j
 public class StartBootPrepare implements ApplicationContextAware {
-    public final static String DB_VERSION = "2025-12-08";
+    public final static String DB_VERSION = "2026-02-07";
     @Resource
     Dao dao;
     ApplicationContext context;
@@ -163,12 +170,48 @@ public class StartBootPrepare implements ApplicationContextAware {
         if (needCreateTable()) {
             //创建系统数据库表
             log.warn("[DB] 系统没有初始化...准备初始化系统表");
+            //remove ALL VIEWS
+            FileSqlManager viewManager = removeAllView();
+
             createAllTables();
+
+            checkAllViews(viewManager);
         } else {
             log.info("[DB] 系统数据库当前版本{}", DB_VERSION);
         }
+    }
 
+    private void checkAllViews(FileSqlManager sqlManager) {
+        log.info("[DB] 重建视图");
+        for (String key : sqlManager.keys()) {
+            String sql = sqlManager.get(key);
+            log.info("[DB] 重建视图 {}",key);
+            Sql sql1 = Sqls.create(sql);
+            dao.execute(sql1);
+        }
+    }
 
+    private FileSqlManager removeAllView() {
+        log.info("[DB] 删除视图");
+        FileSqlManager sqlManager = new FileSqlManager();
+        List<NutResource> nutResources = Scans.me().scan("sqls/views.sql");
+        if (nutResources.isEmpty()) {
+            log.error("sqls/views.sql not found");
+            return sqlManager;
+        } else {
+            try {
+                sqlManager.add(Streams.utf8r(nutResources.get(0).getInputStream()));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            log.info("find SQL files {}", Json.toJson(sqlManager.keys()));
+            for (String key : sqlManager.keys()) {
+                log.info("[DB] 删除视图 {}",key);
+                Sql sql1 = Sqls.create(String.format("drop view IF EXISTS %s", key));
+                dao.execute(sql1);
+            }
+        }
+        return sqlManager;
     }
 
     private void createAllTables() {
@@ -179,8 +222,13 @@ public class StartBootPrepare implements ApplicationContextAware {
         checkAndCreate(DevNodeEntity.class);
         checkAndCreate(DevProjectEntity.class);
         checkAndCreate(DevBuildEntity.class);
-
+        checkAndCreate(DevMyProjectEntity.class);
+        checkAndCreate(DevGroupEntity.class);
+        checkAndCreate(DevGroupMemberEntity.class);
         log.info("[DB] 完成数据库表的初始化");
+
+        //检查视图
+
         SysConfigEntity dbVersion = new SysConfigEntity();
         dbVersion.setKey(AppConstant.KEY_DB_VERSION);
         dbVersion.setValue(DB_VERSION);

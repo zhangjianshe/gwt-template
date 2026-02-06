@@ -5,12 +5,14 @@ import cn.mapway.gwt_template.client.widget.AiInputPanel;
 import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.rpc.app.AppData;
 import cn.mapway.rbac.client.RbacClient;
+import cn.mapway.rbac.shared.RbacConstant;
 import cn.mapway.rbac.shared.ResourceKind;
 import cn.mapway.rbac.shared.model.Res;
 import cn.mapway.rbac.shared.model.UserPermissions;
 import cn.mapway.ui.client.IClientContext;
 import cn.mapway.ui.client.IUserInfo;
 import cn.mapway.ui.client.mvc.Size;
+import cn.mapway.ui.client.mvc.attribute.DataCastor;
 import cn.mapway.ui.client.widget.dialog.AiConfirm;
 import cn.mapway.ui.client.widget.dialog.Dialog;
 import cn.mapway.ui.client.widget.panel.MessagePanel;
@@ -265,5 +267,17 @@ public class ClientContext implements IClientContext, HasCommonHandlers {
             }
         }
         return ress;
+    }
+
+    public boolean isAdmin() {
+        return getUserInfo().getId().equals(DataCastor.castToString(RbacConstant.SUPER_USER_ID));
+    }
+
+    public boolean isNotAdmin() {
+        return !isAdmin();
+    }
+
+    public boolean isCurrentUser(Long userId) {
+        return  userId!=null && getUserInfo().getId().equals(DataCastor.castToString(userId));
     }
 }

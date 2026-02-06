@@ -1,0 +1,27 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui' xmlns:widget="urn:import:cn.mapway.ui.client.widget"
+             xmlns:buttons="urn:import:cn.mapway.ui.client.widget.buttons"
+             xmlns:tree="urn:import:cn.mapway.ui.client.widget.tree">
+    <ui:style>
+        .header{
+            display: flex;
+            padding: 4px;
+            align-items: center;
+            justify-content: space-between;
+        }
+    </ui:style>
+    <g:DockLayoutPanel>
+        <g:north size="50">
+            <g:HorizontalPanel>
+                <widget:Header ui:field="lbName"/>
+                <g:Label ui:field="lbCount" addStyleNames="ai-code"/>
+            </g:HorizontalPanel>
+            <buttons:AiButton ui:field="btnCreate">创建组织</buttons:AiButton>
+        </g:north>
+        <g:center>
+            <g:ScrollPanel>
+                <tree:Tree ui:field="list"/>
+            </g:ScrollPanel>
+        </g:center>
+    </g:DockLayoutPanel>
+</ui:UiBinder>

@@ -3,18 +3,11 @@ package cn.mapway.gwt_template.server.api;
 import cn.mapway.biz.core.BizRequest;
 import cn.mapway.biz.core.BizResult;
 import cn.mapway.document.annotation.Doc;
-import cn.mapway.gwt_template.server.service.app.QueryAppInfoExecutor;
-import cn.mapway.gwt_template.server.service.app.UpdateAppInfoExecutor;
+import cn.mapway.gwt_template.server.service.config.QueryConfigExecutor;
 import cn.mapway.gwt_template.server.service.config.QueryConfigListExecutor;
+import cn.mapway.gwt_template.server.service.config.UpdateConfigExecutor;
 import cn.mapway.gwt_template.server.service.config.UpdateConfigListExecutor;
-import cn.mapway.gwt_template.shared.rpc.app.QueryAppInfoRequest;
-import cn.mapway.gwt_template.shared.rpc.app.QueryAppInfoResponse;
-import cn.mapway.gwt_template.shared.rpc.app.UpdateAppInfoRequest;
-import cn.mapway.gwt_template.shared.rpc.app.UpdateAppInfoResponse;
-import cn.mapway.gwt_template.shared.rpc.config.QueryConfigListRequest;
-import cn.mapway.gwt_template.shared.rpc.config.QueryConfigListResponse;
-import cn.mapway.gwt_template.shared.rpc.config.UpdateConfigListRequest;
-import cn.mapway.gwt_template.shared.rpc.config.UpdateConfigListResponse;
+import cn.mapway.gwt_template.shared.rpc.config.*;
 import cn.mapway.ui.shared.rpc.RpcResult;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,36 +23,38 @@ public class ConfigController extends ApiBaseController {
     @Resource
     UpdateConfigListExecutor updateConfigListExecutor;
 
-    @Resource
-    QueryAppInfoExecutor queryAppInfoExecutor;
 
     @Resource
-    UpdateAppInfoExecutor updateAppInfoExecutor;
+    QueryConfigExecutor queryConfigExecutor;
+    @Resource
+    UpdateConfigExecutor updateConfigExecutor;
+
     /**
-     * UpdateAppInfo
+     * QueryConfig
      *
      * @param request request
      * @return data
      */
-    @Doc(value = "UpdateAppInfo", retClazz = {UpdateAppInfoResponse.class})
-    @RequestMapping(value = "/updateAppInfo", method = RequestMethod.POST)
-    public RpcResult<UpdateAppInfoResponse> updateAppInfo(@RequestBody UpdateAppInfoRequest request) {
-        BizResult<UpdateAppInfoResponse> bizResult = updateAppInfoExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+    @Doc(value = "QueryConfig", retClazz = {QueryConfigResponse.class})
+    @RequestMapping(value = "/queryConfig", method = RequestMethod.POST)
+    public RpcResult<QueryConfigResponse> queryConfig(@RequestBody QueryConfigRequest request) {
+        BizResult<QueryConfigResponse> bizResult = queryConfigExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toApiResult(bizResult);
     }
 
     /**
-     * QueryAppInfo
+     * UpdateConfig
      *
      * @param request request
      * @return data
      */
-    @Doc(value = "QueryAppInfo", retClazz = {QueryAppInfoResponse.class})
-    @RequestMapping(value = "/queryAppInfo", method = RequestMethod.POST)
-    public RpcResult<QueryAppInfoResponse> queryAppInfo(@RequestBody QueryAppInfoRequest request) {
-        BizResult<QueryAppInfoResponse> bizResult = queryAppInfoExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+    @Doc(value = "UpdateConfig", retClazz = {UpdateConfigResponse.class})
+    @RequestMapping(value = "/updateConfig", method = RequestMethod.POST)
+    public RpcResult<UpdateConfigResponse> updateConfig(@RequestBody UpdateConfigRequest request) {
+        BizResult<UpdateConfigResponse> bizResult = updateConfigExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toApiResult(bizResult);
     }
+
 
 
     /**
@@ -87,7 +82,6 @@ public class ConfigController extends ApiBaseController {
         BizResult<UpdateConfigListResponse> bizResult = updateConfigListExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toApiResult(bizResult);
     }
-
 
 
 }

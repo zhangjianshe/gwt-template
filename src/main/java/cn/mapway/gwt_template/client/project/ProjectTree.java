@@ -2,7 +2,7 @@ package cn.mapway.gwt_template.client.project;
 
 import cn.mapway.gwt_template.client.rpc.AppProxy;
 import cn.mapway.gwt_template.client.rpc.AsyncAdaptor;
-import cn.mapway.gwt_template.shared.db.DevProjectEntity;
+import cn.mapway.gwt_template.shared.db.VwProjectEntity;
 import cn.mapway.gwt_template.shared.rpc.dev.QueryProjectRequest;
 import cn.mapway.gwt_template.shared.rpc.dev.QueryProjectResponse;
 import cn.mapway.ui.client.widget.tree.Tree;
@@ -28,7 +28,7 @@ public class ProjectTree extends Tree {
     private void renderProjects(QueryProjectResponse data) {
         clear();
 
-        for(DevProjectEntity project:data.getProjects())
+        for(VwProjectEntity project:data.getProjects())
         {
             TreeItem item = addItem(null, project.getName(), null);
             item.setData(project);

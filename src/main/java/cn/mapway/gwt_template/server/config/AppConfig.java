@@ -8,4 +8,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @ConfigurationProperties(prefix = "app")
 public class AppConfig {
+    /**
+     * GIT 仓库的根目录
+     */
+    private String repoRoot;
 }

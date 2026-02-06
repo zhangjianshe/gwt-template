@@ -1,12 +1,12 @@
 package cn.mapway.gwt_template.client.preference;
 
 import cn.mapway.gwt_template.client.ClientContext;
-import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.ui.client.fonts.Fonts;
 import cn.mapway.ui.client.mvc.*;
-import cn.mapway.ui.client.widget.list.ListItem;
 import cn.mapway.ui.client.widget.dialog.Dialog;
 import cn.mapway.ui.client.widget.dialog.SaveBar;
+import cn.mapway.ui.client.widget.list.ListItem;
+import cn.mapway.ui.shared.CommonConstant;
 import cn.mapway.ui.shared.CommonEvent;
 import cn.mapway.ui.shared.CommonEventHandler;
 import cn.mapway.ui.shared.HasCommonHandlers;
@@ -89,11 +89,18 @@ public class PreferenceFrame extends BaseAbstractModule {
 
     private void loadPreference() {
         List<ModuleInfo> moduleInfos = getModuleFactory().getModules().stream().filter(m -> {
-            return m.hasTag(AppConstant.TAG_PREFERENCE);
+            return m.hasTag(CommonConstant.TAG_PREFERENCE);
         }).collect(Collectors.toList());
         Collections.sort(moduleInfos, Comparator.comparingInt(ModuleInfo::getOrder));
         list.clear();
         for (ModuleInfo moduleInfo : moduleInfos) {
+            if(moduleInfo.hasTag(CommonConstant.TAG_ADMIN))
+            {
+                if(ClientContext.get().isNotAdmin())
+                {
+                    continue;
+                }
+            }
             ListItem item = new ListItem();
             item.setData(moduleInfo);
             item.setIcon(moduleInfo.unicode);

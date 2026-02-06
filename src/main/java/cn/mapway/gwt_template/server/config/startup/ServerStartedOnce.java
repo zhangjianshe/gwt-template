@@ -2,7 +2,6 @@ package cn.mapway.gwt_template.server.config.startup;
 
 import cn.mapway.gwt_template.server.rbac.Permissions;
 import cn.mapway.gwt_template.server.service.user.TokenService;
-import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
 import cn.mapway.rbac.server.service.RbacResourceService;
 import cn.mapway.rbac.shared.RbacConstant;
@@ -13,6 +12,7 @@ import cn.mapway.server.IServerPlugin;
 import cn.mapway.ui.client.IUserInfo;
 import cn.mapway.ui.server.IServerContext;
 import cn.mapway.ui.server.mvc.ServerModuleInfo;
+import cn.mapway.ui.shared.CommonConstant;
 import lombok.extern.slf4j.Slf4j;
 import org.nutz.dao.Cnd;
 import org.nutz.dao.Dao;
@@ -162,6 +162,7 @@ public class ServerStartedOnce extends ApplicationObjectSupport implements IServ
 
         //注册所有的功能点
         importAllModules();
+
     }
 
     private void importAllModules() {
@@ -191,8 +192,8 @@ public class ServerStartedOnce extends ApplicationObjectSupport implements IServ
         }
         List<RbacResourceEntity> resources = new ArrayList<>();
         for (ServerModuleInfo module : modules) {
-            if (module.getTags().contains(AppConstant.TAG_PREFERENCE)
-                    || module.getTags().contains(AppConstant.TAG_HIDDEN)
+            if (module.getTags().contains(CommonConstant.TAG_PREFERENCE)
+                    || module.getTags().contains(CommonConstant.TAG_HIDDEN)
             ) {
                 //设置不进入全局设置模块
                 continue;

@@ -1,7 +1,7 @@
 package cn.mapway.gwt_template.shared.rpc.dev;
 
 import cn.mapway.document.annotation.Doc;
-import cn.mapway.gwt_template.shared.db.DevProjectEntity;
+import cn.mapway.gwt_template.shared.db.VwProjectEntity;
 import com.google.gwt.user.client.rpc.IsSerializable;
 import lombok.Data;
 
@@ -16,5 +16,5 @@ import java.util.List;
 @Data
 @Doc("QueryProjectResponse")
 public class QueryProjectResponse implements Serializable, IsSerializable {
-    List<DevProjectEntity> projects;
+    List<VwProjectEntity> projects;
 }

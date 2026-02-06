@@ -37,6 +37,7 @@
     <properties>
         <java.version>11</java.version>
         <MAPWAY-GWT-SUITE-VERSION>1.0.0-SNAPSHOT</MAPWAY-GWT-SUITE-VERSION>
+        <JGIT_VERSION>5.13.3.202401111512-r</JGIT_VERSION>
     </properties>
     <dependencies>
         <dependency>
@@ -57,11 +58,6 @@
             <artifactId>lombok</artifactId>
             <version>1.18.32</version>
             <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.nutz</groupId>
@@ -138,6 +134,27 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-ldap</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-ldap</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jgit</groupId>
+            <artifactId>org.eclipse.jgit</artifactId>
+            <version>${JGIT_VERSION}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jgit</groupId>
+            <artifactId>org.eclipse.jgit.http.server</artifactId>
+            <version>${JGIT_VERSION}</version>
+            <scope>compile</scope>
+        </dependency>
+
     </dependencies>
 
     <build>

@@ -20,6 +20,7 @@ import cn.mapway.ui.client.widget.dialog.Dialog;
 import cn.mapway.ui.shared.CommonEvent;
 import cn.mapway.ui.shared.rpc.RpcResult;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -50,28 +51,40 @@ public class MainMenuBar extends CommonEventComposite {
     Image logo;
     @UiField
     HorizontalPanel buttons;
-    ClickHandler itmClicked = new ClickHandler() {
-        @Override
-        public void onClick(ClickEvent event) {
-            AiButton source = (AiButton) event.getSource();
-            ModuleInfo data = (ModuleInfo) source.getData();
-            SwitchModuleData switchModuleData = new SwitchModuleData(data.code, "");
-            fireEvent(CommonEvent.switchEvent(switchModuleData));
-        }
+    AiButton selected = null;
+    ClickHandler itemClicked = event -> {
+        AiButton source = (AiButton) event.getSource();
+        selectButton(source);
     };
 
     public MainMenuBar() {
         initWidget(ourUiBinder.createAndBindUi(this));
         btnPreference.setIconUnicode(Fonts.SETTING);
-        IUserInfo userInfo = ClientContext.get().getUserInfo();
-        lbExit.setText("退出(" + userInfo.getNickName() + ")");
-        logo.setUrl(ClientContext.get().getAppData().getLogo());
+
+    }
+
+    private void selectButton(AiButton source) {
+        if (selected != null) {
+            selected.setSelect(false);
+        }
+        selected = source;
+        if (selected != null) {
+            selected.setSelect(true);
+        }
+        ModuleInfo data = (ModuleInfo) source.getData();
+        SwitchModuleData switchModuleData = new SwitchModuleData(data.code, "");
+        fireEvent(CommonEvent.switchEvent(switchModuleData));
     }
 
     @Override
     protected void onLoad() {
         super.onLoad();
         buttons.clear();
+        IUserInfo userInfo = ClientContext.get().getUserInfo();
+        lbExit.setText("退出(" + userInfo.getNickName() + ")");
+        if (ClientContext.get().getAppData().getLogo() != null) {
+            logo.setUrl(ClientContext.get().getAppData().getLogo());
+        }
         List<Res> userResources = ClientContext.get().findUserResources(ResourceKind.RESOURCE_KIND_FUNCTION);
         List<ModuleInfo> moduleInfos = userResources.stream().map(res -> {
             return BaseAbstractModule.getModuleFactory().findModuleInfo(res.resourceCode);
@@ -81,7 +94,20 @@ public class MainMenuBar extends CommonEventComposite {
             AiButton button = new AiButton(moduleInfo.name);
             button.setData(moduleInfo);
             buttons.add(button);
-            button.addClickHandler(itmClicked);
+            button.addClickHandler(itemClicked);
+        }
+        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+            @Override
+            public void execute() {
+                selectFirst();
+            }
+        });
+    }
+
+    private void selectFirst() {
+        if (buttons.getWidgetCount() > 0) {
+            AiButton button = (AiButton) buttons.getWidget(0);
+            button.click();
         }
     }
 

@@ -1,4 +1,4 @@
-package cn.mapway.gwt_template.shared.rpc.app;
+package cn.mapway.gwt_template.shared.rpc.project;
 
 import cn.mapway.document.annotation.Doc;
 import com.google.gwt.user.client.rpc.IsSerializable;
@@ -7,12 +7,11 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * UpdateAppInfoRequest
+ * QueryDevGroupRequest
  *
  * @author zhangjianshe@gmail.com
  */
 @Data
-@Doc("UpdateAppInfoRequest")
-public class UpdateAppInfoRequest implements Serializable, IsSerializable {
-    AppData appData;
+@Doc("QueryDevGroupRequest")
+public class QueryDevGroupRequest implements Serializable, IsSerializable {
 }

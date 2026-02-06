@@ -15,6 +15,7 @@ import cn.mapway.ui.client.mvc.IModule;
 import cn.mapway.ui.client.mvc.ModuleMarker;
 import cn.mapway.ui.client.mvc.ModuleParameter;
 import cn.mapway.ui.client.util.StringUtil;
+import cn.mapway.ui.shared.CommonConstant;
 import cn.mapway.ui.shared.rpc.RpcResult;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -39,7 +40,10 @@ import java.util.List;
         value = CloudflareZoneConfigPreference.MODULE_CODE,
         name = "Cloudflare",
         unicode = Fonts.LOGIN_KEY,
-        tags = AppConstant.TAG_PREFERENCE,
+        tags = {
+                CommonConstant.TAG_PREFERENCE,
+                CommonConstant.TAG_ADMIN
+        },
         order = 100
 )
 public class CloudflareZoneConfigPreference extends ToolbarModule {
@@ -87,8 +91,8 @@ public class CloudflareZoneConfigPreference extends ToolbarModule {
     }
 
     private void renderData(List<SysConfigEntity> configs) {
+        root.clear();
         if (configs.isEmpty()) {
-            root.clear();
             return;
         }
         SysConfigEntity entity = configs.get(0);

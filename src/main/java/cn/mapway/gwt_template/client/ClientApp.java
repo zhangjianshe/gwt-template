@@ -4,8 +4,9 @@ import cn.mapway.gwt_template.client.main.MainFrame;
 import cn.mapway.gwt_template.client.rpc.AppProxy;
 import cn.mapway.gwt_template.client.user.AppLoginFrame;
 import cn.mapway.gwt_template.shared.rpc.app.AppData;
-import cn.mapway.gwt_template.shared.rpc.app.QueryAppInfoRequest;
-import cn.mapway.gwt_template.shared.rpc.app.QueryAppInfoResponse;
+import cn.mapway.gwt_template.shared.rpc.config.ConfigEnums;
+import cn.mapway.gwt_template.shared.rpc.config.QueryConfigRequest;
+import cn.mapway.gwt_template.shared.rpc.config.QueryConfigResponse;
 import cn.mapway.rbac.client.RbacClient;
 import cn.mapway.rbac.client.RbacServerProxy;
 import cn.mapway.rbac.shared.rpc.QueryCurrentUserRequest;
@@ -20,6 +21,9 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
 import elemental2.dom.DomGlobal;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static cn.mapway.gwt_template.shared.AppConstant.SYS_CODE;
 
 public class ClientApp implements EntryPoint {
@@ -30,14 +34,18 @@ public class ClientApp implements EntryPoint {
 
     public void onModuleLoad() {
         MapwayResource.INSTANCE.css().ensureInjected();
-        AppProxy.get().queryAppInfo(new QueryAppInfoRequest(), new AsyncCallback<RpcResult<QueryAppInfoResponse>>() {
+        QueryConfigRequest request=new QueryConfigRequest();
+        List<String> list=new ArrayList<>();
+        list.add(ConfigEnums.CONFIG_APP.getCode());
+        request.setConfigKeys(list);
+        AppProxy.get().queryConfig(request, new AsyncCallback<RpcResult<QueryConfigResponse>>() {
             @Override
             public void onFailure(Throwable caught) {
                 DomGlobal.console.error(caught.getMessage());
             }
 
             @Override
-            public void onSuccess(RpcResult<QueryAppInfoResponse> result) {
+            public void onSuccess(RpcResult<QueryConfigResponse> result) {
                 if (result.isSuccess()) {
                     readyToStart(result.getData().getAppData());
                 } else {

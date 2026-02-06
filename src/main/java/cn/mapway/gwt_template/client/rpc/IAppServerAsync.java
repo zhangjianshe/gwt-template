@@ -1,53 +1,48 @@
 package cn.mapway.gwt_template.client.rpc;
 
-import cn.mapway.gwt_template.shared.rpc.app.QueryAppInfoRequest;
-import cn.mapway.gwt_template.shared.rpc.app.QueryAppInfoResponse;
-import cn.mapway.gwt_template.shared.rpc.app.UpdateAppInfoRequest;
-import cn.mapway.gwt_template.shared.rpc.app.UpdateAppInfoResponse;
-import cn.mapway.gwt_template.shared.rpc.config.QueryConfigListRequest;
-import cn.mapway.gwt_template.shared.rpc.config.QueryConfigListResponse;
-import cn.mapway.gwt_template.shared.rpc.config.UpdateConfigListRequest;
-import cn.mapway.gwt_template.shared.rpc.config.UpdateConfigListResponse;
+import cn.mapway.gwt_template.shared.rpc.config.*;
 import cn.mapway.gwt_template.shared.rpc.dev.*;
 import cn.mapway.gwt_template.shared.rpc.dns.*;
 import cn.mapway.gwt_template.shared.rpc.soft.*;
+import cn.mapway.rbac.shared.rpc.LoginRequest;
+import cn.mapway.rbac.shared.rpc.LoginResponse;
 import cn.mapway.ui.shared.rpc.RpcResult;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public interface IAppServerAsync {
 
-    ///CODE_GEN_INSERT_POINT///
-	void updateAppInfo(UpdateAppInfoRequest request, AsyncCallback<RpcResult<UpdateAppInfoResponse>> async);
+    /// CODE_GEN_INSERT_POINT///
+    void updateConfig(UpdateConfigRequest request, AsyncCallback<RpcResult<UpdateConfigResponse>> async);
 
-	void queryAppInfo(QueryAppInfoRequest request, AsyncCallback<RpcResult<QueryAppInfoResponse>> async);
+    void queryConfig(QueryConfigRequest request, AsyncCallback<RpcResult<QueryConfigResponse>> async);
 
-	void deleteProjectBuild(DeleteProjectBuildRequest request, AsyncCallback<RpcResult<DeleteProjectBuildResponse>> async);
+    void deleteProjectBuild(DeleteProjectBuildRequest request, AsyncCallback<RpcResult<DeleteProjectBuildResponse>> async);
 
-	void queryProjectBuild(QueryProjectBuildRequest request, AsyncCallback<RpcResult<QueryProjectBuildResponse>> async);
+    void queryProjectBuild(QueryProjectBuildRequest request, AsyncCallback<RpcResult<QueryProjectBuildResponse>> async);
 
-	void queryKey(QueryKeyRequest request, AsyncCallback<RpcResult<QueryKeyResponse>> async);
+    void queryKey(QueryKeyRequest request, AsyncCallback<RpcResult<QueryKeyResponse>> async);
 
-	void queryNode(QueryNodeRequest request, AsyncCallback<RpcResult<QueryNodeResponse>> async);
+    void queryNode(QueryNodeRequest request, AsyncCallback<RpcResult<QueryNodeResponse>> async);
 
-	void deleteProject(DeleteProjectRequest request, AsyncCallback<RpcResult<DeleteProjectResponse>> async);
+    void deleteProject(DeleteProjectRequest request, AsyncCallback<RpcResult<DeleteProjectResponse>> async);
 
-	void queryProject(QueryProjectRequest request, AsyncCallback<RpcResult<QueryProjectResponse>> async);
+    void queryProject(QueryProjectRequest request, AsyncCallback<RpcResult<QueryProjectResponse>> async);
 
-	void deleteKey(DeleteKeyRequest request, AsyncCallback<RpcResult<DeleteKeyResponse>> async);
+    void deleteKey(DeleteKeyRequest request, AsyncCallback<RpcResult<DeleteKeyResponse>> async);
 
-	void createKey(CreateKeyRequest request, AsyncCallback<RpcResult<CreateKeyResponse>> async);
+    void createKey(CreateKeyRequest request, AsyncCallback<RpcResult<CreateKeyResponse>> async);
 
-	void deleteNode(DeleteNodeRequest request, AsyncCallback<RpcResult<DeleteNodeResponse>> async);
+    void deleteNode(DeleteNodeRequest request, AsyncCallback<RpcResult<DeleteNodeResponse>> async);
 
-	void updateNode(UpdateNodeRequest request, AsyncCallback<RpcResult<UpdateNodeResponse>> async);
+    void updateNode(UpdateNodeRequest request, AsyncCallback<RpcResult<UpdateNodeResponse>> async);
 
-	void restartProject(RestartProjectRequest request, AsyncCallback<RpcResult<RestartProjectResponse>> async);
+    void restartProject(RestartProjectRequest request, AsyncCallback<RpcResult<RestartProjectResponse>> async);
 
-	void compileProject(CompileProjectRequest request, AsyncCallback<RpcResult<CompileProjectResponse>> async);
+    void compileProject(CompileProjectRequest request, AsyncCallback<RpcResult<CompileProjectResponse>> async);
 
-	void updateProject(UpdateProjectRequest request, AsyncCallback<RpcResult<UpdateProjectResponse>> async);
+    void updateProject(UpdateProjectRequest request, AsyncCallback<RpcResult<UpdateProjectResponse>> async);
 
-    
+
     void updateConfigList(UpdateConfigListRequest request, AsyncCallback<RpcResult<UpdateConfigListResponse>> async);
 
     void queryConfigList(QueryConfigListRequest request, AsyncCallback<RpcResult<QueryConfigListResponse>> async);
@@ -68,4 +63,6 @@ public interface IAppServerAsync {
 
     /// CODE_GEN_INSERT_POINT///
     void querySoftwareFiles(QuerySoftwareFilesRequest request, AsyncCallback<RpcResult<QuerySoftwareFilesResponse>> async);
+
+    void login(LoginRequest request, AsyncCallback<RpcResult<LoginResponse>> asyncCallback);
 }
