@@ -6,11 +6,12 @@ import cn.mapway.gwt_template.shared.db.DevGroupEntity;
 import cn.mapway.gwt_template.shared.rpc.project.QueryDevGroupRequest;
 import cn.mapway.gwt_template.shared.rpc.project.QueryDevGroupResponse;
 import cn.mapway.ui.client.widget.CommonEventComposite;
-import cn.mapway.ui.client.widget.Header;
 import cn.mapway.ui.client.widget.buttons.AiButton;
+import cn.mapway.ui.client.widget.dialog.Dialog;
 import cn.mapway.ui.client.widget.tree.Tree;
 import cn.mapway.ui.client.widget.tree.TreeItem;
 import cn.mapway.ui.shared.CommonEvent;
+import cn.mapway.ui.shared.CommonEventHandler;
 import cn.mapway.ui.shared.rpc.RpcResult;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -30,8 +31,6 @@ public class GroupList extends CommonEventComposite {
     @UiField
     AiButton btnCreate;
     @UiField
-    Header lbName;
-    @UiField
     Label lbCount;
     @UiField
     Tree list;
@@ -41,6 +40,19 @@ public class GroupList extends CommonEventComposite {
 
     @UiHandler("btnCreate")
     public void btnCreateClick(ClickEvent event) {
+        Dialog<CreateGroupPanel> dialog = CreateGroupPanel.getDialog(true);
+        dialog.getContent().addCommonHandler(new CommonEventHandler() {
+            @Override
+            public void onCommonEvent(CommonEvent event) {
+                if(event.isUpdate())
+                {
+                    loadGroups();
+                }
+                dialog.hide();
+            }
+        });
+        dialog.getContent().reset();
+        dialog.center();
     }
 
     @Override

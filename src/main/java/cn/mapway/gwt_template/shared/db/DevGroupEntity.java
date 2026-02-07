@@ -8,15 +8,18 @@ import org.nutz.dao.entity.annotation.*;
 import java.io.Serializable;
 import java.sql.Timestamp;
 
+import static cn.mapway.gwt_template.shared.db.DevGroupEntity.TABLE_NAME;
+
 /**
  * 开发组实体
  */
-@Table(DevMyProjectEntity.TABLE_NAME)
+@Table(TABLE_NAME)
 @Getter
 @Setter
 public class DevGroupEntity implements Serializable, IsSerializable {
     public static final String FLD_NAME = "name";
     public static final String FLD_USERID = "userId";
+    public static final String TABLE_NAME = "dev_group";
     @Name
     @Comment("分组名称")
     @ColDefine(type = ColType.VARCHAR,width = 56, notNull = true)

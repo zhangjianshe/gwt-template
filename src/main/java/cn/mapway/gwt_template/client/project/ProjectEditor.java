@@ -1,6 +1,5 @@
 package cn.mapway.gwt_template.client.project;
 
-import cn.mapway.gwt_template.client.node.NodeListBox;
 import cn.mapway.gwt_template.client.rpc.AppProxy;
 import cn.mapway.gwt_template.shared.db.DevProjectEntity;
 import cn.mapway.gwt_template.shared.db.VwProjectEntity;
@@ -21,6 +20,9 @@ import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
 
+/**
+ * 项目创建
+ */
 public class ProjectEditor extends CommonEventComposite implements IData<VwProjectEntity> {
     private static final ProjectEditorUiBinder ourUiBinder = GWT.create(ProjectEditorUiBinder.class);
     private static Dialog<ProjectEditor> dialog;
@@ -29,9 +31,7 @@ public class ProjectEditor extends CommonEventComposite implements IData<VwProje
     @UiField
     AiTextBox txtName;
     @UiField
-    AiTextBox txtSource;
-    @UiField
-    NodeListBox ddlNodes;
+    AiTextBox txtSummary;
     private VwProjectEntity project;
 
     public ProjectEditor() {
@@ -56,7 +56,7 @@ public class ProjectEditor extends CommonEventComposite implements IData<VwProje
 
     @Override
     public Size requireDefaultSize() {
-        return new Size(800, 600);
+        return new Size(600, 350);
     }
 
     @Override
@@ -75,8 +75,7 @@ public class ProjectEditor extends CommonEventComposite implements IData<VwProje
 
     private void toUI() {
         txtName.setValue(project.getName());
-        txtSource.setValue(project.getSourceUrl());
-        ddlNodes.setValue(project.getDeployServer());
+        txtSummary.setValue(project.getSummary());
     }
 
     @UiHandler("saveBar")
@@ -85,8 +84,7 @@ public class ProjectEditor extends CommonEventComposite implements IData<VwProje
             DevProjectEntity temp = new DevProjectEntity();
             temp.setId(project.getId());
             temp.setName(txtName.getValue());
-            temp.setSourceUrl(txtSource.getValue());
-            temp.setDeployServer((String) ddlNodes.getValue());
+            temp.setSummary(txtSummary.getValue());
             doSave(temp);
         } else {
             fireEvent(event);
@@ -96,7 +94,7 @@ public class ProjectEditor extends CommonEventComposite implements IData<VwProje
     private void doSave(DevProjectEntity temp) {
         UpdateProjectRequest request = new UpdateProjectRequest();
         request.setProject(temp);
-        AppProxy.get().updateProject(request, new AsyncCallback<RpcResult<UpdateProjectResponse>>() {
+        AppProxy.get().updateProject(request, new AsyncCallback<>() {
             @Override
             public void onFailure(Throwable caught) {
                 saveBar.msg(caught.getMessage());
@@ -112,7 +110,6 @@ public class ProjectEditor extends CommonEventComposite implements IData<VwProje
             }
         });
     }
-
 
     interface ProjectEditorUiBinder extends UiBinder<DockLayoutPanel, ProjectEditor> {
     }

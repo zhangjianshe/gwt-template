@@ -33,11 +33,7 @@ public class QueryProjectExecutor extends AbstractBizExecutor<QueryProjectRespon
         log.info("QueryProjectExecutor {}", Json.toJson(request, JsonFormat.compact()));
         LoginUser user = (LoginUser) context.get(AppConstant.KEY_LOGIN_USER);
         QueryProjectResponse response = new QueryProjectResponse();
-        if (user.isAdmin()) {
-            response.setProjects(projectService.allProjects(null));
-        } else {
-            response.setProjects(projectService.allProjects(user.getUser().getUserId()));
-        }
+        response.setProjects(projectService.allProjects(user.getUser().getUserId()));
         return BizResult.success(response);
     }
 }

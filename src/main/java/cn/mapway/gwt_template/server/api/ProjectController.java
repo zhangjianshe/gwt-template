@@ -60,6 +60,83 @@ public class ProjectController extends ApiBaseController {
     @Resource
     DeleteProjectBuildExecutor deleteProjectBuildExecutor;
 
+
+    @Resource
+    UpdateProjectMemberExecutor updateProjectMemberExecutor;
+
+    @Resource
+    QueryRepoFilesExecutor queryRepoFilesExecutor;
+
+    @Resource
+    ReadRepoFileExecutor readRepoFileExecutor;
+    /**
+     * ReadRepoFile
+     *
+     * @param request request
+     * @return data
+     */
+    @Doc(value = "ReadRepoFile", retClazz = {ReadRepoFileResponse.class})
+    @RequestMapping(value = "/readRepoFile", method = RequestMethod.POST)
+    public RpcResult<ReadRepoFileResponse> readRepoFile(@RequestBody ReadRepoFileRequest request) {
+        BizResult<ReadRepoFileResponse> bizResult = readRepoFileExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toApiResult(bizResult);
+    }
+    
+    /**
+     * QueryRepoFiles
+     *
+     * @param request request
+     * @return data
+     */
+    @Doc(value = "QueryRepoFiles", retClazz = {QueryRepoFilesResponse.class})
+    @RequestMapping(value = "/queryRepoFiles", method = RequestMethod.POST)
+    public RpcResult<QueryRepoFilesResponse> queryRepoFiles(@RequestBody QueryRepoFilesRequest request) {
+        BizResult<QueryRepoFilesResponse> bizResult = queryRepoFilesExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toApiResult(bizResult);
+    }
+
+    /**
+     * UpdateProjectMember
+     *
+     * @param request request
+     * @return data
+     */
+    @Doc(value = "UpdateProjectMember", retClazz = {UpdateProjectMemberResponse.class})
+    @RequestMapping(value = "/updateProjectMember", method = RequestMethod.POST)
+    public RpcResult<UpdateProjectMemberResponse> updateProjectMember(@RequestBody UpdateProjectMemberRequest request) {
+        BizResult<UpdateProjectMemberResponse> bizResult = updateProjectMemberExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toApiResult(bizResult);
+    }
+    @Resource
+    DeleteProjectMemberExecutor deleteProjectMemberExecutor;
+    /**
+     * DeleteProjectMember
+     *
+     * @param request request
+     * @return data
+     */
+    @Doc(value = "DeleteProjectMember", retClazz = {DeleteProjectMemberResponse.class})
+    @RequestMapping(value = "/deleteProjectMember", method = RequestMethod.POST)
+    public RpcResult<DeleteProjectMemberResponse> deleteProjectMember(@RequestBody DeleteProjectMemberRequest request) {
+        BizResult<DeleteProjectMemberResponse> bizResult = deleteProjectMemberExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toApiResult(bizResult);
+    }
+    @Resource
+    QueryProjectMemberExecutor queryProjectMemberExecutor;
+    /**
+     * QueryProjectMember
+     *
+     * @param request request
+     * @return data
+     */
+    @Doc(value = "QueryProjectMember", retClazz = {QueryProjectMemberResponse.class})
+    @RequestMapping(value = "/queryProjectMember", method = RequestMethod.POST)
+    public RpcResult<QueryProjectMemberResponse> queryProjectMember(@RequestBody QueryProjectMemberRequest request) {
+        BizResult<QueryProjectMemberResponse> bizResult = queryProjectMemberExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toApiResult(bizResult);
+    }
+
+
     /**
      * UpdateDevGroup
      *

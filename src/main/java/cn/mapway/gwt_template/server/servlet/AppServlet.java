@@ -103,6 +103,57 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
     ///CODE_GEN_INSERT_POINT///
 	
     @Resource
+    ReadRepoFileExecutor readRepoFileExecutor;
+    @Override
+    public RpcResult<ReadRepoFileResponse> readRepoFile(ReadRepoFileRequest request) {
+        BizResult<ReadRepoFileResponse> bizResult = readRepoFileExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    QueryRepoFilesExecutor queryRepoFilesExecutor;
+    @Override
+    public RpcResult<QueryRepoFilesResponse> queryRepoFiles(QueryRepoFilesRequest request) {
+        BizResult<QueryRepoFilesResponse> bizResult = queryRepoFilesExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+
+	
+    @Resource
+    QueryProjectMemberExecutor queryProjectMemberExecutor;
+    @Override
+    public RpcResult<QueryProjectMemberResponse> queryProjectMember(QueryProjectMemberRequest request) {
+        BizResult<QueryProjectMemberResponse> bizResult = queryProjectMemberExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    DeleteProjectMemberExecutor deleteProjectMemberExecutor;
+    @Override
+    public RpcResult<DeleteProjectMemberResponse> deleteProjectMember(DeleteProjectMemberRequest request) {
+        BizResult<DeleteProjectMemberResponse> bizResult = deleteProjectMemberExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    UpdateProjectMemberExecutor updateProjectMemberExecutor;
+    @Override
+    public RpcResult<UpdateProjectMemberResponse> updateProjectMember(UpdateProjectMemberRequest request) {
+        BizResult<UpdateProjectMemberResponse> bizResult = updateProjectMemberExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
     QueryGroupMemberExecutor queryGroupMemberExecutor;
     @Override
     public RpcResult<QueryGroupMemberResponse> queryGroupMember(QueryGroupMemberRequest request) {

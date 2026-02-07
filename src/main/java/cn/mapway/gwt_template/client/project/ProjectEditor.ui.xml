@@ -1,33 +1,34 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
              xmlns:g='urn:import:com.google.gwt.user.client.ui'
              xmlns:dialog="urn:import:cn.mapway.ui.client.widget.dialog"
-             xmlns:widget="urn:import:cn.mapway.ui.client.widget"
-             xmlns:node="urn:import:cn.mapway.gwt_template.client.node">
+             xmlns:widget="urn:import:cn.mapway.ui.client.widget">
     <ui:style>
-        .lb {
-            width: 150px;
-            font-weight: bold;
+        .box {
+            display: inline-grid;
+            padding: 40px;
+            grid-template-columns: 120px 1fr;
+            gap: 1rem;
+            align-items: center;
+            justify-content: flex-start;
+        }
+        .left{
+            justify-self: flex-start;
         }
     </ui:style>
     <g:DockLayoutPanel>
         <g:south size="68">
-            <dialog:SaveBar ui:field="saveBar"/>
+            <dialog:SaveBar buttonWidth="120" saveText="创建项目" ui:field="saveBar"/>
         </g:south>
         <g:center>
-            <g:HTMLPanel addStyleNames="ai-panel-contetn">
-                <g:HorizontalPanel spacing="10">
-                    <g:Label addStyleNames="{style.lb}">名称</g:Label>
-                    <widget:AiTextBox ui:field="txtName"/>
-                </g:HorizontalPanel>
-                <g:HorizontalPanel spacing="10">
-                    <g:Label addStyleNames="{style.lb}">项目源代码路径</g:Label>
-                    <widget:AiTextBox ui:field="txtSource"/>
-                </g:HorizontalPanel>
-                <g:HorizontalPanel spacing="10">
-                    <g:Label addStyleNames="{style.lb}">部署计算节点</g:Label>
-                    <node:NodeListBox ui:field="ddlNodes" width="350px"/>
-                </g:HorizontalPanel>
-            </g:HTMLPanel>
+            <g:HorizontalPanel width="100%" verticalAlignment="middle" horizontalAlignment="center">
+                <g:HTMLPanel addStyleNames="{style.box}">
+                    <widget:Header addStyleNames="{style.left}">项目名称</widget:Header>
+                    <widget:AiTextBox ui:field="txtName" width="300px"
+                                      placeholder="比如 beijing_project 通常是一个简洁的名字"/>
+                    <widget:Header addStyleNames="{style.left}">简单介绍</widget:Header>
+                    <widget:AiTextBox ui:field="txtSummary" width="300px" placeholder="以后可以修改"/>
+                </g:HTMLPanel>
+            </g:HorizontalPanel>
         </g:center>
     </g:DockLayoutPanel>
 </ui:UiBinder>

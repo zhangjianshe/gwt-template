@@ -36,7 +36,7 @@ import java.util.regex.Pattern;
 @Service
 @Slf4j
 public class StartBootPrepare implements ApplicationContextAware {
-    public final static String DB_VERSION = "2026-02-07";
+    public final static String DB_VERSION = "2026-04-11";
     @Resource
     Dao dao;
     ApplicationContext context;
@@ -185,7 +185,7 @@ public class StartBootPrepare implements ApplicationContextAware {
         log.info("[DB] 重建视图");
         for (String key : sqlManager.keys()) {
             String sql = sqlManager.get(key);
-            log.info("[DB] 重建视图 {}",key);
+            log.info("[DB] 重建视图 {}", key);
             Sql sql1 = Sqls.create(sql);
             dao.execute(sql1);
         }
@@ -206,7 +206,7 @@ public class StartBootPrepare implements ApplicationContextAware {
             }
             log.info("find SQL files {}", Json.toJson(sqlManager.keys()));
             for (String key : sqlManager.keys()) {
-                log.info("[DB] 删除视图 {}",key);
+                log.info("[DB] 删除视图 {}", key);
                 Sql sql1 = Sqls.create(String.format("drop view IF EXISTS %s", key));
                 dao.execute(sql1);
             }
@@ -222,7 +222,7 @@ public class StartBootPrepare implements ApplicationContextAware {
         checkAndCreate(DevNodeEntity.class);
         checkAndCreate(DevProjectEntity.class);
         checkAndCreate(DevBuildEntity.class);
-        checkAndCreate(DevMyProjectEntity.class);
+        checkAndCreate(DevProjectMemberEntity.class);
         checkAndCreate(DevGroupEntity.class);
         checkAndCreate(DevGroupMemberEntity.class);
         log.info("[DB] 完成数据库表的初始化");
@@ -238,7 +238,7 @@ public class StartBootPrepare implements ApplicationContextAware {
 
     void checkAndCreate(Class clz) {
         if (dao.exists(clz)) {
-            Daos.migration(dao, SysConfigEntity.class, true, false);
+            Daos.migration(dao, clz, true, true);
         } else {
             dao.create(clz, false);
         }

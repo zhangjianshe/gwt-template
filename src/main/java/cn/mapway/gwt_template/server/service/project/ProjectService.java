@@ -28,21 +28,39 @@ public class ProjectService {
             project.setCreateTime(new Timestamp(
                     System.currentTimeMillis()
             ));
+
+            DevProjectEntity fetch = dao.fetch(DevProjectEntity.class, Cnd.where(DevProjectEntity.FLD_OWNER_NAME, "=", userName)
+                    .and(DevProjectEntity.FLD_NAME, "=", project.getName()));
+            if(fetch!=null){
+                return BizResult.error(500,project.getName()+"已经存在不能创建");
+            }
+
+            BizResult<String> newRepository = gitRepoService.createNewRepository(userName, project.getName());
+            if (newRepository.isFailed()){
+                return newRepository.asBizResult();
+            }
+
             NutTxDao txDao = new NutTxDao(dao);
             try {
+                txDao.beginRC();
                 txDao.insert(project);
                 //插入一个用户对这个项目拥有所有的权限
-                DevMyProjectEntity devMyProjectEntity = new DevMyProjectEntity();
-                devMyProjectEntity.projectId = project.getId();
-                devMyProjectEntity.myId = project.getUserId();
-                devMyProjectEntity.permission = CommonPermission.fromPermission(0).setAll().getPermission();
-                txDao.insert(devMyProjectEntity);
-                //创建这个用户的代码仓库
-                gitRepoService.createNewRepository(userName, project.getName());
+                DevProjectMemberEntity devProjectMemberEntity = new DevProjectMemberEntity();
+                devProjectMemberEntity.setProjectId(project.getId());
+                devProjectMemberEntity.setUserId(project.getUserId());
+                devProjectMemberEntity.setCreateTime(project.getCreateTime());
+                devProjectMemberEntity.setOwner(true);
+                devProjectMemberEntity.setPermission(CommonPermission.fromPermission(0).setAll().getPermission());
 
+                txDao.insert(devProjectMemberEntity);
+                //创建这个用户的代码仓库
+                txDao.commit();
+                project = dao.fetch(DevProjectEntity.class, project.getId());
                 return BizResult.success(project);
             } catch (Throwable e) {
+                e.printStackTrace();
                 txDao.rollback();
+                gitRepoService.deleteRepository(userName, project.getName());
                 return BizResult.error(500, "创建项目错误" + e.getMessage());
             } finally {
                 txDao.close();
@@ -55,11 +73,7 @@ public class ProjectService {
     }
 
     public List<VwProjectEntity> allProjects(Long userId) {
-        if (userId == null) {
-            return dao.query(VwProjectEntity.class, Cnd.orderBy().desc("create_time"));
-        } else {
             return dao.query(VwProjectEntity.class, Cnd.where("my_id", "=", userId).desc("create_time"));
-        }
     }
 
     public List<DevNodeEntity> allNodes() {
@@ -82,13 +96,13 @@ public class ProjectService {
     }
 
     public CommonPermission userProjectPermission(Long userId, String projectId) {
-        DevMyProjectEntity fetch = dao.fetch(DevMyProjectEntity.class, Cnd.where(
-                DevMyProjectEntity.FLD_MYID, "=", userId
-        ).and(DevMyProjectEntity.FLD_PROJECT_ID, "=", projectId));
+        DevProjectMemberEntity fetch = dao.fetch(DevProjectMemberEntity.class, Cnd.where(
+                DevProjectMemberEntity.FLD_USER_ID, "=", userId
+        ).and(DevProjectMemberEntity.FLD_PROJECT_ID, "=", projectId));
         if (fetch == null) {
             return CommonPermission.fromPermission(0);
         } else {
-            return CommonPermission.fromPermission(fetch.permission);
+            return CommonPermission.fromPermission(fetch.getPermission());
         }
     }
 
@@ -112,5 +126,57 @@ public class ProjectService {
 
     public List<DevGroupEntity> userGroups(Long userId) {
         return dao.query(DevGroupEntity.class, Cnd.where(DevGroupEntity.FLD_USERID, "=", userId).desc("create_time"));
+    }
+
+    /**
+     * 获取用户 在项目中的权限
+     *
+     * @param userId
+     * @param projectId
+     * @return
+     */
+    public CommonPermission findUserPermissionInProject(Long userId, String projectId) {
+        CommonPermission permission = CommonPermission.fromPermission(0);
+        if (userId != null && Strings.isNotBlank(projectId)) {
+            DevProjectMemberEntity devMyProject = dao.fetch(
+                    DevProjectMemberEntity.class, Cnd.where(DevProjectMemberEntity.FLD_PROJECT_ID, "=", projectId)
+                            .and(DevProjectMemberEntity.FLD_USER_ID, "=", userId)
+            );
+            if (devMyProject != null) {
+                permission = CommonPermission.fromPermission(devMyProject.getPermission());
+            }
+        }
+        return permission;
+    }
+
+    public DevProjectMemberEntity findProjectMemberByMemberId(String projectId, Long userId) {
+        return dao.fetch(
+                DevProjectMemberEntity.class, Cnd.where(DevProjectMemberEntity.FLD_PROJECT_ID, "=", projectId)
+                        .and(DevProjectMemberEntity.FLD_USER_ID, "=", userId)
+        );
+    }
+
+    public void updateProjectMember(String projectId) {
+
+        int count = dao.count(DevProjectMemberEntity.class, Cnd.where(DevProjectMemberEntity.FLD_PROJECT_ID, "=", projectId));
+        DevProjectEntity project = new DevProjectEntity();
+        project.setId(projectId);
+        project.setMemberCount(count);
+        dao.updateIgnoreNull(project);
+    }
+
+    public List<VwProjectMemberEntity> findProjectMembers(String projectId) {
+        return dao.query(VwProjectMemberEntity.class, Cnd.where(VwProjectMemberEntity.FLD_PROJECT_ID, "=", projectId).asc("create_time"));
+    }
+
+    public VwProjectMemberEntity findProjectMemberViewByMemberId(String projectId, Long userId) {
+        return dao.fetch(
+                VwProjectMemberEntity.class, Cnd.where(VwProjectMemberEntity.FLD_PROJECT_ID, "=", projectId)
+                        .and(VwProjectMemberEntity.FLD_USER_ID, "=", userId)
+        );
+    }
+
+    public DevProjectEntity findProjectById(String projectId) {
+        return dao.fetch(DevProjectEntity.class, Cnd.where(DevProjectEntity.FLD_ID, "=", projectId));
     }
 }

@@ -1,0 +1,56 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:widget="urn:import:cn.mapway.gwt_template.client.widget"
+             xmlns:buttons="urn:import:cn.mapway.ui.client.widget.buttons">
+    <ui:style>
+        .box {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 4px;
+            border-bottom: solid 1px #f0f0f0;
+        }
+
+        .check {
+            padding: 4px;
+            border: solid 1px #f0f0f0;
+            font-size: 0.8rem;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            background-color: burlywood;
+        }
+
+        .check1 {
+
+        }
+
+        .check1:HOVER {
+            background-color: brown;
+            color: aliceblue;
+        }
+
+        .msg {
+            font-size: 0.9rem;
+            color: #707070;
+        }</ui:style>
+    <g:HTMLPanel>
+        <g:HTMLPanel addStyleNames="{style.box}">
+            <widget:Head text="项目组成员" ui:field="lbHeader"/>
+            <g:Label ui:field="lbMessage" addStyleNames="{style.msg}"/>
+            <g:HorizontalPanel ui:field="buttons" verticalAlignment="middle" spacing="2">
+                <g:Label title="管理员" addStyleNames="{style.check}">A</g:Label>
+                <g:Label title="读权限" addStyleNames="{style.check}">R</g:Label>
+                <g:Label title="写权限" addStyleNames="{style.check}">W</g:Label>
+                <buttons:PlusButton title="添加成员" addStyleNames="{style.check} {style.check1}"
+                                    ui:field="btnAdd"/>
+            </g:HorizontalPanel>
+        </g:HTMLPanel>
+        <g:VerticalPanel ui:field="list" width="100%">
+
+        </g:VerticalPanel>
+    </g:HTMLPanel>
+</ui:UiBinder>

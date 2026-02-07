@@ -59,6 +59,7 @@ public class UpdateDevGroupExecutor extends AbstractBizExecutor<UpdateDevGroupRe
             groupMember.setGroupName(devGroup.getName());
             groupMember.setPermission(CommonPermission.fromPermission(0).setAll().getPermission());
             groupMember.setOwner(true);
+            groupMember.setCreateTime(new Timestamp(System.currentTimeMillis()));
 
             //事务创建 分组以及为分组添加管理人员
             NutTxDao txDao = new NutTxDao(dao);

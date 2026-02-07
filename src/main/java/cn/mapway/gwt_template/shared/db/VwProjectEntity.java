@@ -24,16 +24,33 @@ public class VwProjectEntity implements Serializable, IsSerializable {
     Timestamp createTime;
     @Column("user_id")
     Long userId; //创建者ID
+
+    @Column(hump = true)
+    String groupId;
+
     @Column("source_url")
-    String  sourceUrl;
+    String sourceUrl;
     @Column("build_script")
-    String  buildScript;
+    String buildScript;
     @Column("deploy_server")
-    String  deployServer;
+    String deployServer;
     @Column("service_url")
-    String  serviceUrl;
+    String serviceUrl;
+
+    @Column("owner_kind")
+    Integer ownerKind;
     @Column("permission")
     Integer permission;
+
     @Column("my_id")
-    Long    myId;//授权的用户ID
+    Long myId;//授权的用户ID
+
+    @Column("summary")
+    String summary;
+
+    @Column(hump = true)
+    Integer memberCount;
+
+    @Column(hump = true)
+    String ownerName;
 }

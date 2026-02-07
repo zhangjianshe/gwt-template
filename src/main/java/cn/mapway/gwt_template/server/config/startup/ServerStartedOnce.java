@@ -1,10 +1,14 @@
 package cn.mapway.gwt_template.server.config.startup;
 
+import cn.mapway.biz.core.BizResult;
+import cn.mapway.gwt_template.server.config.AppConfig;
 import cn.mapway.gwt_template.server.rbac.Permissions;
 import cn.mapway.gwt_template.server.service.user.TokenService;
+import cn.mapway.gwt_template.shared.rpc.user.ResourcePoint;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
 import cn.mapway.rbac.server.service.RbacResourceService;
 import cn.mapway.rbac.shared.RbacConstant;
+import cn.mapway.rbac.shared.RbacRole;
 import cn.mapway.rbac.shared.ResourceKind;
 import cn.mapway.rbac.shared.db.postgis.RbacResourceEntity;
 import cn.mapway.rbac.shared.db.postgis.RbacUserEntity;
@@ -148,6 +152,9 @@ public class ServerStartedOnce extends ApplicationObjectSupport implements IServ
     @Override
     public void onApplicationEvent(ApplicationReadyEvent event) {
         applicationContext = event.getApplicationContext();
+        AppConfig appConfig = applicationContext.getBean(AppConfig.class);
+        log.info("[START] GIT ROOT 目录 {}", appConfig.getRepoRoot());
+
         //////////////////////////初始化插件子系统////////////////////////
         dao = event.getApplicationContext().getBean(Dao.class);
         Map<String, IServerPlugin> plugins = event.getApplicationContext().getBeansOfType(IServerPlugin.class);
@@ -212,7 +219,32 @@ public class ServerStartedOnce extends ApplicationObjectSupport implements IServ
         log.info("同步GWT模块定义 {}个", resources.size());
         rbacResourceService.clearAndReloadResourceByKind(ResourceKind.RESOURCE_KIND_FUNCTION, resources);
 
-        //解译角色 授权的模块
-        //ImageBotPermissions.MODULE_INFERER
+        //创建应用的资源点
+
+        for (ResourcePoint point : ResourcePoint.values()) {
+            RbacResourceEntity resourceEntity = new RbacResourceEntity();
+            resourceEntity.setResourceCode(point.getCode());
+            resourceEntity.setName(point.getName());
+            resourceEntity.setCatalog(point.getCatalog());
+            resourceEntity.setData(point.getData());
+            resourceEntity.setUnicodeIcon(point.getUnicode());
+            resourceEntity.setKind(point.getKind());
+            rbacResourceService.confirmResourceExist(resourceEntity);
+            log.info("[START] 确认资源点{}存在", point.getName());
+        }
+
+        //创建一个项目管理员角色
+        String SYS_PROJECT_MANAGER = "SYS_PROJECT_MANAGER";
+        log.info("[START] 分配项目管理员角色 {}", SYS_PROJECT_MANAGER);
+        BizResult<RbacRole> rbacRoleBizResult = rbacResourceService.confirmRoleExist(SYS_PROJECT_MANAGER, "项目管理员", "", "", "");
+        if (rbacRoleBizResult.isFailed()) {
+            log.error("[START] 不能创建角色 {}", rbacRoleBizResult.getMessage());
+            throw Lang.makeThrow("[START]", rbacRoleBizResult.getMessage());
+        }
+        //分配项目管理员 创建项目资源
+        log.info("[START] 分配项目管理员 角色资源");
+        rbacResourceService.confirmResourceInRole(ResourcePoint.RP_PROJECT_CREATE.getCode(), SYS_PROJECT_MANAGER);
+
+
     }
 }

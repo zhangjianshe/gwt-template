@@ -1,0 +1,33 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:member="urn:import:cn.mapway.gwt_template.client.project.member">
+    <ui:style>
+        .right {
+            padding: 15px 10px;
+        }
+
+        .name {
+            font-size: 1.2rem;
+            font-weight: bold;
+            padding: 10px;
+        }
+
+        .content {
+            padding: 15px;
+            line-height: 200%;
+        }</ui:style>
+    <g:DockLayoutPanel>
+        <g:east size="400">
+            <g:ScrollPanel addStyleNames="{style.right}">
+                <member:MemberList ui:field="memberList"/>
+            </g:ScrollPanel>
+        </g:east>
+        <g:center>
+            <g:ScrollPanel>
+                <g:HTMLPanel addStyleNames="{style.content}">
+                    <g:HTML ui:field="readme" addStyleNames="markdown-body"/>
+                </g:HTMLPanel>
+            </g:ScrollPanel>
+        </g:center>
+    </g:DockLayoutPanel>
+</ui:UiBinder>

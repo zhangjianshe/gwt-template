@@ -2,11 +2,15 @@ package cn.mapway.gwt_template.client;
 
 import cn.mapway.gwt_template.client.resource.AppResource;
 import cn.mapway.gwt_template.client.widget.AiInputPanel;
+import cn.mapway.gwt_template.client.widget.Toaster;
 import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.rpc.app.AppData;
 import cn.mapway.rbac.client.RbacClient;
+import cn.mapway.rbac.client.user.RbacUser;
+import cn.mapway.rbac.client.user.SearchUserPanel;
 import cn.mapway.rbac.shared.RbacConstant;
 import cn.mapway.rbac.shared.ResourceKind;
+import cn.mapway.rbac.shared.db.postgis.RbacUserEntity;
 import cn.mapway.rbac.shared.model.Res;
 import cn.mapway.rbac.shared.model.UserPermissions;
 import cn.mapway.ui.client.IClientContext;
@@ -27,7 +31,6 @@ import com.google.gwt.storage.client.Storage;
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Window;
 import elemental2.core.JsArray;
-import elemental2.dom.DomGlobal;
 import elemental2.promise.Promise;
 import lombok.Getter;
 import lombok.Setter;
@@ -193,7 +196,21 @@ public class ClientContext implements IClientContext, HasCommonHandlers {
 
     @Override
     public Promise<JsArray<IUserInfo>> chooseUser() {
-        return null;
+        return new Promise((resolve, reject) -> {
+            Dialog<SearchUserPanel> dialog = SearchUserPanel.getDialog(true);
+            dialog.addCommonHandler(commonEvent -> {
+                if (commonEvent.isOk()) {
+                    RbacUserEntity user = commonEvent.getValue();
+                    RbacUser cisUser = new RbacUser(user);
+                    JsArray<IUserInfo> users = new JsArray<>();
+                    users.push(cisUser);
+                    resolve.onInvoke(users);
+                }
+                dialog.hide();
+            });
+            dialog.getContent().search("");
+            dialog.center();
+        });
     }
 
     @Override
@@ -218,7 +235,7 @@ public class ClientContext implements IClientContext, HasCommonHandlers {
 
     @Override
     public void toast(int level, Integer code, String message) {
-        DomGlobal.console.log(message);
+        Toaster.show("", message);
     }
 
     /**
@@ -278,6 +295,6 @@ public class ClientContext implements IClientContext, HasCommonHandlers {
     }
 
     public boolean isCurrentUser(Long userId) {
-        return  userId!=null && getUserInfo().getId().equals(DataCastor.castToString(userId));
+        return userId != null && getUserInfo().getId().equals(DataCastor.castToString(userId));
     }
 }

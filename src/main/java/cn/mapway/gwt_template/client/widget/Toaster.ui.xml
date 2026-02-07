@@ -1,0 +1,13 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:widget="urn:import:cn.mapway.gwt_template.client.widget">
+    <ui:style>
+        .box{
+            padding: 10px;
+        }
+    </ui:style>
+    <g:HTMLPanel addStyleNames="{style.box}">
+        <widget:Head ui:field="header"/>
+        <g:HTML ui:field="htmlContent"/>
+    </g:HTMLPanel>
+</ui:UiBinder>

@@ -65,7 +65,7 @@
     --color-menu-text-hover: var(--color-text-title);
     --menu-item-height: 28px;
 
-    --border-radius: 0px;
+    --border-radius: 4px;
 
 
     --color-table-header: var(--color-background-header);

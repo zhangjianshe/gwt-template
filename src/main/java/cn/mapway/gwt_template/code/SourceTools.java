@@ -29,7 +29,7 @@ public class SourceTools {
         String packageBean = "cn.mapway.gwt_template.shared.rpc.project";
         String packageService = "cn.mapway.gwt_template.server.service.project";
         ArrayList<String> methods = Lang.list(
-                "updateDevGroup","deleteDevGroup","queryDevGroup","updateGroupMember","deleteGroupMember","queryGroupMember"
+                "readRepoFile"
         );
         methods.stream().forEach(n -> {
             tools.gen(n, packageBean, packageService);

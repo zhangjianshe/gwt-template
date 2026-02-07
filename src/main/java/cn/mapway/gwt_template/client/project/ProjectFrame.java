@@ -1,13 +1,14 @@
 package cn.mapway.gwt_template.client.project;
 
+import cn.mapway.gwt_template.client.ClientContext;
 import cn.mapway.gwt_template.shared.db.VwProjectEntity;
+import cn.mapway.gwt_template.shared.rpc.user.ResourcePoint;
 import cn.mapway.ui.client.fonts.Fonts;
 import cn.mapway.ui.client.frame.SubsystemModule;
 import cn.mapway.ui.client.mvc.IModule;
 import cn.mapway.ui.client.mvc.ModuleMarker;
 import cn.mapway.ui.client.mvc.ModuleParameter;
 import cn.mapway.ui.client.widget.dialog.Dialog;
-import cn.mapway.ui.client.widget.tree.TreeItem;
 import cn.mapway.ui.shared.CommonEvent;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -16,7 +17,6 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
-import com.google.gwt.user.client.ui.HorizontalPanel;
 
 @ModuleMarker(
         name = "开发项目",
@@ -25,19 +25,15 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
         summary = "我参与的开发项目",
         order = 100
 )
-public class ProjectFrame extends SubsystemModule {
+public class ProjectFrame extends SubsystemModule  {
     public static final String MODULE_CODE = "dev_project_frame";
     private static final ProjectFrameUiBinder ourUiBinder = GWT.create(ProjectFrameUiBinder.class);
     @UiField
-    ProjectTree projectTree;
+    ProjectList projectTree;
     @UiField
     Button btnCreate;
     @UiField
-    Button btnEdit;
-    @UiField
-    ProjectFlowPanel projectPanel;
-    @UiField
-    HorizontalPanel tools;
+    ProjectView projectPanel;
     VwProjectEntity currentProject = null;
 
     public ProjectFrame() {
@@ -57,6 +53,12 @@ public class ProjectFrame extends SubsystemModule {
     }
 
     @Override
+    protected void onLoad() {
+        super.onLoad();
+        btnCreate.setEnabled(ClientContext.get().isAssignResource(ResourcePoint.RP_PROJECT_CREATE.getCode()));
+    }
+
+    @Override
     public String getModuleCode() {
         return MODULE_CODE;
     }
@@ -64,16 +66,14 @@ public class ProjectFrame extends SubsystemModule {
     @UiHandler("projectTree")
     public void projectTreeCommon(CommonEvent event) {
         if (event.isSelect()) {
-            TreeItem item = event.getValue();
-            VwProjectEntity project = (VwProjectEntity) item.getData();
+            VwProjectEntity project = event.getValue();
             showProject(project);
         }
     }
 
     private void showProject(VwProjectEntity project) {
         currentProject = project;
-        btnEdit.setEnabled(currentProject != null);
-        projectPanel.setData(project);
+        projectPanel.setData(currentProject);
     }
 
     @UiHandler("btnCreate")
@@ -81,19 +81,16 @@ public class ProjectFrame extends SubsystemModule {
         editProject(null);
     }
 
-    @UiHandler("btnEdit")
-    public void btnEditClick(ClickEvent event) {
-        editProject(currentProject);
-    }
-
     private void editProject(VwProjectEntity project) {
         Dialog<ProjectEditor> dialog = ProjectEditor.getDialog(true);
         dialog.addCommonHandler(event -> {
             if (event.isOk()) {
+                dialog.hide();
                 projectTree.load();
                 projectPanel.setData(event.getValue());
+            } else if (event.isClose()) {
+                dialog.hide();
             }
-            dialog.hide();
         });
         dialog.getContent().setData(project);
         dialog.center();

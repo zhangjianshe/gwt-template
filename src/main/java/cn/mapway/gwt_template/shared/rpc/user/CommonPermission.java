@@ -37,7 +37,7 @@ public class CommonPermission {
         return this;
     }
     public boolean isAdmin() {
-        return (value & READ) != 0;
+        return (value & ADMIN) != 0;
     }
 
     public CommonPermission setAdmin(boolean admin) {
@@ -88,7 +88,7 @@ public class CommonPermission {
     }
 
     public CommonPermission setAll() {
-        value |= READ | WRITE | DELETE | CREATE|ADMIN;
+        value = READ | WRITE | DELETE | CREATE| ADMIN;
         return this;
     }
 
