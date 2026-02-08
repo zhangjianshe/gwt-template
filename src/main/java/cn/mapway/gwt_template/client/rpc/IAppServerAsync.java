@@ -13,6 +13,12 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public interface IAppServerAsync {
 
     ///CODE_GEN_INSERT_POINT///
+	void updateUserKey(UpdateUserKeyRequest request, AsyncCallback<RpcResult<UpdateUserKeyResponse>> async);
+
+	void deleteUserKey(DeleteUserKeyRequest request, AsyncCallback<RpcResult<DeleteUserKeyResponse>> async);
+
+	void queryUserKey(QueryUserKeyRequest request, AsyncCallback<RpcResult<QueryUserKeyResponse>> async);
+
 	void queryRepoRefs(QueryRepoRefsRequest request, AsyncCallback<RpcResult<QueryRepoRefsResponse>> async);
 
 	void readRepoFile(ReadRepoFileRequest request, AsyncCallback<RpcResult<ReadRepoFileResponse>> async);

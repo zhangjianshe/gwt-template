@@ -2,11 +2,13 @@ package cn.mapway.gwt_template.server.service.git;
 
 import cn.mapway.biz.core.BizResult;
 import cn.mapway.gwt_template.server.config.AppConfig;
+import cn.mapway.gwt_template.shared.rpc.project.QueryRepoFilesResponse;
 import cn.mapway.gwt_template.shared.rpc.project.QueryRepoRefsResponse;
 import cn.mapway.gwt_template.shared.rpc.project.RepoItem;
 import cn.mapway.gwt_template.shared.rpc.project.git.GitRef;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.LogCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectLoader;
@@ -119,15 +121,18 @@ public class GitRepoService {
      *
      * @throws Exception
      */
-    public List<RepoItem> listFiles(String owner, String repoName, String relPath, String ref) throws Exception {
+    public QueryRepoFilesResponse listFiles(String owner, String repoName, String relPath, String ref) throws Exception {
+        QueryRepoFilesResponse response = new QueryRepoFilesResponse();
         List<RepoItem> files = new ArrayList<>();
+        response.setItems(files);
+
         String finalRepoName = repoName.endsWith(".git") ? repoName : repoName + ".git";
         File repoDir = new File(appConfig.getRepoRoot(), owner + "/" + finalRepoName);
 
         try (Repository repository = FileRepositoryBuilder.create(repoDir)) {
             String revision = (ref == null || ref.isEmpty()) ? "HEAD" : ref;
             ObjectId head = repository.resolve(revision);
-            if (head == null) return files;
+            if (head == null) return response;
 
             try (RevWalk revWalk = new RevWalk(repository);
                  TreeWalk treeWalk = new TreeWalk(repository);
@@ -137,10 +142,10 @@ public class GitRepoService {
                 treeWalk.addTree(headCommit.getTree());
                 treeWalk.setRecursive(false);
 
-                // --- NAVIGATION LOGIC ---
+                String normalizedPath = "";
                 if (relPath != null && !relPath.isEmpty() && !relPath.equals("/") && !relPath.equals(".")) {
                     // Ensure path doesn't have leading/trailing slashes for the filter
-                    String normalizedPath = relPath.startsWith("/") ? relPath.substring(1) : relPath;
+                    normalizedPath = relPath.startsWith("/") ? relPath.substring(1) : relPath;
                     if (normalizedPath.endsWith("/"))
                         normalizedPath = normalizedPath.substring(0, normalizedPath.length() - 1);
 
@@ -160,7 +165,22 @@ public class GitRepoService {
                             treeWalk.enterSubtree();
                         }
                     }
-                    if (!found) return files;
+                    if (!found) return response;
+                }
+
+                LogCommand dirLogCmd = git.log().add(head).setMaxCount(1);
+                if (!normalizedPath.isEmpty()) {
+                    dirLogCmd.addPath(normalizedPath);
+                }
+                Iterable<RevCommit> dirLogs = dirLogCmd.call();
+
+                for (RevCommit dirCommit : dirLogs) {
+                    RepoItem dirInfo = new RepoItem();
+                    dirInfo.setName(normalizedPath.isEmpty() ? repoName : normalizedPath.substring(normalizedPath.lastIndexOf("/") + 1));
+                    dirInfo.setSummary(dirCommit.getShortMessage());
+                    dirInfo.setAuthor(dirCommit.getAuthorIdent().getName());
+                    dirInfo.setDate(new Date(dirCommit.getCommitTime() * 1000L));
+                    response.setCurrentDirInfo(dirInfo);
                 }
 
                 // Capture the target depth so we don't bleed back into the parent
@@ -202,7 +222,7 @@ public class GitRepoService {
                 }
             }
         }
-        return files;
+        return response;
     }
 
     /**

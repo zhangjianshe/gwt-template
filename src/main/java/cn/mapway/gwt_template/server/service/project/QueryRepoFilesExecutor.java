@@ -10,7 +10,6 @@ import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.db.DevProjectEntity;
 import cn.mapway.gwt_template.shared.rpc.project.QueryRepoFilesRequest;
 import cn.mapway.gwt_template.shared.rpc.project.QueryRepoFilesResponse;
-import cn.mapway.gwt_template.shared.rpc.project.RepoItem;
 import cn.mapway.gwt_template.shared.rpc.user.CommonPermission;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +19,6 @@ import org.nutz.lang.Strings;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.util.List;
 
 /**
  * QueryRepoFilesExecutor
@@ -30,8 +28,6 @@ import java.util.List;
 @Component
 @Slf4j
 public class QueryRepoFilesExecutor extends AbstractBizExecutor<QueryRepoFilesResponse, QueryRepoFilesRequest> {
-    @Resource
-    AppConfig appConfig;
     @Resource
     private ProjectService projectService;
     @Resource
@@ -52,9 +48,8 @@ public class QueryRepoFilesExecutor extends AbstractBizExecutor<QueryRepoFilesRe
             if (Strings.isBlank(request.getPath())) {
                 request.setPath("");
             }
-            List<RepoItem> repoItems = gitRepoService.listFiles(project.getOwnerName(), project.getName(), request.getPath(), request.getRef());
-            QueryRepoFilesResponse response = new QueryRepoFilesResponse();
-            response.setItems(repoItems);
+            QueryRepoFilesResponse response= gitRepoService.listFiles(project.getOwnerName(), project.getName(), request.getPath(), request.getRef());
+
             return BizResult.success(response);
         } catch (Exception e) {
             log.error("[PROJECT] 读取仓库文件错误{}", e.getMessage());

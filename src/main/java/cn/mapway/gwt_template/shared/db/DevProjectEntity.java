@@ -80,4 +80,9 @@ public class DevProjectEntity implements Serializable, IsSerializable {
     @Column(hump = true)
     @Default("1")
     Integer memberCount;
+
+    @Comment("是否公开")
+    @Column(hump = true)
+    @Default("false")
+    Boolean isPublic;
 }

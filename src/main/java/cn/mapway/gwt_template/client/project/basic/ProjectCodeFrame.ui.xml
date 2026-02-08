@@ -10,6 +10,10 @@
             grid-template-columns: 1fr 100px;
             padding: 0 10px;
             border-bottom: solid 1px #e0e0e0;
+            border-left: solid 1px #e0e0e0;
+            border-right: solid 1px #e0e0e0;
+            height: 50px;
+            margin: 0 10px;
         }
 
         .box1 {
@@ -36,12 +40,42 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             border: 5px solid white;
         }
-    </ui:style>
+
+        .box2 {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 10px;
+            background-color: #f0f0f0;
+            border-radius: 6px 6px 0 0;
+            border-top: solid 1px #e0e0e0;
+            border-left: solid 1px #e0e0e0;
+            border-right: solid 1px #e0e0e0;
+            margin: 0 10px;
+            height: 50px;
+        }
+
+        .msg {
+            color: #666;
+        }
+
+        .files {
+            border-radius: 0 0 6px 6px;
+            border-bottom: solid 1px #e0e0e0;
+            border-left: solid 1px #e0e0e0;
+            border-right: solid 1px #e0e0e0;
+            margin: 0 4px 10px 10px;
+        }
+
+        .scroll {
+            scrollbar-gutter: stable;
+            overflow-y: scroll;
+        }</ui:style>
     <g:DockLayoutPanel>
         <g:east size="400">
             <g:HTMLPanel/>
         </g:east>
-        <g:north size="50">
+        <g:north size="60">
             <g:HTMLPanel addStyleNames="{style.box1}">
                 <g:HorizontalPanel verticalAlignment="middle" spacing="6">
                     <basic:ReferenceDropdown ui:field="ddlRef"/>
@@ -53,7 +87,20 @@
                 </g:HorizontalPanel>
             </g:HTMLPanel>
         </g:north>
-        <g:north size="40">
+        <g:north size="50">
+            <g:HTMLPanel>
+                <g:HTMLPanel addStyleNames="{style.box2}">
+                    <g:HorizontalPanel verticalAlignment="middle" spacing="6">
+                        <widget:Head ui:field="dirLastUser"/>
+                        <g:Label addStyleNames="{style.msg}" ui:field="dirLastSummary"/>
+                    </g:HorizontalPanel>
+                    <g:HorizontalPanel width="100%" horizontalAlignment="right" spacing="6">
+                        <g:Label addStyleNames="{style.msg}" ui:field="dirLastModify"/>
+                    </g:HorizontalPanel>
+                </g:HTMLPanel>
+            </g:HTMLPanel>
+        </g:north>
+        <g:north size="50">
             <g:HTMLPanel addStyleNames="{style.box}">
                 <g:HorizontalPanel ui:field="paths" spacing="4" verticalAlignment="middle">
                 </g:HorizontalPanel>
@@ -65,8 +112,8 @@
         <g:center>
             <g:LayoutPanel ui:field="contentPanel">
                 <g:layer>
-                    <g:ScrollPanel>
-                        <g:HTMLPanel ui:field="files">
+                    <g:ScrollPanel addStyleNames="{style.scroll}">
+                        <g:HTMLPanel ui:field="files" addStyleNames="{style.files}">
 
                         </g:HTMLPanel>
                     </g:ScrollPanel>

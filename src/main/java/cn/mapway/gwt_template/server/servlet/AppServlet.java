@@ -103,6 +103,36 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
     ///CODE_GEN_INSERT_POINT///
 	
     @Resource
+    UpdateUserKeyExecutor updateUserKeyExecutor;
+    @Override
+    public RpcResult<UpdateUserKeyResponse> updateUserKey(UpdateUserKeyRequest request) {
+        BizResult<UpdateUserKeyResponse> bizResult = updateUserKeyExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    DeleteUserKeyExecutor deleteUserKeyExecutor;
+    @Override
+    public RpcResult<DeleteUserKeyResponse> deleteUserKey(DeleteUserKeyRequest request) {
+        BizResult<DeleteUserKeyResponse> bizResult = deleteUserKeyExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    QueryUserKeyExecutor queryUserKeyExecutor;
+    @Override
+    public RpcResult<QueryUserKeyResponse> queryUserKey(QueryUserKeyRequest request) {
+        BizResult<QueryUserKeyResponse> bizResult = queryUserKeyExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
     QueryRepoRefsExecutor queryRepoRefsExecutor;
     @Override
     public RpcResult<QueryRepoRefsResponse> queryRepoRefs(QueryRepoRefsRequest request) {

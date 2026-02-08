@@ -15,6 +15,12 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 @RemoteServiceRelativePath(AppConstant.DEFAULT_SERVER_PATH)
 public interface IAppServer extends RemoteService {
     ///CODE_GEN_INSERT_POINT///
+	RpcResult<UpdateUserKeyResponse> updateUserKey(UpdateUserKeyRequest request);
+
+	RpcResult<DeleteUserKeyResponse> deleteUserKey(DeleteUserKeyRequest request);
+
+	RpcResult<QueryUserKeyResponse> queryUserKey(QueryUserKeyRequest request);
+
 	RpcResult<QueryRepoRefsResponse> queryRepoRefs(QueryRepoRefsRequest request);
 
 	RpcResult<ReadRepoFileResponse> readRepoFile(ReadRepoFileRequest request);

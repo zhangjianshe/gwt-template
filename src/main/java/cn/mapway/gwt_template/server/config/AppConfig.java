@@ -11,5 +11,7 @@ public class AppConfig {
     /**
      * GIT 仓库的根目录
      */
+    private String certRoot;
     private String repoRoot;
+    private Integer sshPort;
 }

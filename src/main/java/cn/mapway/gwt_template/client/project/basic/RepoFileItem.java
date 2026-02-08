@@ -15,8 +15,6 @@ import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.Label;
 
-import java.util.Date;
-
 public class RepoFileItem extends CommonEventComposite implements IData<RepoItem> {
     private static final RepoFileItemUiBinder ourUiBinder = GWT.create(RepoFileItemUiBinder.class);
     @UiField
@@ -48,7 +46,7 @@ public class RepoFileItem extends CommonEventComposite implements IData<RepoItem
 
     private void toUI() {
         lbName.setText(StringUtil.extractName(data.getName()));
-        lbDate.setText(toRelativeTime(data.getDate()));
+        lbDate.setText(StringUtil.toRelativeTime(data.getDate()));
         lbSummary.setText(data.getSummary());
         if (data.isDir()) {
             icon.setIconUnicode(Fonts.FOLDER);
@@ -58,35 +56,7 @@ public class RepoFileItem extends CommonEventComposite implements IData<RepoItem
         }
     }
 
-    private String toRelativeTime(Date date) {
-        if (date == null) return "";
 
-        long millis = System.currentTimeMillis() - date.getTime();
-        long seconds = millis / 1000;
-
-        if (seconds < 60) return "刚刚";
-        if (seconds < 3600) return (seconds / 60) + " 分钟前";
-        if (seconds < 86400) return (seconds / 3600) + " 小时前";
-
-        // 天的逻辑
-        if (seconds < 604800) { // 7天以内
-            long days = seconds / 86400;
-            return days == 1 ? "昨天" : days + " 天前";
-        }
-
-        // 周的逻辑
-        if (seconds < 2592000) { // 30天以内
-            long weeks = seconds / 604800;
-            return weeks == 1 ? "上周" : weeks + " 周前";
-        }
-
-        // 月的逻辑
-        if (seconds < 31104000) { // 12个月以内
-            return (seconds / 2592000) + " 个月前";
-        }
-
-        return (seconds / 31104000) + " 年前";
-    }
 
     @UiHandler("lbName")
     public void lbNameClick(ClickEvent event) {

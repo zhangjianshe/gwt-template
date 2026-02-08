@@ -49,6 +49,9 @@ public class VwProjectEntity implements Serializable, IsSerializable {
     String summary;
 
     @Column(hump = true)
+    Boolean isPublic;
+
+    @Column(hump = true)
     Integer memberCount;
 
     @Column(hump = true)

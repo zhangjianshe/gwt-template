@@ -4,6 +4,9 @@ import cn.mapway.biz.core.BizResult;
 import cn.mapway.gwt_template.server.service.git.GitRepoService;
 import cn.mapway.gwt_template.shared.db.*;
 import cn.mapway.gwt_template.shared.rpc.user.CommonPermission;
+import lombok.extern.slf4j.Slf4j;
+import org.eclipse.jgit.transport.ReceiveCommand;
+import org.eclipse.jgit.transport.ReceivePack;
 import org.nutz.dao.Cnd;
 import org.nutz.dao.Dao;
 import org.nutz.dao.impl.NutTxDao;
@@ -13,9 +16,11 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.List;
 
 @Service
+@Slf4j
 public class ProjectService {
     @Resource
     Dao dao;
@@ -31,12 +36,12 @@ public class ProjectService {
 
             DevProjectEntity fetch = dao.fetch(DevProjectEntity.class, Cnd.where(DevProjectEntity.FLD_OWNER_NAME, "=", userName)
                     .and(DevProjectEntity.FLD_NAME, "=", project.getName()));
-            if(fetch!=null){
-                return BizResult.error(500,project.getName()+"已经存在不能创建");
+            if (fetch != null) {
+                return BizResult.error(500, project.getName() + "已经存在不能创建");
             }
 
             BizResult<String> newRepository = gitRepoService.createNewRepository(userName, project.getName());
-            if (newRepository.isFailed()){
+            if (newRepository.isFailed()) {
                 return newRepository.asBizResult();
             }
 
@@ -73,7 +78,7 @@ public class ProjectService {
     }
 
     public List<VwProjectEntity> allProjects(Long userId) {
-            return dao.query(VwProjectEntity.class, Cnd.where("my_id", "=", userId).desc("create_time"));
+        return dao.query(VwProjectEntity.class, Cnd.where("my_id", "=", userId).desc("create_time"));
     }
 
     public List<DevNodeEntity> allNodes() {
@@ -180,10 +185,10 @@ public class ProjectService {
         return dao.fetch(DevProjectEntity.class, Cnd.where(DevProjectEntity.FLD_ID, "=", projectId));
     }
 
-    public CommonPermission findUserPermissionInProjectByName(Long userId, String ownerName,String projectName) {
+    public CommonPermission findUserPermissionInProjectByName(Long userId, String ownerName, String projectName) {
         CommonPermission permission = CommonPermission.fromPermission(0);
-        DevProjectEntity project=findProjectByOwnerAndName(ownerName,projectName);
-        if(project == null) {
+        DevProjectEntity project = findProjectByOwnerAndName(ownerName, projectName);
+        if (project == null) {
             return permission;
         }
         if (userId != null) {
@@ -199,7 +204,27 @@ public class ProjectService {
     }
 
     private DevProjectEntity findProjectByOwnerAndName(String ownerName, String projectName) {
-       return dao.fetch(DevProjectEntity.class,Cnd.where(DevProjectEntity.FLD_OWNER_NAME, "=", ownerName)
-                .and(DevProjectEntity.FLD_NAME,"=",projectName));
+        return dao.fetch(DevProjectEntity.class, Cnd.where(DevProjectEntity.FLD_OWNER_NAME, "=", ownerName)
+                .and(DevProjectEntity.FLD_NAME, "=", projectName));
+    }
+
+    public boolean isProjectPublic(String ownerName, String projectName) {
+        DevProjectEntity projectByOwnerAndName = findProjectByOwnerAndName(ownerName, projectName);
+        return projectByOwnerAndName != null && projectByOwnerAndName.getIsPublic();
+    }
+
+    /**
+     * 当用户PUSH到仓库后　会调用这个方法
+     *
+     * @param rp
+     * @param commands
+     */
+    public void handlePostReceiveHook(ReceivePack rp, Collection<ReceiveCommand> commands) {
+        for (ReceiveCommand cmd : commands) {
+            if (cmd.getResult() == ReceiveCommand.Result.OK) {
+                String newId = cmd.getNewId().name();
+            }
+        }
+        log.info("[PROJECT GIT] handlePostReceiveHook finished");
     }
 }

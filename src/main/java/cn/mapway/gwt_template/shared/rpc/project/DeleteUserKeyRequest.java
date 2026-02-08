@@ -5,16 +5,14 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 import lombok.Data;
 
 import java.io.Serializable;
-import java.util.List;
 
 /**
- * QueryRepoFilesResponse
+ * DeleteUserKeyRequest
  *
  * @author zhangjianshe@gmail.com
  */
 @Data
-@Doc("QueryRepoFilesResponse")
-public class QueryRepoFilesResponse implements Serializable, IsSerializable {
-    List<RepoItem> items;
-    RepoItem currentDirInfo;
+@Doc("DeleteUserKeyRequest")
+public class DeleteUserKeyRequest implements Serializable, IsSerializable {
+    String key;
 }

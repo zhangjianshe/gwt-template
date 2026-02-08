@@ -52,6 +52,12 @@ public class ProjectCodeFrame extends CommonEventComposite implements IData<VwPr
     IconButton btnTag;
     @UiField
     CloneButton btnClone;
+    @UiField
+    Label dirLastUser;
+    @UiField
+    Label dirLastSummary;
+    @UiField
+    Label dirLastModify;
     boolean initialize = false;
     Map<String, AceEditorMode> format = new HashMap<String, AceEditorMode>();
     private VwProjectEntity project;
@@ -216,7 +222,7 @@ public class ProjectCodeFrame extends CommonEventComposite implements IData<VwPr
             @Override
             public void onSuccess(RpcResult<QueryRepoFilesResponse> result) {
                 if (result.isSuccess()) {
-                    renderFiles(result.getData().getItems());
+                    renderFiles(result.getData());
                     renderPath(request.getPath());
                 } else {
                     ClientContext.get().toast(0, 0, result.getMessage());
@@ -262,7 +268,9 @@ public class ProjectCodeFrame extends CommonEventComposite implements IData<VwPr
         }
     }
 
-    private void renderFiles(List<RepoItem> items) {
+    private void renderFiles(QueryRepoFilesResponse data) {
+        List<RepoItem> items = data.getItems();
+        RepoItem dirInfo = data.getCurrentDirInfo();
         contentPanel.setWidgetVisible(editor, false);
         files.clear();
         Collections.sort(items, (o1, o2) -> {
@@ -276,6 +284,11 @@ public class ProjectCodeFrame extends CommonEventComposite implements IData<VwPr
                 return o1.getName().compareTo(o2.getName());
             }
         });
+
+        dirLastUser.setText(dirInfo.getAuthor());
+        dirLastSummary.setText(dirInfo.getSummary());
+        dirLastModify.setText(StringUtil.toRelativeTime(dirInfo.getDate()));
+
         for (RepoItem item : items) {
             RepoFileItem item2 = new RepoFileItem();
             item2.setData(item);
@@ -297,6 +310,18 @@ public class ProjectCodeFrame extends CommonEventComposite implements IData<VwPr
 
         files.clear();
         files.add(image);
+    }
+
+    interface SStyle extends CssResource {
+
+        String link();
+
+        String box();
+
+        String imagePreview();
+    }
+
+    interface ProjectCodeFrameUiBinder extends UiBinder<DockLayoutPanel, ProjectCodeFrame> {
     }    CommonEventHandler itemHandler = new CommonEventHandler() {
         @Override
         public void onCommonEvent(CommonEvent event) {
@@ -313,18 +338,6 @@ public class ProjectCodeFrame extends CommonEventComposite implements IData<VwPr
             }
         }
     };
-
-    interface SStyle extends CssResource {
-
-        String link();
-
-        String box();
-
-        String imagePreview();
-    }
-
-    interface ProjectCodeFrameUiBinder extends UiBinder<DockLayoutPanel, ProjectCodeFrame> {
-    }
 
 
 

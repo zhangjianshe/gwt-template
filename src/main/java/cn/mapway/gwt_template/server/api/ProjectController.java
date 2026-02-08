@@ -72,6 +72,51 @@ public class ProjectController extends ApiBaseController {
 
     @Resource
     QueryRepoRefsExecutor queryRepoRefsExecutor;
+
+
+    @Resource
+    QueryUserKeyExecutor queryUserKeyExecutor;
+    /**
+     * QueryUserKey
+     *
+     * @param request request
+     * @return data
+     */
+    @Doc(value = "QueryUserKey", retClazz = {QueryUserKeyResponse.class})
+    @RequestMapping(value = "/queryUserKey", method = RequestMethod.POST)
+    public RpcResult<QueryUserKeyResponse> queryUserKey(@RequestBody QueryUserKeyRequest request) {
+        BizResult<QueryUserKeyResponse> bizResult = queryUserKeyExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toApiResult(bizResult);
+    }
+    @Resource
+    DeleteUserKeyExecutor deleteUserKeyExecutor;
+    /**
+     * DeleteUserKey
+     *
+     * @param request request
+     * @return data
+     */
+    @Doc(value = "DeleteUserKey", retClazz = {DeleteUserKeyResponse.class})
+    @RequestMapping(value = "/deleteUserKey", method = RequestMethod.POST)
+    public RpcResult<DeleteUserKeyResponse> deleteUserKey(@RequestBody DeleteUserKeyRequest request) {
+        BizResult<DeleteUserKeyResponse> bizResult = deleteUserKeyExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toApiResult(bizResult);
+    }
+    @Resource
+    UpdateUserKeyExecutor updateUserKeyExecutor;
+    /**
+     * UpdateUserKey
+     *
+     * @param request request
+     * @return data
+     */
+    @Doc(value = "UpdateUserKey", retClazz = {UpdateUserKeyResponse.class})
+    @RequestMapping(value = "/updateUserKey", method = RequestMethod.POST)
+    public RpcResult<UpdateUserKeyResponse> updateUserKey(@RequestBody UpdateUserKeyRequest request) {
+        BizResult<UpdateUserKeyResponse> bizResult = updateUserKeyExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toApiResult(bizResult);
+    }
+
     /**
      * QueryRepoRefs
      *

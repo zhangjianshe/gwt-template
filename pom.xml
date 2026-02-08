@@ -166,6 +166,16 @@
             <version>${JGIT_VERSION}</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.sshd</groupId>
+            <artifactId>sshd-git</artifactId>
+            <version>3.0.0-M2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.sshd</groupId>
+            <artifactId>sshd-core</artifactId>
+            <version>3.0.0-M2</version>
+        </dependency>
 
     </dependencies>
 

@@ -5,9 +5,10 @@
             display: grid;
             /* Icon | Name | Summary | Size | Date */
             grid-template-columns: 32px 220px 1fr 100px 120px;
-            height: 40px;
+            height: 45px;
             align-items: center;
             border-bottom: 1px solid #eee;
+            padding: 0 8px;
         }
 
         .box:HOVER {
@@ -17,6 +18,7 @@
         .right {
             justify-self: flex-end;
             color: #444;
+            padding-right: 4px;
         }
 
         .icon {
@@ -41,7 +43,6 @@
             text-overflow: ellipsis; /* The "..." effect */
             padding: 0 10px;
         }
-
 
 
     </ui:style>

@@ -1,0 +1,37 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:buttons="urn:import:cn.mapway.ui.client.widget.buttons"
+             xmlns:widget="urn:import:cn.mapway.ui.client.widget">
+    <ui:style>
+        .box {
+            margin: 0 15px;
+            border-bottom: solid 1px #e0e0e0;
+            padding: 10px;
+        }
+
+        .fingure {
+            line-height: 150%;
+            word-break: break-all;
+            text-wrap: auto;
+        }</ui:style>
+    <g:HTMLPanel addStyleNames="{style.box}">
+        <g:HorizontalPanel verticalAlignment="middle" width="100%">
+            <g:cell width="90px">
+                <widget:FontIcon fontSize="64" ui:field="keyIcon"/>
+            </g:cell>
+            <g:VerticalPanel>
+                <g:Label ui:field="lbName" addStyleNames="ai-bold"/>
+                <g:Label ui:field="lbFigure" addStyleNames="{style.fingure}"/>
+                <g:Label ui:field="lbAddTime"/>
+                <g:Label ui:field="lbLastUsed"/>
+            </g:VerticalPanel>
+            <g:cell width="120px">
+                <g:HorizontalPanel>
+                    <buttons:AiButton ui:field="btnEdit">修改</buttons:AiButton>
+                    <buttons:AiButton ui:field="btnDelete">删除</buttons:AiButton>
+                </g:HorizontalPanel>
+            </g:cell>
+        </g:HorizontalPanel>
+    </g:HTMLPanel>
+
+</ui:UiBinder>

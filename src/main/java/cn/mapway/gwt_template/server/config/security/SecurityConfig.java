@@ -32,12 +32,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
      */
     @Resource
     private CorsFilter corsFilter;
+
     @Bean
     public HttpFirewall allowNonAsciiCharacters() {
         DefaultHttpFirewall firewall = new DefaultHttpFirewall();
         firewall.setAllowUrlEncodedSlash(true); // Allow URL encoded characters
         return firewall;
     }
+
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
@@ -55,15 +57,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/public/**").permitAll()
                 .antMatchers("/preview").permitAll()
                 .antMatchers("/socket/**").permitAll()
+                .antMatchers("/code/**").permitAll()
                 .antMatchers("/terminal/**").permitAll()
                 .antMatchers("/fileUpload").permitAll()
                 .antMatchers("/upload/**").permitAll()
                 .antMatchers("/rbac").permitAll()
                 .antMatchers("/app").permitAll();
-                httpSecurity.logout().logoutUrl("/logout").permitAll();
+        httpSecurity.logout().logoutUrl("/logout").permitAll();
 
     }
-
 
 
 }

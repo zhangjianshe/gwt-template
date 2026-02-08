@@ -11,7 +11,6 @@ import cn.mapway.rbac.shared.rpc.LoginRequest;
 import cn.mapway.rbac.shared.rpc.LoginResponse;
 import cn.mapway.ui.shared.IReset;
 import lombok.extern.slf4j.Slf4j;
-import org.nutz.json.Json;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
 import org.springframework.ldap.core.support.LdapContextSource;
@@ -96,14 +95,14 @@ public class LoginProvider implements IReset {
     }
 
     private LdapAuthenticationProvider createLdapDelegate(LdapSettings settings) {
-        log.info("[LDAP] settings : {}",Json.toJson(settings));
+        //log.info("[LDAP] settings : {}",Json.toJson(settings));
         LdapContextSource cs = new LdapContextSource();
         cs.setUrl(settings.getUrl());
         cs.setBase(settings.getBaseDn());
         cs.setUserDn(settings.getManagerDn());
         cs.setPassword(settings.getManagerPassword());
         cs.afterPropertiesSet();
-        log.info("[LDAP] LdapContextSource {} ", Json.toJson(cs));
+        //log.info("[LDAP] LdapContextSource {} ", Json.toJson(cs));
 
         String searchFilter = settings.getSearchPattern();
         FilterBasedLdapUserSearch userSearch = new FilterBasedLdapUserSearch("", searchFilter, cs);

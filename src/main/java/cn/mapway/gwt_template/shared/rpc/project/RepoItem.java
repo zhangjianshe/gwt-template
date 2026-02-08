@@ -17,4 +17,5 @@ public class RepoItem implements Serializable, IsSerializable {
     private String author;     // Who made the change
     private boolean isDir;     // True if folder, False if file
     private Long size;     // True if folder, False if file
+    private String hash;
 }
