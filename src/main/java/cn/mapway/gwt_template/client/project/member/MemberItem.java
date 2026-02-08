@@ -105,7 +105,12 @@ public class MemberItem extends CommonEventComposite implements IData<VwProjectM
     }
 
     private void toUI() {
-        lbName.setText(data.getUserName());
+        if (ClientContext.get().isCurrentUser(data.getUserId())) {
+
+            lbName.setText(data.getUserName() + "(创建人)");
+        } else {
+            lbName.setText(data.getUserName());
+        }
         CommonPermission permission = CommonPermission.fromPermission(data.getPermission());
         checkAdmin.setValue(permission.isAdmin());
         checkRead.setValue(permission.canRead());

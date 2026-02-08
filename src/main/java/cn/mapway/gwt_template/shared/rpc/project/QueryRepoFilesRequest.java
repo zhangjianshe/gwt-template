@@ -15,5 +15,6 @@ import java.io.Serializable;
 @Doc("QueryRepoFilesRequest")
 public class QueryRepoFilesRequest implements Serializable, IsSerializable {
     String projectId;
+    String ref;
     String path;
 }

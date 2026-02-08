@@ -69,6 +69,22 @@ public class ProjectController extends ApiBaseController {
 
     @Resource
     ReadRepoFileExecutor readRepoFileExecutor;
+
+    @Resource
+    QueryRepoRefsExecutor queryRepoRefsExecutor;
+    /**
+     * QueryRepoRefs
+     *
+     * @param request request
+     * @return data
+     */
+    @Doc(value = "QueryRepoRefs", retClazz = {QueryRepoRefsResponse.class})
+    @RequestMapping(value = "/queryRepoRefs", method = RequestMethod.POST)
+    public RpcResult<QueryRepoRefsResponse> queryRepoRefs(@RequestBody QueryRepoRefsRequest request) {
+        BizResult<QueryRepoRefsResponse> bizResult = queryRepoRefsExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toApiResult(bizResult);
+    }
+
     /**
      * ReadRepoFile
      *

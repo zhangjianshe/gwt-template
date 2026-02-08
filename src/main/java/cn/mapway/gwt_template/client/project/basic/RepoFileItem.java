@@ -3,17 +3,21 @@ package cn.mapway.gwt_template.client.project.basic;
 import cn.mapway.gwt_template.shared.rpc.project.RepoItem;
 import cn.mapway.ui.client.fonts.Fonts;
 import cn.mapway.ui.client.tools.IData;
+import cn.mapway.ui.client.util.StringUtil;
+import cn.mapway.ui.client.widget.CommonEventComposite;
 import cn.mapway.ui.client.widget.FontIcon;
+import cn.mapway.ui.shared.CommonEvent;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.Label;
 
 import java.util.Date;
 
-public class RepoFileItem extends Composite implements IData<RepoItem> {
+public class RepoFileItem extends CommonEventComposite implements IData<RepoItem> {
     private static final RepoFileItemUiBinder ourUiBinder = GWT.create(RepoFileItemUiBinder.class);
     @UiField
     Label lbName;
@@ -23,6 +27,8 @@ public class RepoFileItem extends Composite implements IData<RepoItem> {
     Label lbDate;
     @UiField
     FontIcon icon;
+    @UiField
+    Label lbSize;
     private RepoItem data;
 
     public RepoFileItem() {
@@ -41,13 +47,14 @@ public class RepoFileItem extends Composite implements IData<RepoItem> {
     }
 
     private void toUI() {
-        lbName.setText(data.getPathName());
+        lbName.setText(StringUtil.extractName(data.getName()));
         lbDate.setText(toRelativeTime(data.getDate()));
         lbSummary.setText(data.getSummary());
         if (data.isDir()) {
             icon.setIconUnicode(Fonts.FOLDER);
         } else {
             icon.setIconUnicode(Fonts.FILE);
+            lbSize.setText(StringUtil.formatFileSize(data.getSize()));
         }
     }
 
@@ -79,6 +86,11 @@ public class RepoFileItem extends Composite implements IData<RepoItem> {
         }
 
         return (seconds / 31104000) + " 年前";
+    }
+
+    @UiHandler("lbName")
+    public void lbNameClick(ClickEvent event) {
+        fireEvent(CommonEvent.selectEvent(data));
     }
 
     interface RepoFileItemUiBinder extends UiBinder<HTMLPanel, RepoFileItem> {

@@ -49,6 +49,10 @@ public class IconButton extends CommonEventComposite implements IData<Object> {
         fireEvent(CommonEvent.selectEvent(data));
     }
 
+    public void setText(String text) {
+        lbName.setText(text);
+    }
+
     interface IconButtonUiBinder extends UiBinder<HTMLPanel, IconButton> {
     }
 }

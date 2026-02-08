@@ -34,7 +34,7 @@
     --color-border-hover: var(--color-main);
     --color-border-focus: var(--color-main);
 
-    --calendar-background:#133b63;
+    --calendar-background: #133b63;
     --color-split: #f0f0f0;
     --color-shadow: #000;
     --color-toolbar: var(--color-background);
@@ -880,6 +880,7 @@ body {
 }
 
 .ai-input {
+    font-size: 1rem;
     -webkit-appearance: none;
     background-color: var(--color-background);
     border: 1px solid var(--color-text-tip);
@@ -1947,9 +1948,11 @@ img[tip]:hover::before {
     background-color: white;
     color: black;
 }
-.html-face{
+
+.html-face {
     padding: 0 20px;
 }
+
 .mark-error {
     background-color: #ffb6c1;
 }
@@ -3605,8 +3608,10 @@ ai-steps       end
     width: 28px;
     cursor: default;
     height: 28px;
-    padding: 4px 0px;
-    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--border-radius);
     text-align: center;
 }
 

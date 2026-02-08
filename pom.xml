@@ -38,6 +38,9 @@
         <java.version>11</java.version>
         <MAPWAY-GWT-SUITE-VERSION>1.0.0-SNAPSHOT</MAPWAY-GWT-SUITE-VERSION>
         <JGIT_VERSION>5.13.3.202401111512-r</JGIT_VERSION>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <elemental2.version>1.3.2</elemental2.version>
     </properties>
     <dependencies>
         <dependency>
@@ -92,17 +95,17 @@
         <dependency>
             <groupId>com.google.elemental2</groupId>
             <artifactId>elemental2-core</artifactId>
-            <version>1.2.1</version>
+            <version>${elemental2.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.elemental2</groupId>
             <artifactId>elemental2-dom</artifactId>
-            <version>1.2.1</version>
+            <version>${elemental2.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.elemental2</groupId>
             <artifactId>elemental2-promise</artifactId>
-            <version>1.2.1</version>
+            <version>${elemental2.version}</version>
         </dependency>
         <dependency>
             <groupId>cn.mapway</groupId>
@@ -122,6 +125,11 @@
         <dependency>
             <groupId>cn.mapway</groupId>
             <artifactId>mapway-module-rbac</artifactId>
+            <version>${MAPWAY-GWT-SUITE-VERSION}</version>
+        </dependency>
+        <dependency>
+            <groupId>cn.mapway</groupId>
+            <artifactId>mapway-gwt-ace</artifactId>
             <version>${MAPWAY-GWT-SUITE-VERSION}</version>
         </dependency>
         <dependency>
@@ -174,8 +182,8 @@
                             <artifactId>lombok</artifactId>
                         </path>
                     </annotationProcessorPaths>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
+                    <source>11</source>
+                    <target>11</target>
                     <release>${java.version}</release>
                 </configuration>
             </plugin>

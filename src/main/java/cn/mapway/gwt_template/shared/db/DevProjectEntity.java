@@ -18,6 +18,7 @@ public class DevProjectEntity implements Serializable, IsSerializable {
     public static final String FLD_ID = "id";
     public static final String FLD_OWNER_NAME = "owner_name";
     public static final String FLD_NAME = "name";
+    public static final String FLD_USER_ID = "user_id";
     @Name
     @ColDefine(width = 64, notNull = true)
     @Comment("项目ID")

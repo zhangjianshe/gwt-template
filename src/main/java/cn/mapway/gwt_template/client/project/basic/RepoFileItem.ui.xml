@@ -3,11 +3,11 @@
     <ui:style>
         .box {
             display: grid;
-            grid-template-columns: 32px 1fr 1fr 100px;
+            /* Icon | Name | Summary | Size | Date */
+            grid-template-columns: 32px 220px 1fr 100px 120px;
             height: 40px;
-            padding: 0 8px;
             align-items: center;
-            border-bottom: solid 1px #e0e0e0;
+            border-bottom: 1px solid #eee;
         }
 
         .box:HOVER {
@@ -16,15 +16,40 @@
 
         .right {
             justify-self: flex-end;
+            color: #444;
         }
 
         .icon {
             font-size: 22px;
-        }</ui:style>
+        }
+
+        .name {
+            font-size: 1rem;
+            cursor: pointer;
+            font-family: sans-serif;
+        }
+
+        .name:HOVER {
+            text-decoration: underline;
+        }
+
+        .summary {
+            color: #666;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis; /* The "..." effect */
+            padding: 0 10px;
+        }
+
+
+
+    </ui:style>
     <g:HTMLPanel addStyleNames="{style.box}">
         <widget:FontIcon ui:field="icon" addStyleNames="{style.icon}"/>
-        <g:Label ui:field="lbName"/>
-        <g:Label ui:field="lbSummary"/>
+        <widget:AiLabel addStyleNames="{style.name}" ui:field="lbName"/>
+        <g:Label ui:field="lbSummary" addStyleNames="{style.summary}"/>
+        <g:Label ui:field="lbSize" addStyleNames="{style.right}"/>
         <g:Label ui:field="lbDate" addStyleNames="{style.right}"/>
     </g:HTMLPanel>
 </ui:UiBinder>

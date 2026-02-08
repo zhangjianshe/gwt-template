@@ -179,4 +179,27 @@ public class ProjectService {
     public DevProjectEntity findProjectById(String projectId) {
         return dao.fetch(DevProjectEntity.class, Cnd.where(DevProjectEntity.FLD_ID, "=", projectId));
     }
+
+    public CommonPermission findUserPermissionInProjectByName(Long userId, String ownerName,String projectName) {
+        CommonPermission permission = CommonPermission.fromPermission(0);
+        DevProjectEntity project=findProjectByOwnerAndName(ownerName,projectName);
+        if(project == null) {
+            return permission;
+        }
+        if (userId != null) {
+            DevProjectMemberEntity devMyProject = dao.fetch(
+                    DevProjectMemberEntity.class, Cnd.where(DevProjectMemberEntity.FLD_PROJECT_ID, "=", project.getId())
+                            .and(DevProjectMemberEntity.FLD_USER_ID, "=", userId)
+            );
+            if (devMyProject != null) {
+                permission = CommonPermission.fromPermission(devMyProject.getPermission());
+            }
+        }
+        return permission;
+    }
+
+    private DevProjectEntity findProjectByOwnerAndName(String ownerName, String projectName) {
+       return dao.fetch(DevProjectEntity.class,Cnd.where(DevProjectEntity.FLD_OWNER_NAME, "=", ownerName)
+                .and(DevProjectEntity.FLD_NAME,"=",projectName));
+    }
 }

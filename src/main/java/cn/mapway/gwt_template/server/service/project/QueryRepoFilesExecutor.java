@@ -49,7 +49,10 @@ public class QueryRepoFilesExecutor extends AbstractBizExecutor<QueryRepoFilesRe
         DevProjectEntity project = projectService.findProjectById(request.getProjectId());
 
         try {
-            List<RepoItem> repoItems = gitRepoService.listFiles(project.getOwnerName(), project.getName());
+            if (Strings.isBlank(request.getPath())) {
+                request.setPath("");
+            }
+            List<RepoItem> repoItems = gitRepoService.listFiles(project.getOwnerName(), project.getName(), request.getPath(), request.getRef());
             QueryRepoFilesResponse response = new QueryRepoFilesResponse();
             response.setItems(repoItems);
             return BizResult.success(response);

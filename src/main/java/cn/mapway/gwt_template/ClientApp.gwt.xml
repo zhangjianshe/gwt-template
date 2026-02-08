@@ -8,6 +8,7 @@
     <inherits name="elemental2.dom.Dom"/>
     <inherits name="jsinterop.base.Base"/>
     <inherits name="cn.mapway.ui.MapwayBase"/>
+    <inherits name="cn.mapway.ace.Ace"/>
     <inherits name="cn.mapway.rbac.MapwayRbac"/>
     <source path="shared"/>
     <source path="client"/>

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>index</title>
+    <script src="/js/ace/ace.js"></script>
     <script src="/js/app/app.nocache.js?r=${timestamp}"></script>
     <link rel="stylesheet" href="/css/main.css"/>
     <link rel="stylesheet" href="/css/markdown.css"/>

@@ -103,6 +103,16 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
     ///CODE_GEN_INSERT_POINT///
 	
     @Resource
+    QueryRepoRefsExecutor queryRepoRefsExecutor;
+    @Override
+    public RpcResult<QueryRepoRefsResponse> queryRepoRefs(QueryRepoRefsRequest request) {
+        BizResult<QueryRepoRefsResponse> bizResult = queryRepoRefsExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
     ReadRepoFileExecutor readRepoFileExecutor;
     @Override
     public RpcResult<ReadRepoFileResponse> readRepoFile(ReadRepoFileRequest request) {

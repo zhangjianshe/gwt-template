@@ -1,21 +1,80 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
-             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+             xmlns:g='urn:import:com.google.gwt.user.client.ui' xmlns:ace="urn:import:cn.mapway.ace.client"
+             xmlns:basic="urn:import:cn.mapway.gwt_template.client.project.basic"
+             xmlns:widget="urn:import:cn.mapway.gwt_template.client.widget">
+    <ui:style type="cn.mapway.gwt_template.client.project.basic.ProjectCodeFrame.SStyle">
+        .box {
+            display: grid;
+            align-items: center;
+            justify-items: flex-start;
+            grid-template-columns: 1fr 100px;
+            padding: 0 10px;
+            border-bottom: solid 1px #e0e0e0;
+        }
+
+        .box1 {
+            display: grid;
+            align-items: center;
+            justify-items: flex-start;
+            grid-template-columns: 1fr 300px;
+            padding: 0 10px;
+
+        }
+
+        .link {
+            cursor: pointer;
+        }
+
+        .link:HOVER {
+            text-decoration: underline;
+        }
+
+        .imagePreview {
+            display: block;
+            margin: 20px auto;
+            max-width: 90%;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border: 5px solid white;
+        }
+    </ui:style>
     <g:DockLayoutPanel>
         <g:east size="400">
             <g:HTMLPanel/>
         </g:east>
-        <g:north size="36">
-            <g:HTMLPanel>
-                <g:HorizontalPanel ui:field="paths">
+        <g:north size="50">
+            <g:HTMLPanel addStyleNames="{style.box1}">
+                <g:HorizontalPanel verticalAlignment="middle" spacing="6">
+                    <basic:ReferenceDropdown ui:field="ddlRef"/>
+                    <widget:IconButton ui:field="btnBranch"/>
+                    <widget:IconButton ui:field="btnTag"/>
+                </g:HorizontalPanel>
+                <g:HorizontalPanel width="100%" horizontalAlignment="right" spacing="6">
+                    <basic:CloneButton ui:field="btnClone"/>
+                </g:HorizontalPanel>
+            </g:HTMLPanel>
+        </g:north>
+        <g:north size="40">
+            <g:HTMLPanel addStyleNames="{style.box}">
+                <g:HorizontalPanel ui:field="paths" spacing="4" verticalAlignment="middle">
+                </g:HorizontalPanel>
+                <g:HorizontalPanel>
+
                 </g:HorizontalPanel>
             </g:HTMLPanel>
         </g:north>
         <g:center>
-            <g:ScrollPanel>
-                <g:HTMLPanel ui:field="files">
+            <g:LayoutPanel ui:field="contentPanel">
+                <g:layer>
+                    <g:ScrollPanel>
+                        <g:HTMLPanel ui:field="files">
 
-                </g:HTMLPanel>
-            </g:ScrollPanel>
+                        </g:HTMLPanel>
+                    </g:ScrollPanel>
+                </g:layer>
+                <g:layer>
+                    <ace:AceEditor visible="false" ui:field="editor"/>
+                </g:layer>
+            </g:LayoutPanel>
         </g:center>
     </g:DockLayoutPanel>
 </ui:UiBinder>
