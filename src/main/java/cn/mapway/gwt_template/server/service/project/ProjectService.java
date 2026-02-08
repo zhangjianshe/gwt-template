@@ -4,12 +4,14 @@ import cn.mapway.biz.core.BizResult;
 import cn.mapway.gwt_template.server.service.git.GitRepoService;
 import cn.mapway.gwt_template.shared.db.*;
 import cn.mapway.gwt_template.shared.rpc.user.CommonPermission;
+import cn.mapway.rbac.shared.db.postgis.RbacUserEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.transport.ReceiveCommand;
 import org.eclipse.jgit.transport.ReceivePack;
 import org.nutz.dao.Cnd;
 import org.nutz.dao.Dao;
 import org.nutz.dao.impl.NutTxDao;
+import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,7 @@ import javax.annotation.Resource;
 import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -226,5 +229,19 @@ public class ProjectService {
             }
         }
         log.info("[PROJECT GIT] handlePostReceiveHook finished");
+    }
+
+    public List<String> getUserSshKeys(String username) {
+        RbacUserEntity fetch = dao.fetch(RbacUserEntity.class, Cnd.where(RbacUserEntity.FLD_USER_NAME, "=", username));
+        if (fetch == null) {
+            return Lang.list();
+        }
+        List<SysUserKeyEntity> keyEntities = dao.query(SysUserKeyEntity.class, Cnd.where(SysUserKeyEntity.FLD_USER_ID, "=", fetch.getUserId()));
+        return keyEntities.stream().map(SysUserKeyEntity::getKey).collect(Collectors.toList());
+    }
+
+    public RbacUserEntity getUserEntity(String username) {
+        RbacUserEntity fetch = dao.fetch(RbacUserEntity.class, Cnd.where(RbacUserEntity.FLD_USER_NAME, "=", username));
+        return fetch;
     }
 }
