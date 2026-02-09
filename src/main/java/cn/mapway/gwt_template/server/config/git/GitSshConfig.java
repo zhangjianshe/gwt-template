@@ -62,10 +62,12 @@ public class GitSshConfig {
         sshd.getProperties().put("welcome-banner-language", "en");
 
 
-        String banner = "\r\n" +
-                "    Orbital Remote Sensing Data Hub\r\n" +
-                "    -------------------------------\r\n";
-        CoreModuleProperties.WELCOME_BANNER.set(sshd, banner);
+        String satelliteBanner =
+                "\r\n" +
+                        "    [ CANGLING AI : ORBITAL DATA HUB ]\r\n" +
+                        "    Remote Sensing - Satellite Imagery - AI\r\n" +
+                        "    ---------------------------------------\r\n";
+        CoreModuleProperties.WELCOME_BANNER.set(sshd, satelliteBanner);
 
         // 1. Set Port (Avoid 22 if not running as root)
         sshd.setPort(appConfig.getSshPort());
@@ -154,6 +156,7 @@ public class GitSshConfig {
         sshd.setShellFactory(channel -> new Command() {
             private OutputStream out;
             private ExitCallback callback;
+
             @Override public void setOutputStream(OutputStream out) { this.out = out; }
             @Override public void setExitCallback(ExitCallback cb) { this.callback = cb; }
             @Override public void setInputStream(InputStream in) {}
@@ -163,22 +166,31 @@ public class GitSshConfig {
             public void start(ChannelSession channel, Environment env) throws IOException {
                 SysUserKeyEntity user = channel.getSession().getAttribute(SSH_USER_PUBLIC_KEY);
 
+                // High-tech Terminal Colors
                 String BOLD_CYAN = "\u001b[1;36m";
                 String GREEN = "\u001b[1;32m";
                 String RESET = "\u001b[0m";
 
                 StringBuilder msg = new StringBuilder();
-                msg.append("\r\n").append(BOLD_CYAN).append("  [ Cangling AI Development Server ]").append(RESET).append("\r\n");
-                msg.append("  User identified: ").append(BOLD_CYAN).append(user.getUserName()).append(RESET).append("\r\n");
-                msg.append("  System Status:   ").append(GREEN).append("ONLINE").append(RESET).append("\r\n");
-                msg.append("  Processing Mode: ").append("AI / Deep Learning Integration\r\n");
+                msg.append("\r\n").append(BOLD_CYAN).append("  [ LINK ESTABLISHED : CANGLING-SAT-1 ]").append(RESET).append("\r\n");
                 msg.append("  --------------------------------------------------\r\n");
-                msg.append("  Notice: Orbital shell restricted. Access via Git only.\r\n\r\n");
+                msg.append("  Operator:   ").append(BOLD_CYAN).append(user.getUserName()).append(RESET).append("\r\n");
+                msg.append("  Channel:    Secure Orbital Link (SSH)\r\n");
+                msg.append("  Status:     ").append(GREEN).append("READY - DATA STREAM ACTIVE").append(RESET).append("\r\n");
+                msg.append("  AI Engine:  Cangling-v3 (Geospatial Optimized)\r\n");
+                msg.append("  --------------------------------------------------\r\n");
+                msg.append("  SYSTEM NOTE: Terminal access restricted.\r\n");
+                msg.append("  Please use 'git push/pull' for satellite data sync.\r\n\r\n");
 
-                out.write(msg.toString().getBytes(StandardCharsets.UTF_8));
-                out.flush();
-                callback.onExit(0);
+                if (out != null) {
+                    out.write(msg.toString().getBytes(StandardCharsets.UTF_8));
+                    out.flush();
+                }
+                if (callback != null) {
+                    callback.onExit(0);
+                }
             }
+
             @Override public void destroy(ChannelSession channel) {}
         });
 
