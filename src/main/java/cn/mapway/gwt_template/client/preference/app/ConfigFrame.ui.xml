@@ -2,8 +2,8 @@
              xmlns:g='urn:import:com.google.gwt.user.client.ui'
              xmlns:inspector="urn:import:cn.mapway.ui.client.mvc.attribute.editor.inspector">
     <g:DockLayoutPanel>
-        <g:west size="500">
+        <g:center>
             <inspector:ObjectInspector vertical="true" ui:field="objectInspector" saveButtonVisible="false"/>
-        </g:west>
+        </g:center>
     </g:DockLayoutPanel>
 </ui:UiBinder>

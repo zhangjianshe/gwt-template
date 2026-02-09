@@ -19,6 +19,7 @@ import cn.mapway.ui.shared.CommonEvent;
 import cn.mapway.ui.shared.CommonEventHandler;
 import cn.mapway.ui.shared.rpc.RpcResult;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.CssResource;
@@ -58,6 +59,20 @@ public class ProjectCodeFrame extends CommonEventComposite implements IData<VwPr
     Label dirLastSummary;
     @UiField
     Label dirLastModify;
+    @UiField
+    HTMLPanel infoBar;
+    @UiField
+    HTMLPanel opBar;
+    @UiField
+    DockLayoutPanel root;
+    @UiField
+    ScrollPanel messagePanel;
+    @UiField
+    HTMLPanel msgContainer;
+    @UiField
+    ScrollPanel fileContainer;
+    @UiField
+    HTMLPanel pathBar;
     boolean initialize = false;
     Map<String, AceEditorMode> format = new HashMap<String, AceEditorMode>();
     private VwProjectEntity project;
@@ -78,6 +93,9 @@ public class ProjectCodeFrame extends CommonEventComposite implements IData<VwPr
         format.put("php", AceEditorMode.PHP);
         format.put("css", AceEditorMode.CSS);
         format.put("csharp", AceEditorMode.CSHARP);
+        format.put("geojson", AceEditorMode.JSON);
+        format.put("proto", AceEditorMode.PROTOBUF); // If your Ace version supports it
+        format.put("sql", AceEditorMode.SQL);
 
         btnBranch.setValue(Fonts.BRANCH, "分支");
         btnTag.setValue(Fonts.LABEL, "标签");
@@ -114,13 +132,13 @@ public class ProjectCodeFrame extends CommonEventComposite implements IData<VwPr
             @Override
             public void onSuccess(RpcResult<ReadRepoFileResponse> result) {
                 if (result.isSuccess()) {
+                    showEditor();
                     String text = result.getData().getText();
                     // Simple check for binary content (null bytes)
                     if (text.contains("\0")) {
                         editor.setValue("Binary file - cannot display content.");
                         editor.setReadOnly(true);
                     } else {
-                        contentPanel.setWidgetVisible(editor, true);
                         editor.setValue(text);
                         editor.setReadOnly(true);
                         editor.setMode(guessFileMode(request.getFilePathName()));
@@ -147,23 +165,36 @@ public class ProjectCodeFrame extends CommonEventComposite implements IData<VwPr
     protected void onLoad() {
         super.onLoad();
         initEditor();
+        contentPanel.clear();
     }
 
     private void loadRefs() {
+        files.clear();
         QueryRepoRefsRequest request = new QueryRepoRefsRequest();
         request.setProjectId(project.getId());
         AppProxy.get().queryRepoRefs(request, new AsyncCallback<RpcResult<QueryRepoRefsResponse>>() {
             @Override
             public void onFailure(Throwable caught) {
-
+                ClientContext.get().toast(0, 0, caught.getMessage());
             }
 
             @Override
             public void onSuccess(RpcResult<QueryRepoRefsResponse> result) {
-                if (result.isSuccess()) {
+
+                if (!result.isSuccess()) {
+                    ClientContext.get().toast(0, 0, result.getMessage());
+                    return;
+                }
+                List<GitRef> refs = result.getData().getRefs();
+                if (refs == null || refs.isEmpty()) {
+                    // No branches? No tags? Show the "How to Push" instructions.
+                    String html = result.getData().getInstruction();
+                    showMessagePanel(html);
+                } else {
+                    showFilesPanel();
                     int branchCount = 0;
                     int tagCount = 0;
-                    for (GitRef ref : result.getData().getRefs()) {
+                    for (GitRef ref : refs) {
                         if (ref.getKind().equals(0)) {
                             branchCount++;
                         } else {
@@ -177,6 +208,42 @@ public class ProjectCodeFrame extends CommonEventComposite implements IData<VwPr
             }
         });
 
+    }
+
+    private void showEditor() {
+        root.setWidgetSize(opBar, 60);
+        root.setWidgetSize(pathBar, 50);
+        root.setWidgetSize(infoBar, 50);
+        contentPanel.clear();
+        contentPanel.add(editor);
+        contentPanel.setWidgetLeftRight(editor, 0, Style.Unit.PX, 0, Style.Unit.PX);
+        contentPanel.setWidgetTopBottom(editor, 0, Style.Unit.PX, 0, Style.Unit.PX);
+        initEditor();
+    }
+
+    private void showFilesPanel() {
+        root.setWidgetSize(opBar, 60);
+        root.setWidgetSize(pathBar, 50);
+        root.setWidgetSize(infoBar, 50);
+        contentPanel.clear();
+        contentPanel.add(fileContainer);
+        contentPanel.setWidgetLeftRight(fileContainer, 0, Style.Unit.PX, 0, Style.Unit.PX);
+        contentPanel.setWidgetTopBottom(fileContainer, 0, Style.Unit.PX, 0, Style.Unit.PX);
+
+    }
+
+    private void showMessagePanel(String html) {
+        root.setWidgetSize(opBar, 0);
+        root.setWidgetSize(infoBar, 0);
+        root.setWidgetSize(pathBar, 0);
+        contentPanel.clear();
+        contentPanel.add(messagePanel);
+        contentPanel.setWidgetLeftRight(messagePanel, 0, Style.Unit.PX, 0, Style.Unit.PX);
+        contentPanel.setWidgetTopBottom(messagePanel, 0, Style.Unit.PX, 0, Style.Unit.PX);
+        msgContainer.clear();
+        HTML html1 = new HTML(html);
+        html1.addStyleName("markdown-body");
+        msgContainer.add(html1);
     }
 
     /**
@@ -271,7 +338,6 @@ public class ProjectCodeFrame extends CommonEventComposite implements IData<VwPr
     private void renderFiles(QueryRepoFilesResponse data) {
         List<RepoItem> items = data.getItems();
         RepoItem dirInfo = data.getCurrentDirInfo();
-        contentPanel.setWidgetVisible(editor, false);
         files.clear();
         Collections.sort(items, (o1, o2) -> {
             if (o1.isDir() && o2.isDir()) {
@@ -300,8 +366,7 @@ public class ProjectCodeFrame extends CommonEventComposite implements IData<VwPr
 
     private void previewImage(RepoItem repoItem) {
         // Hide editor
-        contentPanel.setWidgetVisible(editor, false);
-
+        showFilesPanel();
         // Create a URL to your raw file servlet (recommended approach)
         String imageUrl = GWT.getHostPageBaseURL() + "raw/" + project.getOwnerName() + "/" + project.getName() + "/" + repoItem.getPath();
 
@@ -319,10 +384,22 @@ public class ProjectCodeFrame extends CommonEventComposite implements IData<VwPr
         String box();
 
         String imagePreview();
+
+        String msg();
+
+        String box1();
+
+        String scroll();
+
+        String box2();
+
+        String files();
     }
 
     interface ProjectCodeFrameUiBinder extends UiBinder<DockLayoutPanel, ProjectCodeFrame> {
-    }    CommonEventHandler itemHandler = new CommonEventHandler() {
+    }
+
+    CommonEventHandler itemHandler = new CommonEventHandler() {
         @Override
         public void onCommonEvent(CommonEvent event) {
             RepoItem repoItem = event.getValue();
@@ -338,8 +415,6 @@ public class ProjectCodeFrame extends CommonEventComposite implements IData<VwPr
             }
         }
     };
-
-
 
 
     private final ClickHandler linkClicked = new ClickHandler() {

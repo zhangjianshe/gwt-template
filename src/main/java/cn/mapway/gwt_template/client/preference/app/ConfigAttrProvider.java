@@ -40,6 +40,31 @@ public class ConfigAttrProvider extends AbstractAttributesProvider {
                 .param(ParameterKeys.KEY_IMAGE_UPLOAD_REL, "app"));
 
 
+        attributes.add(new TextBoxAttribute("gitSSH", "GIT克隆模板") {
+            @Override
+            public Object getValue() {
+                return configResponse.getAppData().getSshServer();
+            }
+
+            @Override
+            public String getGroup() {
+                return ConfigEnums.CONFIG_APP.getValue();
+            }
+
+            @Override
+            public String getDescription() {
+                String msg = "SSH 模板 git@dev.cangling.cn:/ownerName/projectName.git\n" +
+                        "或者 ssh://userName@dev.cangling.cn:2222/ownerName/projectName.git<br/>";
+                msg += "userName,ownerName,projectName是模板变量,如果端口是22请用第一模板";
+                return msg;
+            }
+
+            @Override
+            public void setValue(Object value) {
+                configResponse.getAppData().setSshServer(DataCastor.castToString(value));
+            }
+        });
+
         attributes.add(new TextBoxAttribute("url", "LDAP URL") {
             @Override
             public Object getValue() {
@@ -123,6 +148,7 @@ public class ConfigAttrProvider extends AbstractAttributesProvider {
                 configResponse.getLdapSettings().setManagerPassword(DataCastor.castToString(value));
             }
         });
+
 
         notifyAttributeReady();
     }

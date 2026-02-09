@@ -12,8 +12,6 @@ import cn.mapway.gwt_template.shared.rpc.project.QueryRepoRefsResponse;
 import cn.mapway.gwt_template.shared.rpc.user.CommonPermission;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
 import lombok.extern.slf4j.Slf4j;
-import org.nutz.json.Json;
-import org.nutz.json.JsonFormat;
 import org.nutz.lang.Strings;
 import org.springframework.stereotype.Component;
 
@@ -35,14 +33,22 @@ public class QueryRepoRefsExecutor extends AbstractBizExecutor<QueryRepoRefsResp
     @Override
     protected BizResult<QueryRepoRefsResponse> process(BizContext context, BizRequest<QueryRepoRefsRequest> bizParam) {
         QueryRepoRefsRequest request = bizParam.getData();
-        log.info("QueryRepoRefsExecutor {}", Json.toJson(request, JsonFormat.compact()));
         LoginUser user = (LoginUser) context.get(AppConstant.KEY_LOGIN_USER);
 
-        assertTrue(Strings.isNotBlank(request.getProjectId()), "没有项目ID");
+        // 1. Validation
+        assertTrue(request != null && Strings.isNotBlank(request.getProjectId()), "请求参数错误或没有项目ID");
 
-        CommonPermission permission = projectService.findUserPermissionInProject(user.getUser().getUserId(), request.getProjectId());
-        assertTrue(permission.canRead(), "没有操作权限");
+        // 2. Fetch Project Metadata
         DevProjectEntity devProjectEntity = projectService.findProjectById(request.getProjectId());
-        return gitRepoService.getRepoRefs(devProjectEntity.getOwnerName(), devProjectEntity.getName());
+        assertNotNull(devProjectEntity, "找不到指定的项目: " + request.getProjectId());
+
+        // 3. Permission Check
+        // If it's a private orbital hub, user must have read access.
+        CommonPermission permission = projectService.findUserPermissionInProject(user.getUser().getUserId(), request.getProjectId());
+        assertTrue(permission.canRead(), "权限不足，无法访问该卫星数据仓库");
+
+        // 4. Delegate to Git Logic
+        log.info("Fetching refs for Project: {}/{}", devProjectEntity.getOwnerName(), devProjectEntity.getName());
+        return gitRepoService.getRepoRefs(user.getUserName(), devProjectEntity.getOwnerName(), devProjectEntity.getName());
     }
 }

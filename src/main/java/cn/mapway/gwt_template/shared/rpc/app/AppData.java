@@ -7,6 +7,7 @@ import java.io.Serializable;
 
 @Data
 public class AppData implements Serializable, IsSerializable {
-    String logo;
+    String  logo;
     Integer sshPort;
+    String  sshServer;
 }

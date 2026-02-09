@@ -4,6 +4,8 @@ import cn.mapway.biz.core.BizResult;
 import cn.mapway.gwt_template.server.config.startup.ApplicationConfig;
 import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.db.SysConfigEntity;
+import cn.mapway.gwt_template.shared.rpc.app.AppData;
+import cn.mapway.gwt_template.shared.rpc.config.ConfigEnums;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.nutz.dao.Dao;
@@ -142,5 +144,9 @@ public class SystemConfigService implements EnvironmentAware {
             uploadPath = property;
         }
         Files.createDirIfNoExists(uploadPath);
+    }
+
+    public AppData getAppData() {
+        return getConfigFromKeyAsObject(ConfigEnums.CONFIG_APP.getCode(), AppData.class);
     }
 }

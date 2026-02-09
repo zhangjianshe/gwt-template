@@ -70,13 +70,19 @@
         .scroll {
             scrollbar-gutter: stable;
             overflow-y: scroll;
-        }</ui:style>
-    <g:DockLayoutPanel>
+        }
+
+        .msgPanel {
+            padding: 15px;
+            line-height: 200%;
+        }
+    </ui:style>
+    <g:DockLayoutPanel ui:field="root">
         <g:east size="400">
             <g:HTMLPanel/>
         </g:east>
         <g:north size="60">
-            <g:HTMLPanel addStyleNames="{style.box1}">
+            <g:HTMLPanel ui:field="opBar" addStyleNames="{style.box1}">
                 <g:HorizontalPanel verticalAlignment="middle" spacing="6">
                     <basic:ReferenceDropdown ui:field="ddlRef"/>
                     <widget:IconButton ui:field="btnBranch"/>
@@ -88,7 +94,7 @@
             </g:HTMLPanel>
         </g:north>
         <g:north size="50">
-            <g:HTMLPanel>
+            <g:HTMLPanel ui:field="infoBar">
                 <g:HTMLPanel addStyleNames="{style.box2}">
                     <g:HorizontalPanel verticalAlignment="middle" spacing="6">
                         <widget:Head ui:field="dirLastUser"/>
@@ -101,7 +107,7 @@
             </g:HTMLPanel>
         </g:north>
         <g:north size="50">
-            <g:HTMLPanel addStyleNames="{style.box}">
+            <g:HTMLPanel ui:field="pathBar" addStyleNames="{style.box}">
                 <g:HorizontalPanel ui:field="paths" spacing="4" verticalAlignment="middle">
                 </g:HorizontalPanel>
                 <g:HorizontalPanel>
@@ -112,14 +118,21 @@
         <g:center>
             <g:LayoutPanel ui:field="contentPanel">
                 <g:layer>
-                    <g:ScrollPanel addStyleNames="{style.scroll}">
+                    <g:ScrollPanel ui:field="fileContainer" addStyleNames="{style.scroll}">
                         <g:HTMLPanel ui:field="files" addStyleNames="{style.files}">
 
                         </g:HTMLPanel>
                     </g:ScrollPanel>
                 </g:layer>
                 <g:layer>
-                    <ace:AceEditor visible="false" ui:field="editor"/>
+                    <ace:AceEditor ui:field="editor"/>
+                </g:layer>
+                <g:layer>
+                    <g:ScrollPanel ui:field="messagePanel">
+                        <g:HTMLPanel ui:field="msgContainer" addStyleNames="{style.msgPanel}">
+
+                        </g:HTMLPanel>
+                    </g:ScrollPanel>
                 </g:layer>
             </g:LayoutPanel>
         </g:center>
