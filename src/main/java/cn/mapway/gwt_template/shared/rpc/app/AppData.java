@@ -4,7 +4,9 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 import lombok.Data;
 
 import java.io.Serializable;
+
 @Data
 public class AppData implements Serializable, IsSerializable {
     String logo;
+    Integer sshPort;
 }

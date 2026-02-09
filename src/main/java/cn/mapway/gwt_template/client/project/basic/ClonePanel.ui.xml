@@ -48,6 +48,7 @@
                 </g:HorizontalPanel>
                 <g:HTMLPanel addStyleNames="{style.box2}">
                     <g:Label addStyleNames="{style.msg}">使用SSH协议克隆</g:Label>
+                    <g:Anchor ui:field="btnConfig">设置公钥</g:Anchor>
                     <g:Label addStyleNames="{style.msg}" ui:field="lbMessage2"/>
                 </g:HTMLPanel>
             </g:HTMLPanel>

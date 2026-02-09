@@ -52,9 +52,9 @@ public class PublicKeyItem extends CommonEventComposite implements IData<SysUser
 
     private void toUI() {
         lbName.setText(data.getName());
-        lbAddTime.setText("创建时间:" + StringUtil.formatDate(data.getCreateTime()));
-        lbFigure.setText(data.getKey());
-        lbLastUsed.setText("最后使用时间:" + StringUtil.formatDate(data.getLastUsed()));
+        lbAddTime.setText( StringUtil.formatDate(data.getCreateTime()));
+        lbFigure.setText(data.getId());
+        lbLastUsed.setText(StringUtil.formatDate(data.getLastUsed()));
     }
 
     @UiHandler("btnDelete")

@@ -99,19 +99,25 @@ public class PublicKeyEditor extends CommonEventComposite implements IData<SysUs
     }
 
     private void doSave() {
-        SysUserKeyEntity key = new SysUserKeyEntity();
-        key.setKey(txtKey.getValue());
-        key.setName(txtName.getValue());
-        if (dateExpire.getValue() != null) {
-            key.setExpiredTime(dateExpire.getValue().getTime());
-        }
-        if (StringUtil.isBlank(key.getName())) {
+        //新建
+        if (StringUtil.isBlank(data.getName())) {
             saveBar.msg("请为公钥提供一个名称方便识别");
             return;
         }
+        data.setName(txtName.getValue());
+
+        if (StringUtil.isBlank(data.getId())) {
+            data.setKey(txtKey.getText());
+        } else {
+            //修改不能修改公钥本身
+        }
+        if (dateExpire.getValue() != null) {
+            data.setExpiredTime(dateExpire.getValue().getTime());
+        }
+
 
         UpdateUserKeyRequest request = new UpdateUserKeyRequest();
-        request.setKey(key);
+        request.setKey(data);
         AppProxy.get().updateUserKey(request, new AsyncCallback<RpcResult<UpdateUserKeyResponse>>() {
             @Override
             public void onFailure(Throwable caught) {
@@ -140,14 +146,24 @@ public class PublicKeyEditor extends CommonEventComposite implements IData<SysUs
         if (data == null) {
             data = new SysUserKeyEntity();
             data.setName("key name");
-            dateExpire.setValue(null);
+            data.setId("");
+            data.setKey("");
         }
         toUI();
     }
 
     private void toUI() {
         txtName.setValue(data.getName());
-        txtKey.setValue(data.getKey());
+
+        if (StringUtil.isBlank(data.getId())) {
+            //新建一个公钥　允许用户拷贝新的公钥
+            txtKey.setValue("");
+            txtKey.setReadOnly(false);
+        } else {
+            txtKey.setValue("指纹:" + data.getId());
+            txtKey.setReadOnly(true);
+        }
+
         if (data.getExpiredTime() == null || data.getExpiredTime() <= 0) {
             dateExpire.setValue(null);
         } else {

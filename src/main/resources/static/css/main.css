@@ -369,10 +369,24 @@ body {
 }
 
 
+.ai-code {
+    font-size: 1rem;
+    font-weight: normal;
+    border-radius: 4px;
+    border: solid 1px #e0e0e0;
+    background-color: #f0f0f0;
+    padding: 4px 12px;
+    display: inline-block;
+    margin: 8px 0;
+    user-select: text !important;
+    font-family: Iosevka;
+}
+
 .ai-content {
     padding: 8px;
     background-color: var(--color-background);
 }
+
 
 
 .ai-message-panel {

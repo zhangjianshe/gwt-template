@@ -3,6 +3,7 @@ package cn.mapway.gwt_template.client.preference;
 import cn.mapway.gwt_template.client.ClientContext;
 import cn.mapway.ui.client.fonts.Fonts;
 import cn.mapway.ui.client.mvc.*;
+import cn.mapway.ui.client.util.StringUtil;
 import cn.mapway.ui.client.widget.dialog.Dialog;
 import cn.mapway.ui.client.widget.dialog.SaveBar;
 import cn.mapway.ui.client.widget.list.ListItem;
@@ -82,22 +83,22 @@ public class PreferenceFrame extends BaseAbstractModule {
     @Override
     public boolean initialize(IModule parentModule, ModuleParameter parameter) {
         super.initialize(parentModule, parameter);
-        loadPreference();
+        String initModuleCode = (String) parameter.get(CommonConstant.KEY_INIT_MODULE_CODE);
+        loadPreference(initModuleCode);
         return true;
     }
 
 
-    private void loadPreference() {
+    private void loadPreference(String initModuleCode) {
         List<ModuleInfo> moduleInfos = getModuleFactory().getModules().stream().filter(m -> {
             return m.hasTag(CommonConstant.TAG_PREFERENCE);
         }).collect(Collectors.toList());
         Collections.sort(moduleInfos, Comparator.comparingInt(ModuleInfo::getOrder));
         list.clear();
+        ListItem initItem = null;
         for (ModuleInfo moduleInfo : moduleInfos) {
-            if(moduleInfo.hasTag(CommonConstant.TAG_ADMIN))
-            {
-                if(ClientContext.get().isNotAdmin())
-                {
+            if (moduleInfo.hasTag(CommonConstant.TAG_ADMIN)) {
+                if (ClientContext.get().isNotAdmin()) {
                     continue;
                 }
             }
@@ -106,6 +107,13 @@ public class PreferenceFrame extends BaseAbstractModule {
             item.setIcon(moduleInfo.unicode);
             item.setText(moduleInfo.name);
             list.addItem(item);
+
+            if (StringUtil.isNotBlank(initModuleCode) && initModuleCode.equals(moduleInfo.code)) {
+                initItem = item;
+            }
+        }
+        if (initItem != null) {
+            list.selectItem(initItem, true);
         }
     }
 

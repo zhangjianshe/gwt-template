@@ -3,13 +3,13 @@ package cn.mapway.gwt_template.server.config.git;
 import cn.mapway.gwt_template.server.config.AppConfig;
 import cn.mapway.gwt_template.server.service.file.FileCustomUtils;
 import cn.mapway.gwt_template.server.service.project.ProjectService;
+import cn.mapway.gwt_template.shared.db.SysUserKeyEntity;
 import cn.mapway.gwt_template.shared.rpc.user.CommonPermission;
-import cn.mapway.rbac.shared.db.postgis.RbacUserEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.sshd.common.AttributeRepository;
-import org.apache.sshd.common.config.keys.AuthorizedKeyEntry;
 import org.apache.sshd.common.config.keys.KeyUtils;
 import org.apache.sshd.common.util.security.SecurityUtils;
+import org.apache.sshd.core.CoreModuleProperties;
 import org.apache.sshd.git.GitLocationResolver;
 import org.apache.sshd.git.pack.GitPackCommandFactory;
 import org.apache.sshd.server.Environment;
@@ -30,8 +30,6 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.Path;
-import java.security.PublicKey;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -39,9 +37,11 @@ import java.util.regex.Pattern;
 @Slf4j
 public class GitSshConfig {
 
-    public static final AttributeRepository.AttributeKey<RbacUserEntity> SSH_USER_NAME = new AttributeRepository.AttributeKey<>();
+    public static final AttributeRepository.AttributeKey<SysUserKeyEntity> SSH_USER_PUBLIC_KEY = new AttributeRepository.AttributeKey<>();
     // Define the pattern to capture the command and the quoted path
-    private static final Pattern GIT_COMMAND_PATTERN = Pattern.compile("^(git\\-[\\w\\-]+)\\s+'?/?([^']+)'?$");
+    private static final Pattern GIT_COMMAND_PATTERN = Pattern.compile("^(git-[\\w-]+)\\s+['\"]?/?(.*?)(.git)?['\"]?$");
+    String BOLD_CYAN = "\u001b[1;36m";
+    String RESET = "\u001b[0m";
     @Resource
     ProjectService projectService; // We will use this for SSH key lookups
 
@@ -53,6 +53,19 @@ public class GitSshConfig {
         }
 
         SshServer sshd = SshServer.setUpDefaultServer();
+
+        // Ensure the charset is explicitly UTF-8
+        CoreModuleProperties.WELCOME_BANNER_CHARSET.set(sshd, StandardCharsets.UTF_8);
+
+        // If your version supports it, this property prevents the server from
+        // "cleaning" the string before sending
+        sshd.getProperties().put("welcome-banner-language", "en");
+
+
+        String banner = "\r\n" +
+                "    Orbital Remote Sensing Data Hub\r\n" +
+                "    -------------------------------\r\n";
+        CoreModuleProperties.WELCOME_BANNER.set(sshd, banner);
 
         // 1. Set Port (Avoid 22 if not running as root)
         sshd.setPort(appConfig.getSshPort());
@@ -72,152 +85,101 @@ public class GitSshConfig {
         }) {
             @Override
             public Command createCommand(ChannelSession channel, String command) throws IOException {
-                // 1. Get the username we stored during authentication
-                RbacUserEntity user = channel.getSession().getAttribute(SSH_USER_NAME);
+                SysUserKeyEntity userPublicKey = channel.getSession().getAttribute(SSH_USER_PUBLIC_KEY);
 
-                // 1. Parse using the logic above
-                Matcher matcher = GIT_COMMAND_PATTERN.matcher(command);
+                Matcher matcher = GIT_COMMAND_PATTERN.matcher(command.trim());
                 if (!matcher.find()) {
-                    return new Command() {
-                        private OutputStream out;
-                        private ExitCallback callback;
-
-                        @Override
-                        public void setOutputStream(OutputStream out) {
-                            this.out = out;
-                        }
-
-                        @Override
-                        public void setInputStream(InputStream inputStream) {
-
-                        }
-
-                        @Override
-                        public void setErrorStream(OutputStream outputStream) {
-
-                        }
-
-                        @Override
-                        public void setExitCallback(ExitCallback cb) {
-                            this.callback = cb;
-                        }
-
-                        @Override
-                        public void start(ChannelSession channel, Environment env) throws IOException {
-                            callback.onExit(127, "Unknown command"); // 127 is standard for 'command not found'
-                        }
-
-                        @Override
-                        public void destroy(ChannelSession channelSession) throws Exception {
-
-                        }
-                    };
+                    return createErrorCommand("Unknown command: " + command, 127);
                 }
 
-                String action = matcher.group(1);
-                String fullPath = matcher.group(2);
+                String action = matcher.group(1); // git-upload-pack or git-receive-pack
+                String rawPath = matcher.group(2); // zhangjianshe/zjk3
 
-                // 2. Determine if it's a push or pull
+                // Clean up the path: remove leading slashes and any trailing quotes/whitespace
+                String cleanPath = rawPath.replaceAll("^/+", "").replaceAll("['\"\\s]+$", "");
+
                 boolean isPush = action.equals("git-receive-pack");
 
-                // 3. Extract metadata (assume zhangjianshe/zjk3.git format)
-                String[] segments = fullPath.replace(".git", "").split("/");
+                // Split segments: owner/project
+                String[] segments = cleanPath.split("/");
+                if (segments.length < 2) {
+                    log.error("Invalid path format. Raw: {}, Clean: {}", rawPath, cleanPath);
+                    return createErrorCommand("Invalid repository path: " + rawPath, 1);
+                }
+
                 String owner = segments[segments.length - 2];
                 String project = segments[segments.length - 1];
 
-                // 4. Check Database Permissions
-                // Since we are in a non-Spring managed context usually, use SpringUtils or constructor injection
-                CommonPermission perm = projectService.findUserPermissionInProjectByName(user.getUserId(), owner, project);
+                log.info("Auth Check: User {} requested {} on project {}/{}",
+                        userPublicKey.getUserName(), action, owner, project);
+
+                CommonPermission perm = projectService.findUserPermissionInProjectByName(
+                        userPublicKey.getUserId(), owner, project);
 
                 if ((isPush && !perm.canWrite()) || (!isPush && !perm.canRead())) {
-                    return new Command() {
-                        private OutputStream out;
-                        private ExitCallback callback;
-
-                        @Override
-                        public void setInputStream(InputStream in) {
-                        }
-
-                        @Override
-                        public void setOutputStream(OutputStream out) {
-                            this.out = out;
-                        }
-
-                        @Override
-                        public void setErrorStream(OutputStream err) {
-                        }
-
-                        @Override
-                        public void setExitCallback(ExitCallback callback) {
-                            this.callback = callback;
-                        }
-
-                        @Override
-                        public void start(ChannelSession channel, Environment env) throws IOException {
-                            String errorMsg = "\r\n [ACCESS DENIED] \r\n" +
-                                    " User: " + user.getUserName() + "\r\n" +
-                                    " Path: " + fullPath + "\r\n" +
-                                    " Reason: Insufficient permissions for " + action + "\r\n\r\n";
-
-                            if (out != null) {
-                                out.write(errorMsg.getBytes(StandardCharsets.UTF_8));
-                                out.flush();
-                            }
-
-                            if (callback != null) {
-                                // 1 indicates a general error status to the Git client
-                                callback.onExit(1, "Access Denied");
-                            }
-                        }
-
-                        @Override
-                        public void destroy(ChannelSession channel) {
-                        }
-                    };
+                    String reason = "User " + userPublicKey.getUserName() + " (ID: " + userPublicKey.getUserId() +
+                            ") has no " + (isPush ? "WRITE" : "READ") + " access to " + owner + "/" + project;
+                    return createErrorCommand("[ACCESS DENIED] " + reason, 1);
                 }
 
-                // 5. If authorized, let the default JGit factory handle the heavy lifting
                 return super.createCommand(channel, command);
             }
         });
 
         // 4. Authentication: Public Key (The most important part)
         sshd.setPublickeyAuthenticator((username, incomingKey, session) -> {
-            log.info("Checking SSH key for user: {}", username);
-            // 1. Fetch the keys for this user from your database
-            // Assuming your service returns a list of strings like "ssh-ed25519 AAA..."
-            List<String> userKeysFromDb = projectService.getUserSshKeys(username);
-            RbacUserEntity user = projectService.getUserEntity(username);
-            if (user == null) {
-                log.warn("[GIT SSH] User {} not exists", username);
-                return false;
-            }
-            if (userKeysFromDb == null || userKeysFromDb.isEmpty()) {
-                log.warn("No keys found in database for user: {}", username);
+            // Standard SSH fingerprint (SHA256:...)
+            String fingerPrint = KeyUtils.getFingerPrint(incomingKey);
+
+            // Direct DB lookup by Primary Key (Fingerprint)
+            SysUserKeyEntity keyInDb = projectService.findPublicKeyById(fingerPrint);
+
+            if (keyInDb == null) {
+                log.warn("[GIT SSH] Unauthorized key fingerprint: {}", fingerPrint);
                 return false;
             }
 
-            for (String keyStr : userKeysFromDb) {
-                try {
-                    // Clean common copy-paste artifacts
-                    String cleanKey = keyStr.trim().replaceAll("\\r|\\n", "");
-                    AuthorizedKeyEntry entry = AuthorizedKeyEntry.parseAuthorizedKeyEntry(cleanKey);
-
-                    // USE THIS METHOD - it is safer than appendPublicKey
-                    PublicKey dbPublicKey = entry.resolvePublicKey(session, null, null);
-
-                    if (dbPublicKey != null && KeyUtils.compareKeys(incomingKey, dbPublicKey)) {
-                        log.info("Match found! Authenticating user: {}", username);
-                        // Important for JGit to know who is performing the action
-                        session.setAttribute(SSH_USER_NAME, user);
-                        return true;
-                    }
-                } catch (Exception e) {
-                    log.error("Error parsing key from database for user " + username, e);
-                }
+            // Optional: check if the username in the SSH URL matches the key owner
+            // If you want to force zhangjianshe to only use zhangjianshe's keys:
+            if (!"git".equals(username) && !keyInDb.getUserName().equals(username)) {
+                log.warn("[GIT SSH] Key owner {} does not match login user {}", keyInDb.getUserName(), username);
+                return false;
             }
-            log.warn("No matching keys found for user: {}", username);
-            return false;
+
+            session.setAttribute(SSH_USER_PUBLIC_KEY, keyInDb);
+            return true;
+        });
+
+
+        sshd.setShellFactory(channel -> new Command() {
+            private OutputStream out;
+            private ExitCallback callback;
+            @Override public void setOutputStream(OutputStream out) { this.out = out; }
+            @Override public void setExitCallback(ExitCallback cb) { this.callback = cb; }
+            @Override public void setInputStream(InputStream in) {}
+            @Override public void setErrorStream(OutputStream err) {}
+
+            @Override
+            public void start(ChannelSession channel, Environment env) throws IOException {
+                SysUserKeyEntity user = channel.getSession().getAttribute(SSH_USER_PUBLIC_KEY);
+
+                String BOLD_CYAN = "\u001b[1;36m";
+                String GREEN = "\u001b[1;32m";
+                String RESET = "\u001b[0m";
+
+                StringBuilder msg = new StringBuilder();
+                msg.append("\r\n").append(BOLD_CYAN).append("  [ Cangling AI Development Server ]").append(RESET).append("\r\n");
+                msg.append("  User identified: ").append(BOLD_CYAN).append(user.getUserName()).append(RESET).append("\r\n");
+                msg.append("  System Status:   ").append(GREEN).append("ONLINE").append(RESET).append("\r\n");
+                msg.append("  Processing Mode: ").append("AI / Deep Learning Integration\r\n");
+                msg.append("  --------------------------------------------------\r\n");
+                msg.append("  Notice: Orbital shell restricted. Access via Git only.\r\n\r\n");
+
+                out.write(msg.toString().getBytes(StandardCharsets.UTF_8));
+                out.flush();
+                callback.onExit(0);
+            }
+            @Override public void destroy(ChannelSession channel) {}
         });
 
         sshd.start();
@@ -225,4 +187,45 @@ public class GitSshConfig {
         return sshd;
     }
 
+    private Command createErrorCommand(String message, int exitCode) {
+        return new Command() {
+            private ExitCallback callback;
+            private OutputStream err;
+
+            @Override
+            public void setInputStream(InputStream in) {
+            }
+
+            // Use ErrorStream for human messages!
+            @Override
+            public void setErrorStream(OutputStream err) {
+                this.err = err;
+            }
+
+            @Override
+            public void setOutputStream(OutputStream out) {
+            }
+
+            @Override
+            public void setExitCallback(ExitCallback callback) {
+                this.callback = callback;
+            }
+
+            @Override
+            public void start(ChannelSession channel, Environment env) throws IOException {
+                if (err != null) {
+                    String syncMsg = "remote: " + BOLD_CYAN + ">> Cangling AI: Synchronizing Orbital Data..." + RESET + "\r\n";
+                    err.write(syncMsg.getBytes(StandardCharsets.UTF_8));
+                    err.flush();
+                }
+                if (callback != null) {
+                    callback.onExit(exitCode, message);
+                }
+            }
+
+            @Override
+            public void destroy(ChannelSession channel) {
+            }
+        };
+    }
 }

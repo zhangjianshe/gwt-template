@@ -9,10 +9,11 @@
             padding: 10px;
         }
 
-        .fingure {
-            line-height: 150%;
-            word-break: break-all;
-            text-wrap: auto;
+        .grid {
+            display: inline-grid;
+            grid-template-columns: 100px 1fr;
+            gap: 0.5rem;
+            align-items: center;
         }</ui:style>
     <g:HTMLPanel addStyleNames="{style.box}">
         <g:HorizontalPanel verticalAlignment="middle" width="100%">
@@ -21,9 +22,13 @@
             </g:cell>
             <g:VerticalPanel>
                 <g:Label ui:field="lbName" addStyleNames="ai-bold"/>
-                <g:Label ui:field="lbFigure" addStyleNames="{style.fingure}"/>
-                <g:Label ui:field="lbAddTime"/>
-                <g:Label ui:field="lbLastUsed"/>
+                <g:Label ui:field="lbFigure" addStyleNames="ai-code"/>
+                <g:HTMLPanel addStyleNames="{style.grid}">
+                    <g:Label>创建时间</g:Label>
+                    <g:Label ui:field="lbAddTime"/>
+                    <g:Label>最后使用时间</g:Label>
+                    <g:Label ui:field="lbLastUsed"/>
+                </g:HTMLPanel>
             </g:VerticalPanel>
             <g:cell width="120px">
                 <g:HorizontalPanel>

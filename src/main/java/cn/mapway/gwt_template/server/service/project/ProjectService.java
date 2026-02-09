@@ -244,4 +244,8 @@ public class ProjectService {
         RbacUserEntity fetch = dao.fetch(RbacUserEntity.class, Cnd.where(RbacUserEntity.FLD_USER_NAME, "=", username));
         return fetch;
     }
+
+    public SysUserKeyEntity findPublicKeyById(String fingerPrint) {
+        return dao.fetch(SysUserKeyEntity.class,fingerPrint);
+    }
 }

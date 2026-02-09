@@ -36,7 +36,7 @@ import java.util.regex.Pattern;
 @Service
 @Slf4j
 public class StartBootPrepare implements ApplicationContextAware {
-    public final static String DB_VERSION = "2026-02-12";
+    public final static String DB_VERSION = "2026-01-12";
     @Resource
     Dao dao;
     ApplicationContext context;
