@@ -20,6 +20,7 @@ import cn.mapway.gwt_template.server.service.soft.QuerySoftwareExecutor;
 import cn.mapway.gwt_template.server.service.soft.QuerySoftwareFilesExecutor;
 import cn.mapway.gwt_template.server.service.user.TokenService;
 import cn.mapway.gwt_template.server.service.user.login.LoginProvider;
+import cn.mapway.gwt_template.server.service.webhook.*;
 import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.rpc.config.*;
 import cn.mapway.gwt_template.shared.rpc.dev.*;
@@ -27,6 +28,7 @@ import cn.mapway.gwt_template.shared.rpc.dns.*;
 import cn.mapway.gwt_template.shared.rpc.project.*;
 import cn.mapway.gwt_template.shared.rpc.soft.*;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
+import cn.mapway.gwt_template.shared.rpc.webhook.*;
 import cn.mapway.rbac.shared.rpc.LoginRequest;
 import cn.mapway.rbac.shared.rpc.LoginResponse;
 import cn.mapway.ui.server.CheckUserServlet;
@@ -101,150 +103,162 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
     QueryConfigExecutor queryConfigExecutor;
 
     ///CODE_GEN_INSERT_POINT///
-	
+
+    @Resource
+    DeleteWebHookInstanceExecutor deleteWebHookInstanceExecutor;
+    @Resource
+    QueryWebHookInstanceExecutor queryWebHookInstanceExecutor;
+    @Resource
+    UpdateWebHookExecutor updateWebHookExecutor;
+    @Resource
+    DeleteWebHookExecutor deleteWebHookExecutor;
+    @Resource
+    QueryWebHookExecutor queryWebHookExecutor;
     @Resource
     UpdateUserKeyExecutor updateUserKeyExecutor;
+    @Resource
+    DeleteUserKeyExecutor deleteUserKeyExecutor;
+    @Resource
+    QueryUserKeyExecutor queryUserKeyExecutor;
+    @Resource
+    QueryRepoRefsExecutor queryRepoRefsExecutor;
+    @Resource
+    ReadRepoFileExecutor readRepoFileExecutor;
+    @Resource
+    QueryRepoFilesExecutor queryRepoFilesExecutor;
+    @Resource
+    QueryProjectMemberExecutor queryProjectMemberExecutor;
+    @Resource
+    DeleteProjectMemberExecutor deleteProjectMemberExecutor;
+    @Resource
+    UpdateProjectMemberExecutor updateProjectMemberExecutor;
+    @Resource
+    QueryGroupMemberExecutor queryGroupMemberExecutor;
+    @Resource
+    DeleteGroupMemberExecutor deleteGroupMemberExecutor;
+    @Resource
+    UpdateGroupMemberExecutor updateGroupMemberExecutor;
+    @Resource
+    QueryDevGroupExecutor queryDevGroupExecutor;
+    @Resource
+    DeleteDevGroupExecutor deleteDevGroupExecutor;
+    @Resource
+    UpdateDevGroupExecutor updateDevGroupExecutor;
+
+    @Override
+    public RpcResult<DeleteWebHookInstanceResponse> deleteWebHookInstance(DeleteWebHookInstanceRequest request) {
+        BizResult<DeleteWebHookInstanceResponse> bizResult = deleteWebHookInstanceExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<QueryWebHookInstanceResponse> queryWebHookInstance(QueryWebHookInstanceRequest request) {
+        BizResult<QueryWebHookInstanceResponse> bizResult = queryWebHookInstanceExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<UpdateWebHookResponse> updateWebHook(UpdateWebHookRequest request) {
+        BizResult<UpdateWebHookResponse> bizResult = updateWebHookExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<DeleteWebHookResponse> deleteWebHook(DeleteWebHookRequest request) {
+        BizResult<DeleteWebHookResponse> bizResult = deleteWebHookExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<QueryWebHookResponse> queryWebHook(QueryWebHookRequest request) {
+        BizResult<QueryWebHookResponse> bizResult = queryWebHookExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
     @Override
     public RpcResult<UpdateUserKeyResponse> updateUserKey(UpdateUserKeyRequest request) {
         BizResult<UpdateUserKeyResponse> bizResult = updateUserKeyExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toRpcResult(bizResult);
     }
 
-
-	
-    @Resource
-    DeleteUserKeyExecutor deleteUserKeyExecutor;
     @Override
     public RpcResult<DeleteUserKeyResponse> deleteUserKey(DeleteUserKeyRequest request) {
         BizResult<DeleteUserKeyResponse> bizResult = deleteUserKeyExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toRpcResult(bizResult);
     }
 
-
-	
-    @Resource
-    QueryUserKeyExecutor queryUserKeyExecutor;
     @Override
     public RpcResult<QueryUserKeyResponse> queryUserKey(QueryUserKeyRequest request) {
         BizResult<QueryUserKeyResponse> bizResult = queryUserKeyExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toRpcResult(bizResult);
     }
 
-
-	
-    @Resource
-    QueryRepoRefsExecutor queryRepoRefsExecutor;
     @Override
     public RpcResult<QueryRepoRefsResponse> queryRepoRefs(QueryRepoRefsRequest request) {
         BizResult<QueryRepoRefsResponse> bizResult = queryRepoRefsExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toRpcResult(bizResult);
     }
 
-
-	
-    @Resource
-    ReadRepoFileExecutor readRepoFileExecutor;
     @Override
     public RpcResult<ReadRepoFileResponse> readRepoFile(ReadRepoFileRequest request) {
         BizResult<ReadRepoFileResponse> bizResult = readRepoFileExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toRpcResult(bizResult);
     }
 
-
-	
-    @Resource
-    QueryRepoFilesExecutor queryRepoFilesExecutor;
     @Override
     public RpcResult<QueryRepoFilesResponse> queryRepoFiles(QueryRepoFilesRequest request) {
         BizResult<QueryRepoFilesResponse> bizResult = queryRepoFilesExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toRpcResult(bizResult);
     }
 
-
-
-	
-    @Resource
-    QueryProjectMemberExecutor queryProjectMemberExecutor;
     @Override
     public RpcResult<QueryProjectMemberResponse> queryProjectMember(QueryProjectMemberRequest request) {
         BizResult<QueryProjectMemberResponse> bizResult = queryProjectMemberExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toRpcResult(bizResult);
     }
 
-
-	
-    @Resource
-    DeleteProjectMemberExecutor deleteProjectMemberExecutor;
     @Override
     public RpcResult<DeleteProjectMemberResponse> deleteProjectMember(DeleteProjectMemberRequest request) {
         BizResult<DeleteProjectMemberResponse> bizResult = deleteProjectMemberExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toRpcResult(bizResult);
     }
 
-
-	
-    @Resource
-    UpdateProjectMemberExecutor updateProjectMemberExecutor;
     @Override
     public RpcResult<UpdateProjectMemberResponse> updateProjectMember(UpdateProjectMemberRequest request) {
         BizResult<UpdateProjectMemberResponse> bizResult = updateProjectMemberExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toRpcResult(bizResult);
     }
 
-
-	
-    @Resource
-    QueryGroupMemberExecutor queryGroupMemberExecutor;
     @Override
     public RpcResult<QueryGroupMemberResponse> queryGroupMember(QueryGroupMemberRequest request) {
         BizResult<QueryGroupMemberResponse> bizResult = queryGroupMemberExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toRpcResult(bizResult);
     }
 
-
-	
-    @Resource
-    DeleteGroupMemberExecutor deleteGroupMemberExecutor;
     @Override
     public RpcResult<DeleteGroupMemberResponse> deleteGroupMember(DeleteGroupMemberRequest request) {
         BizResult<DeleteGroupMemberResponse> bizResult = deleteGroupMemberExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toRpcResult(bizResult);
     }
 
-
-	
-    @Resource
-    UpdateGroupMemberExecutor updateGroupMemberExecutor;
     @Override
     public RpcResult<UpdateGroupMemberResponse> updateGroupMember(UpdateGroupMemberRequest request) {
         BizResult<UpdateGroupMemberResponse> bizResult = updateGroupMemberExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toRpcResult(bizResult);
     }
 
-
-	
-    @Resource
-    QueryDevGroupExecutor queryDevGroupExecutor;
     @Override
     public RpcResult<QueryDevGroupResponse> queryDevGroup(QueryDevGroupRequest request) {
         BizResult<QueryDevGroupResponse> bizResult = queryDevGroupExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toRpcResult(bizResult);
     }
 
-
-	
-    @Resource
-    DeleteDevGroupExecutor deleteDevGroupExecutor;
     @Override
     public RpcResult<DeleteDevGroupResponse> deleteDevGroup(DeleteDevGroupRequest request) {
         BizResult<DeleteDevGroupResponse> bizResult = deleteDevGroupExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toRpcResult(bizResult);
     }
 
-
-	
-    @Resource
-    UpdateDevGroupExecutor updateDevGroupExecutor;
     @Override
     public RpcResult<UpdateDevGroupResponse> updateDevGroup(UpdateDevGroupRequest request) {
         BizResult<UpdateDevGroupResponse> bizResult = updateDevGroupExecutor.execute(getBizContext(), BizRequest.wrap("", request));

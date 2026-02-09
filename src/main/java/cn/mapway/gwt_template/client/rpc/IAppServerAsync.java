@@ -5,6 +5,7 @@ import cn.mapway.gwt_template.shared.rpc.dev.*;
 import cn.mapway.gwt_template.shared.rpc.dns.*;
 import cn.mapway.gwt_template.shared.rpc.project.*;
 import cn.mapway.gwt_template.shared.rpc.soft.*;
+import cn.mapway.gwt_template.shared.rpc.webhook.*;
 import cn.mapway.rbac.shared.rpc.LoginRequest;
 import cn.mapway.rbac.shared.rpc.LoginResponse;
 import cn.mapway.ui.shared.rpc.RpcResult;
@@ -13,37 +14,47 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public interface IAppServerAsync {
 
     ///CODE_GEN_INSERT_POINT///
-	void updateUserKey(UpdateUserKeyRequest request, AsyncCallback<RpcResult<UpdateUserKeyResponse>> async);
+    void deleteWebHookInstance(DeleteWebHookInstanceRequest request, AsyncCallback<RpcResult<DeleteWebHookInstanceResponse>> async);
 
-	void deleteUserKey(DeleteUserKeyRequest request, AsyncCallback<RpcResult<DeleteUserKeyResponse>> async);
+    void queryWebHookInstance(QueryWebHookInstanceRequest request, AsyncCallback<RpcResult<QueryWebHookInstanceResponse>> async);
 
-	void queryUserKey(QueryUserKeyRequest request, AsyncCallback<RpcResult<QueryUserKeyResponse>> async);
+    void updateWebHook(UpdateWebHookRequest request, AsyncCallback<RpcResult<UpdateWebHookResponse>> async);
 
-	void queryRepoRefs(QueryRepoRefsRequest request, AsyncCallback<RpcResult<QueryRepoRefsResponse>> async);
+    void deleteWebHook(DeleteWebHookRequest request, AsyncCallback<RpcResult<DeleteWebHookResponse>> async);
 
-	void readRepoFile(ReadRepoFileRequest request, AsyncCallback<RpcResult<ReadRepoFileResponse>> async);
+    void queryWebHook(QueryWebHookRequest request, AsyncCallback<RpcResult<QueryWebHookResponse>> async);
 
-	void queryRepoFiles(QueryRepoFilesRequest request, AsyncCallback<RpcResult<QueryRepoFilesResponse>> async);
+    void updateUserKey(UpdateUserKeyRequest request, AsyncCallback<RpcResult<UpdateUserKeyResponse>> async);
+
+    void deleteUserKey(DeleteUserKeyRequest request, AsyncCallback<RpcResult<DeleteUserKeyResponse>> async);
+
+    void queryUserKey(QueryUserKeyRequest request, AsyncCallback<RpcResult<QueryUserKeyResponse>> async);
+
+    void queryRepoRefs(QueryRepoRefsRequest request, AsyncCallback<RpcResult<QueryRepoRefsResponse>> async);
+
+    void readRepoFile(ReadRepoFileRequest request, AsyncCallback<RpcResult<ReadRepoFileResponse>> async);
+
+    void queryRepoFiles(QueryRepoFilesRequest request, AsyncCallback<RpcResult<QueryRepoFilesResponse>> async);
 
 
-	void queryProjectMember(QueryProjectMemberRequest request, AsyncCallback<RpcResult<QueryProjectMemberResponse>> async);
+    void queryProjectMember(QueryProjectMemberRequest request, AsyncCallback<RpcResult<QueryProjectMemberResponse>> async);
 
-	void deleteProjectMember(DeleteProjectMemberRequest request, AsyncCallback<RpcResult<DeleteProjectMemberResponse>> async);
+    void deleteProjectMember(DeleteProjectMemberRequest request, AsyncCallback<RpcResult<DeleteProjectMemberResponse>> async);
 
-	void updateProjectMember(UpdateProjectMemberRequest request, AsyncCallback<RpcResult<UpdateProjectMemberResponse>> async);
+    void updateProjectMember(UpdateProjectMemberRequest request, AsyncCallback<RpcResult<UpdateProjectMemberResponse>> async);
 
 
-	void queryGroupMember(QueryGroupMemberRequest request, AsyncCallback<RpcResult<QueryGroupMemberResponse>> async);
+    void queryGroupMember(QueryGroupMemberRequest request, AsyncCallback<RpcResult<QueryGroupMemberResponse>> async);
 
-	void deleteGroupMember(DeleteGroupMemberRequest request, AsyncCallback<RpcResult<DeleteGroupMemberResponse>> async);
+    void deleteGroupMember(DeleteGroupMemberRequest request, AsyncCallback<RpcResult<DeleteGroupMemberResponse>> async);
 
-	void updateGroupMember(UpdateGroupMemberRequest request, AsyncCallback<RpcResult<UpdateGroupMemberResponse>> async);
+    void updateGroupMember(UpdateGroupMemberRequest request, AsyncCallback<RpcResult<UpdateGroupMemberResponse>> async);
 
-	void queryDevGroup(QueryDevGroupRequest request, AsyncCallback<RpcResult<QueryDevGroupResponse>> async);
+    void queryDevGroup(QueryDevGroupRequest request, AsyncCallback<RpcResult<QueryDevGroupResponse>> async);
 
-	void deleteDevGroup(DeleteDevGroupRequest request, AsyncCallback<RpcResult<DeleteDevGroupResponse>> async);
+    void deleteDevGroup(DeleteDevGroupRequest request, AsyncCallback<RpcResult<DeleteDevGroupResponse>> async);
 
-	void updateDevGroup(UpdateDevGroupRequest request, AsyncCallback<RpcResult<UpdateDevGroupResponse>> async);
+    void updateDevGroup(UpdateDevGroupRequest request, AsyncCallback<RpcResult<UpdateDevGroupResponse>> async);
 
 
     void updateConfig(UpdateConfigRequest request, AsyncCallback<RpcResult<UpdateConfigResponse>> async);

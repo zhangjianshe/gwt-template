@@ -11,7 +11,9 @@ import org.apache.sshd.common.config.keys.KeyUtils;
 import org.apache.sshd.common.util.security.SecurityUtils;
 import org.apache.sshd.core.CoreModuleProperties;
 import org.apache.sshd.git.GitLocationResolver;
+import org.apache.sshd.git.pack.GitPackCommand;
 import org.apache.sshd.git.pack.GitPackCommandFactory;
+import org.apache.sshd.git.pack.GitPackConfiguration;
 import org.apache.sshd.server.Environment;
 import org.apache.sshd.server.ExitCallback;
 import org.apache.sshd.server.SshServer;
@@ -19,6 +21,7 @@ import org.apache.sshd.server.channel.ChannelSession;
 import org.apache.sshd.server.command.Command;
 import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
 import org.apache.sshd.server.session.ServerSession;
+import org.eclipse.jgit.transport.ReceivePack;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -29,6 +32,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -81,10 +85,25 @@ public class GitSshConfig {
         // This connects SSH commands (git-upload-pack) to your file system
         sshd.setCommandFactory(new GitPackCommandFactory(new GitLocationResolver() {
             @Override
-            public Path resolveRootDirectory(String s, String[] strings, ServerSession serverSession, FileSystem fileSystem) throws IOException {
-                return new File(appConfig.getRepoRoot()).toPath();
+            public Path resolveRootDirectory(String s, String[] args, ServerSession serverSession, FileSystem fileSystem) throws IOException {
+                // The command logic will automatically append args[1] to whatever we return here.
+                // So we should return the Parent Directory of all repositories.
+                Path rootPath = new File(appConfig.getRepoRoot()).toPath();
+
+                // Sanity check: Log if the ACTUAL repository folder exists
+                String subPath = args[1].startsWith("/") ? args[1].substring(1) : args[1];
+                Path fullRepoPath = rootPath.resolve(subPath);
+
+                if (!Files.exists(fullRepoPath)) {
+                    log.error("[GIT-RESOLVER] Repository folder NOT FOUND at: {}", fullRepoPath);
+                } else {
+                    log.info("[GIT-RESOLVER] Verified repository exists at: {}", fullRepoPath);
+                }
+
+                return rootPath;
             }
         }) {
+
             @Override
             public Command createCommand(ChannelSession channel, String command) throws IOException {
                 SysUserKeyEntity userPublicKey = channel.getSession().getAttribute(SSH_USER_PUBLIC_KEY);
@@ -124,7 +143,25 @@ public class GitSshConfig {
                     return createErrorCommand("[ACCESS DENIED] " + reason, 1);
                 }
 
-                return super.createCommand(channel, command);
+                GitPackCommand gitCommand = new GitPackCommand(
+                        this.getGitLocationResolver(),
+                        command,
+                        this.resolveExecutorService()
+                );
+                // 3. Inject the Hook via Configuration
+                gitCommand.setPackConfiguration(
+                        new GitPackConfiguration() {
+                            @Override
+                            public void configureReceivePack(ServerSession session, ReceivePack pack) {
+                                ReceivePack receivePack = pack;
+                                log.info("[GIT-SSH] Injecting PostReceiveHook for session: {}", session);
+                                receivePack.setPostReceiveHook((rp, commands) -> {
+                                    projectService.handlePostReceiveHook(rp, commands);
+                                });
+                            }
+                        });
+
+                return gitCommand;
             }
         });
 
@@ -157,10 +194,23 @@ public class GitSshConfig {
             private OutputStream out;
             private ExitCallback callback;
 
-            @Override public void setOutputStream(OutputStream out) { this.out = out; }
-            @Override public void setExitCallback(ExitCallback cb) { this.callback = cb; }
-            @Override public void setInputStream(InputStream in) {}
-            @Override public void setErrorStream(OutputStream err) {}
+            @Override
+            public void setOutputStream(OutputStream out) {
+                this.out = out;
+            }
+
+            @Override
+            public void setExitCallback(ExitCallback cb) {
+                this.callback = cb;
+            }
+
+            @Override
+            public void setInputStream(InputStream in) {
+            }
+
+            @Override
+            public void setErrorStream(OutputStream err) {
+            }
 
             @Override
             public void start(ChannelSession channel, Environment env) throws IOException {
@@ -191,7 +241,9 @@ public class GitSshConfig {
                 }
             }
 
-            @Override public void destroy(ChannelSession channel) {}
+            @Override
+            public void destroy(ChannelSession channel) {
+            }
         });
 
         sshd.start();

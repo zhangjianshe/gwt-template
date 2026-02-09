@@ -26,10 +26,10 @@ import java.util.Map;
 public class SourceTools {
     public static void main(String[] args) {
         SourceTools tools = new SourceTools();
-        String packageBean = "cn.mapway.gwt_template.shared.rpc.project";
-        String packageService = "cn.mapway.gwt_template.server.service.project";
+        String packageBean = "cn.mapway.gwt_template.shared.rpc.webhook";
+        String packageService = "cn.mapway.gwt_template.server.service.webhook";
         ArrayList<String> methods = Lang.list(
-                "queryUserKey","deleteUserKey","updateUserKey"
+                "queryWebHook", "deleteWebHook", "updateWebHook", "queryWebHookInstance", "deleteWebHookInstance"
         );
         methods.stream().forEach(n -> {
             tools.gen(n, packageBean, packageService);
@@ -66,8 +66,8 @@ public class SourceTools {
             throw new RuntimeException(e);
         }
         //异步接口   void login(UserLoginRequest request, AsyncCallback<RpcResult<CurrentUserResponse>> async);
-       source = "src/main/java/cn/mapway/gwt_template/client/rpc/IAppServerAsync.java";
-       String asyncMethod="void "+methodName+"("+beanName+"Request request, AsyncCallback<RpcResult<"+beanName+"Response>> async);";
+        source = "src/main/java/cn/mapway/gwt_template/client/rpc/IAppServerAsync.java";
+        String asyncMethod = "void " + methodName + "(" + beanName + "Request request, AsyncCallback<RpcResult<" + beanName + "Response>> async);";
         try {
             file = ResourceUtils.getFile(source);
             String content = Files.read(file);
@@ -81,7 +81,7 @@ public class SourceTools {
         }
 
         //servlet implements
-        source ="src/main/java/cn/mapway/gwt_template/server/servlet/ImageBotServlet.java";
+        source = "src/main/java/cn/mapway/gwt_template/server/servlet/ImageBotServlet.java";
 
 
     }
@@ -117,7 +117,7 @@ public class SourceTools {
         log.info(data);
     }
 
-    private void  genImpl(String queryUserVolumn) {
+    private void genImpl(String queryUserVolumn) {
         String template = readTemplate("code/serverlet.txt");
         Map<String, Object> mapper = new HashMap<>();
         mapper.put("__name__", queryUserVolumn);
@@ -126,7 +126,7 @@ public class SourceTools {
         String data = Strings.replaceBy(template, mapper);
         log.info(data);
 
-        String source ="src/main/java/cn/mapway/gwt_template/server/servlet/AppServlet.java";
+        String source = "src/main/java/cn/mapway/gwt_template/server/servlet/AppServlet.java";
 
         try {
             File file = ResourceUtils.getFile(source);

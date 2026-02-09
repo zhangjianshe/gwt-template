@@ -6,6 +6,7 @@ import cn.mapway.gwt_template.shared.rpc.dev.*;
 import cn.mapway.gwt_template.shared.rpc.dns.*;
 import cn.mapway.gwt_template.shared.rpc.project.*;
 import cn.mapway.gwt_template.shared.rpc.soft.*;
+import cn.mapway.gwt_template.shared.rpc.webhook.*;
 import cn.mapway.rbac.shared.rpc.LoginRequest;
 import cn.mapway.rbac.shared.rpc.LoginResponse;
 import cn.mapway.ui.shared.rpc.RpcResult;
@@ -15,37 +16,47 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 @RemoteServiceRelativePath(AppConstant.DEFAULT_SERVER_PATH)
 public interface IAppServer extends RemoteService {
     ///CODE_GEN_INSERT_POINT///
-	RpcResult<UpdateUserKeyResponse> updateUserKey(UpdateUserKeyRequest request);
+    RpcResult<DeleteWebHookInstanceResponse> deleteWebHookInstance(DeleteWebHookInstanceRequest request);
 
-	RpcResult<DeleteUserKeyResponse> deleteUserKey(DeleteUserKeyRequest request);
+    RpcResult<QueryWebHookInstanceResponse> queryWebHookInstance(QueryWebHookInstanceRequest request);
 
-	RpcResult<QueryUserKeyResponse> queryUserKey(QueryUserKeyRequest request);
+    RpcResult<UpdateWebHookResponse> updateWebHook(UpdateWebHookRequest request);
 
-	RpcResult<QueryRepoRefsResponse> queryRepoRefs(QueryRepoRefsRequest request);
+    RpcResult<DeleteWebHookResponse> deleteWebHook(DeleteWebHookRequest request);
 
-	RpcResult<ReadRepoFileResponse> readRepoFile(ReadRepoFileRequest request);
+    RpcResult<QueryWebHookResponse> queryWebHook(QueryWebHookRequest request);
+
+    RpcResult<UpdateUserKeyResponse> updateUserKey(UpdateUserKeyRequest request);
+
+    RpcResult<DeleteUserKeyResponse> deleteUserKey(DeleteUserKeyRequest request);
+
+    RpcResult<QueryUserKeyResponse> queryUserKey(QueryUserKeyRequest request);
+
+    RpcResult<QueryRepoRefsResponse> queryRepoRefs(QueryRepoRefsRequest request);
+
+    RpcResult<ReadRepoFileResponse> readRepoFile(ReadRepoFileRequest request);
 
 
-	RpcResult<QueryRepoFilesResponse> queryRepoFiles(QueryRepoFilesRequest request);
+    RpcResult<QueryRepoFilesResponse> queryRepoFiles(QueryRepoFilesRequest request);
 
-	RpcResult<QueryProjectMemberResponse> queryProjectMember(QueryProjectMemberRequest request);
+    RpcResult<QueryProjectMemberResponse> queryProjectMember(QueryProjectMemberRequest request);
 
-	RpcResult<DeleteProjectMemberResponse> deleteProjectMember(DeleteProjectMemberRequest request);
+    RpcResult<DeleteProjectMemberResponse> deleteProjectMember(DeleteProjectMemberRequest request);
 
-	RpcResult<UpdateProjectMemberResponse> updateProjectMember(UpdateProjectMemberRequest request);
+    RpcResult<UpdateProjectMemberResponse> updateProjectMember(UpdateProjectMemberRequest request);
 
 
-	RpcResult<QueryGroupMemberResponse> queryGroupMember(QueryGroupMemberRequest request);
+    RpcResult<QueryGroupMemberResponse> queryGroupMember(QueryGroupMemberRequest request);
 
-	RpcResult<DeleteGroupMemberResponse> deleteGroupMember(DeleteGroupMemberRequest request);
+    RpcResult<DeleteGroupMemberResponse> deleteGroupMember(DeleteGroupMemberRequest request);
 
-	RpcResult<UpdateGroupMemberResponse> updateGroupMember(UpdateGroupMemberRequest request);
+    RpcResult<UpdateGroupMemberResponse> updateGroupMember(UpdateGroupMemberRequest request);
 
-	RpcResult<QueryDevGroupResponse> queryDevGroup(QueryDevGroupRequest request);
+    RpcResult<QueryDevGroupResponse> queryDevGroup(QueryDevGroupRequest request);
 
-	RpcResult<DeleteDevGroupResponse> deleteDevGroup(DeleteDevGroupRequest request);
+    RpcResult<DeleteDevGroupResponse> deleteDevGroup(DeleteDevGroupRequest request);
 
-	RpcResult<UpdateDevGroupResponse> updateDevGroup(UpdateDevGroupRequest request);
+    RpcResult<UpdateDevGroupResponse> updateDevGroup(UpdateDevGroupRequest request);
 
     RpcResult<UpdateConfigResponse> updateConfig(UpdateConfigRequest request);
 

@@ -1,0 +1,37 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:dialog="urn:import:cn.mapway.ui.client.widget.dialog"
+             xmlns:buttons="urn:import:cn.mapway.ui.client.widget.buttons"
+             xmlns:list="urn:import:cn.mapway.ui.client.widget.list">
+    <g:DockLayoutPanel>
+        <g:south size="68">
+            <dialog:SaveBar ui:field="saveBar" showSave="false"/>
+        </g:south>
+        <g:west size="300">
+            <g:DockLayoutPanel addStyleNames="ai-border-right">
+                <g:north size="50">
+                    <g:HTMLPanel addStyleNames="ai-flex-panel" width="100%">
+                        <buttons:AiButton addStyleNames="ai-small" ui:field="btnPrev">上一页</buttons:AiButton>
+                        <g:Label ui:field="lbTotal" addStyleNames="ai-code"/>
+                        <buttons:AiButton addStyleNames="ai-small" ui:field="btnNext">下一页</buttons:AiButton>
+                    </g:HTMLPanel>
+                </g:north>
+                <g:center>
+                    <g:ScrollPanel>
+                        <list:List ui:field="list"/>
+                    </g:ScrollPanel>
+                </g:center>
+            </g:DockLayoutPanel>
+        </g:west>
+        <g:center>
+            <g:ScrollPanel addStyleNames="ai-border-top">
+                <g:HTMLPanel addStyleNames="ai-panel-content">
+                    <g:HTML ui:field="requestHtml" addStyleNames="ai-code">
+                    </g:HTML>
+                    <g:HTML ui:field="responseHtml" addStyleNames="ai-code">
+                    </g:HTML>
+                </g:HTMLPanel>
+            </g:ScrollPanel>
+        </g:center>
+    </g:DockLayoutPanel>
+</ui:UiBinder>

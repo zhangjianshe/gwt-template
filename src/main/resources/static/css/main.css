@@ -380,13 +380,13 @@ body {
     margin: 8px 0;
     user-select: text !important;
     font-family: Iosevka;
+    overflow-wrap: anywhere;
 }
 
 .ai-content {
     padding: 8px;
     background-color: var(--color-background);
 }
-
 
 
 .ai-message-panel {
@@ -1829,6 +1829,13 @@ img[tip]:hover::before {
 
 .ai-unselected:HOVER {
     background-color: #f0f0f0;
+}
+
+.ai-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 8px;
 }
 
 .ai-bands {

@@ -47,6 +47,7 @@ public class ProjectView extends BaseAbstractModule implements IData<VwProjectEn
     IconButton selected = null;
     ProjectFlowPanel projectFlowPanel;
     ProjectCodeFrame projectCodeFrame;
+    ProjectSettingPanel projectSettingPanel;
     private VwProjectEntity vwProject;
 
     public ProjectView() {
@@ -67,6 +68,7 @@ public class ProjectView extends BaseAbstractModule implements IData<VwProjectEn
                     gotoCode();
                 } else if (data.equals(Fonts.SETTING)) {
                     selectButton(btnSetting);
+                    gotoSetting();
                 } else if (data.equals(Fonts.TXT)) {
                     selectButton(btnWiki);
                     gotoWiki();
@@ -77,6 +79,17 @@ public class ProjectView extends BaseAbstractModule implements IData<VwProjectEn
         btnCode.addCommonHandler(buttonClickHandler);
         btnWiki.addCommonHandler(buttonClickHandler);
         btnSetting.addCommonHandler(buttonClickHandler);
+    }
+
+    private void gotoSetting() {
+        if (projectSettingPanel == null) {
+            projectSettingPanel = new ProjectSettingPanel();
+        }
+        content.clear();
+        content.add(projectSettingPanel);
+        content.setWidgetLeftRight(projectSettingPanel, 0, Style.Unit.PX, 0, Style.Unit.PX);
+        content.setWidgetTopBottom(projectSettingPanel, 0, Style.Unit.PX, 0, Style.Unit.PX);
+        projectSettingPanel.setData(vwProject);
     }
 
     private void gotoBasic() {

@@ -1,0 +1,19 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui' xmlns:list="urn:import:cn.mapway.ui.client.widget.list"
+             xmlns:widget="urn:import:cn.mapway.ui.client.widget">
+    <g:DockLayoutPanel>
+        <g:west size="400">
+            <g:ScrollPanel>
+                <g:HTMLPanel addStyleNames="ai-panel-content">
+                    <widget:Header addStyleNames="ai-flex-panel ai-panel-content">项目配置</widget:Header>
+                    <list:List ui:field="list"/>
+                </g:HTMLPanel>
+            </g:ScrollPanel>
+        </g:west>
+        <g:center>
+            <g:LayoutPanel ui:field="root">
+
+            </g:LayoutPanel>
+        </g:center>
+    </g:DockLayoutPanel>
+</ui:UiBinder>

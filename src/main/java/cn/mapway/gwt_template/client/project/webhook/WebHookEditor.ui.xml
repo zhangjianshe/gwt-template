@@ -1,0 +1,70 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:dialog="urn:import:cn.mapway.ui.client.widget.dialog"
+             xmlns:widget="urn:import:cn.mapway.ui.client.widget"
+             xmlns:webhook="urn:import:cn.mapway.gwt_template.client.project.webhook">
+    <ui:style>
+        .box {
+            display: grid;
+            padding: 20px 40px;
+            grid-template-columns: 140px 1fr;
+            gap: 1rem;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        .left {
+            justify-self: flex-start;
+            color: #555;
+            font-weight: bold;
+        }
+
+        .fullWidth {
+            width: 100%;
+        }
+
+        .grid1 {
+            display: inline-grid;
+            grid-template-columns: 100px 1fr;
+            gap: 1rem;
+            align-items: center;
+        }
+    </ui:style>
+    <g:DockLayoutPanel>
+        <g:south size="68">
+            <dialog:SaveBar buttonWidth="120" saveText="保存钩子" ui:field="saveBar"/>
+        </g:south>
+        <g:center>
+            <g:ScrollPanel>
+                <g:HTMLPanel addStyleNames="{style.box}">
+
+                    <widget:Header addStyleNames="{style.left}">触发事件</widget:Header>
+                    <widget:AiTextBox ui:field="txtSourceEvent" addStyleNames="{style.fullWidth}"
+                                      placeholder="例如: push, tag_push (留空则订阅所有)"/>
+
+                    <widget:Header addStyleNames="{style.left}">过滤器 (Branch)</widget:Header>
+                    <widget:AiTextBox ui:field="txtSourceFilter" addStyleNames="{style.fullWidth}"
+                                      placeholder="例如: refs/heads/master"/>
+
+                    <widget:Header addStyleNames="{style.left}">目标网址 (URL)</widget:Header>
+                    <g:HTMLPanel addStyleNames="{style.grid1}">
+                        <webhook:MethodDropdown ui:field="ddlMethod"/>
+                        <widget:AiTextBox ui:field="txtTargetUrl" addStyleNames="{style.fullWidth}"
+                                          placeholder="https://api.yoursite.com/webhook"/>
+                    </g:HTMLPanel>
+
+                    <widget:Header addStyleNames="{style.left}">授权密钥</widget:Header>
+                    <widget:AiTextBox ui:field="txtAuthorizeKey" addStyleNames="{style.fullWidth}"
+                                      placeholder="用于验证请求来源的 Secret Token"/>
+
+                    <widget:Header addStyleNames="{style.left}">HTTP请求头</widget:Header>
+                    <g:TextArea ui:field="txtHeaders" height="80px" addStyleNames="ai-input {style.fullWidth}"/>
+
+                    <widget:Header addStyleNames="{style.left}">状态控制</widget:Header>
+                    <g:CheckBox ui:field="chkActive" text="激活此 Webhook"/>
+
+                </g:HTMLPanel>
+            </g:ScrollPanel>
+        </g:center>
+    </g:DockLayoutPanel>
+</ui:UiBinder>
