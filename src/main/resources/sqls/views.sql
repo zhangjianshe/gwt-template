@@ -2,6 +2,8 @@
 CREATE VIEW vw_project AS
 SELECT p.id,
        p.name,
+       p.full_name,
+       p.tags,
        p.create_time,
        p.user_id,
        p.source_url,

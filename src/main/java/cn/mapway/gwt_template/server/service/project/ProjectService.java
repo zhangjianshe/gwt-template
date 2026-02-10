@@ -47,7 +47,9 @@ public class ProjectService {
             project.setCreateTime(new Timestamp(
                     System.currentTimeMillis()
             ));
-
+            if (Strings.isBlank(project.getFullName())) {
+                project.setFullName(project.getName());
+            }
             DevProjectEntity fetch = dao.fetch(DevProjectEntity.class, Cnd.where(DevProjectEntity.FLD_OWNER_NAME, "=", userName)
                     .and(DevProjectEntity.FLD_NAME, "=", project.getName()));
             if (fetch != null) {
@@ -325,5 +327,13 @@ public class ProjectService {
 
     public SysUserKeyEntity findPublicKeyById(String fingerPrint) {
         return dao.fetch(SysUserKeyEntity.class, fingerPrint);
+    }
+
+    public void deleteWebhookInstance(String instanceId) {
+        dao.delete(WebHookInstanceEntity.class, instanceId);
+    }
+
+    public VwProjectEntity findProjectView(String id) {
+        return dao.fetch(VwProjectEntity.class, Cnd.where(VwProjectEntity.FLD_ID, "=", id));
     }
 }

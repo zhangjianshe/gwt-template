@@ -61,8 +61,8 @@
             <widget:Header ui:field="lblUrl" styleName="ai-code"/>
         </g:VerticalPanel>
         <g:VerticalPanel spacing="5" horizontalAlignment="right">
-            <buttons:AiButton ui:field="btnEdit" addStyleNames="ai-small">编辑</buttons:AiButton>
-            <buttons:AiButton ui:field="btnDelete" addStyleNames="ai-small">删除</buttons:AiButton>
+            <buttons:AiButton ui:field="btnEdit" buttonStyle="second" addStyleNames="ai-small">编辑</buttons:AiButton>
+            <buttons:AiButton ui:field="btnDelete" buttonStyle="second" addStyleNames="ai-small">删除</buttons:AiButton>
         </g:VerticalPanel>
     </g:HTMLPanel>
 </ui:UiBinder>

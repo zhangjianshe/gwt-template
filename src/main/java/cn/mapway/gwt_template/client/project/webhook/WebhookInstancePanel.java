@@ -2,6 +2,8 @@ package cn.mapway.gwt_template.client.project.webhook;
 
 import cn.mapway.gwt_template.client.rpc.AppProxy;
 import cn.mapway.gwt_template.shared.db.WebHookInstanceEntity;
+import cn.mapway.gwt_template.shared.rpc.webhook.DeleteWebHookInstanceRequest;
+import cn.mapway.gwt_template.shared.rpc.webhook.DeleteWebHookInstanceResponse;
 import cn.mapway.gwt_template.shared.rpc.webhook.QueryWebHookInstanceRequest;
 import cn.mapway.gwt_template.shared.rpc.webhook.QueryWebHookInstanceResponse;
 import cn.mapway.ui.client.fonts.Fonts;
@@ -10,6 +12,7 @@ import cn.mapway.ui.client.tools.IData;
 import cn.mapway.ui.client.util.StringUtil;
 import cn.mapway.ui.client.widget.CommonEventComposite;
 import cn.mapway.ui.client.widget.buttons.AiButton;
+import cn.mapway.ui.client.widget.buttons.DeleteButton;
 import cn.mapway.ui.client.widget.dialog.Dialog;
 import cn.mapway.ui.client.widget.dialog.SaveBar;
 import cn.mapway.ui.client.widget.list.List;
@@ -107,8 +110,33 @@ public class WebhookInstancePanel extends CommonEventComposite implements IData<
             item.setText(statusPrefix + StringUtil.formatDate(instance.getCreateTime()));
             item.setData(instance);
             item.setIcon(Fonts.THUNDER);
+            DeleteButton deleteButton = new DeleteButton();
+            deleteButton.setData(instance);
+            deleteButton.addClickHandler(event -> deleteInstance(instance));
+            item.appendRight(deleteButton, 32);
             list.addItem(item);
         }
+    }
+
+    private void deleteInstance(WebHookInstanceEntity ins) {
+        DeleteWebHookInstanceRequest request = new DeleteWebHookInstanceRequest();
+        request.setInstanceId(ins.getId());
+        AppProxy.get().deleteWebHookInstance(request, new AsyncCallback<RpcResult<DeleteWebHookInstanceResponse>>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                saveBar.msg(caught.getMessage());
+            }
+
+            @Override
+            public void onSuccess(RpcResult<DeleteWebHookInstanceResponse> result) {
+                if (result.isSuccess()) {
+                    saveBar.msg("删除成功");
+                    load();
+                } else {
+                    saveBar.msg(result.getMessage());
+                }
+            }
+        });
     }
 
     @Override

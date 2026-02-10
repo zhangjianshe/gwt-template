@@ -7,6 +7,7 @@ import cn.mapway.biz.core.BizResult;
 import cn.mapway.gwt_template.server.service.project.ProjectService;
 import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.db.DevProjectEntity;
+import cn.mapway.gwt_template.shared.db.VwProjectEntity;
 import cn.mapway.gwt_template.shared.rpc.dev.UpdateProjectRequest;
 import cn.mapway.gwt_template.shared.rpc.dev.UpdateProjectResponse;
 import cn.mapway.gwt_template.shared.rpc.project.ProjectOwnerKind;
@@ -43,11 +44,14 @@ public class UpdateProjectExecutor extends AbstractBizExecutor<UpdateProjectResp
             project.setUserId(user.getUser().getUserId());
             project.setCreateTime(new Timestamp(System.currentTimeMillis()));
             project.setDeployServer("");
+            if (Strings.isBlank(project.getFullName())) {
+                project.setFullName(project.getName());
+            }
             assertTrue(Strings.isNotBlank(project.getName()), "没有项目名称");
             project.setOwnerName(user.getUser().getUserName());
             project.setOwnerKind(ProjectOwnerKind.PWK_PERSONAL.getCode());
             if (Strings.isBlank(project.getSummary())) {
-                project.setSummary(project.getName());
+                project.setSummary(project.getFullName());
             }
         } else {
             CommonPermission permission = projectService.userProjectPermission(user.getUser().getUserId(), project.getId());
@@ -57,8 +61,9 @@ public class UpdateProjectExecutor extends AbstractBizExecutor<UpdateProjectResp
         if (updateResult.isFailed()) {
             return updateResult.asBizResult();
         }
+        VwProjectEntity view = projectService.findProjectView(updateResult.getData().getId());
         UpdateProjectResponse resp = new UpdateProjectResponse();
-        resp.setProject(updateResult.getData());
+        resp.setProject(view);
         return BizResult.success(resp);
     }
 }

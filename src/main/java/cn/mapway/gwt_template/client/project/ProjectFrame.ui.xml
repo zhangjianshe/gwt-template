@@ -1,10 +1,12 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
              xmlns:g='urn:import:com.google.gwt.user.client.ui'
              xmlns:project="urn:import:cn.mapway.gwt_template.client.project"
-             xmlns:widget="urn:import:cn.mapway.gwt_template.client.widget">
+             xmlns:widget="urn:import:cn.mapway.gwt_template.client.widget"
+             xmlns:buttons="urn:import:cn.mapway.ui.client.widget.buttons">
     <ui:style>
         .top {
-            display: flex;
+            display: grid;
+            grid-template-columns: 1fr 110px 110px;
             align-items: center;
             justify-content: space-between;
             padding: 10px;
@@ -24,7 +26,7 @@
                 <g:north size="50">
                     <g:HTMLPanel addStyleNames="{style.top}">
                         <widget:Head>我参与的项目</widget:Head>
-                        <g:Button ui:field="btnCreate">创建项目</g:Button>
+                        <buttons:AiButton ui:field="btnCreate">创建项目</buttons:AiButton>
                     </g:HTMLPanel>
                 </g:north>
                 <g:center>

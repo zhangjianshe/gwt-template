@@ -8,14 +8,15 @@ import cn.mapway.ui.client.frame.SubsystemModule;
 import cn.mapway.ui.client.mvc.IModule;
 import cn.mapway.ui.client.mvc.ModuleMarker;
 import cn.mapway.ui.client.mvc.ModuleParameter;
+import cn.mapway.ui.client.widget.buttons.AiButton;
 import cn.mapway.ui.client.widget.dialog.Dialog;
+import cn.mapway.ui.client.widget.list.ListItem;
 import cn.mapway.ui.shared.CommonEvent;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
-import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
 
 @ModuleMarker(
@@ -25,13 +26,13 @@ import com.google.gwt.user.client.ui.DockLayoutPanel;
         summary = "我参与的开发项目",
         order = 100
 )
-public class ProjectFrame extends SubsystemModule  {
+public class ProjectFrame extends SubsystemModule {
     public static final String MODULE_CODE = "dev_project_frame";
     private static final ProjectFrameUiBinder ourUiBinder = GWT.create(ProjectFrameUiBinder.class);
     @UiField
     ProjectList projectTree;
     @UiField
-    Button btnCreate;
+    AiButton btnCreate;
     @UiField
     ProjectView projectPanel;
     VwProjectEntity currentProject = null;
@@ -66,7 +67,8 @@ public class ProjectFrame extends SubsystemModule  {
     @UiHandler("projectTree")
     public void projectTreeCommon(CommonEvent event) {
         if (event.isSelect()) {
-            VwProjectEntity project = event.getValue();
+            ListItem listItem = event.getValue();
+            VwProjectEntity project = (VwProjectEntity) listItem.getData();
             showProject(project);
         }
     }
@@ -80,6 +82,15 @@ public class ProjectFrame extends SubsystemModule  {
     public void btnCreateClick(ClickEvent event) {
         editProject(null);
     }
+
+    @UiHandler("projectPanel")
+    public void projectPanelCommon(CommonEvent event) {
+        if (event.isUpdate()) {
+            VwProjectEntity project = event.getValue();
+            projectTree.updateProject(project);
+        }
+    }
+
 
     private void editProject(VwProjectEntity project) {
         Dialog<ProjectEditor> dialog = ProjectEditor.getDialog(true);

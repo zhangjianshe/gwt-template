@@ -16,10 +16,22 @@ import java.sql.Timestamp;
 @Getter
 @Setter
 public class VwProjectEntity implements Serializable, IsSerializable {
+    public static final String FLD_ID = "id";
     @Column("id")
     String id;  //项目ID
+
     @Column("name")
     String name;
+
+    /**
+     * 项目全称
+     */
+    @Column(hump = true)
+    String fullName;
+
+    @Column(hump = true)
+    String tags;
+
     @Column("create_time")
     Timestamp createTime;
     @Column("user_id")

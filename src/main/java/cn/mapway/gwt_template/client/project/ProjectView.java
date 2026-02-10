@@ -10,6 +10,7 @@ import cn.mapway.ui.client.mvc.IModule;
 import cn.mapway.ui.client.mvc.ModuleMarker;
 import cn.mapway.ui.client.mvc.ModuleParameter;
 import cn.mapway.ui.client.tools.IData;
+import cn.mapway.ui.shared.CommonEvent;
 import cn.mapway.ui.shared.CommonEventHandler;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
@@ -95,6 +96,13 @@ public class ProjectView extends BaseAbstractModule implements IData<VwProjectEn
     private void gotoBasic() {
         if (projectFlowPanel == null) {
             projectFlowPanel = new ProjectFlowPanel();
+            projectFlowPanel.addCommonHandler(event -> {
+                if(event.isUpdate()) {
+                    VwProjectEntity vwProjectEntity = event.getValue();
+                    setData(vwProjectEntity);
+                    fireEvent(CommonEvent.updateEvent(vwProjectEntity));
+                }
+            });
         }
         content.clear();
         content.add(projectFlowPanel);

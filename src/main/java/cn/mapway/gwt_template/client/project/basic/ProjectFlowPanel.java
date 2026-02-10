@@ -7,10 +7,12 @@ import cn.mapway.gwt_template.shared.rpc.project.ReadRepoFileRequest;
 import cn.mapway.gwt_template.shared.rpc.project.ReadRepoFileResponse;
 import cn.mapway.ui.client.tools.IData;
 import cn.mapway.ui.client.widget.CommonEventComposite;
+import cn.mapway.ui.shared.CommonEvent;
 import cn.mapway.ui.shared.rpc.RpcResult;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.HTML;
@@ -21,6 +23,8 @@ public class ProjectFlowPanel extends CommonEventComposite implements IData<VwPr
     MemberList memberList;
     @UiField
     HTML readme;
+    @UiField
+    ProjectDetailPanel detailPanel;
     private VwProjectEntity project;
 
     public ProjectFlowPanel() {
@@ -43,6 +47,7 @@ public class ProjectFlowPanel extends CommonEventComposite implements IData<VwPr
     private void toUI() {
         memberList.setData(project.getId());
         loadReadme(project.getId());
+        detailPanel.setData(project);
     }
 
     private void loadReadme(String projectId) {
@@ -66,6 +71,15 @@ public class ProjectFlowPanel extends CommonEventComposite implements IData<VwPr
                 }
             }
         });
+    }
+
+    @UiHandler("detailPanel")
+    public void detailPanelCommon(CommonEvent event) {
+        if (event.isUpdate()) {
+            VwProjectEntity temp = event.getValue();
+            setData(temp);
+            fireEvent(CommonEvent.updateEvent(temp));
+        }
     }
 
     interface ProjectFlowPanelUiBinder extends UiBinder<DockLayoutPanel, ProjectFlowPanel> {

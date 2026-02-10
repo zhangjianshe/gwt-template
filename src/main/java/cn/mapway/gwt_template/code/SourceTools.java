@@ -29,7 +29,7 @@ public class SourceTools {
         String packageBean = "cn.mapway.gwt_template.shared.rpc.webhook";
         String packageService = "cn.mapway.gwt_template.server.service.webhook";
         ArrayList<String> methods = Lang.list(
-                "queryWebHook", "deleteWebHook", "updateWebHook", "queryWebHookInstance", "deleteWebHookInstance"
+                "de", "deleteWebHook", "updateWebHook", "queryWebHookInstance", "deleteWebHookInstance"
         );
         methods.stream().forEach(n -> {
             tools.gen(n, packageBean, packageService);

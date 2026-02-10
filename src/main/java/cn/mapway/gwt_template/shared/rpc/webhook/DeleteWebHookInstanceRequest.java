@@ -14,4 +14,5 @@ import java.io.Serializable;
 @Data
 @Doc("DeleteWebHookInstanceRequest")
 public class DeleteWebHookInstanceRequest implements Serializable, IsSerializable {
+    String instanceId;
 }

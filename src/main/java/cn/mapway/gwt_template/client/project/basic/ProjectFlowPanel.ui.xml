@@ -1,6 +1,7 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
              xmlns:g='urn:import:com.google.gwt.user.client.ui'
-             xmlns:member="urn:import:cn.mapway.gwt_template.client.project.member">
+             xmlns:member="urn:import:cn.mapway.gwt_template.client.project.member"
+             xmlns:basic="urn:import:cn.mapway.gwt_template.client.project.basic">
     <ui:style>
         .right {
             padding: 15px 10px;
@@ -19,7 +20,10 @@
     <g:DockLayoutPanel>
         <g:east size="400">
             <g:ScrollPanel addStyleNames="{style.right}">
-                <member:MemberList ui:field="memberList"/>
+                <g:HTMLPanel>
+                    <basic:ProjectDetailPanel ui:field="detailPanel"/>
+                    <member:MemberList ui:field="memberList"/>
+                </g:HTMLPanel>
             </g:ScrollPanel>
         </g:east>
         <g:center>

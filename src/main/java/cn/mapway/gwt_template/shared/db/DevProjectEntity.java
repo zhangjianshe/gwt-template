@@ -17,6 +17,7 @@ public class DevProjectEntity implements Serializable, IsSerializable {
     public static final String TABLE_NAME = "dev_project";
     public static final String FLD_ID = "id";
     public static final String FLD_OWNER_NAME = "owner_name";
+    public static final String FLD_FULL_NAME = "full_name";
     public static final String FLD_NAME = "name";
     public static final String FLD_USER_ID = "user_id";
     @Name
@@ -25,9 +26,14 @@ public class DevProjectEntity implements Serializable, IsSerializable {
     String id;
 
     @Column
-    @ColDefine(type = ColType.VARCHAR, width = 512, notNull = true)
-    @Comment("项目名称")
+    @ColDefine(type = ColType.VARCHAR, width = 64, notNull = true)
+    @Comment("项目代码")
     String name;
+
+    @Column(hump = true)
+    @ColDefine(type = ColType.VARCHAR, width = 512)
+    @Comment("项目全程")
+    String fullName;
 
     @Comment("创建时间")
     @ColDefine(type = ColType.DATETIME, width = 0)
@@ -80,6 +86,11 @@ public class DevProjectEntity implements Serializable, IsSerializable {
     @Column(hump = true)
     @Default("1")
     Integer memberCount;
+
+    @Comment("项目标签,号分割")
+    @Column(hump = true)
+    @Default("")
+    String tags;
 
     @Comment("是否公开")
     @Column(hump = true)

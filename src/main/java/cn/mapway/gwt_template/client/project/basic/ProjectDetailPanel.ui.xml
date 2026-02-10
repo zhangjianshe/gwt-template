@@ -1,0 +1,20 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:widget="urn:import:cn.mapway.gwt_template.client.widget"
+             xmlns:widget1="urn:import:cn.mapway.ui.client.widget">
+    <ui:style>
+        .about {
+            line-height: 200%;
+            text-wrap: wrap;
+            font-size: 1rem;
+            color: #444;
+            padding: 10px 5px 20px 5px;
+        }</ui:style>
+    <g:HTMLPanel>
+        <g:HTMLPanel addStyleNames="ai-bar">
+            <widget:Head>关于</widget:Head>
+            <widget1:FontIcon ui:field="btnSetup"/>
+        </g:HTMLPanel>
+        <g:Label ui:field="lbAbout" addStyleNames="{style.about}"/>
+    </g:HTMLPanel>
+</ui:UiBinder>

@@ -1,4 +1,4 @@
-package cn.mapway.gwt_template.client.project;
+package cn.mapway.gwt_template.client.project.basic;
 
 import cn.mapway.gwt_template.client.rpc.AppProxy;
 import cn.mapway.gwt_template.shared.db.DevProjectEntity;
@@ -19,29 +19,29 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
-import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.TextArea;
 
 /**
- * 项目创建
+ * 编辑项目详情
  */
-public class ProjectEditor extends CommonEventComposite implements IData<VwProjectEntity> {
+public class ProjectDetailEditor extends CommonEventComposite implements IData<VwProjectEntity> {
     private static final ProjectEditorUiBinder ourUiBinder = GWT.create(ProjectEditorUiBinder.class);
-    private static Dialog<ProjectEditor> dialog;
+    private static Dialog<ProjectDetailEditor> dialog;
     @UiField
     SaveBar saveBar;
     @UiField
-    AiTextBox txtName;
-    @UiField
     AiTextBox txtFullName;
     @UiField
-    Label lbTip;
+    AiTextBox txtTags;
+    @UiField
+    TextArea txtSummary;
     private VwProjectEntity project;
 
-    public ProjectEditor() {
+    public ProjectDetailEditor() {
         initWidget(ourUiBinder.createAndBindUi(this));
     }
 
-    public static Dialog<ProjectEditor> getDialog(boolean reuse) {
+    public static Dialog<ProjectDetailEditor> getDialog(boolean reuse) {
         if (reuse) {
             if (dialog == null) {
                 dialog = createOne();
@@ -52,9 +52,9 @@ public class ProjectEditor extends CommonEventComposite implements IData<VwProje
         }
     }
 
-    private static Dialog<ProjectEditor> createOne() {
-        ProjectEditor editor = new ProjectEditor();
-        return new Dialog<>(editor, "创建项目");
+    private static Dialog<ProjectDetailEditor> createOne() {
+        ProjectDetailEditor editor = new ProjectDetailEditor();
+        return new Dialog<>(editor, "编辑项目");
     }
 
     @Override
@@ -69,37 +69,26 @@ public class ProjectEditor extends CommonEventComposite implements IData<VwProje
 
     @Override
     public void setData(VwProjectEntity obj) {
+        assert obj != null;
         project = obj;
-        if (project == null) {
-            project = new VwProjectEntity();
-        }
         toUI();
     }
 
     private void toUI() {
-        txtName.setValue(project.getName());
         txtFullName.setValue(project.getFullName());
+        txtTags.setValue(project.getTags());
+        txtSummary.setValue(project.getSummary());
     }
 
-    boolean isNameValid(String name) {
-        if (name == null || name.trim().isEmpty()) {
-            return false;
-        }
-        return name.matches("^[a-zA-Z_][a-zA-Z0-9_-]*$");
-    }
 
     @UiHandler("saveBar")
     public void saveBarCommon(CommonEvent event) {
         if (event.isOk()) {
             DevProjectEntity temp = new DevProjectEntity();
             temp.setId(project.getId());
-            temp.setName(txtName.getValue().trim());
-            boolean nameValid = isNameValid(txtName.getValue().trim());
-            if (!nameValid) {
-                saveBar.msg(lbTip.getText());
-                return;
-            }
             temp.setFullName(txtFullName.getValue());
+            temp.setTags(txtTags.getValue());
+            temp.setSummary(txtSummary.getValue());
             doSave(temp);
         } else {
             fireEvent(event);
@@ -118,7 +107,7 @@ public class ProjectEditor extends CommonEventComposite implements IData<VwProje
             @Override
             public void onSuccess(RpcResult<UpdateProjectResponse> result) {
                 if (result.isSuccess()) {
-                    fireEvent(CommonEvent.okEvent(result.getData().getProject()));
+                    fireEvent(CommonEvent.updateEvent(result.getData().getProject()));
                 } else {
                     saveBar.msg(result.getMessage());
                 }
@@ -126,6 +115,6 @@ public class ProjectEditor extends CommonEventComposite implements IData<VwProje
         });
     }
 
-    interface ProjectEditorUiBinder extends UiBinder<DockLayoutPanel, ProjectEditor> {
+    interface ProjectEditorUiBinder extends UiBinder<DockLayoutPanel, ProjectDetailEditor> {
     }
 }
