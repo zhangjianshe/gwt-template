@@ -6,6 +6,7 @@ import cn.mapway.gwt_template.server.rbac.Permissions;
 import cn.mapway.gwt_template.server.service.user.TokenService;
 import cn.mapway.gwt_template.shared.rpc.user.ResourcePoint;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
+import cn.mapway.rbac.client.user.RbacFrame;
 import cn.mapway.rbac.server.service.RbacResourceService;
 import cn.mapway.rbac.shared.RbacConstant;
 import cn.mapway.rbac.shared.RbacRole;
@@ -245,6 +246,9 @@ public class ServerStartedOnce extends ApplicationObjectSupport implements IServ
         log.info("[START] 分配项目管理员 角色资源");
         rbacResourceService.confirmResourceInRole(ResourcePoint.RP_PROJECT_CREATE.getCode(), SYS_PROJECT_MANAGER);
 
+        //系统管理员拥有组织管理权限
+        log.info("[START] 分配系统管理员拥有　系统配置资源");
+        rbacResourceService.confirmResourceInRole(RbacFrame.MODULE_CODE, RbacConstant.ROLE_SYS_MAINTAINER);
 
     }
 }
