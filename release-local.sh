@@ -7,7 +7,7 @@ IMAGE_NAME="hub.cangling.cn/cangling/gwt-template"
 VERSION="1.0"
 
 echo "### Step 1: Maven Build & GWT Compilation ###"
-mvn clean install -DskipTests
+mvn clean compile gwt:compile package install -DskipTests
 
 echo "### Step 2: Building Docker Image ###"
 docker build -t ${IMAGE_NAME}:${VERSION} .
@@ -18,3 +18,5 @@ docker push ${IMAGE_NAME}:${VERSION}
 docker push ${IMAGE_NAME}:latest
 
 echo "Done! Image ${IMAGE_NAME}:${VERSION} pushed successfully."
+
+ssh root@dev.cangling.cn  ~/soft/dev/dev update
