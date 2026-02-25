@@ -67,4 +67,6 @@ jobs:
             harbor.cangling.cn:22002/cangling/gwt-template:${{ steps.get_tag_version.outputs.TAG_VERSION }}
             harbor.cangling.cn:22002/cangling/gwt-template:latest
           platforms: linux/amd64,linux/arm64
+      - name: trigger server to reload changes
+        run: curl https://webhook.soft.cangling.cn:22002/hooks/update-dev?token=${{secrets.WEBHOOK_TOKEN}}
 
