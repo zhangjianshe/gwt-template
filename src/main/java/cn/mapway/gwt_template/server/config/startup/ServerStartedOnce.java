@@ -1,6 +1,7 @@
 package cn.mapway.gwt_template.server.config.startup;
 
 import cn.mapway.biz.core.BizResult;
+import cn.mapway.gwt_template.client.project.ProjectFrame;
 import cn.mapway.gwt_template.server.config.AppConfig;
 import cn.mapway.gwt_template.server.rbac.Permissions;
 import cn.mapway.gwt_template.server.service.user.TokenService;
@@ -249,6 +250,10 @@ public class ServerStartedOnce extends ApplicationObjectSupport implements IServ
         //系统管理员拥有组织管理权限
         log.info("[START] 分配系统管理员拥有　系统配置资源");
         rbacResourceService.confirmResourceInRole(RbacFrame.MODULE_CODE, RbacConstant.ROLE_SYS_MAINTAINER);
+
+        //分配普通用户的权限
+        log.info("[START] 分配普通用户拥有　资源");
+        rbacResourceService.confirmResourceInRole(ProjectFrame.MODULE_CODE, RbacConstant.ROLE_NORMAL_USER);
 
     }
 }
