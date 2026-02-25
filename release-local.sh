@@ -19,4 +19,4 @@ docker push ${IMAGE_NAME}:latest
 
 echo "Done! Image ${IMAGE_NAME}:${VERSION} pushed successfully."
 
-ssh root@dev.cangling.cn  ~/soft/dev/dev update
+ssh root@dev.cangling.cn -p2222 ~/soft/dev/dev update
