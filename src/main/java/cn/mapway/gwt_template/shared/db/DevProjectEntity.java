@@ -20,6 +20,7 @@ public class DevProjectEntity implements Serializable, IsSerializable {
     public static final String FLD_FULL_NAME = "full_name";
     public static final String FLD_NAME = "name";
     public static final String FLD_USER_ID = "user_id";
+    public static final String FLD_STATUS = "status";
     @Name
     @ColDefine(width = 64, notNull = true)
     @Comment("项目ID")
@@ -96,4 +97,14 @@ public class DevProjectEntity implements Serializable, IsSerializable {
     @Column(hump = true)
     @Default("false")
     Boolean isPublic;
+
+    @Comment("项目状态参见　ProjectStatus枚举")
+    @Column(hump = true)
+    @Default("1")
+    Integer status;
+
+    @Comment("最后的消息")
+    @Column(hump = true)
+    @Default("")
+    String lastMessage;
 }

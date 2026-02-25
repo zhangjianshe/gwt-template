@@ -14,6 +14,8 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public interface IAppServerAsync {
 
     ///CODE_GEN_INSERT_POINT///
+	void importRepo(ImportRepoRequest request, AsyncCallback<RpcResult<ImportRepoResponse>> async);
+
     void deleteWebHookInstance(DeleteWebHookInstanceRequest request, AsyncCallback<RpcResult<DeleteWebHookInstanceResponse>> async);
 
     void queryWebHookInstance(QueryWebHookInstanceRequest request, AsyncCallback<RpcResult<QueryWebHookInstanceResponse>> async);

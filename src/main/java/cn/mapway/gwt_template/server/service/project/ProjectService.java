@@ -5,6 +5,7 @@ import cn.mapway.gwt_template.server.service.git.GitPushPayload;
 import cn.mapway.gwt_template.server.service.git.GitRepoService;
 import cn.mapway.gwt_template.server.service.webhook.WebHookService;
 import cn.mapway.gwt_template.shared.db.*;
+import cn.mapway.gwt_template.shared.rpc.project.ProjectStatus;
 import cn.mapway.gwt_template.shared.rpc.user.CommonPermission;
 import cn.mapway.gwt_template.shared.rpc.webhook.WebHookSourceKind;
 import cn.mapway.rbac.shared.db.postgis.RbacUserEntity;
@@ -60,6 +61,7 @@ public class ProjectService {
             if (newRepository.isFailed()) {
                 return newRepository.asBizResult();
             }
+            project.setStatus(ProjectStatus.PS_INIT.getCode());
 
             NutTxDao txDao = new NutTxDao(dao);
             try {
@@ -87,6 +89,7 @@ public class ProjectService {
                 txDao.close();
             }
         } else {
+            project.setStatus(null);//不更新状态
             dao.updateIgnoreNull(project);
             project = dao.fetch(DevProjectEntity.class, project.getId());
             return BizResult.success(project);

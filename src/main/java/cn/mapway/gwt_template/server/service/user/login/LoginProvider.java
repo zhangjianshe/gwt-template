@@ -95,20 +95,35 @@ public class LoginProvider implements IReset {
     }
 
     private LdapAuthenticationProvider createLdapDelegate(LdapSettings settings) {
-        //log.info("[LDAP] settings : {}",Json.toJson(settings));
         LdapContextSource cs = new LdapContextSource();
         cs.setUrl(settings.getUrl());
         cs.setBase(settings.getBaseDn());
         cs.setUserDn(settings.getManagerDn());
         cs.setPassword(settings.getManagerPassword());
+
+        // --- 新增超时配置 ---
+        java.util.Map<String, Object> env = new java.util.HashMap<>();
+        // 设置连接超时时间（毫秒），例如 5000ms = 5秒
+        env.put("com.sun.jndi.ldap.connect.timeout", "5000");
+        // 设置读取超时时间（毫秒）
+        env.put("com.sun.jndi.ldap.read.timeout", "5000");
+
+        cs.setBaseEnvironmentProperties(env);
+        // ------------------
+
         cs.afterPropertiesSet();
-        //log.info("[LDAP] LdapContextSource {} ", Json.toJson(cs));
 
         String searchFilter = settings.getSearchPattern();
         FilterBasedLdapUserSearch userSearch = new FilterBasedLdapUserSearch("", searchFilter, cs);
         BindAuthenticator authenticator = new BindAuthenticator(cs);
         authenticator.setUserSearch(userSearch);
-        authenticator.afterPropertiesSet();
+
+        try {
+            authenticator.afterPropertiesSet();
+        } catch (Exception e) {
+            log.error("LDAP Authenticator 初始化失败: {}", e.getMessage());
+        }
+
         return new LdapAuthenticationProvider(authenticator);
     }
 

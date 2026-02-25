@@ -8,6 +8,8 @@ import cn.mapway.gwt_template.client.rpc.AppProxy;
 import cn.mapway.gwt_template.client.widget.Head;
 import cn.mapway.gwt_template.client.widget.IconButton;
 import cn.mapway.gwt_template.shared.db.VwProjectEntity;
+import cn.mapway.gwt_template.shared.rpc.dev.QueryProjectRequest;
+import cn.mapway.gwt_template.shared.rpc.dev.QueryProjectResponse;
 import cn.mapway.gwt_template.shared.rpc.project.*;
 import cn.mapway.gwt_template.shared.rpc.project.git.GitRef;
 import cn.mapway.ui.client.fonts.Fonts;
@@ -75,6 +77,8 @@ public class ProjectCodeFrame extends CommonEventComposite implements IData<VwPr
     HTMLPanel pathBar;
     boolean initialize = false;
     Map<String, AceEditorMode> format = new HashMap<String, AceEditorMode>();
+    ImportRepoPanel importRepoPanel;
+    ImportingPanel importPanel;
     private VwProjectEntity project;
 
     public ProjectCodeFrame() {
@@ -115,6 +119,28 @@ public class ProjectCodeFrame extends CommonEventComposite implements IData<VwPr
     public void setData(VwProjectEntity obj) {
         project = obj;
         toUI();
+    }
+
+    void reload() {
+        if (project == null) {
+            return;
+        }
+        QueryProjectRequest request = new QueryProjectRequest();
+        request.setProjectId(project.getId());
+        AppProxy.get().queryProject(request, new AsyncCallback<RpcResult<QueryProjectResponse>>() {
+            @Override
+            public void onFailure(Throwable caught) {
+
+            }
+
+            @Override
+            public void onSuccess(RpcResult<QueryProjectResponse> result) {
+                if (result.isSuccess()) {
+                    setData(result.getData().getProjects().get(0));
+                    fireEvent(CommonEvent.updateEvent(project));
+                }
+            }
+        });
     }
 
     private void editorFile(RepoItem repoItem) {
@@ -189,7 +215,7 @@ public class ProjectCodeFrame extends CommonEventComposite implements IData<VwPr
                 if (refs == null || refs.isEmpty()) {
                     // No branches? No tags? Show the "How to Push" instructions.
                     String html = result.getData().getInstruction();
-                    showMessagePanel(html);
+                    showEmptyRepoPanel(html);
                 } else {
                     showFilesPanel();
                     int branchCount = 0;
@@ -216,8 +242,8 @@ public class ProjectCodeFrame extends CommonEventComposite implements IData<VwPr
         root.setWidgetSize(infoBar, 50);
         contentPanel.clear();
         contentPanel.add(editor);
-        contentPanel.setWidgetLeftRight(editor, 0, Style.Unit.PX, 0, Style.Unit.PX);
-        contentPanel.setWidgetTopBottom(editor, 0, Style.Unit.PX, 0, Style.Unit.PX);
+        contentPanel.setWidgetLeftRight(editor, 10, Style.Unit.PX, 10, Style.Unit.PX);
+        contentPanel.setWidgetTopBottom(editor, 0, Style.Unit.PX, 10, Style.Unit.PX);
         initEditor();
     }
 
@@ -232,7 +258,20 @@ public class ProjectCodeFrame extends CommonEventComposite implements IData<VwPr
 
     }
 
-    private void showMessagePanel(String html) {
+    /**
+     * 这是一个空的仓库　可以从别个Git Server拉取　或者上传 push
+     *
+     * @param html
+     */
+    private void showEmptyRepoPanel(String html) {
+        if (importRepoPanel == null) {
+            importRepoPanel = new ImportRepoPanel();
+            importRepoPanel.addCommonHandler(event -> {
+                if (event.isUpdate()) {
+                    reload();
+                }
+            });
+        }
         root.setWidgetSize(opBar, 0);
         root.setWidgetSize(infoBar, 0);
         root.setWidgetSize(pathBar, 0);
@@ -241,6 +280,8 @@ public class ProjectCodeFrame extends CommonEventComposite implements IData<VwPr
         contentPanel.setWidgetLeftRight(messagePanel, 0, Style.Unit.PX, 0, Style.Unit.PX);
         contentPanel.setWidgetTopBottom(messagePanel, 0, Style.Unit.PX, 0, Style.Unit.PX);
         msgContainer.clear();
+        msgContainer.add(importRepoPanel);
+        importRepoPanel.setData(project);
         HTML html1 = new HTML(html);
         html1.addStyleName("markdown-body");
         msgContainer.add(html1);
@@ -289,6 +330,7 @@ public class ProjectCodeFrame extends CommonEventComposite implements IData<VwPr
             @Override
             public void onSuccess(RpcResult<QueryRepoFilesResponse> result) {
                 if (result.isSuccess()) {
+                    showFilesPanel();
                     renderFiles(result.getData());
                     renderPath(request.getPath());
                 } else {
@@ -299,9 +341,50 @@ public class ProjectCodeFrame extends CommonEventComposite implements IData<VwPr
     }
 
     private void toUI() {
-        files.clear();
-        btnClone.setData(project);
-        loadRefs();
+
+        ProjectStatus projectStatus = ProjectStatus.fromCode(project.getStatus());
+        switch (projectStatus) {
+            case PS_INIT:
+                showEmptyRepoPanel("");
+                break;
+            case PS_IMPORTING:
+                //正在导入仓库　
+                showImportingPanel();
+                break;
+            case PS_NORMAL:
+            case PS_DELETE:
+            case PS_UNKNOWN:
+            case PS_ARCHIVE:
+            default:
+                showFilesPanel();
+                files.clear();
+                btnClone.setData(project);
+                loadRefs();
+        }
+    }
+
+    private void showImportingPanel() {
+        if (importPanel == null) {
+            importPanel = new ImportingPanel();
+            importPanel.addCommonHandler(new CommonEventHandler() {
+                @Override
+                public void onCommonEvent(CommonEvent event) {
+                    if (event.isReload()) {
+                        reload();
+                    }
+                }
+            });
+        }
+        root.setWidgetSize(opBar, 0);
+        root.setWidgetSize(infoBar, 0);
+        root.setWidgetSize(pathBar, 0);
+        contentPanel.clear();
+        contentPanel.add(messagePanel);
+        contentPanel.setWidgetLeftRight(messagePanel, 0, Style.Unit.PX, 0, Style.Unit.PX);
+        contentPanel.setWidgetTopBottom(messagePanel, 0, Style.Unit.PX, 0, Style.Unit.PX);
+        msgContainer.clear();
+        msgContainer.add(importPanel);
+        importPanel.setData(project);
     }
 
     private void renderPath(String path) {

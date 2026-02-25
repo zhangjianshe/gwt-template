@@ -1,35 +1,42 @@
 package cn.mapway.gwt_template.server.service.git;
 
 import cn.mapway.biz.core.BizResult;
+import cn.mapway.gwt_template.client.user.CommonMessage;
+import cn.mapway.gwt_template.client.user.GitNotifyMessage;
 import cn.mapway.gwt_template.server.config.AppConfig;
+import cn.mapway.gwt_template.server.config.websocket.GitNotifyWebSocket;
 import cn.mapway.gwt_template.server.service.config.SystemConfigService;
+import cn.mapway.gwt_template.shared.AppConstant;
+import cn.mapway.gwt_template.shared.db.DevProjectEntity;
 import cn.mapway.gwt_template.shared.rpc.app.AppData;
-import cn.mapway.gwt_template.shared.rpc.project.QueryRepoFilesResponse;
-import cn.mapway.gwt_template.shared.rpc.project.QueryRepoRefsResponse;
-import cn.mapway.gwt_template.shared.rpc.project.RepoItem;
+import cn.mapway.gwt_template.shared.rpc.project.*;
 import cn.mapway.gwt_template.shared.rpc.project.git.GitRef;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.LogCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.lib.ObjectId;
-import org.eclipse.jgit.lib.ObjectLoader;
-import org.eclipse.jgit.lib.Ref;
-import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.PathFilter;
+import org.nutz.dao.Chain;
+import org.nutz.dao.Cnd;
+import org.nutz.dao.Dao;
 import org.nutz.lang.Strings;
+import org.nutz.lang.Tasks;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
 
 import javax.annotation.Resource;
 import java.io.File;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Pattern;
 
 @Slf4j
@@ -38,9 +45,13 @@ public class GitRepoService {
 
     // Define the allowed pattern: Alphanumeric, underscores, and hyphens only
     private static final Pattern REPO_NAME_PATTERN = Pattern.compile("^[a-zA-Z0-9_-]+$");
+    // 用于存储每个项目对应的锁对象
+    private final ConcurrentHashMap<String, ReentrantLock> projectLocks = new ConcurrentHashMap<>();
     @Resource
     AppConfig appConfig;
 
+    @Resource
+    Dao dao;
     @Resource
     MarkdownService markdownService;
 
@@ -369,5 +380,193 @@ public class GitRepoService {
                 "```\n\n" +
                 "如果您没有配置自己的公钥，请到设置中上传自己的公钥.";
         return markdownService.renderHtml(html);
+    }
+
+    /**
+     * 导入远端的仓库
+     *
+     * @param request
+     * @return
+     */
+    public BizResult<ImportRepoResponse> importRepo(DevProjectEntity project, ImportRepoRequest request) {
+        if (!ProjectStatus.PS_INIT.getCode().equals(project.getStatus())) {
+            return BizResult.error(500, "仓库不为空，不能导入仓库");
+        }
+        if (!checkProjectRepoEmpty(appConfig, project)) {
+            return BizResult.error(500, "仓库不为空，不能导入仓库");
+        }
+
+
+        ReentrantLock lock = projectLocks.computeIfAbsent(project.getId(), k -> new ReentrantLock());
+
+        if (lock.tryLock()) {
+            Tasks.getTaskScheduler().submit(() -> {
+                try {
+                    doImportWork(project, request);
+                } finally {
+                    // 必须在 finally 中释放并从 map 移除，确保下次可进
+                    if (lock.isHeldByCurrentThread()) {
+                        lock.unlock();
+                    }
+                    projectLocks.remove(project.getId());
+                }
+            });
+            ImportRepoResponse importRepoResponse = new ImportRepoResponse();
+            importRepoResponse.setMessage("开始导入");
+            return BizResult.success(importRepoResponse);
+        } else {
+            return BizResult.error(500, "该仓库正在导入中，请勿重复操作");
+        }
+
+    }
+
+    /**
+     * 更新项目状态和最后的消息
+     *
+     * @param projectId 项目ID
+     * @param status    状态枚举
+     * @param message   可选的消息（比如导入失败的原因）
+     */
+    private void updateProjectStatus(String projectId, ProjectStatus status, String message) {
+        log.info("[GIT-STATUS] Project {} -> {}, msg: {}", projectId, status, message);
+
+        // 构造更新链
+        Chain chain = Chain.make(DevProjectEntity.FLD_STATUS, status.getCode());
+        if (message != null) {
+            chain.add("lastMessage", message);
+        }
+
+        // 使用字段常量 DevProjectEntity.FLD_ID 增加代码健壮性
+        dao.update(DevProjectEntity.class, chain, Cnd.where(DevProjectEntity.FLD_ID, "=", projectId));
+    }
+
+    /**
+     * 执行具体的导入工作
+     */
+    private BizResult<ImportRepoResponse> doImportWork(DevProjectEntity project, ImportRepoRequest request) {
+        String owner = project.getOwnerName();
+        String repoName = project.getName();
+        String finalRepoName = repoName.endsWith(".git") ? repoName : repoName + ".git";
+        File repoDir = new File(appConfig.getRepoRoot(), owner + "/" + finalRepoName);
+
+        // 状态更新为：正在导入
+        updateProjectStatus(project.getId(), ProjectStatus.PS_IMPORTING, "正在连接远端仓库...");
+        sendSocketNotify(project.getUserId(), AppConstant.MESSAGE_PHASE_IMPORT, AppConstant.MESSAGE_TYPE_START,
+                project.getId(), 0, "正在导入");
+        // 如果目录已存在（之前的失败残留），先清理
+        if (repoDir.exists()) {
+            FileSystemUtils.deleteRecursively(repoDir);
+        }
+
+        log.info("[GIT-IMPORT] Starting import task: {} -> {}", request.getRepoUrl(), repoDir.getAbsolutePath());
+
+        try {
+            org.eclipse.jgit.api.CloneCommand cloneCommand = Git.cloneRepository()
+                    .setURI(request.getRepoUrl())
+                    .setDirectory(repoDir)
+                    .setBare(true)
+                    .setMirror(true)
+                    .setCloneAllBranches(true);
+            // Inside doImportWork
+            cloneCommand.setProgressMonitor(new ProgressMonitor() {
+                private String currentTask;
+                private int totalWork;
+                private int completedWork;
+                private int lastPercent = -1;
+
+                @Override
+                public void start(int totalTasks) {
+                    // Called at the very beginning of the clone process
+                }
+
+                @Override
+                public void beginTask(String title, int totalWork) {
+                    this.currentTask = title;
+                    this.totalWork = totalWork;
+                    this.completedWork = 0;
+                }
+
+                @Override
+                public void update(int completed) {
+                    if (totalWork <= 0) return; // Total work unknown (e.g. counting objects)
+
+                    this.completedWork += completed;
+                    int percent = (int) (((double) completedWork / totalWork) * 100);
+
+                    // Only flood the socket if the percentage actually changed
+                    if (percent != lastPercent) {
+                        lastPercent = percent;
+                        sendSocketNotify(project.getUserId(),
+                                AppConstant.MESSAGE_PHASE_IMPORT,
+                                AppConstant.MESSAGE_TYPE_PROGRESS,
+                                project.getId(),
+                                percent,
+                                currentTask + ": " + percent + "%");
+                    }
+                }
+
+                @Override
+                public void endTask() {
+                    // Task finished, wait for next beginTask or final completion
+                }
+
+                @Override
+                public boolean isCancelled() {
+                    return false;
+                }
+            });
+            // 设置凭据
+            if (Strings.isNotBlank(request.getUser()) && Strings.isNotBlank(request.getTokenOrPassword())) {
+                cloneCommand.setCredentialsProvider(new org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider(
+                        request.getUser(), request.getTokenOrPassword()));
+            }
+
+            try (Git git = cloneCommand.call()) {
+                log.info("[GIT-IMPORT] Project {} imported successfully", repoName);
+                updateProjectStatus(project.getId(), ProjectStatus.PS_NORMAL, "导入完成");
+                sendSocketNotify(project.getUserId(), AppConstant.MESSAGE_PHASE_IMPORT,
+                        AppConstant.MESSAGE_TYPE_SUCCESS, project.getId(), 100, "导入完成");
+                return BizResult.success(new ImportRepoResponse());
+            }
+        } catch (Exception e) {
+            log.error("[GIT-IMPORT] Project {} import failed: {}", repoName, e.getMessage());
+            // 失败后回滚状态，允许用户再次尝试
+            String message = "错误: " + e.getMessage();
+            updateProjectStatus(project.getId(), ProjectStatus.PS_INIT, Strings.brief(message, 120));
+            // 清理可能产生的碎片文件
+            FileSystemUtils.deleteRecursively(repoDir);
+            //TODO 改成当前登录用户
+            sendSocketNotify(project.getUserId(), AppConstant.MESSAGE_PHASE_IMPORT,
+                    AppConstant.MESSAGE_TYPE_ERROR, project.getId(), 0, "导入失败: " + e.getMessage());
+            return BizResult.error(500, "导入失败: " + e.getMessage());
+        }
+    }
+
+    private boolean checkProjectRepoEmpty(AppConfig config, DevProjectEntity project) {
+        String finalRepoName = project.getName().endsWith(".git")
+                ? project.getName()
+                : project.getName() + ".git";
+        File repoDir = new File(config.getRepoRoot(), project.getOwnerName() + "/" + finalRepoName);
+
+        if (!repoDir.exists()) return true;
+
+        try (Repository repository = FileRepositoryBuilder.create(repoDir)) {
+            // A repo is considered empty if it has no HEAD or no branches
+            return repository.resolve("HEAD") == null;
+        } catch (IOException e) {
+            return true;
+        }
+    }
+
+    private void sendSocketNotify(Long userId, String phase, String type, String projectId, Integer progress, String msg) {
+        CommonMessage<GitNotifyMessage> message = new CommonMessage<>();
+        message.topic = AppConstant.TOPIC_GIT_IMPORT;
+        GitNotifyMessage notify = new GitNotifyMessage();
+        notify.phase = phase;
+        notify.type = type;
+        notify.projectId = projectId;
+        notify.progress = progress.doubleValue();
+        notify.message = msg;
+        GitNotifyWebSocket.sendMessage(userId, org.nutz.json.Json.toJson(notify));
     }
 }

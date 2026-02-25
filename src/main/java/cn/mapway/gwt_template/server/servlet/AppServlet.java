@@ -103,6 +103,16 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
     QueryConfigExecutor queryConfigExecutor;
 
     ///CODE_GEN_INSERT_POINT///
+	
+    @Resource
+    ImportRepoExecutor importRepoExecutor;
+    @Override
+    public RpcResult<ImportRepoResponse> importRepo(ImportRepoRequest request) {
+        BizResult<ImportRepoResponse> bizResult = importRepoExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
 
     @Resource
     DeleteWebHookInstanceExecutor deleteWebHookInstanceExecutor;

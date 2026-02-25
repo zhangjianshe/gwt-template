@@ -27,10 +27,13 @@
 
         .link {
             cursor: pointer;
+            padding: 4px;
         }
 
         .link:HOVER {
             text-decoration: underline;
+            border-radius: 4px;
+            background-color: #d0d0d0;
         }
 
         .imagePreview {
@@ -76,7 +79,13 @@
             padding: 15px;
             line-height: 200%;
         }
-    </ui:style>
+
+        .editor {
+            border-left: solid 1px #e0e0e0;
+            border-right: solid 1px #e0e0e0;
+            border-bottom: solid 1px #e0e0e0;
+            border-radius: 0 0 6px 6px;
+        }</ui:style>
     <g:DockLayoutPanel ui:field="root">
         <g:east size="400">
             <g:HTMLPanel/>
@@ -125,7 +134,7 @@
                     </g:ScrollPanel>
                 </g:layer>
                 <g:layer>
-                    <ace:AceEditor ui:field="editor"/>
+                    <ace:AceEditor ui:field="editor" addStyleNames="{style.editor}"/>
                 </g:layer>
                 <g:layer>
                     <g:ScrollPanel ui:field="messagePanel">

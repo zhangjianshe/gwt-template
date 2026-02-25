@@ -16,7 +16,17 @@
         .content {
             padding: 15px;
             line-height: 200%;
-        }</ui:style>
+        }
+
+        .topPanel {
+            padding: 10px 15px;
+            margin: 15px;
+            border: solid 1px skyblue;
+            background-color: whitesmoke;
+            border-radius: 6px;
+
+        }
+    </ui:style>
     <g:DockLayoutPanel>
         <g:east size="400">
             <g:ScrollPanel addStyleNames="{style.right}">
@@ -29,6 +39,7 @@
         <g:center>
             <g:ScrollPanel>
                 <g:HTMLPanel addStyleNames="{style.content}">
+                    <g:HTMLPanel ui:field="tipPanel" visible="false" addStyleNames="{style.topPanel}"/>
                     <g:HTML ui:field="readme" addStyleNames="markdown-body"/>
                 </g:HTMLPanel>
             </g:ScrollPanel>

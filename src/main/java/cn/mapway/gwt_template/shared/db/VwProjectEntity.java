@@ -4,6 +4,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 import lombok.Getter;
 import lombok.Setter;
 import org.nutz.dao.entity.annotation.Column;
+import org.nutz.dao.entity.annotation.Comment;
 import org.nutz.dao.entity.annotation.View;
 
 import java.io.Serializable;
@@ -68,4 +69,10 @@ public class VwProjectEntity implements Serializable, IsSerializable {
 
     @Column(hump = true)
     String ownerName;
+
+    @Comment("项目状态参见　ProjectStatus枚举")
+    Integer status;
+
+    @Column(hump = true)
+    String lastMessage;
 }

@@ -24,6 +24,7 @@ import java.util.Map;
 @Configuration
 @Slf4j
 public class ServletConfig {
+
     /**
      * 应用接口
      *
@@ -37,7 +38,7 @@ public class ServletConfig {
         log.info("初始化App Servlet");
         ServletRegistrationBean<AppServlet> srb = new ServletRegistrationBean<AppServlet>();
         srb.setServlet(appServlet);
-        List<String> entryPoints = List.of (AppConstant.DEFAULT_SERVER_PATH);
+        List<String> entryPoints = List.of(AppConstant.DEFAULT_SERVER_PATH);
         log.info("监听路径{}", Json.toJson(entryPoints));
         srb.setUrlMappings(entryPoints);
         Map<String, String> params = new HashMap<String, String>();
@@ -45,6 +46,7 @@ public class ServletConfig {
         srb.setLoadOnStartup(1);
         return srb;
     }
+
     /**
      * RBAC Servlet
      *
@@ -58,7 +60,7 @@ public class ServletConfig {
         log.info("初始化Rbac Servlet");
         ServletRegistrationBean<RbacServlet> srb = new ServletRegistrationBean<RbacServlet>();
         srb.setServlet(rbacServlet);
-        List<String> entryPoints = List.of ("/"+RbacConstant.DEFAULT_SERVER_PATH);
+        List<String> entryPoints = List.of("/" + RbacConstant.DEFAULT_SERVER_PATH);
         log.info("监听路径{}", Json.toJson(entryPoints));
         srb.setUrlMappings(entryPoints);
         Map<String, String> params = new HashMap<String, String>();

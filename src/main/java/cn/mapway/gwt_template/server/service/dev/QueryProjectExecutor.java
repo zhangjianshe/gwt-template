@@ -6,12 +6,16 @@ import cn.mapway.biz.core.BizRequest;
 import cn.mapway.biz.core.BizResult;
 import cn.mapway.gwt_template.server.service.project.ProjectService;
 import cn.mapway.gwt_template.shared.AppConstant;
+import cn.mapway.gwt_template.shared.db.VwProjectEntity;
 import cn.mapway.gwt_template.shared.rpc.dev.QueryProjectRequest;
 import cn.mapway.gwt_template.shared.rpc.dev.QueryProjectResponse;
+import cn.mapway.gwt_template.shared.rpc.user.CommonPermission;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
 import lombok.extern.slf4j.Slf4j;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
+import org.nutz.lang.Lang;
+import org.nutz.lang.Strings;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -32,8 +36,20 @@ public class QueryProjectExecutor extends AbstractBizExecutor<QueryProjectRespon
         QueryProjectRequest request = bizParam.getData();
         log.info("QueryProjectExecutor {}", Json.toJson(request, JsonFormat.compact()));
         LoginUser user = (LoginUser) context.get(AppConstant.KEY_LOGIN_USER);
-        QueryProjectResponse response = new QueryProjectResponse();
-        response.setProjects(projectService.allProjects(user.getUser().getUserId()));
-        return BizResult.success(response);
+        if (Strings.isBlank(request.getProjectId())) {
+            QueryProjectResponse response = new QueryProjectResponse();
+            response.setProjects(projectService.allProjects(user.getUser().getUserId()));
+            return BizResult.success(response);
+        } else {
+            CommonPermission permission = projectService.findUserPermissionInProject(user.getUser().getUserId(), request.getProjectId());
+            if (permission.canRead()) {
+                VwProjectEntity projectView = projectService.findProjectView(request.getProjectId());
+                QueryProjectResponse response = new QueryProjectResponse();
+                response.setProjects(Lang.list(projectView));
+                return BizResult.success(response);
+            } else {
+                return BizResult.error(403, "没有权限操作");
+            }
+        }
     }
 }

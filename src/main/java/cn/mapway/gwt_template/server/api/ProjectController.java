@@ -76,6 +76,21 @@ public class ProjectController extends ApiBaseController {
 
     @Resource
     QueryUserKeyExecutor queryUserKeyExecutor;
+
+    @Resource
+    ImportRepoExecutor importRepoExecutor;
+    /**
+     * ImportRepo
+     *
+     * @param request request
+     * @return data
+     */
+    @Doc(value = "ImportRepo", retClazz = {ImportRepoResponse.class})
+    @RequestMapping(value = "/importRepo", method = RequestMethod.POST)
+    public RpcResult<ImportRepoResponse> importRepo(@RequestBody ImportRepoRequest request) {
+        BizResult<ImportRepoResponse> bizResult = importRepoExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toApiResult(bizResult);
+    }
     /**
      * QueryUserKey
      *
