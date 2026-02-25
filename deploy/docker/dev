@@ -1,0 +1,35 @@
+#!/bin/bash
+
+# $1 is the first argument (e.g., update)
+CMD=$1
+
+# Check if the command is empty
+if [ -z "$CMD" ]; then
+   echo "Usage: $0 <update | start | stop>"
+   exit 1
+fi
+
+update(){
+   echo "Pulling latest image..."
+   docker pull hub.cangling.cn/cangling/gwt-template:latest
+   # Frequently, you want to 'up -d' after a pull to recreate containers
+   docker-compose up -d
+}
+
+start(){
+   echo "Starting services..."
+   docker-compose up -d
+}
+
+stop(){
+   echo "Stopping services..."
+   docker-compose down
+}
+
+# Added the 'in' keyword and fixed the case syntax
+case "$CMD" in
+   "update") update ;;
+   "start")  start ;;
+   "stop")   stop ;;
+   *) echo "Invalid command: $CMD. Use update, start, or stop." ;;
+esac
