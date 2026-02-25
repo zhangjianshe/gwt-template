@@ -247,7 +247,7 @@ public class GitSshConfig {
         });
 
         sshd.start();
-        log.info("Git SSH Server started on port 2222");
+        log.info("Git SSH Server started on port {}",appConfig.getSshPort());
         return sshd;
     }
 
