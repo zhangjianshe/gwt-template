@@ -26,7 +26,7 @@ services:
       retries: 5           # Try 5 times before marking as 'unhealthy'
       start_period: 10s    # Give the service 10s grace period before counting failures
   dev-app:
-    image: "hub.cangling.cn/cangling/gwt-template:1.0"
+    image: "hub.cangling.cn/cangling/gwt-template:latest"
     networks:
       - cangling-network
     expose:
@@ -38,20 +38,37 @@ services:
         condition: service_healthy
     volumes:
       - ./data/app/app.json:/mapway/app.json
+      - app-volume:/data/dev
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/"]
+      interval: 4s
+    labels:
+      - "traefik.tcp.routers.git-shell.rule=HostSNI(`*`)"
+      - "traefik.tcp.routers.git-shell.entrypoints=ssh"
+      - "traefik.tcp.routers.git-shell.service=git-shell"
+      - "traefik.tcp.services.git-shell.loadbalancer.server.port=2222"
 
   dev-nginx:
     image: hub.cangling.cn/cangling/nginx-rtmp:4.1
-    ports:
-      - "80:80"
+    expose:
+      - "80"
     volumes:
       - ./data/nginx/nginx.conf:/etc/nginx/nginx.conf
       - ./data/logs/nginx:/logs
     networks:
       - cangling-network
     restart: unless-stopped
-
-
+    depends_on:
+      dev-app:
+        condition: service_healthy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.git.rule=Host(`dev.cangling.cn`)"
+      - "traefik.http.routers.git.entrypoints=websecure"
+      - "traefik.http.routers.git.tls=true"
+      - "traefik.http.routers.git.tls.certresolver=cloudflare"
+      - "traefik.http.services.git.loadbalancer.server.port=80"
 networks:
   cangling-network:
     external: true
@@ -62,3 +79,9 @@ volumes:
       type: none
       o: bind
       device: './data/postgis'
+  app-volume:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: './data/dev'

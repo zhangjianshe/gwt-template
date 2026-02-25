@@ -43,7 +43,7 @@ public class FileUploadExecutor extends AbstractBizExecutor<UploadReturnResponse
             return BizResult.error(500, "不支持此文件格式上传" + request.getFile().getOriginalFilename());
         }
 
-        String targetPath = FileCustomUtils.concatPath(configService.getUploadPath(), "upload");
+        String targetPath = FileCustomUtils.concatPath(configService.getUploadRoot(),"upload");
         String relpath = (Strings.isBlank(request.getRelPath()) ? "" : request.getRelPath());
         targetPath=FileCustomUtils.concatPath(targetPath, relpath);
 

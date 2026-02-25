@@ -14,4 +14,5 @@ public class AppConfig {
     private String certRoot;
     private String repoRoot;
     private Integer sshPort;
+    private String uploadRoot;
 }

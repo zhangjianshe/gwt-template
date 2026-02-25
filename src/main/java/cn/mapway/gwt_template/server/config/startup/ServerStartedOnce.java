@@ -23,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.nutz.dao.Cnd;
 import org.nutz.dao.Dao;
 import org.nutz.json.Json;
+import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
@@ -49,6 +50,8 @@ public class ServerStartedOnce extends ApplicationObjectSupport implements IServ
     TokenService tokenService;
     @Resource
     RbacResourceService rbacResourceService;
+    @Resource
+    AppConfig appConfig;
 
     @Override
     public <T> T getBean(Class<T> aClass) {
@@ -171,6 +174,17 @@ public class ServerStartedOnce extends ApplicationObjectSupport implements IServ
 
         //注册所有的功能点
         importAllModules();
+
+        //确保一些目录存在
+        if (Strings.isNotBlank(appConfig.getUploadRoot())) {
+            Files.createDirIfNoExists(appConfig.getUploadRoot());
+        }
+        if (Strings.isNotBlank(appConfig.getRepoRoot())) {
+            Files.createDirIfNoExists(appConfig.getRepoRoot());
+        }
+        if (Strings.isNotBlank(appConfig.getCertRoot())) {
+            Files.createDirIfNoExists(appConfig.getCertRoot());
+        }
 
     }
 

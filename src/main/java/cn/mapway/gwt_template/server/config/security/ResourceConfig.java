@@ -17,7 +17,7 @@ public class ResourceConfig implements WebMvcConfigurer {
 
     private String calUploadPath() {
 
-        String path = FileCustomUtils.concatPath(systemConfigService.getUploadPath(),"upload");
+        String path = FileCustomUtils.concatPath(systemConfigService.getUploadRoot(),"upload");
         if (path.endsWith("/")) {
             return "file:" + path;
         } else {

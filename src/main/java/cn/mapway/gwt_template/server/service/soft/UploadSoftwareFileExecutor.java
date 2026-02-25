@@ -50,7 +50,7 @@ public class UploadSoftwareFileExecutor extends AbstractBizExecutor<UploadSoftwa
         assertTrue(Strings.isNotBlank(request.getVersion()), "没有Version");
         assertTrue(Strings.isNotBlank(request.getName()), "没有Name");
 
-        String targetPath = FileCustomUtils.concatPath(systemConfigService.getUploadPath(), "software");
+        String targetPath = FileCustomUtils.concatPath(systemConfigService.getUploadRoot(), "software");
         Files.createDirIfNoExists(targetPath);
 
         String versionPath = FileCustomUtils.concatPath(targetPath, String.valueOf(software.getId()), request.getVersion());

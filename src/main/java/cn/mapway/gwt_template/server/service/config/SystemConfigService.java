@@ -1,12 +1,11 @@
 package cn.mapway.gwt_template.server.service.config;
 
 import cn.mapway.biz.core.BizResult;
+import cn.mapway.gwt_template.server.config.AppConfig;
 import cn.mapway.gwt_template.server.config.startup.ApplicationConfig;
-import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.db.SysConfigEntity;
 import cn.mapway.gwt_template.shared.rpc.app.AppData;
 import cn.mapway.gwt_template.shared.rpc.config.ConfigEnums;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.nutz.dao.Dao;
 import org.nutz.json.Json;
@@ -33,12 +32,11 @@ import java.util.Objects;
 public class SystemConfigService implements EnvironmentAware {
 
     private static final String CONFIG_ROOT = "/mapway";
-    private static final String DEFAULT_UPLOAD_LOCATION = "/upload";
     @Resource
     Dao dao;
     Environment environment;
-    @Getter
-    private String uploadPath = DEFAULT_UPLOAD_LOCATION;
+    @Resource
+    AppConfig appConfig;
 
     private static File getStartupConfigFile() {
         return new File(CONFIG_ROOT, "app.json");
@@ -72,6 +70,10 @@ public class SystemConfigService implements EnvironmentAware {
         ApplicationConfig config = new ApplicationConfig();
         config.setPort(8080);
         return config;
+    }
+
+    public String getUploadRoot() {
+        return appConfig.getUploadRoot();
     }
 
     /**
@@ -139,11 +141,6 @@ public class SystemConfigService implements EnvironmentAware {
     @Override
     public void setEnvironment(Environment environment) {
         this.environment = environment;
-        String property = environment.getProperty(AppConstant.DEFAULT_UPLOAD_LOCATION);
-        if (Strings.isNotBlank(property)) {
-            uploadPath = property;
-        }
-        Files.createDirIfNoExists(uploadPath);
     }
 
     public AppData getAppData() {
