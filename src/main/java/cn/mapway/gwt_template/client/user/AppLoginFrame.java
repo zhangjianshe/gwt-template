@@ -2,10 +2,12 @@ package cn.mapway.gwt_template.client.user;
 
 import cn.mapway.gwt_template.client.ClientContext;
 import cn.mapway.gwt_template.client.rpc.AppProxy;
+import cn.mapway.gwt_template.shared.compile.CompileInformation;
 import cn.mapway.rbac.shared.rpc.LoginRequest;
 import cn.mapway.rbac.shared.rpc.LoginResponse;
 import cn.mapway.ui.client.mvc.BaseAbstractModule;
 import cn.mapway.ui.client.mvc.ModuleMarker;
+import cn.mapway.ui.client.util.StringUtil;
 import cn.mapway.ui.client.widget.AiTextBox;
 import cn.mapway.ui.shared.CommonEvent;
 import cn.mapway.ui.shared.rpc.RpcResult;
@@ -15,10 +17,7 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.DockLayoutPanel;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.RequiresResize;
+import com.google.gwt.user.client.ui.*;
 
 import static cn.mapway.gwt_template.client.user.AppLoginFrame.MODULE_CODE;
 
@@ -33,8 +32,9 @@ import static cn.mapway.gwt_template.client.user.AppLoginFrame.MODULE_CODE;
 public class AppLoginFrame extends BaseAbstractModule implements RequiresResize {
     public static final String MODULE_CODE = "app_login_frame";
     private static final AppLoginFrameUiBinder ourUiBinder = GWT.create(AppLoginFrameUiBinder.class);
+
     @UiField
-    DockLayoutPanel root;
+    LayoutPanel root;
     @UiField
     Button btnLogin;
     @UiField
@@ -43,10 +43,24 @@ public class AppLoginFrame extends BaseAbstractModule implements RequiresResize 
     AiTextBox txtName;
     @UiField
     Label lbMessage;
+    @UiField
+    HTMLPanel page;
+    @UiField
+    Image background;
+    @UiField
+    Label lbVersion;
 
     public AppLoginFrame() {
         initWidget(ourUiBinder.createAndBindUi(this));
         txtPassword.asPassword();
+        if (StringUtil.isNotBlank(ClientContext.get().getAppData().getLoginBackground())) {
+            root.setWidgetVisible(background, true);
+            background.setUrl(ClientContext.get().getAppData().getLoginBackground());
+        } else {
+            root.setWidgetVisible(background, false);
+        }
+        CompileInformation information = ClientContext.getCompileFactory().compileInfo();
+        lbVersion.setText(information.gitCommit + " @ " + StringUtil.formatDate(information.compileTime));
     }
 
     @Override
@@ -87,6 +101,6 @@ public class AppLoginFrame extends BaseAbstractModule implements RequiresResize 
 
     }
 
-    interface AppLoginFrameUiBinder extends UiBinder<DockLayoutPanel, AppLoginFrame> {
+    interface AppLoginFrameUiBinder extends UiBinder<LayoutPanel, AppLoginFrame> {
     }
 }

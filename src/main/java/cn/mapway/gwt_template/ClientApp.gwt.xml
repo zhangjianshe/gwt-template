@@ -24,5 +24,12 @@
         <when-type-assignable
                 class="cn.mapway.ui.client.mvc.attribute.editor.IAttributeEditorFactory"/>
     </generate-with>
+
+    <generate-with
+            class="cn.mapway.gwt_template.server.compile.CompileGenerator">
+        <when-type-assignable
+                class="cn.mapway.gwt_template.shared.compile.CompileFactory"/>
+    </generate-with>
+
     <entry-point class='cn.mapway.gwt_template.client.ClientApp'/>
 </module>

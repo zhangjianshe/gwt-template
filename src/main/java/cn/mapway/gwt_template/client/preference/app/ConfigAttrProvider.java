@@ -40,6 +40,26 @@ public class ConfigAttrProvider extends AbstractAttributesProvider {
                 .param(ParameterKeys.KEY_IMAGE_UPLOAD_REL, "app"));
 
 
+        attributes.add(new ImageUploadBoxAttribute("login", "登录背景") {
+            @Override
+            public Object getValue() {
+                return configResponse.getAppData().getLoginBackground();
+            }
+
+            @Override
+            public String getGroup() {
+                return ConfigEnums.CONFIG_APP.getValue();
+            }
+
+            @Override
+            public void setValue(Object value) {
+                configResponse.getAppData().setLoginBackground(DataCastor.castToString(value));
+            }
+        }.param(ParameterKeys.KEY_HEIGHT, "150px")
+                .param(ParameterKeys.KEY_IMAGE_UPLOAD_ACTION, GWT.getHostPageBaseURL() + "fileUpload")
+                .param(ParameterKeys.KEY_IMAGE_UPLOAD_REL, "app"));
+
+
         attributes.add(new TextBoxAttribute("gitSSH", "GIT克隆模板") {
             @Override
             public Object getValue() {

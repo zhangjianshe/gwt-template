@@ -4,6 +4,7 @@ import cn.mapway.gwt_template.client.resource.AppResource;
 import cn.mapway.gwt_template.client.widget.AiInputPanel;
 import cn.mapway.gwt_template.client.widget.Toaster;
 import cn.mapway.gwt_template.shared.AppConstant;
+import cn.mapway.gwt_template.shared.compile.CompileFactory;
 import cn.mapway.gwt_template.shared.rpc.app.AppData;
 import cn.mapway.rbac.client.RbacClient;
 import cn.mapway.rbac.client.user.RbacUser;
@@ -23,6 +24,7 @@ import cn.mapway.ui.client.widget.panel.MessagePanel;
 import cn.mapway.ui.shared.*;
 import cn.mapway.ui.shared.rpc.RpcResult;
 import com.google.gwt.core.client.Callback;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.event.shared.SimpleEventBus;
@@ -49,6 +51,10 @@ public class ClientContext implements IClientContext, HasCommonHandlers {
     AppData appData;
     @Setter
     private UserPermissions userPermissions;
+
+    @Getter
+    private static final CompileFactory compileFactory = GWT.create(CompileFactory.class);
+
 
     public ClientContext() {
         eventBus = new SimpleEventBus();
