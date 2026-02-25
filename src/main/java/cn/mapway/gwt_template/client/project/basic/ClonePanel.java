@@ -8,6 +8,7 @@ import cn.mapway.ui.client.fonts.Fonts;
 import cn.mapway.ui.client.mvc.ModuleParameter;
 import cn.mapway.ui.client.mvc.Size;
 import cn.mapway.ui.client.tools.IData;
+import cn.mapway.ui.client.util.StringUtil;
 import cn.mapway.ui.client.widget.AiTextBox;
 import cn.mapway.ui.client.widget.CommonEventComposite;
 import cn.mapway.ui.client.widget.FontIcon;
@@ -24,7 +25,6 @@ import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TabLayoutPanel;
 import elemental2.dom.DomGlobal;
-import elemental2.dom.URL;
 
 public class ClonePanel extends CommonEventComposite implements IData<VwProjectEntity> {
     private static final ClonePanelUiBinder ourUiBinder = GWT.create(ClonePanelUiBinder.class);
@@ -96,25 +96,13 @@ public class ClonePanel extends CommonEventComposite implements IData<VwProjectE
         txtHttp.setValue(cloneUrl);
 
         // --- SSH Clone URL ---
-        URL url = new URL(baseUrl);
-        Integer sshPort = ClientContext.get().getAppData().getSshPort();
-
-        // Most professional Git hosts use 'git' as the SSH user
-        String sshUser = "git";
-
-        String sshUrl;
-        if (sshPort != null && sshPort != 22) {
-            // Use the explicit protocol format for custom ports
-            // Format: ssh://git@domain:2222/owner/project.git
-            sshUrl = "ssh://" + sshUser + "@" + url.hostname + ":" + sshPort + "/"
-                    + project.getOwnerName() + "/" + project.getName() + ".git";
-        } else {
-            // Standard format: git@domain:owner/project.git
-            sshUrl = sshUser + "@" + url.hostname + ":"
-                    + project.getOwnerName() + "/" + project.getName() + ".git";
+        String cloneSshTemplate=ClientContext.get().getAppData().getSshServer();
+        if(StringUtil.isNotBlank(cloneSshTemplate)){
+            cloneSshTemplate=cloneSshTemplate.replaceAll("ownerName",project.getOwnerName());
+            cloneSshTemplate=cloneSshTemplate.replaceAll("projectName",project.getName());
+            cloneSshTemplate=cloneSshTemplate.replaceAll("userName",ClientContext.get().getUserInfo().getUserName());
         }
-
-        txtSSH.setValue(sshUrl);
+        txtSSH.setValue(cloneSshTemplate);
     }
 
     @Override

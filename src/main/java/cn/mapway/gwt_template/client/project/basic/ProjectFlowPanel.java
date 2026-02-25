@@ -75,6 +75,7 @@ public class ProjectFlowPanel extends CommonEventComposite implements IData<VwPr
                 } else if (result.getCode() == 404) {
                     //READ ME不存在　可以手动添加一个
                     tipPanel.setVisible(true);
+                    tipPanel.clear();
                     Button btnAddReadme = new Button("添加README文件");
                     btnAddReadme.addClickHandler(new ClickHandler() {
                         @Override
