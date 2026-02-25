@@ -52,7 +52,10 @@ public class QueryConfigExecutor extends AbstractBizExecutor<QueryConfigResponse
             switch (configEnums) {
                 case CONFIG_APP:
                     AppData appData = systemConfigService.getConfigFromKeyAsObject(key, AppData.class);
-                    response.setAppData(Objects.requireNonNullElseGet(appData, AppData::new));
+                    if(appData==null){
+                        appData=new AppData();
+                    }
+                    response.setAppData(appData);
                     appData.setSshPort(appConfig.getSshPort());
                     break;
                 case CONFIG_LDAP:

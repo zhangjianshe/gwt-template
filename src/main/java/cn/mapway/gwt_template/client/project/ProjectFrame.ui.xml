@@ -5,8 +5,7 @@
              xmlns:buttons="urn:import:cn.mapway.ui.client.widget.buttons">
     <ui:style>
         .top {
-            display: grid;
-            grid-template-columns: 1fr 110px 110px;
+            display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 10px;
