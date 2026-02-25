@@ -17,4 +17,5 @@ import java.util.List;
 @Doc("QueryConfigListResponse")
 public class QueryConfigListResponse implements Serializable, IsSerializable {
     List<SysConfigEntity> configs;
+    String outIp;
 }

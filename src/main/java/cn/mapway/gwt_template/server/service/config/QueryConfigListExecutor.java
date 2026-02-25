@@ -13,6 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.nutz.dao.Cnd;
 import org.nutz.dao.Dao;
 import org.nutz.dao.util.cri.Exps;
+import org.nutz.http.Http;
+import org.nutz.http.Response;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.springframework.stereotype.Component;
@@ -46,6 +48,15 @@ public class QueryConfigListExecutor extends AbstractBizExecutor<QueryConfigList
             Cnd where = Cnd.where(Exps.inStr(SysConfigEntity.FLD_KEY, keys));
             List<SysConfigEntity> result = dao.query(SysConfigEntity.class, where);
             response.setConfigs(result);
+        }
+
+        //获取本地的出口IP
+        String checkIP = "https://checkip.amazonaws.com";
+        try {
+            Response response1 = Http.get(checkIP);
+            response.setOutIp(response1.getContent());
+        } catch (Exception e) {
+            response.setOutIp("获取出口IP错误" + e.getMessage());
         }
         return BizResult.success(response);
     }

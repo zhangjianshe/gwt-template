@@ -5,7 +5,8 @@
 >
     <g:DockLayoutPanel>
         <g:north size="0">
-            <g:HorizontalPanel ui:field="tools" verticalAlignment="middle">
+            <g:HorizontalPanel spacing="4" ui:field="tools" verticalAlignment="middle">
+                <g:Label ui:field="lbOutIp"/>
                 <widget:SearchBox width="250px" ui:field="searchBox"/>
                 <g:Button ui:field="btnUpdateIp" enabled="false">批量设置</g:Button>
             </g:HorizontalPanel>

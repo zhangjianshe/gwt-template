@@ -62,6 +62,8 @@ public class DnsFrame extends ToolbarModules {
     SearchBox searchBox;
     @UiField
     Button btnUpdateIp;
+    @UiField
+    Label lbOutIp;
     AiCheckBox selectAll;
     List<AiCheckBox> allItems = new ArrayList<AiCheckBox>();
     CloudflareConfig currentZone;
@@ -80,6 +82,7 @@ public class DnsFrame extends ToolbarModules {
             }
             updateButton();
         });
+        lbOutIp.getElement().getStyle().setProperty("userSelect", "auto");
     }
 
     private void updateButton() {
@@ -112,6 +115,7 @@ public class DnsFrame extends ToolbarModules {
     }
 
     private void loadData() {
+        lbOutIp.setText("");
         QueryConfigListRequest request = new QueryConfigListRequest();
         List<String> keys = new ArrayList<String>();
         keys.add(AppConstant.KEY_CLOUDFLARE_TOKEN);
@@ -119,13 +123,20 @@ public class DnsFrame extends ToolbarModules {
         AppProxy.get().queryConfigList(request, new AsyncCallback<RpcResult<QueryConfigListResponse>>() {
             @Override
             public void onFailure(Throwable throwable) {
-
+                lbOutIp.setText(throwable.getMessage());
             }
 
             @Override
             public void onSuccess(RpcResult<QueryConfigListResponse> result) {
-                if (result.isSuccess() && !result.getData().getConfigs().isEmpty()) {
-                    renderData(result.getData().getConfigs().get(0));
+                if (result.isSuccess()) {
+                    if (!result.getData().getConfigs().isEmpty()) {
+                        renderData(result.getData().getConfigs().get(0));
+                    } else {
+                        zoneList.clear();
+                    }
+                    lbOutIp.setText("本地出口IP " + result.getData().getOutIp());
+                } else {
+                    lbOutIp.setText(result.getMessage());
                 }
             }
 
@@ -189,14 +200,7 @@ public class DnsFrame extends ToolbarModules {
             }
         }
         return list;
-    }    ClickHandler editHandler = new ClickHandler() {
-        @Override
-        public void onClick(ClickEvent event) {
-            AiButton button = (AiButton) event.getSource();
-            DnsEntry dnsEntry = (DnsEntry) button.getData();
-            editDns(dnsEntry);
-        }
-    };
+    }
 
     /**
      * 根据名称过滤
@@ -272,7 +276,14 @@ public class DnsFrame extends ToolbarModules {
 
         btnEdit.addClickHandler(editHandler);
         table.setWidget(row, col++, btnEdit);
-    }
+    }    ClickHandler editHandler = new ClickHandler() {
+        @Override
+        public void onClick(ClickEvent event) {
+            AiButton button = (AiButton) event.getSource();
+            DnsEntry dnsEntry = (DnsEntry) button.getData();
+            editDns(dnsEntry);
+        }
+    };
 
     private int indexOfEntry(String id) {
         for (int i = 0; i < allItems.size(); i++) {
