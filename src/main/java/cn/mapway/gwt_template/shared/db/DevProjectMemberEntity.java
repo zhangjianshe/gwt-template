@@ -17,7 +17,7 @@ import java.sql.Timestamp;
 @Setter
 public class DevProjectMemberEntity implements Serializable, IsSerializable {
     public static final String TABLE_NAME = "dev_project_member";
-    public static final String FLD_USER_ID = "userId";
+    public static final String FLD_USER_ID = "user_id";
     public static final String FLD_PROJECT_ID = "projectId";
     public static final String FLD_CREATE_TIME = "createTime";
     public static final String FLD_OWNER = "owner";

@@ -16,6 +16,9 @@ import cn.mapway.gwt_template.server.service.dns.DeleteDnsExecutor;
 import cn.mapway.gwt_template.server.service.dns.QueryDnsExecutor;
 import cn.mapway.gwt_template.server.service.dns.UpdateDnsExecutor;
 import cn.mapway.gwt_template.server.service.dns.UpdateIpExecutor;
+import cn.mapway.gwt_template.server.service.message.QueryMessageExecutor;
+import cn.mapway.gwt_template.server.service.message.ReadMessageExecutor;
+import cn.mapway.gwt_template.server.service.message.SendMessageExecutor;
 import cn.mapway.gwt_template.server.service.project.*;
 import cn.mapway.gwt_template.server.service.soft.CreateSoftwareExecutor;
 import cn.mapway.gwt_template.server.service.soft.DeleteSoftwareExecutor;
@@ -29,6 +32,7 @@ import cn.mapway.gwt_template.shared.rpc.config.*;
 import cn.mapway.gwt_template.shared.rpc.desktop.*;
 import cn.mapway.gwt_template.shared.rpc.dev.*;
 import cn.mapway.gwt_template.shared.rpc.dns.*;
+import cn.mapway.gwt_template.shared.rpc.message.*;
 import cn.mapway.gwt_template.shared.rpc.project.*;
 import cn.mapway.gwt_template.shared.rpc.soft.*;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
@@ -107,6 +111,36 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
     QueryConfigExecutor queryConfigExecutor;
 
     ///CODE_GEN_INSERT_POINT///
+	
+    @Resource
+    ReadMessageExecutor readMessageExecutor;
+    @Override
+    public RpcResult<ReadMessageResponse> readMessage(ReadMessageRequest request) {
+        BizResult<ReadMessageResponse> bizResult = readMessageExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    SendMessageExecutor sendMessageExecutor;
+    @Override
+    public RpcResult<SendMessageResponse> sendMessage(SendMessageRequest request) {
+        BizResult<SendMessageResponse> bizResult = sendMessageExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    QueryMessageExecutor queryMessageExecutor;
+    @Override
+    public RpcResult<QueryMessageResponse> queryMessage(QueryMessageRequest request) {
+        BizResult<QueryMessageResponse> bizResult = queryMessageExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
 
     @Resource
     DeleteDesktopExecutor deleteDesktopExecutor;

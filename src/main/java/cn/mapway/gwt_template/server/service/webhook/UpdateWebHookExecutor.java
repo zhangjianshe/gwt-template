@@ -39,7 +39,7 @@ public class UpdateWebHookExecutor extends AbstractBizExecutor<UpdateWebHookResp
 
         WebHookSourceKind sourceKind = WebHookSourceKind.fromCode(request.getWebhook().getSourceKind());
 
-        // Pass the userId from the logged-in context
+        // Pass the toUserId from the logged-in context
         Long userId = user.getUser().getUserId();
 
         switch (sourceKind) {

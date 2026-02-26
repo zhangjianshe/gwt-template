@@ -1,0 +1,23 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+    <ui:style>
+        .box {
+            display: flex;
+            flex-flow: column;
+            padding: 10px;
+            gap: 0.5rem;
+        }
+
+        .summary {
+            font-size: 0.9rem;
+            color: #888;
+        }
+    </ui:style>
+    <g:HTMLPanel ui:field="root" addStyleNames="{style.box}">
+        <g:Label ui:field="lbBody"/>
+        <g:HorizontalPanel>
+            <g:Label ui:field="lbName" addStyleNames="{style.summary}"/>
+            <g:Label ui:field="lbDate" addStyleNames="{style.summary}"/>
+        </g:HorizontalPanel>
+    </g:HTMLPanel>
+</ui:UiBinder>

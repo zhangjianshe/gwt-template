@@ -18,7 +18,7 @@ import static cn.mapway.gwt_template.shared.db.DevGroupEntity.TABLE_NAME;
 @Setter
 public class DevGroupEntity implements Serializable, IsSerializable {
     public static final String FLD_NAME = "name";
-    public static final String FLD_USERID = "userId";
+    public static final String FLD_USERID = "user_id";
     public static final String TABLE_NAME = "dev_group";
     @Name
     @Comment("分组名称")

@@ -1,5 +1,7 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
-             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:desktop="urn:import:cn.mapway.gwt_template.client.desktop"
+             xmlns:buttons="urn:import:cn.mapway.ui.client.widget.buttons">
     <ui:style>
         .box {
             display: flex;
@@ -24,6 +26,37 @@
         }
     </ui:style>
     <g:DockLayoutPanel>
+        <g:west size="400">
+            <g:DockLayoutPanel>
+                <g:north size="50">
+                    <g:LayoutPanel ui:field="layout">
+                        <g:layer>
+                            <g:TabLayoutPanel barHeight="48" ui:field="tab">
+                                <g:tab>
+                                    <g:header>我的消息</g:header>
+                                    <g:Label/>
+                                </g:tab>
+                                <g:tab>
+                                    <g:header>广播消息</g:header>
+                                    <g:Label/>
+                                </g:tab>
+                            </g:TabLayoutPanel>
+                        </g:layer>
+                        <g:layer right="0" top="0" bottom="0" width="120">
+                            <g:HorizontalPanel visible="false" height="100%" width="100%" horizontalAlignment="right"
+                                               verticalAlignment="middle"
+                                               ui:field="toolsBar">
+                                <buttons:AiButton ui:field="btnBroadcast">发布</buttons:AiButton>
+                            </g:HorizontalPanel>
+                        </g:layer>
+                    </g:LayoutPanel>
+                </g:north>
+                <g:center>
+                    <desktop:MessageList ui:field="messageList"/>
+                </g:center>
+            </g:DockLayoutPanel>
+
+        </g:west>
         <g:center>
             <g:ScrollPanel>
                 <g:HTMLPanel ui:field="panel" addStyleNames="{style.box}">

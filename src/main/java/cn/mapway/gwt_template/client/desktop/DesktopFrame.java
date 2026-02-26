@@ -13,6 +13,7 @@ import cn.mapway.ui.client.mvc.IModule;
 import cn.mapway.ui.client.mvc.ModuleMarker;
 import cn.mapway.ui.client.mvc.ModuleParameter;
 import cn.mapway.ui.client.util.StringUtil;
+import cn.mapway.ui.client.widget.buttons.AiButton;
 import cn.mapway.ui.client.widget.dialog.Dialog;
 import cn.mapway.ui.shared.CommonEventHandler;
 import cn.mapway.ui.shared.rpc.RpcResult;
@@ -23,10 +24,7 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.DockLayoutPanel;
-import com.google.gwt.user.client.ui.FlexTable;
-import com.google.gwt.user.client.ui.HTMLPanel;
-import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.*;
 import elemental2.promise.IThenable;
 import org.jspecify.annotations.Nullable;
 
@@ -48,9 +46,29 @@ public class DesktopFrame extends BaseAbstractModule {
     FlexTable table;
     @UiField
     Label btnAdd;
+    @UiField
+    MessageList messageList;
+    @UiField
+    TabLayoutPanel tab;
+    @UiField
+    HorizontalPanel toolsBar;
+    @UiField
+    AiButton btnBroadcast;
+    @UiField
+    LayoutPanel layout;
 
     public DesktopFrame() {
         initWidget(ourUiBinder.createAndBindUi(this));
+        tab.addSelectionHandler(event -> {
+            if (event.getSelectedItem() == 0) {
+                messageList.loadMessages(false, 20, 1);
+                layout.setWidgetVisible(toolsBar, false);
+
+            } else {
+                messageList.loadMessages(true, 20, 1);
+                layout.setWidgetVisible(toolsBar, true);
+            }
+        });
     }
 
     @Override
@@ -62,6 +80,7 @@ public class DesktopFrame extends BaseAbstractModule {
     public boolean initialize(IModule parentModule, ModuleParameter parameter) {
         boolean b = super.initialize(parentModule, parameter);
         load();
+        tab.selectTab(0, true);
         return b;
     }
 
@@ -135,23 +154,26 @@ public class DesktopFrame extends BaseAbstractModule {
             col = 0;
         }
         table.setWidget(row, col++, btnAdd);
-    }    private final CommonEventHandler itemHandler = event -> {
-        if (event.isEdit()) {
-            edit(event.getValue());
-        } else if (event.isDelete()) {
-            confirmDelete(event.getValue());
-        } else if (event.isClick()) {
-            DesktopItemEntity value = event.getValue();
-            if (StringUtil.isNotBlank(value.getData())) {
-                Window.open(value.getData(), "_blank", "");
-            }
-        }
-    };
+    }
 
     @UiHandler("btnAdd")
     public void btnAddClick(ClickEvent event) {
         edit(null);
     }
+
+    @UiHandler("btnBroadcast")
+    public void btnBroadcastClick(ClickEvent event) {
+        Dialog<SendMessagePanel> dialog = SendMessagePanel.getDialog(true);
+        dialog.addCommonHandler(event1 -> {
+            if (event1.isOk()) {
+                messageList.loadMessages(true, 20, 1);
+            }
+            dialog.hide();
+        });
+        dialog.center();
+        dialog.getContent().setData("");
+    }
+
 
     private void edit(DesktopItemEntity item) {
         Dialog<DesktopEditor> dialog = DesktopEditor.getDialog(true);
@@ -170,7 +192,18 @@ public class DesktopFrame extends BaseAbstractModule {
     interface DesktopFrameUiBinder extends UiBinder<DockLayoutPanel, DesktopFrame> {
     }
 
-
+    private final CommonEventHandler itemHandler = event -> {
+        if (event.isEdit()) {
+            edit(event.getValue());
+        } else if (event.isDelete()) {
+            confirmDelete(event.getValue());
+        } else if (event.isClick()) {
+            DesktopItemEntity value = event.getValue();
+            if (StringUtil.isNotBlank(value.getData())) {
+                Window.open(value.getData(), "_blank", "");
+            }
+        }
+    };
 
 
 }

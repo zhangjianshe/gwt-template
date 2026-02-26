@@ -14,7 +14,7 @@ import java.sql.Timestamp;
 @Setter
 public class VwProjectMemberEntity implements Serializable, IsSerializable {
     public final static String FLD_PROJECT_ID = "projectId";
-    public final static String FLD_USER_ID = "userId";
+    public final static String FLD_USER_ID = "toUserId";
     public final static String FLD_CREATE_TIME = "createTime";
     @Column(hump = true)
     String projectId;

@@ -11,7 +11,7 @@ import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 
-@ServerEndpoint(value = "/ws/git/{userId}", configurator = HttpSessionConfigurator.class)
+@ServerEndpoint(value = "/ws/git/{toUserId}", configurator = HttpSessionConfigurator.class)
 @Component
 @Slf4j
 public class GitNotifyWebSocket {
@@ -38,7 +38,7 @@ public class GitNotifyWebSocket {
     }
 
     @OnOpen
-    public void onOpen(Session session, @PathParam("userId") Long userId) {
+    public void onOpen(Session session, @PathParam("toUserId") Long userId) {
         // Use a Thread-safe Set (CopyOnWriteArraySet is good for small numbers of clients)
         userSessions.computeIfAbsent(userId, k -> new java.util.concurrent.CopyOnWriteArraySet<>())
                 .add(session);
@@ -48,7 +48,7 @@ public class GitNotifyWebSocket {
     }
 
     @OnClose
-    public void onClose(Session session, @PathParam("userId") Long userId) {
+    public void onClose(Session session, @PathParam("toUserId") Long userId) {
         java.util.Set<Session> sessions = userSessions.get(userId);
         if (sessions != null) {
             sessions.remove(session);

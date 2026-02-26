@@ -4,6 +4,7 @@ import cn.mapway.gwt_template.shared.rpc.config.*;
 import cn.mapway.gwt_template.shared.rpc.desktop.*;
 import cn.mapway.gwt_template.shared.rpc.dev.*;
 import cn.mapway.gwt_template.shared.rpc.dns.*;
+import cn.mapway.gwt_template.shared.rpc.message.*;
 import cn.mapway.gwt_template.shared.rpc.project.*;
 import cn.mapway.gwt_template.shared.rpc.soft.*;
 import cn.mapway.gwt_template.shared.rpc.webhook.*;
@@ -15,6 +16,12 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public interface IAppServerAsync {
 
     ///CODE_GEN_INSERT_POINT///
+	void readMessage(ReadMessageRequest request, AsyncCallback<RpcResult<ReadMessageResponse>> async);
+
+	void sendMessage(SendMessageRequest request, AsyncCallback<RpcResult<SendMessageResponse>> async);
+
+	void queryMessage(QueryMessageRequest request, AsyncCallback<RpcResult<QueryMessageResponse>> async);
+
 	void deleteDesktop(DeleteDesktopRequest request, AsyncCallback<RpcResult<DeleteDesktopResponse>> async);
 
 	void updateDesktop(UpdateDesktopRequest request, AsyncCallback<RpcResult<UpdateDesktopResponse>> async);
