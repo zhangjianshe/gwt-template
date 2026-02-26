@@ -1,0 +1,68 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:buttons="urn:import:cn.mapway.ui.client.widget.buttons">
+    <ui:style>
+        .box {
+            display: flex;
+            align-items: center;
+            width: 160px;
+            height: 160px;
+            border-radius: 6px;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1rem;
+            border: solid 1px #f0f0f0;
+            flex-flow: column;
+            gap: 15px;
+            position: relative;
+        }
+
+        .box:HOVER {
+            background-color: #e0e0e0;
+        }
+
+        .img {
+            object-fit: cover;
+            width: 100px;
+            height: 100px;
+        }
+
+        .name {
+            max-width: 140px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .editor {
+            position: absolute;
+            right: 5px;
+            top: 5px;
+            border: solid 1px #e0e0e0;
+            border-radius: 4px;
+            padding: 0 4px;
+            background-color: whitesmoke;
+        }
+
+        .btn {
+            border-radius: 4px;
+            width: 26px;
+            height: 26px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: darkgreen;
+        }
+
+        .btn:HOVER {
+            background-color: skyblue;
+        }
+    </ui:style>
+    <g:HTMLPanel addStyleNames="{style.box}">
+        <g:HorizontalPanel ui:field="btnPan" addStyleNames="{style.editor}">
+            <buttons:DeleteButton addStyleNames="{style.btn}" ui:field="btnDelete" fontSize="24"/>
+            <buttons:EditButton addStyleNames="{style.btn}" ui:field="btnEditor" fontSize="22"/>
+        </g:HorizontalPanel>
+        <g:Image ui:field="image" addStyleNames="{style.img}"/>
+        <g:Label ui:field="lbName" addStyleNames="{style.name}"/>
+    </g:HTMLPanel>
+</ui:UiBinder>

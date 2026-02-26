@@ -1,6 +1,7 @@
 package cn.mapway.gwt_template.client.main;
 
 import cn.mapway.gwt_template.client.ClientContext;
+import cn.mapway.gwt_template.client.desktop.DesktopFrame;
 import cn.mapway.gwt_template.client.preference.PreferenceFrame;
 import cn.mapway.rbac.client.RbacServerProxy;
 import cn.mapway.rbac.shared.ResourceKind;
@@ -90,8 +91,10 @@ public class MainMenuBar extends CommonEventComposite {
             return BaseAbstractModule.getModuleFactory().findModuleInfo(res.resourceCode);
         }).filter(Objects::nonNull).collect(Collectors.toList());
         Collections.sort(moduleInfos, Comparator.comparingInt(o -> o.order));
+        moduleInfos.add(0, BaseAbstractModule.getModuleFactory().findModuleInfo(DesktopFrame.MODULE_CODE));
         for (ModuleInfo moduleInfo : moduleInfos) {
             AiButton button = new AiButton(moduleInfo.name);
+            button.setIcon(moduleInfo.unicode);
             button.setData(moduleInfo);
             buttons.add(button);
             button.addClickHandler(itemClicked);

@@ -8,6 +8,9 @@ import cn.mapway.gwt_template.server.service.config.QueryConfigExecutor;
 import cn.mapway.gwt_template.server.service.config.QueryConfigListExecutor;
 import cn.mapway.gwt_template.server.service.config.UpdateConfigExecutor;
 import cn.mapway.gwt_template.server.service.config.UpdateConfigListExecutor;
+import cn.mapway.gwt_template.server.service.desktop.DeleteDesktopExecutor;
+import cn.mapway.gwt_template.server.service.desktop.QueryDesktopExecutor;
+import cn.mapway.gwt_template.server.service.desktop.UpdateDesktopExecutor;
 import cn.mapway.gwt_template.server.service.dev.*;
 import cn.mapway.gwt_template.server.service.dns.DeleteDnsExecutor;
 import cn.mapway.gwt_template.server.service.dns.QueryDnsExecutor;
@@ -23,6 +26,7 @@ import cn.mapway.gwt_template.server.service.user.login.LoginProvider;
 import cn.mapway.gwt_template.server.service.webhook.*;
 import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.rpc.config.*;
+import cn.mapway.gwt_template.shared.rpc.desktop.*;
 import cn.mapway.gwt_template.shared.rpc.dev.*;
 import cn.mapway.gwt_template.shared.rpc.dns.*;
 import cn.mapway.gwt_template.shared.rpc.project.*;
@@ -103,17 +107,15 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
     QueryConfigExecutor queryConfigExecutor;
 
     ///CODE_GEN_INSERT_POINT///
-	
+
+    @Resource
+    DeleteDesktopExecutor deleteDesktopExecutor;
+    @Resource
+    UpdateDesktopExecutor updateDesktopExecutor;
+    @Resource
+    QueryDesktopExecutor queryDesktopExecutor;
     @Resource
     ImportRepoExecutor importRepoExecutor;
-    @Override
-    public RpcResult<ImportRepoResponse> importRepo(ImportRepoRequest request) {
-        BizResult<ImportRepoResponse> bizResult = importRepoExecutor.execute(getBizContext(), BizRequest.wrap("", request));
-        return toRpcResult(bizResult);
-    }
-
-
-
     @Resource
     DeleteWebHookInstanceExecutor deleteWebHookInstanceExecutor;
     @Resource
@@ -154,6 +156,30 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
     DeleteDevGroupExecutor deleteDevGroupExecutor;
     @Resource
     UpdateDevGroupExecutor updateDevGroupExecutor;
+
+    @Override
+    public RpcResult<DeleteDesktopResponse> deleteDesktop(DeleteDesktopRequest request) {
+        BizResult<DeleteDesktopResponse> bizResult = deleteDesktopExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<UpdateDesktopResponse> updateDesktop(UpdateDesktopRequest request) {
+        BizResult<UpdateDesktopResponse> bizResult = updateDesktopExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<QueryDesktopResponse> queryDesktop(QueryDesktopRequest request) {
+        BizResult<QueryDesktopResponse> bizResult = queryDesktopExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<ImportRepoResponse> importRepo(ImportRepoRequest request) {
+        BizResult<ImportRepoResponse> bizResult = importRepoExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
 
     @Override
     public RpcResult<DeleteWebHookInstanceResponse> deleteWebHookInstance(DeleteWebHookInstanceRequest request) {

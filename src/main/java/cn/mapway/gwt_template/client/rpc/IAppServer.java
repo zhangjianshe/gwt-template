@@ -2,6 +2,7 @@ package cn.mapway.gwt_template.client.rpc;
 
 import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.rpc.config.*;
+import cn.mapway.gwt_template.shared.rpc.desktop.*;
 import cn.mapway.gwt_template.shared.rpc.dev.*;
 import cn.mapway.gwt_template.shared.rpc.dns.*;
 import cn.mapway.gwt_template.shared.rpc.project.*;
@@ -16,6 +17,12 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 @RemoteServiceRelativePath(AppConstant.DEFAULT_SERVER_PATH)
 public interface IAppServer extends RemoteService {
     ///CODE_GEN_INSERT_POINT///
+	RpcResult<DeleteDesktopResponse> deleteDesktop(DeleteDesktopRequest request);
+
+	RpcResult<UpdateDesktopResponse> updateDesktop(UpdateDesktopRequest request);
+
+	RpcResult<QueryDesktopResponse> queryDesktop(QueryDesktopRequest request);
+
 	RpcResult<ImportRepoResponse> importRepo(ImportRepoRequest request);
 
     RpcResult<DeleteWebHookInstanceResponse> deleteWebHookInstance(DeleteWebHookInstanceRequest request);

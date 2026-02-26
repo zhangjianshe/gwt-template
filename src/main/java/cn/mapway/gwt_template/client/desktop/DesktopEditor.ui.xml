@@ -1,0 +1,37 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:dialog="urn:import:cn.mapway.ui.client.widget.dialog"
+             xmlns:widget="urn:import:cn.mapway.ui.client.widget"
+             xmlns:buttons="urn:import:cn.mapway.ui.client.widget.buttons">
+    <ui:style>
+        .box {
+            display: grid;
+            margin: 20px;
+            gap: 1rem;
+            grid-template-columns: 100px 1fr;
+        }
+    </ui:style>
+    <g:DockLayoutPanel>
+        <g:south size="68">
+            <dialog:SaveBar ui:field="saveBar"/>
+        </g:south>
+        <g:center>
+            <g:ScrollPanel>
+                <g:HTMLPanel addStyleNames="{style.box}">
+                    <widget:Header>名称</widget:Header>
+                    <widget:AiTextBox placeholder="比如　百度" ui:field="txtName"/>
+                    <widget:Header>网址</widget:Header>
+                    <widget:AiTextBox ui:field="txtData" placeholder="https://www.baidu.com"/>
+                    <widget:Header>图标</widget:Header>
+                    <widget:ImageUploader height="120px" ui:field="uploader"/>
+                    <widget:Header>简介</widget:Header>
+                    <widget:AiTextBox ui:field="txtSummary"/>
+                    <widget:Header>排序</widget:Header>
+                    <widget:AiTextBox ui:field="txtRank"/>
+                    <widget:Header>共享</widget:Header>
+                    <buttons:AiCheckBox ui:field="checkShare"/>
+                </g:HTMLPanel>
+            </g:ScrollPanel>
+        </g:center>
+    </g:DockLayoutPanel>
+</ui:UiBinder>

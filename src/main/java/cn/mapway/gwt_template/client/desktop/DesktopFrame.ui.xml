@@ -1,0 +1,38 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+    <ui:style>
+        .box {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn {
+            width: 160px;
+            height: 160px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1rem;
+            border: solid 1px #f0f0f0;
+        }
+
+        .btn:HOVER {
+            background-color: #e0e0e0;
+        }
+    </ui:style>
+    <g:DockLayoutPanel>
+        <g:center>
+            <g:ScrollPanel>
+                <g:HTMLPanel ui:field="panel" addStyleNames="{style.box}">
+                    <g:Label ui:field="btnAdd" addStyleNames="{style.btn}">添加快捷方式</g:Label>
+                    <g:FlexTable cellSpacing="10" ui:field="table">
+
+                    </g:FlexTable>
+                </g:HTMLPanel>
+            </g:ScrollPanel>
+        </g:center>
+    </g:DockLayoutPanel>
+</ui:UiBinder>
