@@ -10,6 +10,7 @@ import cn.mapway.gwt_template.shared.rpc.user.ResourcePoint;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
 import cn.mapway.rbac.client.user.RbacFrame;
 import cn.mapway.rbac.server.service.RbacResourceService;
+import cn.mapway.rbac.server.service.RbacUserService;
 import cn.mapway.rbac.shared.RbacConstant;
 import cn.mapway.rbac.shared.RbacRole;
 import cn.mapway.rbac.shared.ResourceKind;
@@ -52,6 +53,9 @@ public class ServerStartedOnce extends ApplicationObjectSupport implements IServ
     TokenService tokenService;
     @Resource
     RbacResourceService rbacResourceService;
+    @Resource
+    RbacUserService rbacUserService;
+
 
     @Override
     public <T> T getBean(Class<T> aClass) {
@@ -187,10 +191,10 @@ public class ServerStartedOnce extends ApplicationObjectSupport implements IServ
         }
         //创建一些必要的账户
         //公共信箱帐号
-        String userName= AppConstant.USER_BROADCAST_NAME;
+        String userName = AppConstant.USER_BROADCAST_NAME;
         RbacUserEntity rbacUserEntity = dao.fetch(RbacUserEntity.class, Cnd.where(RbacUserEntity.FLD_USER_NAME, "=", userName));
-        if(rbacUserEntity == null) {
-            rbacUserEntity=new RbacUserEntity();
+        if (rbacUserEntity == null) {
+            rbacUserEntity = new RbacUserEntity();
             rbacUserEntity.setToken(R.UU16());
             rbacUserEntity.setPassword("");
             rbacUserEntity.setCreateTime(new Date());
@@ -200,7 +204,7 @@ public class ServerStartedOnce extends ApplicationObjectSupport implements IServ
             rbacUserEntity.setCreateBy("admin");
             rbacUserEntity.setAvatar("/img/avatar/broadcast.svg");
             rbacUserEntity.setDelFlag("");
-            rbacUserEntity.setEmail(userName+"@cangling.cn");
+            rbacUserEntity.setEmail(userName + "@cangling.cn");
             rbacUserEntity.setStatus("0");
             rbacUserEntity.setSex("");
             rbacUserEntity.setNickName(userName);
@@ -273,17 +277,26 @@ public class ServerStartedOnce extends ApplicationObjectSupport implements IServ
         }
 
         //创建一个项目管理员角色
-        String ROLE_SYS_PROJECT_MANAGER = AppConstant.ROLE_SYS_PROJECT_MANAGER;
-        log.info("[START] 分配项目管理员角色 {}", ROLE_SYS_PROJECT_MANAGER);
-        BizResult<RbacRole> rbacRoleBizResult = rbacResourceService.confirmRoleExist(ROLE_SYS_PROJECT_MANAGER, "项目管理员", "", "", "");
+        BizResult<RbacRole> rbacRoleBizResult = rbacResourceService.confirmRoleExist(AppConstant.ROLE_SYS_PROJECT_MANAGER, "项目管理员", "", "", "");
         if (rbacRoleBizResult.isFailed()) {
-            log.error("[START] 不能创建角色 {}", rbacRoleBizResult.getMessage());
+            log.error("[START] 项目管理员角色 {}", rbacRoleBizResult.getMessage());
             throw Lang.makeThrow("[START]", rbacRoleBizResult.getMessage());
         }
+
+        //系统消息管理角色
+        rbacRoleBizResult = rbacResourceService.confirmRoleExist(AppConstant.ROLE_SYS_MESSAGE_MANAGER, "系统消息维护", "ROLE_SYS", "", "");
+        if (rbacRoleBizResult.isFailed()) {
+            log.error("[START] 系统消息管理角色 {}", rbacRoleBizResult.getMessage());
+            throw Lang.makeThrow("[START]", rbacRoleBizResult.getMessage());
+        }
+
         //分配项目管理员 创建项目资源
         log.info("[START] 分配项目管理员 角色资源");
-        rbacResourceService.confirmResourceInRole(ResourcePoint.RP_PROJECT_CREATE.getCode(), ROLE_SYS_PROJECT_MANAGER);
-        rbacResourceService.confirmResourceInRole(ResourcePoint.RP_MESSAGE_BROADCAST.getCode(), ROLE_SYS_PROJECT_MANAGER);
+        rbacResourceService.confirmResourceInRole(ResourcePoint.RP_PROJECT_CREATE.getCode(), AppConstant.ROLE_SYS_PROJECT_MANAGER);
+
+        //发布公共信箱权限
+        log.info("[START] 创建发布公共信箱权限点");
+        rbacResourceService.confirmResourceInRole(ResourcePoint.RP_MESSAGE_BROADCAST.getCode(), AppConstant.ROLE_SYS_MESSAGE_MANAGER);
 
         //系统管理员拥有组织管理权限
         log.info("[START] 分配系统管理员拥有　系统配置资源");
@@ -293,8 +306,9 @@ public class ServerStartedOnce extends ApplicationObjectSupport implements IServ
         log.info("[START] 分配普通用户拥有　资源");
         rbacResourceService.confirmResourceInRole(ProjectFrame.MODULE_CODE, RbacConstant.ROLE_NORMAL_USER);
 
-        //发布公共信箱权限
-        log.info("[START] 创建发布公共信箱权限点");
+
+        //管理员拥有消息管理角色
+        rbacResourceService.assignUserRole(String.valueOf(RbacConstant.SUPER_USER_ID), AppConstant.ROLE_SYS_MESSAGE_MANAGER, false);
 
 
     }

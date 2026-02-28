@@ -249,7 +249,6 @@ public class UserMailboxPanel extends CommonEventComposite {
             Size size = event.getValue();
             int height = size.getYAsInt();
             adjustToDefaultSize(height);
-
         }
     }
 

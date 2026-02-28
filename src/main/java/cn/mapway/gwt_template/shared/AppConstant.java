@@ -22,6 +22,7 @@ public class AppConstant {
     public static final String MESSAGE_TYPE_ERROR = "ERROR";
     public static final String TOPIC_MAILBOX_MESSAGE = "topic_mailbox_message";
     public static final String USER_BROADCAST_NAME = "公共信箱";
-    public static final String ROLE_SYS_PROJECT_MANAGER = "SYS_PROJECT_MANAGER"; //项目管理角色
+    public static final String ROLE_SYS_PROJECT_MANAGER = "ROLE_SYS_PROJECT_MANAGER"; //项目管理角色
+    public static final String ROLE_SYS_MESSAGE_MANAGER = "ROLE_SYS_MESSAGE_MANAGER"; //系统消息管理角色
     public static final String USER_IS_PUBLIC_ACCOUNT = "USER_IS_PUBLIC_ACCOUNT"; //用户是一个公共账户
 }
