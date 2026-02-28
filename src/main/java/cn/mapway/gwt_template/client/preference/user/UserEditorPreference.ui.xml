@@ -1,0 +1,22 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:widget="urn:import:cn.mapway.ui.client.widget">
+    <g:DockLayoutPanel>
+        <g:center>
+            <g:VerticalPanel spacing="10">
+                <g:HorizontalPanel>
+                    <widget:Header width="100px">用户名称</widget:Header>
+                    <g:Label ui:field="lbName"/>
+                </g:HorizontalPanel>
+                <g:HorizontalPanel>
+                    <widget:Header width="100px">头像</widget:Header>
+                    <widget:ImageUploader ui:field="uploader" height="300px" width="300px"/>
+                </g:HorizontalPanel>
+                <g:HorizontalPanel>
+                    <g:Label width="100px"/>
+                    <g:Button ui:field="btnSave">保存</g:Button>
+                </g:HorizontalPanel>
+            </g:VerticalPanel>
+        </g:center>
+    </g:DockLayoutPanel>
+</ui:UiBinder>

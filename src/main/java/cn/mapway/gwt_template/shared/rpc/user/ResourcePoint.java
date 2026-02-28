@@ -9,7 +9,9 @@ import lombok.Getter;
  */
 @Getter
 public enum ResourcePoint {
-    RP_PROJECT_CREATE(ResourceKind.RESOURCE_KIND_APPLICATION.code,"项目", "project:create", "创建项目", Fonts.PROJECT, "");
+    RP_PROJECT_CREATE(ResourceKind.RESOURCE_KIND_APPLICATION.code,"项目", "project:create", "创建项目", Fonts.PROJECT, ""),
+    RP_MESSAGE_BROADCAST(ResourceKind.RESOURCE_KIND_APPLICATION.code,"消息", "message:broadcast", "广播消息", Fonts.MESSAGE_LIST, "");
+
     final String catalog;
     final String code;
     final String name;

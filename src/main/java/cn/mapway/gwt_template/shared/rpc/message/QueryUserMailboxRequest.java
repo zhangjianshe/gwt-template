@@ -7,16 +7,12 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * QueryMessageRequest
- * 查询从　toUserId 到当前登录用户的消息
+ * QueryUserMailboxRequest
  *
  * @author zhangjianshe@gmail.com
  */
 @Data
-@Doc("QueryMessageRequest")
-public class QueryMessageRequest implements Serializable, IsSerializable {
-    String messageId;
-    Integer page;
-    Integer pageSize;
+@Doc("QueryUserMailboxRequest")
+public class QueryUserMailboxRequest implements Serializable, IsSerializable {
     String mailboxId;
 }

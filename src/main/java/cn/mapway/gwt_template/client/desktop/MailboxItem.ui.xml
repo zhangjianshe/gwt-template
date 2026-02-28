@@ -2,22 +2,61 @@
              xmlns:g='urn:import:com.google.gwt.user.client.ui'>
     <ui:style>
         .box {
-            display: flex;
-            flex-flow: column;
-            padding: 10px;
-            gap: 0.5rem;
+            position: relative;
+            height: 70px;
+            border-bottom: solid 1px #f0f0f0;
+        }
+
+        .box:HOVER {
+            background-color: #f0f0f0;
         }
 
         .summary {
-            font-size: 0.9rem;
-            color: #888;
+            position: absolute;
+            left: 70px;
+            bottom: 5px;
+            right: 5px;
+            height: 24px;
+            color: #777;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-wrap-mode: nowrap;
+            cursor: default;
+        }
+
+        .img {
+            position: absolute;
+            left: 5px;
+            top: 5px;
+            width: 60px;
+            height: 60px;
+            overflow: hidden;
+            padding: 4px;
+        }
+
+        .name {
+            position: absolute;
+            left: 70px;
+            top: 8px;
+            right: 125px;
+            height: 30px;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .time {
+            position: absolute;
+            right: 5px;
+            top: 8px;
+            width: 120px;
+            height: 30px;
+            color: #777;
         }
     </ui:style>
     <g:HTMLPanel ui:field="root" addStyleNames="{style.box}">
-        <g:Label ui:field="lbBody"/>
-        <g:HorizontalPanel>
-            <g:Label ui:field="lbName" addStyleNames="{style.summary}"/>
-            <g:Label ui:field="lbDate" addStyleNames="{style.summary}"/>
-        </g:HorizontalPanel>
+        <g:Image ui:field="icon" addStyleNames="{style.img}"/>
+        <g:Label ui:field="lbUserName" addStyleNames="{style.name}"/>
+        <g:Label ui:field="lbTime" addStyleNames="{style.time}"/>
+        <g:HTML addStyleNames="{style.summary}" ui:field="lbBody"/>
     </g:HTMLPanel>
 </ui:UiBinder>

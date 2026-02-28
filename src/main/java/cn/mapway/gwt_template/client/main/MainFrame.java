@@ -42,6 +42,13 @@ public class MainFrame extends BaseAbstractModule {
         }
     }
 
+    @Override
+    public boolean initialize(IModule parentModule, ModuleParameter parameter) {
+        boolean b = super.initialize(parentModule, parameter);
+        menuBar.reload();
+        return b;
+    }
+
     private void changeModule(SwitchModuleData switchModuleData) {
         String moduleCode = switchModuleData.getModuleCode();
         ModuleInfo moduleInfo = BaseAbstractModule.getModuleFactory().findModuleInfo(moduleCode);
@@ -52,6 +59,7 @@ public class MainFrame extends BaseAbstractModule {
         if (currentModule != null) {
             if (currentModule.getModuleInfo().code.equals(moduleInfo.code)) {
                 // do nothing
+                currentModule.initialize(null, switchModuleData.getParameters());
                 return;
             }
             root.remove(currentModule.getRootWidget());

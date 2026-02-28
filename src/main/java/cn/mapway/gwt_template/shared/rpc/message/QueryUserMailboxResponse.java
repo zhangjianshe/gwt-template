@@ -6,13 +6,15 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
- * ReadMessageResponse
+ * QueryUserMailboxResponse
  *
  * @author zhangjianshe@gmail.com
  */
 @Data
-@Doc("ReadMessageResponse")
-public class ReadMessageResponse implements Serializable, IsSerializable {
+@Doc("QueryUserMailboxResponse")
+public class QueryUserMailboxResponse implements Serializable, IsSerializable {
+    List<MailboxEntity> mailboxes;
 }

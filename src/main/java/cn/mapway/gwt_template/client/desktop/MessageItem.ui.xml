@@ -1,0 +1,52 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+    <ui:style type="cn.mapway.gwt_template.client.desktop.MessageItem.SStyle">
+        .boxLeft {
+            display: flex;
+            align-items: flex-start;
+            padding: 4px;
+        }
+
+        .boxRight {
+            display: flex;
+            align-items: flex-end;
+            flex-direction: row-reverse;
+            padding: 4px;
+        }
+
+        .icon {
+            width: 60px;
+            height: 60px;
+            overflow: hidden;
+            object-fit: fill;
+            padding: 4px;
+        }
+
+        .body {
+            padding: 10px;
+            background-color: skyblue;
+            border-radius: 6px;
+            max-width: 80%;
+            align-self: center;
+            line-height: 150%;
+            cursor: default;
+        }
+
+        .bodyRight {
+            padding: 10px;
+            background-color: #769d4c;
+            color: white;
+            border-radius: 6px;
+            max-width: 80%;
+            align-self: center;
+            line-height: 150%;
+            cursor: default;
+        }
+
+
+    </ui:style>
+    <g:HTMLPanel ui:field="root" addStyleNames="{style.boxLeft}">
+        <g:Image ui:field="icon" addStyleNames="{style.icon}"/>
+        <g:HTML ui:field="body" addStyleNames="markdownbody"/>
+    </g:HTMLPanel>
+</ui:UiBinder>

@@ -17,6 +17,7 @@ import cn.mapway.gwt_template.server.service.dns.QueryDnsExecutor;
 import cn.mapway.gwt_template.server.service.dns.UpdateDnsExecutor;
 import cn.mapway.gwt_template.server.service.dns.UpdateIpExecutor;
 import cn.mapway.gwt_template.server.service.message.QueryMessageExecutor;
+import cn.mapway.gwt_template.server.service.message.QueryUserMailboxExecutor;
 import cn.mapway.gwt_template.server.service.message.ReadMessageExecutor;
 import cn.mapway.gwt_template.server.service.message.SendMessageExecutor;
 import cn.mapway.gwt_template.server.service.project.*;
@@ -25,6 +26,7 @@ import cn.mapway.gwt_template.server.service.soft.DeleteSoftwareExecutor;
 import cn.mapway.gwt_template.server.service.soft.QuerySoftwareExecutor;
 import cn.mapway.gwt_template.server.service.soft.QuerySoftwareFilesExecutor;
 import cn.mapway.gwt_template.server.service.user.TokenService;
+import cn.mapway.gwt_template.server.service.user.UpdateUserInfoExecutor;
 import cn.mapway.gwt_template.server.service.user.login.LoginProvider;
 import cn.mapway.gwt_template.server.service.webhook.*;
 import cn.mapway.gwt_template.shared.AppConstant;
@@ -35,6 +37,8 @@ import cn.mapway.gwt_template.shared.rpc.dns.*;
 import cn.mapway.gwt_template.shared.rpc.message.*;
 import cn.mapway.gwt_template.shared.rpc.project.*;
 import cn.mapway.gwt_template.shared.rpc.soft.*;
+import cn.mapway.gwt_template.shared.rpc.user.UpdateUserInfoRequest;
+import cn.mapway.gwt_template.shared.rpc.user.UpdateUserInfoResponse;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
 import cn.mapway.gwt_template.shared.rpc.webhook.*;
 import cn.mapway.rbac.shared.rpc.LoginRequest;
@@ -111,6 +115,26 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
     QueryConfigExecutor queryConfigExecutor;
 
     ///CODE_GEN_INSERT_POINT///
+	
+    @Resource
+    UpdateUserInfoExecutor updateUserInfoExecutor;
+    @Override
+    public RpcResult<UpdateUserInfoResponse> updateUserInfo(UpdateUserInfoRequest request) {
+        BizResult<UpdateUserInfoResponse> bizResult = updateUserInfoExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    QueryUserMailboxExecutor queryUserMailboxExecutor;
+    @Override
+    public RpcResult<QueryUserMailboxResponse> queryUserMailbox(QueryUserMailboxRequest request) {
+        BizResult<QueryUserMailboxResponse> bizResult = queryUserMailboxExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
 	
     @Resource
     ReadMessageExecutor readMessageExecutor;

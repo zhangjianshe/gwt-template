@@ -1,0 +1,29 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:desktop="urn:import:cn.mapway.gwt_template.client.desktop">
+    <ui:style>
+    </ui:style>
+    <g:DockLayoutPanel ui:field="root">
+        <g:east size="0">
+            <g:LayoutPanel ui:field="msgPanel">
+                <g:layer left="0" right="0" top="0" bottom="130">
+                    <g:ScrollPanel>
+                        <g:HTMLPanel ui:field="messageList">
+
+                        </g:HTMLPanel>
+                    </g:ScrollPanel>
+                </g:layer>
+                <g:layer left="0" right="0" bottom="0" height="130">
+                    <desktop:SmartEditor ui:field="editor"/>
+                </g:layer>
+            </g:LayoutPanel>
+        </g:east>
+        <g:center>
+            <g:ScrollPanel ui:field="messageScroller">
+                <g:VerticalPanel width="100%" ui:field="mailboxList">
+
+                </g:VerticalPanel>
+            </g:ScrollPanel>
+        </g:center>
+    </g:DockLayoutPanel>
+</ui:UiBinder>

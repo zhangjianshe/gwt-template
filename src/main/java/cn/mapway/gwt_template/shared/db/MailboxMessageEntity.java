@@ -13,47 +13,42 @@ import java.sql.Timestamp;
  * 这张表记录用户最后收到某个用户的消息记录
  */
 @Doc("个人信箱")
-@Table(MailboxEntity.TABLE_NAME)
+@Table(MailboxMessageEntity.TABLE_NAME)
 @Getter
 @Setter
-public class MailboxEntity implements Serializable, IsSerializable {
-    public static final String TABLE_NAME = "mailbox";
+public class MailboxMessageEntity implements Serializable, IsSerializable {
+    public static final String TABLE_NAME = "mailbox_message";
     public static final String FLD_ID = "id";
     public static final String FLD_TO_USER_ID = "to_user";
     public static final String FLD_FROM_USER_ID = "from_user";
     public static final String FLD_CREATE_TIME = "create_time";
-    public static final String FLD_TO_USER_NAME = "to_user_name";
-    public static final String FLD_IS_PUBLIC = "is_public";
+    public static final String FLD_READ_TIME = "read_time";
+    public static final String FLD_MAILBOX_ID = "mailbox_id";
 
     @Name
-    @ColDefine(notNull = true)
-    @Comment("id:<LowerUserId-UpUserId>")
+    @ColDefine(width = 64, notNull = true)
+    @Comment("消息ID")
     String id;
+
+    @Column(hump = true)
+    @ColDefine(notNull = true)
+    @Comment("消息对的ID")
+    String mailboxId;
 
     @Column(hump = true)
     @ColDefine(notNull = true)
     @Comment("发送userId")
     Long fromUser;
 
-    @Column(hump = true)
-    @ColDefine(notNull = true)
-    @Comment("接收userId")
-    Long toUser;
-
-
     @Column("from_user_name")
     @ColDefine(notNull = true)
     @Comment("发送userName")
     String fromUserName;
 
-    @Column("from_user_avatar")
-    @Comment("发送user头像")
-    String fromUserAvatar;
-
-    @Column("to_user_avatar")
-    @Comment("接受user头像")
-    String toUserAvatar;
-
+    @Column(hump = true)
+    @ColDefine(notNull = true)
+    @Comment("接收userId")
+    Long toUser;
 
     @Column("to_user_name")
     @ColDefine(notNull = true)
@@ -75,19 +70,9 @@ public class MailboxEntity implements Serializable, IsSerializable {
     @Column(hump = true)
     Timestamp createTime;
 
-    @Comment("未读数量TO")
+    @Comment("读取时间")
+    @ColDefine(type = ColType.DATETIME, width = 0)
     @Column(hump = true)
-    @Default("0")
-    Integer toUnread;
-
-    @Comment("未读数量FROM")
-    @Column(hump = true)
-    @Default("0")
-    Integer fromUnread;
-
-    @Comment("是否是公共邮箱")
-    @Column(hump = true)
-    @Default("false")
-    Boolean isPublic;
+    Timestamp readTime;
 
 }

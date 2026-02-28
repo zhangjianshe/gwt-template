@@ -4,6 +4,7 @@ import cn.mapway.biz.core.BizRequest;
 import cn.mapway.biz.core.BizResult;
 import cn.mapway.document.annotation.Doc;
 import cn.mapway.gwt_template.server.service.message.QueryMessageExecutor;
+import cn.mapway.gwt_template.server.service.message.QueryUserMailboxExecutor;
 import cn.mapway.gwt_template.server.service.message.ReadMessageExecutor;
 import cn.mapway.gwt_template.server.service.message.SendMessageExecutor;
 import cn.mapway.gwt_template.shared.rpc.message.*;
@@ -25,6 +26,22 @@ public class MessageController extends ApiBaseController {
     SendMessageExecutor sendMessageExecutor;
     @Resource
     ReadMessageExecutor readMessageExecutor;
+
+    @Resource
+    QueryUserMailboxExecutor queryUserMailboxExecutor;
+
+    /**
+     * QueryUserMailbox
+     *
+     * @param request request
+     * @return data
+     */
+    @Doc(value = "QueryUserMailbox", retClazz = {QueryUserMailboxResponse.class})
+    @RequestMapping(value = "/queryUserMailbox", method = RequestMethod.POST)
+    public RpcResult<QueryUserMailboxResponse> queryUserMailbox(@RequestBody QueryUserMailboxRequest request) {
+        BizResult<QueryUserMailboxResponse> bizResult = queryUserMailboxExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toApiResult(bizResult);
+    }
 
     /**
      * QueryMessage

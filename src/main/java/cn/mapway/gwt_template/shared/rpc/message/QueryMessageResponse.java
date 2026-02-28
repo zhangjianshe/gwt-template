@@ -1,7 +1,7 @@
 package cn.mapway.gwt_template.shared.rpc.message;
 
 import cn.mapway.document.annotation.Doc;
-import cn.mapway.gwt_template.shared.db.MailboxEntity;
+import cn.mapway.gwt_template.shared.db.MailboxMessageEntity;
 import com.google.gwt.user.client.rpc.IsSerializable;
 import lombok.Data;
 
@@ -19,6 +19,6 @@ public class QueryMessageResponse implements Serializable, IsSerializable {
     Integer total;
     Integer page;
     Integer pageSize;
-    List<MailboxEntity> mailboxes;
+    List<MailboxMessageEntity> messageList;
 
 }

@@ -4,8 +4,9 @@ import cn.mapway.biz.core.AbstractBizExecutor;
 import cn.mapway.biz.core.BizContext;
 import cn.mapway.biz.core.BizRequest;
 import cn.mapway.biz.core.BizResult;
+import cn.mapway.gwt_template.server.service.git.MarkdownService;
 import cn.mapway.gwt_template.shared.AppConstant;
-import cn.mapway.gwt_template.shared.db.MailboxEntity;
+import cn.mapway.gwt_template.shared.db.MailboxMessageEntity;
 import cn.mapway.gwt_template.shared.rpc.message.QueryMessageRequest;
 import cn.mapway.gwt_template.shared.rpc.message.QueryMessageResponse;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
@@ -15,6 +16,8 @@ import org.nutz.dao.Dao;
 import org.nutz.dao.pager.Pager;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
+import org.nutz.lang.Lang;
+import org.nutz.lang.Strings;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -30,12 +33,22 @@ import java.util.List;
 public class QueryMessageExecutor extends AbstractBizExecutor<QueryMessageResponse, QueryMessageRequest> {
     @Resource
     Dao dao;
+    @Resource
+    MarkdownService markdownService;
 
     @Override
     protected BizResult<QueryMessageResponse> process(BizContext context, BizRequest<QueryMessageRequest> bizParam) {
         QueryMessageRequest request = bizParam.getData();
         log.info("QueryMessageExecutor {}", Json.toJson(request, JsonFormat.compact()));
         LoginUser user = (LoginUser) context.get(AppConstant.KEY_LOGIN_USER);
+
+        //只获取一个消息 TODO 需要添加权限认证
+        if (Strings.isNotBlank(request.getMessageId())) {
+            MailboxMessageEntity fetch = dao.fetch(MailboxMessageEntity.class, Cnd.where(MailboxMessageEntity.FLD_ID, "=", request.getMessageId()));
+            QueryMessageResponse response = new QueryMessageResponse();
+            response.setMessageList(Lang.list(fetch));
+            return BizResult.success(response);
+        }
 
         Pager pager = new Pager();
 
@@ -53,21 +66,19 @@ public class QueryMessageExecutor extends AbstractBizExecutor<QueryMessageRespon
         response.setPage(pager.getPageNumber());
         response.setPageSize(pager.getPageSize());
 
-        if (request.getQueryPublicMessage() != null && request.getQueryPublicMessage()) {
-            //查询公共消息
-            Cnd where = Cnd.where(MailboxEntity.FLD_TO_USER_ID, "=", -1L);
-            where.desc(MailboxEntity.FLD_CREATE_TIME);
-            int count = dao.count(MailboxEntity.class, where);
-            List<MailboxEntity> list = dao.query(MailboxEntity.class, where, pager);
-            response.setTotal(count);
-            response.setMailboxes(list);
-        } else {
-            Cnd where = Cnd.where(MailboxEntity.FLD_TO_USER_ID, "=", user.getUser().getUserId());
-            where.desc(MailboxEntity.FLD_CREATE_TIME);
-            int count = dao.count(MailboxEntity.class, where);
-            List<MailboxEntity> list = dao.query(MailboxEntity.class, where, pager);
-            response.setTotal(count);
-            response.setMailboxes(list);
+        assertTrue(Strings.isNotBlank(request.getMailboxId()), "没有绘画ID");
+
+        Cnd where = Cnd.where(MailboxMessageEntity.FLD_MAILBOX_ID, "=", request.getMailboxId());
+        where.desc(MailboxMessageEntity.FLD_CREATE_TIME);
+        int count = dao.count(MailboxMessageEntity.class, where);
+        List<MailboxMessageEntity> list = dao.query(MailboxMessageEntity.class, where, pager);
+        response.setTotal(count);
+        response.setMessageList(list);
+        //处理内容类型
+        for (MailboxMessageEntity entity : response.getMessageList()) {
+            if ("text/markdown".equals(entity.getMimeType())) {
+                entity.setBody(markdownService.renderHtml(entity.getBody()));
+            }
         }
         return BizResult.success(response);
     }

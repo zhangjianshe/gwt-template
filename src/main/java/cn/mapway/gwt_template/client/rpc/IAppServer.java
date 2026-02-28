@@ -8,6 +8,8 @@ import cn.mapway.gwt_template.shared.rpc.dns.*;
 import cn.mapway.gwt_template.shared.rpc.message.*;
 import cn.mapway.gwt_template.shared.rpc.project.*;
 import cn.mapway.gwt_template.shared.rpc.soft.*;
+import cn.mapway.gwt_template.shared.rpc.user.UpdateUserInfoRequest;
+import cn.mapway.gwt_template.shared.rpc.user.UpdateUserInfoResponse;
 import cn.mapway.gwt_template.shared.rpc.webhook.*;
 import cn.mapway.rbac.shared.rpc.LoginRequest;
 import cn.mapway.rbac.shared.rpc.LoginResponse;
@@ -18,6 +20,10 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 @RemoteServiceRelativePath(AppConstant.DEFAULT_SERVER_PATH)
 public interface IAppServer extends RemoteService {
     ///CODE_GEN_INSERT_POINT///
+	RpcResult<UpdateUserInfoResponse> updateUserInfo(UpdateUserInfoRequest request);
+
+	RpcResult<QueryUserMailboxResponse> queryUserMailbox(QueryUserMailboxRequest request);
+
 	RpcResult<ReadMessageResponse> readMessage(ReadMessageRequest request);
 
 	RpcResult<SendMessageResponse> sendMessage(SendMessageRequest request);

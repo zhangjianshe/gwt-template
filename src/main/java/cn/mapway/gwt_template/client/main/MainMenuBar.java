@@ -80,31 +80,7 @@ public class MainMenuBar extends CommonEventComposite {
     @Override
     protected void onLoad() {
         super.onLoad();
-        buttons.clear();
-        IUserInfo userInfo = ClientContext.get().getUserInfo();
-        lbExit.setText("退出(" + userInfo.getNickName() + ")");
-        if (ClientContext.get().getAppData().getLogo() != null) {
-            logo.setUrl(ClientContext.get().getAppData().getLogo());
-        }
-        List<Res> userResources = ClientContext.get().findUserResources(ResourceKind.RESOURCE_KIND_FUNCTION);
-        List<ModuleInfo> moduleInfos = userResources.stream().map(res -> {
-            return BaseAbstractModule.getModuleFactory().findModuleInfo(res.resourceCode);
-        }).filter(Objects::nonNull).collect(Collectors.toList());
-        Collections.sort(moduleInfos, Comparator.comparingInt(o -> o.order));
-        moduleInfos.add(0, BaseAbstractModule.getModuleFactory().findModuleInfo(DesktopFrame.MODULE_CODE));
-        for (ModuleInfo moduleInfo : moduleInfos) {
-            AiButton button = new AiButton(moduleInfo.name);
-            button.setIcon(moduleInfo.unicode);
-            button.setData(moduleInfo);
-            buttons.add(button);
-            button.addClickHandler(itemClicked);
-        }
-        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-            @Override
-            public void execute() {
-                selectFirst();
-            }
-        });
+        reload();
     }
 
     private void selectFirst() {
@@ -137,6 +113,34 @@ public class MainMenuBar extends CommonEventComposite {
             @Override
             public void onSuccess(RpcResult<LogoutResponse> result) {
                 ClientContext.get().fireEvent(CommonEvent.needLoginEvent(null));
+            }
+        });
+    }
+
+    public void reload() {
+        buttons.clear();
+        IUserInfo userInfo = ClientContext.get().getUserInfo();
+        lbExit.setText("退出(" + userInfo.getNickName() + ")");
+        if (ClientContext.get().getAppData().getLogo() != null) {
+            logo.setUrl(ClientContext.get().getAppData().getLogo());
+        }
+        List<Res> userResources = ClientContext.get().findUserResources(ResourceKind.RESOURCE_KIND_FUNCTION);
+        List<ModuleInfo> moduleInfos = userResources.stream().map(res -> {
+            return BaseAbstractModule.getModuleFactory().findModuleInfo(res.resourceCode);
+        }).filter(Objects::nonNull).collect(Collectors.toList());
+        Collections.sort(moduleInfos, Comparator.comparingInt(o -> o.order));
+        moduleInfos.add(0, BaseAbstractModule.getModuleFactory().findModuleInfo(DesktopFrame.MODULE_CODE));
+        for (ModuleInfo moduleInfo : moduleInfos) {
+            AiButton button = new AiButton(moduleInfo.name);
+            button.setIcon(moduleInfo.unicode);
+            button.setData(moduleInfo);
+            buttons.add(button);
+            button.addClickHandler(itemClicked);
+        }
+        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+            @Override
+            public void execute() {
+                selectFirst();
             }
         });
     }

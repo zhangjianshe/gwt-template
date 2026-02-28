@@ -6,18 +6,18 @@ import cn.mapway.ui.client.util.StringUtil;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.HTMLPanel;
-import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.*;
 
 public class MailboxItem extends Composite implements IData<MailboxEntity> {
     private static final MailboxItemUiBinder ourUiBinder = GWT.create(MailboxItemUiBinder.class);
     @UiField
-    Label lbDate;
+    HTML lbBody;
     @UiField
-    Label lbName;
+    Image icon;
     @UiField
-    Label lbBody;
+    Label lbUserName;
+    @UiField
+    Label lbTime;
     private MailboxEntity data;
 
     public MailboxItem() {
@@ -36,9 +36,22 @@ public class MailboxItem extends Composite implements IData<MailboxEntity> {
     }
 
     private void toUI() {
+        if (data.getIsPublic()) {
+            //公共邮箱
+            lbUserName.setText(data.getToUserName());
+            if (StringUtil.isNotBlank(data.getToUserAvatar())) {
+                icon.setUrl(data.getToUserAvatar());
+            }
+        } else {
+            lbUserName.setText(data.getFromUserName());
+            if (StringUtil.isNotBlank(data.getFromUserAvatar())) {
+                icon.setUrl(data.getFromUserAvatar());
+            }
+        }
+
+        lbTime.setText(StringUtil.formatDate(data.getCreateTime(), "MM-dd HH:mm:ss"));
         lbBody.setText(data.getBody());
-        lbName.setText(data.getFromUserName());
-        lbDate.setText(StringUtil.formatDate(data.getCreateTime()));
+
     }
 
     interface MailboxItemUiBinder extends UiBinder<HTMLPanel, MailboxItem> {

@@ -39,8 +39,10 @@ public class ClientWebSocket {
         }
     }
 
-    public void connectToServer()
-    {
+    /**
+     * 链接到服务器
+     */
+    public void connectToServer() {
         connect(AppConstant.URL_WEBSOCKET.replace("USER_ID", ClientContext.get().getUserInfo().getId()));
     }
 

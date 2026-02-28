@@ -1,0 +1,40 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:buttons="urn:import:cn.mapway.ui.client.widget.buttons">
+    <ui:style>
+        .box {
+            margin: 10px;
+            border-radius: 8px;
+            border: solid 1px #d0d0d0;
+            display: grid;
+            grid-template-rows: 1fr 40px;
+            flex-flow: column;
+            box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+            padding: 6px;
+            background-color: white;
+        }
+
+        .editor {
+            padding: 12px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 16px;
+            resize: none; /* Only allow vertical resizing to prevent layout breaking */
+            outline: none;
+            transition: border-color 0.3s;
+            line-height: 100%;
+        }
+
+        .tools {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 1rem;
+            padding: 0 4px;
+        }</ui:style>
+    <g:HTMLPanel addStyleNames="{style.box}">
+        <g:TextArea width="100%"  addStyleNames="{style.editor}" ui:field="editor"/>
+        <g:HTMLPanel width="100%" ui:field="tools" addStyleNames="{style.tools}">
+            <buttons:PlusButton ui:field="btnUpload"/>
+        </g:HTMLPanel>
+    </g:HTMLPanel>
+</ui:UiBinder>
