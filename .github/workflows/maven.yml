@@ -1,4 +1,4 @@
-name: Publish to Maven Central
+name: build and deploy to the harbor.cangling.cn
 
 on:
   push:
