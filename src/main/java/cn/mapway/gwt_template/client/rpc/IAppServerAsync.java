@@ -4,6 +4,7 @@ import cn.mapway.gwt_template.shared.rpc.config.*;
 import cn.mapway.gwt_template.shared.rpc.desktop.*;
 import cn.mapway.gwt_template.shared.rpc.dev.*;
 import cn.mapway.gwt_template.shared.rpc.dns.*;
+import cn.mapway.gwt_template.shared.rpc.ldap.*;
 import cn.mapway.gwt_template.shared.rpc.message.*;
 import cn.mapway.gwt_template.shared.rpc.project.*;
 import cn.mapway.gwt_template.shared.rpc.soft.*;
@@ -18,6 +19,18 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public interface IAppServerAsync {
 
     ///CODE_GEN_INSERT_POINT///
+	void deleteLdapEntry(DeleteLdapEntryRequest request, AsyncCallback<RpcResult<DeleteLdapEntryResponse>> async);
+
+	void updateLdapEntry(UpdateLdapEntryRequest request, AsyncCallback<RpcResult<UpdateLdapEntryResponse>> async);
+
+	void createLdapEntry(CreateLdapEntryRequest request, AsyncCallback<RpcResult<CreateLdapEntryResponse>> async);
+
+	void queryLdapNodeDetail(QueryLdapNodeDetailRequest request, AsyncCallback<RpcResult<QueryLdapNodeDetailResponse>> async);
+
+	void queryLdapNodeData(QueryLdapNodeDataRequest request, AsyncCallback<RpcResult<QueryLdapNodeDataResponse>> async);
+
+	void queryLdapRootDse(QueryLdapRootDseRequest request, AsyncCallback<RpcResult<QueryLdapRootDseResponse>> async);
+
 	void updateUserInfo(UpdateUserInfoRequest request, AsyncCallback<RpcResult<UpdateUserInfoResponse>> async);
 
 	void queryUserMailbox(QueryUserMailboxRequest request, AsyncCallback<RpcResult<QueryUserMailboxResponse>> async);

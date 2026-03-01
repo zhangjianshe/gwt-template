@@ -290,6 +290,15 @@ public class ServerStartedOnce extends ApplicationObjectSupport implements IServ
             throw Lang.makeThrow("[START]", rbacRoleBizResult.getMessage());
         }
 
+        //系统LDAP管理角色
+        rbacRoleBizResult = rbacResourceService.confirmRoleExist(AppConstant.ROLE_SYS_LDAP_MANAGER, "系统LDAP维护", "ROLE_SYS", "", "");
+        if (rbacRoleBizResult.isFailed()) {
+            log.error("[START] 系统LDAP管理角色 {}", rbacRoleBizResult.getMessage());
+            throw Lang.makeThrow("[START]", rbacRoleBizResult.getMessage());
+        }
+        rbacResourceService.confirmResourceInRole("ldap_frame", AppConstant.ROLE_SYS_LDAP_MANAGER);
+
+
         //分配项目管理员 创建项目资源
         log.info("[START] 分配项目管理员 角色资源");
         rbacResourceService.confirmResourceInRole(ResourcePoint.RP_PROJECT_CREATE.getCode(), AppConstant.ROLE_SYS_PROJECT_MANAGER);
@@ -309,6 +318,7 @@ public class ServerStartedOnce extends ApplicationObjectSupport implements IServ
 
         //管理员拥有消息管理角色
         rbacResourceService.assignUserRole(String.valueOf(RbacConstant.SUPER_USER_ID), AppConstant.ROLE_SYS_MESSAGE_MANAGER, false);
+        rbacResourceService.assignUserRole(String.valueOf(RbacConstant.SUPER_USER_ID), AppConstant.ROLE_SYS_LDAP_MANAGER, false);
 
 
     }

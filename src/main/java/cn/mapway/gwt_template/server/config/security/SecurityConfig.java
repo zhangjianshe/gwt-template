@@ -25,8 +25,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
      */
     @Resource
     private AuthenticationEntryPointImpl unauthorizedHandler;
-    @Resource
-    private LoginProvider dynamicLdapProvider;
     /**
      * 跨域过滤器
      */

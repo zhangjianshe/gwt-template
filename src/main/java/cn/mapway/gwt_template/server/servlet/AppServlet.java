@@ -16,6 +16,7 @@ import cn.mapway.gwt_template.server.service.dns.DeleteDnsExecutor;
 import cn.mapway.gwt_template.server.service.dns.QueryDnsExecutor;
 import cn.mapway.gwt_template.server.service.dns.UpdateDnsExecutor;
 import cn.mapway.gwt_template.server.service.dns.UpdateIpExecutor;
+import cn.mapway.gwt_template.server.service.ldap.*;
 import cn.mapway.gwt_template.server.service.message.QueryMessageExecutor;
 import cn.mapway.gwt_template.server.service.message.QueryUserMailboxExecutor;
 import cn.mapway.gwt_template.server.service.message.ReadMessageExecutor;
@@ -34,6 +35,7 @@ import cn.mapway.gwt_template.shared.rpc.config.*;
 import cn.mapway.gwt_template.shared.rpc.desktop.*;
 import cn.mapway.gwt_template.shared.rpc.dev.*;
 import cn.mapway.gwt_template.shared.rpc.dns.*;
+import cn.mapway.gwt_template.shared.rpc.ldap.*;
 import cn.mapway.gwt_template.shared.rpc.message.*;
 import cn.mapway.gwt_template.shared.rpc.project.*;
 import cn.mapway.gwt_template.shared.rpc.soft.*;
@@ -115,6 +117,66 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
     QueryConfigExecutor queryConfigExecutor;
 
     ///CODE_GEN_INSERT_POINT///
+	
+    @Resource
+    DeleteLdapEntryExecutor deleteLdapEntryExecutor;
+    @Override
+    public RpcResult<DeleteLdapEntryResponse> deleteLdapEntry(DeleteLdapEntryRequest request) {
+        BizResult<DeleteLdapEntryResponse> bizResult = deleteLdapEntryExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    UpdateLdapEntryExecutor updateLdapEntryExecutor;
+    @Override
+    public RpcResult<UpdateLdapEntryResponse> updateLdapEntry(UpdateLdapEntryRequest request) {
+        BizResult<UpdateLdapEntryResponse> bizResult = updateLdapEntryExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    CreateLdapEntryExecutor createLdapEntryExecutor;
+    @Override
+    public RpcResult<CreateLdapEntryResponse> createLdapEntry(CreateLdapEntryRequest request) {
+        BizResult<CreateLdapEntryResponse> bizResult = createLdapEntryExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    QueryLdapNodeDetailExecutor queryLdapNodeDetailExecutor;
+    @Override
+    public RpcResult<QueryLdapNodeDetailResponse> queryLdapNodeDetail(QueryLdapNodeDetailRequest request) {
+        BizResult<QueryLdapNodeDetailResponse> bizResult = queryLdapNodeDetailExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    QueryLdapNodeDataExecutor queryLdapNodeDataExecutor;
+    @Override
+    public RpcResult<QueryLdapNodeDataResponse> queryLdapNodeData(QueryLdapNodeDataRequest request) {
+        BizResult<QueryLdapNodeDataResponse> bizResult = queryLdapNodeDataExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    QueryLdapRootDseExecutor queryLdapRootDseExecutor;
+    @Override
+    public RpcResult<QueryLdapRootDseResponse> queryLdapRootDse(QueryLdapRootDseRequest request) {
+        BizResult<QueryLdapRootDseResponse> bizResult = queryLdapRootDseExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
 	
     @Resource
     UpdateUserInfoExecutor updateUserInfoExecutor;

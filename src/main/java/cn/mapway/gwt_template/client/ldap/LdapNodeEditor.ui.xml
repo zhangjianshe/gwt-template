@@ -1,0 +1,18 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:inspector="urn:import:cn.mapway.ui.client.mvc.attribute.editor.inspector"
+             xmlns:buttons="urn:import:cn.mapway.ui.client.widget.buttons">
+    <g:DockLayoutPanel>
+        <g:north size="0">
+            <g:HorizontalPanel verticalAlignment="middle" ui:field="tools" spacing="4">
+                <buttons:AiButton ui:field="btnAddOrg" enabled="false">添加组织</buttons:AiButton>
+                <buttons:AiButton ui:field="btnAddPerson" enabled="false">添加人员</buttons:AiButton>
+                <buttons:AiButton ui:field="btnDelete" enabled="false">删除</buttons:AiButton>
+            </g:HorizontalPanel>
+        </g:north>
+        <g:center>
+            <inspector:ObjectInspector labelWidth="180" saveButtonVisible="true" saveButtonEnable="true" vertical="true"
+                                       ui:field="objectInspector"/>
+        </g:center>
+    </g:DockLayoutPanel>
+</ui:UiBinder>

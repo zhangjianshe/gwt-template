@@ -70,12 +70,20 @@
         }
 
         .msg {
-            max-width: 60%;
             text-wrap: wrap;
             word-break: break-all;
             padding: 10px;
             line-height: 150%;
             color: brown;
+            background-color: white;
+            overflow: auto;
+            border: solid 1px #f0f0f0;
+            border-radius: 10px;
+            box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 10px;
         }
 
         .background {
@@ -111,8 +119,11 @@
                         <g:Button addStyleNames="{style.login-button}" ui:field="btnLogin">登录</g:Button>
                     </form>
                 </div>
-                <g:Label ui:field="lbMessage" addStyleNames="{style.msg}"/>
+
             </g:HTMLPanel>
+        </g:layer>
+        <g:layer left="100" bottom="100" right="100" height="100">
+            <g:Label ui:field="lbMessage" visible="false" addStyleNames="{style.msg}"/>
         </g:layer>
         <g:layer left="20" bottom="10" width="300" height="30">
             <g:Label ui:field="lbVersion" addStyleNames="{style.version}"/>

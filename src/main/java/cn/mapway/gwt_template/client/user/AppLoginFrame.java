@@ -13,6 +13,9 @@ import cn.mapway.ui.shared.CommonEvent;
 import cn.mapway.ui.shared.rpc.RpcResult;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.event.dom.client.KeyDownEvent;
+import com.google.gwt.event.dom.client.KeyDownHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -61,6 +64,14 @@ public class AppLoginFrame extends BaseAbstractModule implements RequiresResize 
         }
         CompileInformation information = ClientContext.getCompileFactory().compileInfo();
         lbVersion.setText(information.gitCommit + " @ " + StringUtil.formatDate(information.compileTime));
+        txtPassword.addKeyDownHandler(new KeyDownHandler() {
+            @Override
+            public void onKeyDown(KeyDownEvent event) {
+                if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
+                    doLogin();
+                }
+            }
+        });
     }
 
     @Override
@@ -73,32 +84,45 @@ public class AppLoginFrame extends BaseAbstractModule implements RequiresResize 
         return MODULE_CODE;
     }
 
+    void showMessage(String msg) {
+        if (StringUtil.isBlank(msg)) {
+            root.setWidgetVisible(lbMessage, false);
+        } else {
+            root.setWidgetVisible(lbMessage, true);
+            lbMessage.setText(msg);
+        }
+    }
+
     @UiHandler("btnLogin")
     public void btnLoginClick(ClickEvent event) {
+        doLogin();
+
+    }
+
+    private void doLogin() {
         String userName = txtName.getValue();
         String password = txtPassword.getValue();
 
-        lbMessage.setText("login...");
+        showMessage("登录中...");
         LoginRequest request = new LoginRequest();
         request.setUserName(userName);
         request.setPassword(password);
         AppProxy.get().login(request, new AsyncCallback<RpcResult<LoginResponse>>() {
             @Override
             public void onFailure(Throwable caught) {
-                lbMessage.setText(caught.getMessage());
+                showMessage(caught.getMessage());
             }
 
             @Override
             public void onSuccess(RpcResult<LoginResponse> result) {
                 if (result.isSuccess()) {
-                    lbMessage.setText("");
+                    showMessage("");
                     ClientContext.get().fireEvent(CommonEvent.loginEvent(result.getData().getCurrentUser()));
                 } else {
-                    lbMessage.setText(result.getMessage());
+                    showMessage(result.getMessage());
                 }
             }
         });
-
     }
 
     interface AppLoginFrameUiBinder extends UiBinder<LayoutPanel, AppLoginFrame> {

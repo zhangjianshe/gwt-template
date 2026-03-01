@@ -5,6 +5,7 @@ import cn.mapway.gwt_template.shared.rpc.config.*;
 import cn.mapway.gwt_template.shared.rpc.desktop.*;
 import cn.mapway.gwt_template.shared.rpc.dev.*;
 import cn.mapway.gwt_template.shared.rpc.dns.*;
+import cn.mapway.gwt_template.shared.rpc.ldap.*;
 import cn.mapway.gwt_template.shared.rpc.message.*;
 import cn.mapway.gwt_template.shared.rpc.project.*;
 import cn.mapway.gwt_template.shared.rpc.soft.*;
@@ -20,6 +21,18 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 @RemoteServiceRelativePath(AppConstant.DEFAULT_SERVER_PATH)
 public interface IAppServer extends RemoteService {
     ///CODE_GEN_INSERT_POINT///
+	RpcResult<DeleteLdapEntryResponse> deleteLdapEntry(DeleteLdapEntryRequest request);
+
+	RpcResult<UpdateLdapEntryResponse> updateLdapEntry(UpdateLdapEntryRequest request);
+
+	RpcResult<CreateLdapEntryResponse> createLdapEntry(CreateLdapEntryRequest request);
+
+	RpcResult<QueryLdapNodeDetailResponse> queryLdapNodeDetail(QueryLdapNodeDetailRequest request);
+
+	RpcResult<QueryLdapNodeDataResponse> queryLdapNodeData(QueryLdapNodeDataRequest request);
+
+	RpcResult<QueryLdapRootDseResponse> queryLdapRootDse(QueryLdapRootDseRequest request);
+
 	RpcResult<UpdateUserInfoResponse> updateUserInfo(UpdateUserInfoRequest request);
 
 	RpcResult<QueryUserMailboxResponse> queryUserMailbox(QueryUserMailboxRequest request);

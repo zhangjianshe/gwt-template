@@ -1,0 +1,15 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:ldap="urn:import:cn.mapway.gwt_template.client.ldap">
+    <ui:style>
+
+    </ui:style>
+    <g:DockLayoutPanel>
+        <g:west size="400">
+            <ldap:LdapTree addStyleNames="ai-border-right" ui:field="tree"/>
+        </g:west>
+        <g:center>
+            <ldap:LdapNodeEditor ui:field="editor"/>
+        </g:center>
+    </g:DockLayoutPanel>
+</ui:UiBinder>
