@@ -117,6 +117,12 @@ public class AddLdapUserDialog extends CommonEventComposite {
             uid.setValue(txtName.getValue());
             template.getAttributes().add(uid);
 
+            uid = new LdapNodeAttribute();
+            uid.setKey("mail");
+            uid.setKind(AttributeKind.AK_STRING.getKind());
+            uid.setValue(txtEmail.getValue());
+            template.getAttributes().add(uid);
+
             LdapNodeAttribute pwd = new LdapNodeAttribute();
             pwd.setKey("userPassword");
             pwd.setKind(AttributeKind.AK_PASSWORD.getKind());

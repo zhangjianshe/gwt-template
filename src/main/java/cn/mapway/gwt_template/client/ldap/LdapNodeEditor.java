@@ -3,13 +3,16 @@ package cn.mapway.gwt_template.client.ldap;
 import cn.mapway.gwt_template.client.ClientContext;
 import cn.mapway.gwt_template.client.rpc.AppProxy;
 import cn.mapway.gwt_template.client.rpc.AsyncAdaptor;
+import cn.mapway.gwt_template.client.widget.DataEditorDialog;
 import cn.mapway.gwt_template.shared.rpc.ldap.*;
+import cn.mapway.ui.client.mvc.attribute.editor.inspector.CodeLanguage;
 import cn.mapway.ui.client.mvc.attribute.editor.inspector.ObjectInspector;
 import cn.mapway.ui.client.tools.IData;
 import cn.mapway.ui.client.widget.CommonEventComposite;
 import cn.mapway.ui.client.widget.buttons.AiButton;
 import cn.mapway.ui.client.widget.dialog.Dialog;
 import cn.mapway.ui.shared.CommonEvent;
+import cn.mapway.ui.shared.CommonEventHandler;
 import cn.mapway.ui.shared.rpc.RpcResult;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -41,6 +44,8 @@ public class LdapNodeEditor extends CommonEventComposite implements IData<LdapNo
     AiButton btnExport;
     @UiField
     AiButton btnImport;
+    @UiField
+    AiButton btnPersonBatch;
     private LdapNodeData data;
 
     public LdapNodeEditor() {
@@ -77,6 +82,7 @@ public class LdapNodeEditor extends CommonEventComposite implements IData<LdapNo
             btnDelete.setEnabled(false);
             btnAddOrg.setEnabled(false);
             btnAddPerson.setEnabled(false);
+            btnPersonBatch.setEnabled(false);
             attrProvider.rebuild(null);
             return;
         }
@@ -99,6 +105,7 @@ public class LdapNodeEditor extends CommonEventComposite implements IData<LdapNo
         btnAddOrg.setEnabled(true);
         btnAddOrg.setData(parentDn);
         btnAddPerson.setEnabled(false);
+        btnPersonBatch.setEnabled(false);
         data = null;
         attrProvider.rebuild(data);
 
@@ -119,6 +126,8 @@ public class LdapNodeEditor extends CommonEventComposite implements IData<LdapNo
             btnAddOrg.setData(data.getDn());
             btnAddPerson.setEnabled(true);
             btnAddPerson.setData(data.getDn());
+            btnPersonBatch.setEnabled(true);
+            btnPersonBatch.setData(data.getDn());
             btnDelete.setEnabled(true);
             btnDelete.setData(data.getDn());
         } else {
@@ -126,6 +135,8 @@ public class LdapNodeEditor extends CommonEventComposite implements IData<LdapNo
             btnAddOrg.setData("");
             btnAddPerson.setEnabled(false);
             btnAddPerson.setData("");
+            btnPersonBatch.setEnabled(false);
+            btnPersonBatch.setData("");
             btnDelete.setEnabled(true);
             btnDelete.setData(data.getDn());
         }
@@ -211,7 +222,70 @@ public class LdapNodeEditor extends CommonEventComposite implements IData<LdapNo
 
     @UiHandler("btnImport")
     public void btnImportClick(ClickEvent event) {
+        ClientContext.get().alert("没有实现");
+    }
 
+    @UiHandler("btnPersonBatch")
+    public void btnPersonBatchClick(ClickEvent event) {
+        String format = "# 请参考下面的格式添加　每一行代表一个用户　#开始的行忽略 字段之间用空格隔开,可以有多个空格\r\n";
+        format += "# 次数据可以从 excel中复制过来\r\n";
+        format += "# 用户ID   用户真实名称　  用户密码     用户邮箱   \r\n";
+        format += "# wangwu   王五　　　　　  wangwu123    wangwu@cangling.cn \r\n";
+        Dialog<DataEditorDialog> dialog = DataEditorDialog.getDialog(true);
+        dialog.addCommonHandler(event1 -> {
+            if (event1.isOk()) {
+                doBatchImport(event1.getValue());
+            } else if (event1.isClose()) {
+                dialog.hide();
+            }
+        });
+        dialog.center();
+        dialog.getContent().setSaveText("导入");
+        dialog.getContent().setData(format);
+        dialog.getContent().setLanguage(CodeLanguage.TEXT);
+    }
+
+    /**
+     * 批量导入用户
+     *
+     * @param users
+     */
+    private void doBatchImport(String users) {
+        ImportLdapExcelRequest request = new ImportLdapExcelRequest();
+        request.setDn((String) btnPersonBatch.getData());
+        request.setData(users);
+        AppProxy.get().importLdapExcel(request, new AsyncCallback<RpcResult<ImportLdapExcelResponse>>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                showError(caught.getMessage());
+            }
+
+            @Override
+            public void onSuccess(RpcResult<ImportLdapExcelResponse> result) {
+                if (result.isSuccess()) {
+                    DataEditorDialog.getDialog(true).hide();
+                    fireEvent(CommonEvent.reloadEvent(false));
+                } else {
+                    showError(result.getMessage());
+                }
+            }
+        });
+    }
+
+    private void showError(String message) {
+        Dialog<DataEditorDialog> dialog = DataEditorDialog.getDialog(true);
+        dialog.addCommonHandler(new CommonEventHandler() {
+            @Override
+            public void onCommonEvent(CommonEvent event) {
+                if (event.isOk()) {
+                    doBatchImport(event.getValue());
+                } else if (event.isClose()) {
+                    dialog.hide();
+                }
+            }
+        });
+        dialog.getContent().setMessage(message);
+        dialog.center();
     }
 
     private void doDelete(String dn) {

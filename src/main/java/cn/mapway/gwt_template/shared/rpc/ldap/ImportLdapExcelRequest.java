@@ -14,4 +14,6 @@ import java.io.Serializable;
 @Data
 @Doc("ImportLdapExcelRequest")
 public class ImportLdapExcelRequest implements Serializable, IsSerializable {
+    String dn;// parentDN
+    String data;
 }

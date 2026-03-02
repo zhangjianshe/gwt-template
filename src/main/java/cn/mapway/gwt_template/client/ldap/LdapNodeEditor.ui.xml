@@ -9,6 +9,7 @@
                 <buttons:AiButton ui:field="btnImport" enabled="false">导入数据</buttons:AiButton>
                 <buttons:AiButton ui:field="btnAddOrg" enabled="false">添加组织</buttons:AiButton>
                 <buttons:AiButton ui:field="btnAddPerson" enabled="false">添加人员</buttons:AiButton>
+                <buttons:AiButton ui:field="btnPersonBatch" enabled="false">批量添加</buttons:AiButton>
                 <buttons:AiButton ui:field="btnDelete" enabled="false">删除</buttons:AiButton>
             </g:HorizontalPanel>
         </g:north>
