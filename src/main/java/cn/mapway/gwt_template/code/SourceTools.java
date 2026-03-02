@@ -29,7 +29,7 @@ public class SourceTools {
         String packageBean = "cn.mapway.gwt_template.shared.rpc.ldap";
         String packageService = "cn.mapway.gwt_template.server.service.ldap";
         ArrayList<String> methods = Lang.list(
-                "createLdapEntry","updateLdapEntry","deleteLdapEntry"
+                "importLdapDIF","exportLdapDIF","importLdapExcel"
         );
         methods.stream().forEach(n -> {
             tools.gen(n, packageBean, packageService);

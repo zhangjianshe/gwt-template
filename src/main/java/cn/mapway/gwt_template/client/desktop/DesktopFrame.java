@@ -28,7 +28,10 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.DockLayoutPanel;
+import com.google.gwt.user.client.ui.HTMLPanel;
+import com.google.gwt.user.client.ui.Label;
 import elemental2.core.JsArray;
 import elemental2.promise.IThenable;
 import org.jspecify.annotations.Nullable;
@@ -47,8 +50,6 @@ public class DesktopFrame extends BaseAbstractModule {
     private static final DesktopFrameUiBinder ourUiBinder = GWT.create(DesktopFrameUiBinder.class);
     @UiField
     HTMLPanel panel;
-    @UiField
-    FlexTable table;
     @UiField
     Label btnAdd;
     @UiField
@@ -130,25 +131,14 @@ public class DesktopFrame extends BaseAbstractModule {
     }
 
     private void renderItem(QueryDesktopResponse data) {
-        int row = 0;
-        int col = 0;
-        int COL_COUNT = 5;
-        table.removeAllRows();
+        panel.clear();
         for (DesktopItemEntity entity : data.getItems()) {
-            if (col > COL_COUNT) {
-                row++;
-                col = 0;
-            }
             DesktopItem item = new DesktopItem();
             item.addCommonHandler(itemHandler);
             item.setData(entity);
-            table.setWidget(row, col++, item);
+            panel.add(item);
         }
-        if (col > COL_COUNT) {
-            row++;
-            col = 0;
-        }
-        table.setWidget(row, col++, btnAdd);
+        panel.add(btnAdd);
         lbTitle.setText("联系人(" + data.getItems().size() + ")");
     }
 

@@ -1,0 +1,43 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:dialog="urn:import:cn.mapway.ui.client.widget.dialog"
+             xmlns:widget="urn:import:cn.mapway.ui.client.widget">
+    <ui:style>
+        .box {
+            display: grid;
+            grid-template-columns: 120px 1fr;
+            padding: 20px;
+            align-items: center;
+            justify-content: center;
+            gap: 1em;
+        }
+    </ui:style>
+    <g:DockLayoutPanel>
+        <g:south size="68">
+            <dialog:SaveBar ui:field="saveBar"/>
+        </g:south>
+        <g:center>
+            <g:HTMLPanel addStyleNames="{style.box}">
+
+                <widget:Header>父节点名称</widget:Header>
+                <g:HTMLPanel>
+                    <widget:AiTextBox readOnly="true" ui:field="txtParentDn"/>
+                    <input type="text" name="username" style="display:none"/>
+                    <input type="password" name="passowrd" style="display:none"/>
+                </g:HTMLPanel>
+                <widget:Header>用户ID</widget:Header>
+                <widget:AiTextBox placeholder="zhangsan" ui:field="txtName"/>
+                <widget:Header>密码</widget:Header>
+                <widget:AiTextBox placeholder="*****"  ui:field="txtPassword"/>
+                <widget:Header>姓</widget:Header>
+                <widget:AiTextBox placeholder="张" ui:field="txtSnName"/>
+                <widget:Header>用户显示名称</widget:Header>
+                <widget:AiTextBox placeholder="张三" ui:field="txtDisplayName"/>
+                <widget:Header>电子邮件</widget:Header>
+                <widget:AiTextBox placeholder="zhangsan@cangling.cn" ui:field="txtEmail"/>
+                <widget:Header>用户描述</widget:Header>
+                <widget:AiTextBox ui:field="txtDescription"/>
+            </g:HTMLPanel>
+        </g:center>
+    </g:DockLayoutPanel>
+</ui:UiBinder>

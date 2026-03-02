@@ -12,6 +12,7 @@ import java.util.List;
 @Getter
 @Setter
 public class LdapNodeData implements Serializable, IsSerializable {
+    //当创建的时候此值存放的是parentDn
     private String dn;          // Full path: uid=jdoe,ou=Users,dc=cangling,dc=cn
     private String name;        // Relative name: jdoe
     private boolean isFolder;   // True if it's an OU or Container

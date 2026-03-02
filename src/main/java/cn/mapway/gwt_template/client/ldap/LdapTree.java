@@ -25,6 +25,7 @@ public class LdapTree extends CommonEventComposite {
     SearchBox searchBox;
     @UiField
     Tree ldapTree;
+    TreeItem currentSelect = null;
 
     public LdapTree() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -58,12 +59,14 @@ public class LdapTree extends CommonEventComposite {
     public void ldapTreeCommon(CommonEvent event) {
         if (event.isSelect()) {
             TreeItem treeItem = event.getValue();
+            currentSelect = treeItem;
             Object data = treeItem.getData();
             if (data instanceof RootDse) {
+                RootDse rootDse = (RootDse) data;
                 if (treeItem.getChildren().isEmpty()) {
-                    RootDse rootDse = (RootDse) data;
                     loadSubNode(treeItem, rootDse.getNamingContexts().get(0));
                 }
+                fireEvent(CommonEvent.selectEvent(rootDse));
             } else if (data instanceof LdapNodeData) {
                 LdapNodeData nodeData = (LdapNodeData) data;
                 if (nodeData.isFolder() && treeItem.getChildren().isEmpty()) {
@@ -96,6 +99,53 @@ public class LdapTree extends CommonEventComposite {
                 }
             }
         });
+    }
+
+    public void reloadParent() {
+        if (currentSelect != null) {
+            TreeItem parentItem = currentSelect.getParentItem();
+            if (parentItem != null) {
+                currentSelect = parentItem;
+                reloadSelect(false);
+            }
+        }
+    }
+
+    public void reloadSelect(boolean updateSelf) {
+        if (currentSelect != null) {
+            Object object = currentSelect.getData();
+            if (object instanceof RootDse) {
+                RootDse rootDse = (RootDse) object;
+                loadSubNode(currentSelect, rootDse.getNamingContexts().get(0));
+            } else if (object instanceof LdapNodeData) {
+                if (updateSelf) {
+                    QueryLdapNodeDetailRequest request = new QueryLdapNodeDetailRequest();
+                    request.setDn(((LdapNodeData) object).getDn());
+                    AppProxy.get().queryLdapNodeDetail(request, new AsyncAdaptor<RpcResult<QueryLdapNodeDetailResponse>>() {
+                        @Override
+                        public void onData(RpcResult<QueryLdapNodeDetailResponse> result) {
+                            String mainType = result.getData().getNodeData().getStructuralObjectClass();
+                            String icon = Fonts.PROPERTY;
+                            if ("organizationalUnit".equalsIgnoreCase(mainType)) {
+                                icon = Fonts.DEPARTMENT;
+                            } else if ("inetOrgPerson".equalsIgnoreCase(mainType)) {
+                                icon = Fonts.ACCOUNT;
+                            } else if ("groupOfNames".equalsIgnoreCase(mainType)) {
+                                icon = Fonts.GROUP;
+                            }
+                            currentSelect.setUnicode(icon);
+                            currentSelect.setText(result.getData().getNodeData().getName());
+                            currentSelect.setData(result.getData());
+                        }
+                    });
+                } else {
+                    LdapNodeData nodeData = (LdapNodeData) object;
+                    if (nodeData.isFolder()) {
+                        loadSubNode(currentSelect, nodeData.getDn());
+                    }
+                }
+            }
+        }
     }
 
     interface LdapTreeUiBinder extends UiBinder<DockLayoutPanel, LdapTree> {

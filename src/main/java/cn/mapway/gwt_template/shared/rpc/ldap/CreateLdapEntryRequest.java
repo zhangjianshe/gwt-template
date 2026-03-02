@@ -14,4 +14,5 @@ import java.io.Serializable;
 @Data
 @Doc("CreateLdapEntryRequest")
 public class CreateLdapEntryRequest implements Serializable, IsSerializable {
+    LdapNodeData nodeData;
 }

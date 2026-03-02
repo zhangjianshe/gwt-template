@@ -32,6 +32,54 @@ public class LdapController extends ApiBaseController {
     @Resource
     DeleteLdapEntryExecutor deleteLdapEntryExecutor;
 
+
+    @Resource
+    ImportLdapDIFExecutor importLdapDIFExecutor;
+    @Resource
+    ExportLdapDIFExecutor exportLdapDIFExecutor;
+    @Resource
+    ImportLdapExcelExecutor importLdapExcelExecutor;
+
+    /**
+     * ImportLdapDIF
+     *
+     * @param request request
+     * @return data
+     */
+    @Doc(value = "ImportLdapDIF", retClazz = {ImportLdapDIFResponse.class})
+    @RequestMapping(value = "/importLdapDIF", method = RequestMethod.POST)
+    public RpcResult<ImportLdapDIFResponse> importLdapDIF(@RequestBody ImportLdapDIFRequest request) {
+        BizResult<ImportLdapDIFResponse> bizResult = importLdapDIFExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toApiResult(bizResult);
+    }
+
+    /**
+     * ExportLdapDIF
+     *
+     * @param request request
+     * @return data
+     */
+    @Doc(value = "ExportLdapDIF", retClazz = {ExportLdapDIFResponse.class})
+    @RequestMapping(value = "/exportLdapDIF", method = RequestMethod.POST)
+    public RpcResult<ExportLdapDIFResponse> exportLdapDIF(@RequestBody ExportLdapDIFRequest request) {
+        BizResult<ExportLdapDIFResponse> bizResult = exportLdapDIFExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toApiResult(bizResult);
+    }
+
+    /**
+     * ImportLdapExcel
+     *
+     * @param request request
+     * @return data
+     */
+    @Doc(value = "ImportLdapExcel", retClazz = {ImportLdapExcelResponse.class})
+    @RequestMapping(value = "/importLdapExcel", method = RequestMethod.POST)
+    public RpcResult<ImportLdapExcelResponse> importLdapExcel(@RequestBody ImportLdapExcelRequest request) {
+        BizResult<ImportLdapExcelResponse> bizResult = importLdapExcelExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toApiResult(bizResult);
+    }
+
+
     /**
      * CreateLdapEntry
      *

@@ -7,12 +7,11 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * CreateLdapEntryResponse
+ * ImportLdapDIFRequest
  *
  * @author zhangjianshe@gmail.com
  */
 @Data
-@Doc("CreateLdapEntryResponse")
-public class CreateLdapEntryResponse implements Serializable, IsSerializable {
-    LdapNodeData nodeData;
+@Doc("ImportLdapDIFRequest")
+public class ImportLdapDIFRequest implements Serializable, IsSerializable {
 }

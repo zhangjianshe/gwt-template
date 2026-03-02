@@ -119,6 +119,36 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
     ///CODE_GEN_INSERT_POINT///
 	
     @Resource
+    ImportLdapExcelExecutor importLdapExcelExecutor;
+    @Override
+    public RpcResult<ImportLdapExcelResponse> importLdapExcel(ImportLdapExcelRequest request) {
+        BizResult<ImportLdapExcelResponse> bizResult = importLdapExcelExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    ExportLdapDIFExecutor exportLdapDIFExecutor;
+    @Override
+    public RpcResult<ExportLdapDIFResponse> exportLdapDIF(ExportLdapDIFRequest request) {
+        BizResult<ExportLdapDIFResponse> bizResult = exportLdapDIFExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    ImportLdapDIFExecutor importLdapDIFExecutor;
+    @Override
+    public RpcResult<ImportLdapDIFResponse> importLdapDIF(ImportLdapDIFRequest request) {
+        BizResult<ImportLdapDIFResponse> bizResult = importLdapDIFExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
     DeleteLdapEntryExecutor deleteLdapEntryExecutor;
     @Override
     public RpcResult<DeleteLdapEntryResponse> deleteLdapEntry(DeleteLdapEntryRequest request) {

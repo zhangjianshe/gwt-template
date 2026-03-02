@@ -279,7 +279,7 @@ public class LdapService implements IReset {
             }
 
             // Return the fresh data after update
-            return BizResult.success(getEntryDetails(nodeData.getDn()));
+            return BizResult.success(getEntryDetails(currentDn));
 
         } catch (Exception e) {
             log.error("[LDAP] Error updating entry: " + nodeData.getDn(), e);
@@ -287,38 +287,39 @@ public class LdapService implements IReset {
         }
     }
 
-    public BizResult<LdapNodeData> addLdapEntry(String parentDn, LdapNodeData newNode) {
+    public BizResult<LdapNodeData> createLdapEntry(LdapNodeData nodeData) {
         try {
-            // 1. Construct the new Full DN
-            // Example: cn=newuser,ou=users,dc=cangling,dc=cn
-            String rdnPrefix = newNode.isFolder() ? "ou=" : "cn=";
-            String newDn = rdnPrefix + newNode.getName() + "," + parentDn;
+            String rdnValue = nodeData.getName();
+            String rdnAttribute = nodeData.isFolder() ? "ou" : "cn";
 
-            // 2. Create the Adapter
-            DirContextAdapter adapter = new DirContextAdapter(newDn);
+            // 1. Build the full DN correctly (Parent DN + New RDN)
+            // Ensure we don't end up with "ou=dev,dc=cangling,dc=cn" if parent is already that.
+            String fullDn = rdnAttribute + "=" + rdnValue + "," + nodeData.getDn();
 
-            // 3. Set the Structural and Auxiliary Object Classes
-            // Every entry MUST have objectClass values to be valid
-            for (String oc : newNode.getObjectClasses()) {
-                adapter.addAttributeValue("objectClass", oc);
+            DirContextAdapter adapter = new DirContextAdapter(fullDn);
+
+            // 2. Clean and Add Object Classes (Crucial: trim() to avoid Error 21)
+            for (String oc : nodeData.getObjectClasses()) {
+                if (Strings.isNotBlank(oc)) {
+                    adapter.addAttributeValue("objectClass", oc.trim());
+                }
             }
 
+            // 3. Force add the mandatory RDN attribute inside the entry
+            // LDAP entries MUST contain the attribute used in their DN
+            adapter.setAttributeValue(rdnAttribute, rdnValue);
 
             // 4. Set the Attributes from your DTO
-            for (LdapNodeAttribute attr : newNode.getAttributes()) {
-                if (Strings.isBlank(attr.getValue())) continue;
-
-                if (AttributeKind.AK_PASSWORD.getKind().equals(attr.getKind())) {
-                    // Only update if the user actually typed a new password (not the mask)
-                    if (!"********".equals(attr.getValue()) && Strings.isNotBlank(attr.getValue())) {
-                        LdapShaPasswordEncoder encoder = new LdapShaPasswordEncoder();
-                        String hashedRow = encoder.encode(attr.getValue());
-                        adapter.setAttributeValue(attr.getKey(), hashedRow);
-                    }
+            for (LdapNodeAttribute attr : nodeData.getAttributes()) {
+                // Skip empty values, system data, or the RDN we already set
+                if (Strings.isBlank(attr.getValue()) || attr.getKey().equalsIgnoreCase(rdnAttribute)) {
                     continue;
                 }
 
-                if (AttributeKind.AK_BLOB.getKind().equals(attr.getKind())) {
+                if (AttributeKind.AK_PASSWORD.getKind().equals(attr.getKind())) {
+                    LdapShaPasswordEncoder encoder = new LdapShaPasswordEncoder();
+                    adapter.setAttributeValue(attr.getKey(), encoder.encode(attr.getValue()));
+                } else if (AttributeKind.AK_BLOB.getKind().equals(attr.getKind())) {
                     adapter.setAttributeValue(attr.getKey(), Base64.decode(attr.getValue()));
                 } else {
                     adapter.setAttributeValue(attr.getKey(), attr.getValue());
@@ -328,12 +329,88 @@ public class LdapService implements IReset {
             // 5. Bind to the LDAP Server
             getLdapTemplate().bind(adapter);
 
-            log.info("[LDAP] Created new entry: {}", newDn);
-            return BizResult.success(getEntryDetails(newDn));
+            log.info("[LDAP] Created new entry: {}", fullDn);
+
+            // FIX: Must use fullDn to fetch the details, not just rdnValue
+            return BizResult.success(getEntryDetails(fullDn));
 
         } catch (Exception e) {
-            log.error("[LDAP] Error adding entry to " + parentDn, e);
+            log.error("[LDAP] Error adding entry to {}", nodeData.getDn(), e);
             return BizResult.error(500, "Create failed: " + e.getMessage());
         }
+    }
+
+    public BizResult<Boolean> deleteLDapEntry(String dn) {
+        try {
+            getLdapTemplate().unbind(dn);
+        } catch (Exception e) {
+            return BizResult.error(500, "不能删除节点" + dn);
+        }
+        log.info("[LDAP] Deleted entry: {}", dn);
+        return BizResult.success(true);
+    }
+
+    public BizResult<String> exportLdif(String dn) {
+        StringBuilder sb = new StringBuilder();
+
+        getLdapTemplate().search(LdapQueryBuilder.query().base(dn).where("objectClass").isPresent(),
+                (ContextMapper<Void>) ctx -> {
+                    DirContextAdapter adapter = (DirContextAdapter) ctx;
+                    // DNs can also contain non-ASCII, but getNameInNamespace usually handles escaping
+                    sb.append("dn: ").append(adapter.getNameInNamespace()).append("\n");
+
+                    Attributes attrs = adapter.getAttributes();
+                    try {
+                        NamingEnumeration<? extends Attribute> ae = attrs.getAll();
+                        while (ae.hasMore()) {
+                            Attribute attr = ae.next();
+                            String id = attr.getID();
+
+                            for (int i = 0; i < attr.size(); i++) {
+                                Object val = attr.get(i);
+
+                                if (val instanceof byte[]) {
+                                    // Binary data always uses ::
+                                    String b64 = Base64.encodeToString((byte[]) val, false);
+                                    sb.append(id).append(":: ").append(b64).append("\n");
+                                } else {
+                                    String strVal = String.valueOf(val);
+                                    if (needsBase64(strVal)) {
+                                        // Use :: for Chinese or special characters
+                                        String b64 = Base64.encodeToString(strVal.getBytes("UTF-8"), false);
+                                        sb.append(id).append(":: ").append(b64).append("\n");
+                                    } else {
+                                        // Standard single colon
+                                        sb.append(id).append(": ").append(strVal).append("\n");
+                                    }
+                                }
+                            }
+                        }
+                    } catch (Exception e) {
+                        log.error("Error processing LDIF entry", e);
+                    }
+                    sb.append("\n");
+                    return null;
+                });
+        return BizResult.success(sb.toString());
+    }
+
+    /**
+     * Checks if a string contains characters that require Base64 encoding in LDIF
+     */
+    private boolean needsBase64(String str) {
+        if (str == null) return false;
+        for (int i = 0; i < str.length(); i++) {
+            char c = str.charAt(i);
+            // If character is outside ASCII range (0-127), or is a control char
+            if (c > 127 || c < 32) {
+                return true;
+            }
+        }
+        // Check for leading restricted characters
+        if (str.startsWith(":") || str.startsWith(" ") || str.startsWith("<")) {
+            return true;
+        }
+        return false;
     }
 }

@@ -5,6 +5,8 @@
     <g:DockLayoutPanel>
         <g:north size="0">
             <g:HorizontalPanel verticalAlignment="middle" ui:field="tools" spacing="4">
+                <buttons:AiButton ui:field="btnExport" enabled="false">导出数据</buttons:AiButton>
+                <buttons:AiButton ui:field="btnImport" enabled="false">导入数据</buttons:AiButton>
                 <buttons:AiButton ui:field="btnAddOrg" enabled="false">添加组织</buttons:AiButton>
                 <buttons:AiButton ui:field="btnAddPerson" enabled="false">添加人员</buttons:AiButton>
                 <buttons:AiButton ui:field="btnDelete" enabled="false">删除</buttons:AiButton>

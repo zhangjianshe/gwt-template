@@ -19,6 +19,12 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public interface IAppServerAsync {
 
     ///CODE_GEN_INSERT_POINT///
+	void importLdapExcel(ImportLdapExcelRequest request, AsyncCallback<RpcResult<ImportLdapExcelResponse>> async);
+
+	void exportLdapDIF(ExportLdapDIFRequest request, AsyncCallback<RpcResult<ExportLdapDIFResponse>> async);
+
+	void importLdapDIF(ImportLdapDIFRequest request, AsyncCallback<RpcResult<ImportLdapDIFResponse>> async);
+
 	void deleteLdapEntry(DeleteLdapEntryRequest request, AsyncCallback<RpcResult<DeleteLdapEntryResponse>> async);
 
 	void updateLdapEntry(UpdateLdapEntryRequest request, AsyncCallback<RpcResult<UpdateLdapEntryResponse>> async);

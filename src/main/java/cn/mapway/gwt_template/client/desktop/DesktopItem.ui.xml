@@ -35,12 +35,17 @@
 
         .editor {
             position: absolute;
-            right: 5px;
-            top: 5px;
-            border: solid 1px #e0e0e0;
-            border-radius: 4px;
+            right: 0;
+            top: 0;
+            left: 0;
+            height: 30px;
+            border-radius: 4px 4px 0 0;
             padding: 0 4px;
-            background-color: whitesmoke;
+            background-color: rgba(0, 0, 0, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 1rem;
         }
 
         .btn {
@@ -58,10 +63,10 @@
         }
     </ui:style>
     <g:HTMLPanel addStyleNames="{style.box}">
-        <g:HorizontalPanel ui:field="btnPan" addStyleNames="{style.editor}">
-            <buttons:DeleteButton addStyleNames="{style.btn}" ui:field="btnDelete" fontSize="24"/>
-            <buttons:EditButton addStyleNames="{style.btn}" ui:field="btnEditor" fontSize="22"/>
-        </g:HorizontalPanel>
+        <g:HTMLPanel ui:field="btnPan" visible="false" addStyleNames="{style.editor}">
+            <buttons:DeleteButton addStyleNames="{style.btn}" color="white" ui:field="btnDelete" fontSize="24"/>
+            <buttons:EditButton addStyleNames="{style.btn}" color="white" ui:field="btnEditor" fontSize="22"/>
+        </g:HTMLPanel>
         <g:Image ui:field="image" addStyleNames="{style.img}"/>
         <g:Label ui:field="lbName" addStyleNames="{style.name}"/>
     </g:HTMLPanel>

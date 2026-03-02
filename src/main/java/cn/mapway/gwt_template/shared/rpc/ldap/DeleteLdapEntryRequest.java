@@ -14,4 +14,5 @@ import java.io.Serializable;
 @Data
 @Doc("DeleteLdapEntryRequest")
 public class DeleteLdapEntryRequest implements Serializable, IsSerializable {
+    String dn;
 }

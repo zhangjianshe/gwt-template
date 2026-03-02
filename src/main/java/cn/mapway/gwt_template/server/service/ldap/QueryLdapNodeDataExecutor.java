@@ -10,7 +10,6 @@ import cn.mapway.gwt_template.shared.rpc.ldap.QueryLdapNodeDataRequest;
 import cn.mapway.gwt_template.shared.rpc.ldap.QueryLdapNodeDataResponse;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
 import lombok.extern.slf4j.Slf4j;
-import org.nutz.json.Json;
 import org.nutz.lang.Strings;
 import org.springframework.stereotype.Component;
 
@@ -34,7 +33,12 @@ public class QueryLdapNodeDataExecutor extends AbstractBizExecutor<QueryLdapNode
         assertTrue(Strings.isNotBlank(request.getDn()), "没有DN");
         QueryLdapNodeDataResponse response = new QueryLdapNodeDataResponse();
         response.setNodes(ldapService.getChildren(request.getDn()));
-        System.out.println(Json.toJson(response.getNodes()));
+        response.getNodes().sort((a, b) -> {
+            if (a.isFolder() != b.isFolder()) {
+                return a.isFolder() ? -1 : 1;
+            }
+            return a.getName().compareToIgnoreCase(b.getName());
+        });
         return BizResult.success(response);
     }
 }

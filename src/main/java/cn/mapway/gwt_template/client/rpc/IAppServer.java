@@ -21,6 +21,12 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 @RemoteServiceRelativePath(AppConstant.DEFAULT_SERVER_PATH)
 public interface IAppServer extends RemoteService {
     ///CODE_GEN_INSERT_POINT///
+	RpcResult<ImportLdapExcelResponse> importLdapExcel(ImportLdapExcelRequest request);
+
+	RpcResult<ExportLdapDIFResponse> exportLdapDIF(ExportLdapDIFRequest request);
+
+	RpcResult<ImportLdapDIFResponse> importLdapDIF(ImportLdapDIFRequest request);
+
 	RpcResult<DeleteLdapEntryResponse> deleteLdapEntry(DeleteLdapEntryRequest request);
 
 	RpcResult<UpdateLdapEntryResponse> updateLdapEntry(UpdateLdapEntryRequest request);

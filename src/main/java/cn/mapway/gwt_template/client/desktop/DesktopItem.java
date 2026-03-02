@@ -9,13 +9,11 @@ import cn.mapway.ui.client.widget.buttons.DeleteButton;
 import cn.mapway.ui.client.widget.buttons.EditButton;
 import cn.mapway.ui.shared.CommonEvent;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.*;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.ui.HTMLPanel;
-import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 
@@ -30,7 +28,8 @@ public class DesktopItem extends CommonEventComposite implements IData<DesktopIt
     @UiField
     DeleteButton btnDelete;
     @UiField
-    HorizontalPanel btnPan;
+    HTMLPanel btnPan;
+    boolean needShowTools = false;
     private DesktopItemEntity data;
 
     public DesktopItem() {
@@ -41,6 +40,27 @@ public class DesktopItem extends CommonEventComposite implements IData<DesktopIt
                 fireEvent(CommonEvent.clickEvent(data));
             }
         }, ClickEvent.getType());
+        addDomHandler(new MouseOverHandler() {
+            @Override
+            public void onMouseOver(MouseOverEvent event) {
+                event.stopPropagation();
+                event.preventDefault();
+                if (needShowTools) {
+                    btnPan.setVisible(true);
+                }
+            }
+        }, MouseOverEvent.getType());
+
+        addDomHandler(new MouseOutHandler() {
+            @Override
+            public void onMouseOut(MouseOutEvent event) {
+                event.stopPropagation();
+                event.preventDefault();
+                if (needShowTools) {
+                    btnPan.setVisible(false);
+                }
+            }
+        }, MouseOutEvent.getType());
     }
 
     @Override
@@ -60,10 +80,9 @@ public class DesktopItem extends CommonEventComposite implements IData<DesktopIt
             image.setUrl(data.getIcon());
         }
 
-        if (!ClientContext.get().isCurrentUser(data.getUserId())) {
-            btnPan.setVisible(false);
-        }
+        needShowTools = ClientContext.get().isCurrentUser(data.getUserId());
     }
+
 
     @UiHandler("btnEditor")
     public void btnEditorClick(ClickEvent event) {

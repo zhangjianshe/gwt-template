@@ -1,5 +1,7 @@
 package cn.mapway.gwt_template.client.ldap;
 
+import cn.mapway.gwt_template.shared.rpc.ldap.LdapNodeData;
+import cn.mapway.gwt_template.shared.rpc.ldap.RootDse;
 import cn.mapway.ui.client.fonts.Fonts;
 import cn.mapway.ui.client.frame.ToolbarModule;
 import cn.mapway.ui.client.mvc.IModule;
@@ -48,7 +50,25 @@ public class LdapFrame extends ToolbarModule {
     @UiHandler("tree")
     public void treeCommon(CommonEvent event) {
         if (event.isSelect()) {
-            editor.setData(event.getValue());
+            if (event.getValue() instanceof LdapNodeData) {
+                editor.setData(event.getValue());
+            } else if (event.getValue() instanceof RootDse) {
+                RootDse rootDse = event.getValue();
+                editor.enableAddOrg(rootDse.getNamingContexts().get(0));
+            }
+        }
+    }
+
+    @UiHandler("editor")
+    public void editorCommon(CommonEvent event) {
+        if (event.isReload()) {
+            if (!(event.getValue() instanceof Boolean)) {
+                event.setValue(false);
+            }
+            tree.reloadSelect(event.getValue());
+        } else if (event.isRefresh()) {
+            //删除操作　需要更新副节点
+            tree.reloadParent();
         }
     }
 
