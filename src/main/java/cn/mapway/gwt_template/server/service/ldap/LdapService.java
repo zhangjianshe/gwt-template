@@ -1,4 +1,4 @@
-package cn.mapway.gwt_template.server.service;
+package cn.mapway.gwt_template.server.service.ldap;
 
 import cn.mapway.biz.core.BizResult;
 import cn.mapway.gwt_template.client.ldap.AttributeKind;

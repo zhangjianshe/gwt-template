@@ -98,6 +98,11 @@ public class DesktopItem extends CommonEventComposite implements IData<DesktopIt
         fireEvent(CommonEvent.deleteEvent(data));
     }
 
+    public void setValue(String iconUrl, String text) {
+        image.setUrl(iconUrl);
+        lbName.setText(text);
+    }
+
     interface DesktopItemUiBinder extends UiBinder<HTMLPanel, DesktopItem> {
     }
 }

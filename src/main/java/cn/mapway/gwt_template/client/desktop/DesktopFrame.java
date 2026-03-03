@@ -28,10 +28,9 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.HTMLPanel;
-import com.google.gwt.user.client.ui.Label;
 import elemental2.core.JsArray;
 import elemental2.promise.IThenable;
 import org.jspecify.annotations.Nullable;
@@ -51,18 +50,42 @@ public class DesktopFrame extends BaseAbstractModule {
     @UiField
     HTMLPanel panel;
     @UiField
-    Label btnAdd;
+    DesktopItem btnAdd;
     @UiField
     UserMailboxPanel mailboxPanel;
     @UiField
-    Button btnReturn;
+    Anchor btnReturn;
     @UiField
-    Button btnSelectUser;
+    Anchor btnSelectUser;
     @UiField
     Header lbTitle;
+    @UiField
+    HomeButton btnHome;
+    @UiField
+    HomeButton btnMessage;
+    @UiField
+    DockLayoutPanel root;
+    @UiField
+    DockLayoutPanel msgPanel;
 
     public DesktopFrame() {
         initWidget(ourUiBinder.createAndBindUi(this));
+        btnAdd.addDomHandler(e -> {
+            edit(null);
+        }, ClickEvent.getType());
+        btnAdd.setValue("img/plus.svg", "添加快捷方式");
+        btnHome.setIcon(Fonts.HOME);
+        btnMessage.setIcon(Fonts.POPUP);
+        btnMessage.addDomHandler(e -> {
+            if (btnMessage.isSelected()) {
+                btnMessage.setSelect(false);
+                root.setWidgetSize(msgPanel, 0);
+            } else {
+                btnMessage.setSelect(true);
+                root.setWidgetSize(msgPanel, 400);
+            }
+        }, ClickEvent.getType());
+        btnMessage.setSelect(true);
     }
 
     @Override
@@ -140,12 +163,10 @@ public class DesktopFrame extends BaseAbstractModule {
         }
         panel.add(btnAdd);
         lbTitle.setText("联系人(" + data.getItems().size() + ")");
+
+
     }
 
-    @UiHandler("btnAdd")
-    public void btnAddClick(ClickEvent event) {
-        edit(null);
-    }
 
     @UiHandler("mailboxPanel")
     public void mailboxPanelCommon(CommonEvent event) {

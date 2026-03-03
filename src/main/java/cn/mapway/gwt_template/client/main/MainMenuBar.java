@@ -16,7 +16,6 @@ import cn.mapway.ui.client.mvc.ModuleParameter;
 import cn.mapway.ui.client.mvc.SwitchModuleData;
 import cn.mapway.ui.client.widget.CommonEventComposite;
 import cn.mapway.ui.client.widget.FontIcon;
-import cn.mapway.ui.client.widget.buttons.AiButton;
 import cn.mapway.ui.client.widget.dialog.Dialog;
 import cn.mapway.ui.shared.CommonEvent;
 import cn.mapway.ui.shared.rpc.RpcResult;
@@ -28,10 +27,9 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HTMLPanel;
-import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
-import com.google.gwt.user.client.ui.Label;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -47,14 +45,14 @@ public class MainMenuBar extends CommonEventComposite {
     @UiField
     FontIcon btnPreference;
     @UiField
-    Label lbExit;
+    HTML lbExit;
     @UiField
     Image logo;
     @UiField
-    HorizontalPanel buttons;
-    AiButton selected = null;
+    HTMLPanel buttons;
+    MenuButton selected = null;
     ClickHandler itemClicked = event -> {
-        AiButton source = (AiButton) event.getSource();
+        MenuButton source = (MenuButton) event.getSource();
         selectButton(source);
     };
 
@@ -64,7 +62,7 @@ public class MainMenuBar extends CommonEventComposite {
 
     }
 
-    private void selectButton(AiButton source) {
+    private void selectButton(MenuButton source) {
         if (selected != null) {
             selected.setSelect(false);
         }
@@ -72,7 +70,7 @@ public class MainMenuBar extends CommonEventComposite {
         if (selected != null) {
             selected.setSelect(true);
         }
-        ModuleInfo data = (ModuleInfo) source.getData();
+        ModuleInfo data = source.getData();
         SwitchModuleData switchModuleData = new SwitchModuleData(data.code, "");
         fireEvent(CommonEvent.switchEvent(switchModuleData));
     }
@@ -85,7 +83,7 @@ public class MainMenuBar extends CommonEventComposite {
 
     private void selectFirst() {
         if (buttons.getWidgetCount() > 0) {
-            AiButton button = (AiButton) buttons.getWidget(0);
+            MenuButton button = (MenuButton) buttons.getWidget(0);
             button.click();
         }
     }
@@ -120,7 +118,8 @@ public class MainMenuBar extends CommonEventComposite {
     public void reload() {
         buttons.clear();
         IUserInfo userInfo = ClientContext.get().getUserInfo();
-        lbExit.setText("退出(" + userInfo.getNickName() + ")");
+        String user = "<img style='width:50px;height:50px;border-radius:50%' src=" + userInfo.getAvatar() + "/>" + userInfo.getNickName();
+        lbExit.setHTML(user);
         if (ClientContext.get().getAppData().getLogo() != null) {
             logo.setUrl(ClientContext.get().getAppData().getLogo());
         }
@@ -128,21 +127,16 @@ public class MainMenuBar extends CommonEventComposite {
         List<ModuleInfo> moduleInfos = userResources.stream().map(res -> {
             return BaseAbstractModule.getModuleFactory().findModuleInfo(res.resourceCode);
         }).filter(Objects::nonNull).collect(Collectors.toList());
+
         Collections.sort(moduleInfos, Comparator.comparingInt(o -> o.order));
         moduleInfos.add(0, BaseAbstractModule.getModuleFactory().findModuleInfo(DesktopFrame.MODULE_CODE));
         for (ModuleInfo moduleInfo : moduleInfos) {
-            AiButton button = new AiButton(moduleInfo.name);
-            button.setIcon(moduleInfo.unicode);
+            MenuButton button = new MenuButton();
             button.setData(moduleInfo);
+            button.addDomHandler(itemClicked, ClickEvent.getType());
             buttons.add(button);
-            button.addClickHandler(itemClicked);
         }
-        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-            @Override
-            public void execute() {
-                selectFirst();
-            }
-        });
+        Scheduler.get().scheduleDeferred(() -> selectFirst());
     }
 
     interface MainMenuBarUiBinder extends UiBinder<HTMLPanel, MainMenuBar> {

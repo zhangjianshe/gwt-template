@@ -451,7 +451,7 @@ body {
 
 .gwt-Anchor:hover {
     color: var(--color-main);
-    text-decoration: underline;
+    text-decoration: none;
 }
 
 

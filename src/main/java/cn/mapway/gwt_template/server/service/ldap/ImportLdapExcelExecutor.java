@@ -6,7 +6,6 @@ import cn.mapway.biz.core.BizRequest;
 import cn.mapway.biz.core.BizResult;
 import cn.mapway.gwt_template.client.ldap.AttributeKind;
 import cn.mapway.gwt_template.client.ldap.LdapNodeAttribute;
-import cn.mapway.gwt_template.server.service.LdapService;
 import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.rpc.ldap.ImportLdapExcelRequest;
 import cn.mapway.gwt_template.shared.rpc.ldap.ImportLdapExcelResponse;

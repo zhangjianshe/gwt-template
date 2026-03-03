@@ -12,52 +12,57 @@
             padding: 100px;
         }
 
-        .btn {
-            width: 160px;
-            height: 160px;
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 1.1rem;
-            border: solid 1px #f0f0f0;
-        }
-
-        .btn:HOVER {
-            background-color: #e0e0e0;
-        }
 
         .top {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 10px;
+            padding: 0 15px;
         }
 
         .left {
-            background-color: #e9eef6;
-        }</ui:style>
-    <g:DockLayoutPanel>
+
+        }
+
+        .main {
+            background-image: url("/img/desktop.png");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed; /* 保持背景固定，增加景深 */
+
+            /* 增加一个极淡的蓝色渐变叠加，提升科技感 */
+            background-blend-mode: overlay;
+            background-color: rgba(230, 235, 245, 0.6);
+        }
+    </ui:style>
+    <g:DockLayoutPanel ui:field="root">
+        <g:west size="70">
+            <g:ScrollPanel addStyleNames="ai-border-right">
+                <g:VerticalPanel width="100%">
+                    <desktop:HomeButton ui:field="btnHome"/>
+                    <desktop:HomeButton ui:field="btnMessage"/>
+                </g:VerticalPanel>
+            </g:ScrollPanel>
+        </g:west>
         <g:west size="400">
-            <g:DockLayoutPanel addStyleNames="ai-border-right {style.left}">
-                <g:north size="50">
+            <g:DockLayoutPanel ui:field="msgPanel" addStyleNames="ai-border-right {style.left}">
+                <g:north size="60">
                     <g:HTMLPanel addStyleNames="{style.top} ai-border-bottom">
                         <widget:Header ui:field="lbTitle"/>
-                        <g:Button ui:field="btnReturn" visible="false">返回</g:Button>
-                        <g:Button ui:field="btnSelectUser">选择用户</g:Button>
+                        <g:Anchor ui:field="btnReturn" visible="false">返回</g:Anchor>
+                        <g:Anchor ui:field="btnSelectUser">选择用户</g:Anchor>
                     </g:HTMLPanel>
                 </g:north>
                 <g:center>
                     <desktop:UserMailboxPanel ui:field="mailboxPanel"/>
                 </g:center>
             </g:DockLayoutPanel>
-
         </g:west>
         <g:center>
-            <g:ScrollPanel>
+            <g:ScrollPanel addStyleNames="{style.main}">
                 <g:HTMLPanel ui:field="panel" addStyleNames="{style.box}">
-                    <g:Label ui:field="btnAdd" addStyleNames="{style.btn}">添加快捷方式</g:Label>
+                     <desktop:DesktopItem ui:field="btnAdd"/>
                 </g:HTMLPanel>
             </g:ScrollPanel>
         </g:center>

@@ -7,7 +7,7 @@
             display: flex;
             align-items: center;
             justify-content: flex-start;
-            background-color: #393e6d;
+            background-color: #1a2138;
         }
     </ui:style>
     <g:DockLayoutPanel ui:field="root">

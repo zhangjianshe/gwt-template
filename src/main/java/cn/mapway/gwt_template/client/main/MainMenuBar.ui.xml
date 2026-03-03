@@ -27,12 +27,12 @@
 
         .exit {
             color: whitesmoke;
-            height: 40px;
             justify-content: center;
             justify-items: center;
             align-items: center;
             display: flex;
-            border-radius: 5px;
+            border-radius: 6px;
+            gap: 6px;
             padding: 0 15px;
         }
 
@@ -44,14 +44,19 @@
             overflow: hidden;
             object-fit: contain;
         }
-    </ui:style>
+
+        .buttons {
+            display: flex;
+            align-items: flex-end;
+            justify-content: flex-start;
+            gap: 1rem;
+            height: 100%;
+        }</ui:style>
     <g:HTMLPanel styleName="{style.box}">
         <g:Image ui:field="logo" addStyleNames="{style.logo}"/>
-        <g:HTMLPanel>
-            <g:HorizontalPanel ui:field="buttons" verticalAlignment="middle">
-            </g:HorizontalPanel>
+        <g:HTMLPanel addStyleNames="{style.buttons}" ui:field="buttons">
         </g:HTMLPanel>
-        <g:Label ui:field="lbExit" addStyleNames="{style.exit}"/>
+        <g:HTML ui:field="lbExit" addStyleNames="{style.exit}"/>
         <widget:FontIcon color="white" addStyleNames="{style.btn}" ui:field="btnPreference"/>
     </g:HTMLPanel>
 </ui:UiBinder>
