@@ -4,11 +4,12 @@
              xmlns:widget="urn:import:cn.mapway.ui.client.widget">
     <ui:style>
         .box {
-            display: flex;
-            align-items: center;
-            justify-content: center;
             gap: 1rem;
-            height: 100%;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            grid-gap: 26px 30px;
+            justify-items: center;
+            padding: 100px;
         }
 
         .btn {
@@ -54,9 +55,11 @@
 
         </g:west>
         <g:center>
-            <g:HTMLPanel ui:field="panel" addStyleNames="{style.box}">
-                <g:Label ui:field="btnAdd" addStyleNames="{style.btn}">添加快捷方式</g:Label>
-            </g:HTMLPanel>
+            <g:ScrollPanel>
+                <g:HTMLPanel ui:field="panel" addStyleNames="{style.box}">
+                    <g:Label ui:field="btnAdd" addStyleNames="{style.btn}">添加快捷方式</g:Label>
+                </g:HTMLPanel>
+            </g:ScrollPanel>
         </g:center>
     </g:DockLayoutPanel>
 </ui:UiBinder>
