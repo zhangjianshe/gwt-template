@@ -1,0 +1,86 @@
+package cn.mapway.gwt_template.shared.db;
+
+import cn.mapway.document.annotation.Doc;
+import com.google.gwt.user.client.rpc.IsSerializable;
+import lombok.Getter;
+import lombok.Setter;
+import org.nutz.dao.entity.annotation.*;
+
+import java.io.Serializable;
+import java.sql.Timestamp;
+
+/**
+ * 项目管理主表
+ */
+@Doc("项目管理主表")
+@Table(DevProjectEntity.TBL_DEV_PROJECT)
+@Comment("项目管理主表")
+@Getter
+@Setter
+public class DevProjectEntity implements Serializable, IsSerializable {
+
+    /* 表名常量 */
+    public static final String TBL_DEV_PROJECT = "dev_project";
+
+    /* 字段名常量 - 直接对应数据库下划线字段名 */
+    public static final String FLD_ID = "id";
+    public static final String FLD_WORKSPACE_ID = "workspace_id";
+    public static final String FLD_FOLDER_ID = "folder_id";
+    public static final String FLD_NAME = "name";
+    public static final String FLD_USER_ID = "user_id";
+    public static final String FLD_CREATE_TIME = "create_time";
+    public static final String FLD_COLOR = "color";
+    public static final String FLD_UNICODE = "unicode";
+    public static final String FLD_ICON = "icon";
+    public static final String FLD_SUMMARY = "summary";
+
+    @Name
+    @Comment("项目ID")
+    @ColDefine(width = 64, notNull = true)
+    String id;
+
+    @Comment("工作空间ID")
+    @Column(FLD_WORKSPACE_ID) // 显式指定下划线列名
+    @ColDefine(width = 64, notNull = true)
+    String workspaceId;
+
+    @Comment("工作空间目录ID")
+    @Column(FLD_FOLDER_ID)
+    @ColDefine(width = 64)
+    String folderId;
+
+    @Comment("名称")
+    @Column(FLD_NAME)
+    @ColDefine(width = 128, notNull = true)
+    String name;
+
+    @Comment("创建人")
+    @Column(FLD_USER_ID)
+    @ColDefine(notNull = true)
+    Long userId;
+
+    @Comment("创建时间")
+    @Column(FLD_CREATE_TIME)
+    @ColDefine(notNull = true)
+    Timestamp createTime;
+
+    @Comment("项目主颜色")
+    @Column(FLD_COLOR)
+    @ColDefine(width = 64, notNull = true)
+    String color;
+
+    @Comment("项目字体图标")
+    @Column(FLD_UNICODE)
+    @ColDefine(width = 16)
+    String unicode;
+
+    @Comment("项目图标")
+    @Column(FLD_ICON)
+    @ColDefine(width = 256)
+    String icon;
+
+    @Comment("介绍")
+    @Column(FLD_SUMMARY)
+    @ColDefine(width = 1024, notNull = true)
+    String summary;
+}
