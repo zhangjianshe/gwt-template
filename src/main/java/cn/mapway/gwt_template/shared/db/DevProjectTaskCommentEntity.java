@@ -19,7 +19,6 @@ import java.util.List;
 @Comment("项目任务的回复")
 @Getter
 @Setter
-@PK(value = {"projectId", "id"})
 public class DevProjectTaskCommentEntity implements Serializable, IsSerializable {
 
     /* 表名常量 */
@@ -32,10 +31,11 @@ public class DevProjectTaskCommentEntity implements Serializable, IsSerializable
     public static final String FLD_PARENT_ID = "parent_id";
     public static final String FLD_CONTENT = "content";
     public static final String FLD_CREATE_TIME = "create_time";
+    public static final String FLD_UPDATE_TIME = "update_time";
     public static final String FLD_CREATE_USER_ID = "create_user_id";
     public static final String FLD_ATTACHMENTS = "attachments";
 
-    @Column(FLD_ID)
+    @Name
     @Comment("回复ID")
     @ColDefine(width = 64, notNull = true)
     String id;
@@ -64,6 +64,11 @@ public class DevProjectTaskCommentEntity implements Serializable, IsSerializable
     @Comment("创建时间")
     @ColDefine(notNull = true)
     Timestamp createTime;
+
+    @Column(FLD_UPDATE_TIME)
+    @Comment("更新时间")
+    @ColDefine(notNull = true)
+    Timestamp updateTime;
 
     @Column(FLD_CREATE_USER_ID)
     @Comment("创建用户ID")

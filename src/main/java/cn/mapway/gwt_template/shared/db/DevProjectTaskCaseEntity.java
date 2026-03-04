@@ -30,10 +30,14 @@ public class DevProjectTaskCaseEntity implements Serializable, IsSerializable {
     public static final String FLD_TASK_ID = "task_id";
     public static final String FLD_NAME = "name";
     public static final String FLD_CREATE_TIME = "create_time";
+    public static final String FLD_UPDATE_TIME = "update_time";
     public static final String FLD_INPUT = "input";
     public static final String FLD_OUTPUT = "output";
+    public static final String FLD_RESULT = "result";
     public static final String FLD_SUMMARY = "summary";
     public static final String FLD_ATTACHMENTS = "attachments";
+    public static final String FLD_STATUS = "status";
+    public static final String FLD_CREATE_USER_ID = "create_user_id";
 
     @Name
     @Column(FLD_ID)
@@ -61,6 +65,11 @@ public class DevProjectTaskCaseEntity implements Serializable, IsSerializable {
     @ColDefine(notNull = true)
     Timestamp createTime;
 
+    @Column(FLD_UPDATE_TIME)
+    @Comment("修改时间")
+    @ColDefine(notNull = true)
+    Timestamp updateTime;
+
     @Column(FLD_INPUT)
     @Comment("输入数据")
     @ColDefine(type = ColType.TEXT)
@@ -71,6 +80,11 @@ public class DevProjectTaskCaseEntity implements Serializable, IsSerializable {
     @ColDefine(type = ColType.TEXT)
     String output;
 
+    @Column(FLD_RESULT)
+    @Comment("实际输出")
+    @ColDefine(type = ColType.TEXT)
+    String result;
+
     @Column(FLD_SUMMARY)
     @Comment("用例描述")
     @ColDefine(width = 1024, notNull = true)
@@ -80,4 +94,14 @@ public class DevProjectTaskCaseEntity implements Serializable, IsSerializable {
     @Comment("附件列表")
     @ColDefine(type = ColType.PSQL_JSON)
     List<DevProjectAttachment> attachments;
+
+    @Column(FLD_STATUS)
+    @Comment("用例状态")
+    @Default("0")
+    Integer status;
+
+    @Column(FLD_CREATE_USER_ID)
+    @Comment("创建人")
+    @Default("0")
+    Long createUserId;
 }

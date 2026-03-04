@@ -36,8 +36,7 @@ public class DevProjectTeamMemberEntity implements Serializable, IsSerializable 
 
     @Column(FLD_USER_ID)
     @Comment("成员ID")
-    @ColDefine(width = 64, notNull = true)
-    String userId;
+    Long userId;
 
     @Column(FLD_SUMMARY)
     @Comment("成员在组内的简介或备注")

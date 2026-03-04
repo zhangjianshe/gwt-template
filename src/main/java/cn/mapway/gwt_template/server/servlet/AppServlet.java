@@ -21,6 +21,7 @@ import cn.mapway.gwt_template.server.service.message.QueryMessageExecutor;
 import cn.mapway.gwt_template.server.service.message.QueryUserMailboxExecutor;
 import cn.mapway.gwt_template.server.service.message.ReadMessageExecutor;
 import cn.mapway.gwt_template.server.service.message.SendMessageExecutor;
+import cn.mapway.gwt_template.server.service.project.*;
 import cn.mapway.gwt_template.server.service.repository.*;
 import cn.mapway.gwt_template.server.service.soft.CreateSoftwareExecutor;
 import cn.mapway.gwt_template.server.service.soft.DeleteSoftwareExecutor;
@@ -37,6 +38,7 @@ import cn.mapway.gwt_template.shared.rpc.dev.*;
 import cn.mapway.gwt_template.shared.rpc.dns.*;
 import cn.mapway.gwt_template.shared.rpc.ldap.*;
 import cn.mapway.gwt_template.shared.rpc.message.*;
+import cn.mapway.gwt_template.shared.rpc.project.*;
 import cn.mapway.gwt_template.shared.rpc.repository.*;
 import cn.mapway.gwt_template.shared.rpc.soft.*;
 import cn.mapway.gwt_template.shared.rpc.user.UpdateUserInfoRequest;
@@ -117,6 +119,366 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
     QueryConfigExecutor queryConfigExecutor;
 
     ///CODE_GEN_INSERT_POINT///
+	
+    @Resource
+    QueryDevWorkspaceMemberExecutor queryDevWorkspaceMemberExecutor;
+    @Override
+    public RpcResult<QueryDevWorkspaceMemberResponse> queryDevWorkspaceMember(QueryDevWorkspaceMemberRequest request) {
+        BizResult<QueryDevWorkspaceMemberResponse> bizResult = queryDevWorkspaceMemberExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    QueryProjectActionsExecutor queryProjectActionsExecutor;
+    @Override
+    public RpcResult<QueryProjectActionsResponse> queryProjectActions(QueryProjectActionsRequest request) {
+        BizResult<QueryProjectActionsResponse> bizResult = queryProjectActionsExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    DeleteProjectFilesExecutor deleteProjectFilesExecutor;
+    @Override
+    public RpcResult<DeleteProjectFilesResponse> deleteProjectFiles(DeleteProjectFilesRequest request) {
+        BizResult<DeleteProjectFilesResponse> bizResult = deleteProjectFilesExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    UploadProjectFilesExecutor uploadProjectFilesExecutor;
+    @Override
+    public RpcResult<UploadProjectFilesResponse> uploadProjectFiles(UploadProjectFilesRequest request) {
+        BizResult<UploadProjectFilesResponse> bizResult = uploadProjectFilesExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    QueryProjectFilesExecutor queryProjectFilesExecutor;
+    @Override
+    public RpcResult<QueryProjectFilesResponse> queryProjectFiles(QueryProjectFilesRequest request) {
+        BizResult<QueryProjectFilesResponse> bizResult = queryProjectFilesExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    UploadProjectAttachmentExecutor uploadProjectAttachmentExecutor;
+    @Override
+    public RpcResult<UploadProjectAttachmentResponse> uploadProjectAttachment(UploadProjectAttachmentRequest request) {
+        BizResult<UploadProjectAttachmentResponse> bizResult = uploadProjectAttachmentExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    QueryProjectCaseExecutor queryProjectCaseExecutor;
+    @Override
+    public RpcResult<QueryProjectCaseResponse> queryProjectCase(QueryProjectCaseRequest request) {
+        BizResult<QueryProjectCaseResponse> bizResult = queryProjectCaseExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    DeleteProjectCaseExecutor deleteProjectCaseExecutor;
+    @Override
+    public RpcResult<DeleteProjectCaseResponse> deleteProjectCase(DeleteProjectCaseRequest request) {
+        BizResult<DeleteProjectCaseResponse> bizResult = deleteProjectCaseExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    UpdateProjectCaseExecutor updateProjectCaseExecutor;
+    @Override
+    public RpcResult<UpdateProjectCaseResponse> updateProjectCase(UpdateProjectCaseRequest request) {
+        BizResult<UpdateProjectCaseResponse> bizResult = updateProjectCaseExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    QueryProjectIssueCommentExecutor queryProjectIssueCommentExecutor;
+    @Override
+    public RpcResult<QueryProjectIssueCommentResponse> queryProjectIssueComment(QueryProjectIssueCommentRequest request) {
+        BizResult<QueryProjectIssueCommentResponse> bizResult = queryProjectIssueCommentExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    DeleteProjectIssueCommentExecutor deleteProjectIssueCommentExecutor;
+    @Override
+    public RpcResult<DeleteProjectIssueCommentResponse> deleteProjectIssueComment(DeleteProjectIssueCommentRequest request) {
+        BizResult<DeleteProjectIssueCommentResponse> bizResult = deleteProjectIssueCommentExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    UpdateProjectIssueCommentExecutor updateProjectIssueCommentExecutor;
+    @Override
+    public RpcResult<UpdateProjectIssueCommentResponse> updateProjectIssueComment(UpdateProjectIssueCommentRequest request) {
+        BizResult<UpdateProjectIssueCommentResponse> bizResult = updateProjectIssueCommentExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    QueryProjectIssueExecutor queryProjectIssueExecutor;
+    @Override
+    public RpcResult<QueryProjectIssueResponse> queryProjectIssue(QueryProjectIssueRequest request) {
+        BizResult<QueryProjectIssueResponse> bizResult = queryProjectIssueExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    DeleteProjectIssueExecutor deleteProjectIssueExecutor;
+    @Override
+    public RpcResult<DeleteProjectIssueResponse> deleteProjectIssue(DeleteProjectIssueRequest request) {
+        BizResult<DeleteProjectIssueResponse> bizResult = deleteProjectIssueExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    UpdateProjectIssueExecutor updateProjectIssueExecutor;
+    @Override
+    public RpcResult<UpdateProjectIssueResponse> updateProjectIssue(UpdateProjectIssueRequest request) {
+        BizResult<UpdateProjectIssueResponse> bizResult = updateProjectIssueExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    QueryProjectTaskCommentExecutor queryProjectTaskCommentExecutor;
+    @Override
+    public RpcResult<QueryProjectTaskCommentResponse> queryProjectTaskComment(QueryProjectTaskCommentRequest request) {
+        BizResult<QueryProjectTaskCommentResponse> bizResult = queryProjectTaskCommentExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    DeleteProjectTaskCommentExecutor deleteProjectTaskCommentExecutor;
+    @Override
+    public RpcResult<DeleteProjectTaskCommentResponse> deleteProjectTaskComment(DeleteProjectTaskCommentRequest request) {
+        BizResult<DeleteProjectTaskCommentResponse> bizResult = deleteProjectTaskCommentExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    UpdateProjectTaskCommentExecutor updateProjectTaskCommentExecutor;
+    @Override
+    public RpcResult<UpdateProjectTaskCommentResponse> updateProjectTaskComment(UpdateProjectTaskCommentRequest request) {
+        BizResult<UpdateProjectTaskCommentResponse> bizResult = updateProjectTaskCommentExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    QueryProjectTaskExecutor queryProjectTaskExecutor;
+    @Override
+    public RpcResult<QueryProjectTaskResponse> queryProjectTask(QueryProjectTaskRequest request) {
+        BizResult<QueryProjectTaskResponse> bizResult = queryProjectTaskExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    DeleteProjectTaskExecutor deleteProjectTaskExecutor;
+    @Override
+    public RpcResult<DeleteProjectTaskResponse> deleteProjectTask(DeleteProjectTaskRequest request) {
+        BizResult<DeleteProjectTaskResponse> bizResult = deleteProjectTaskExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    UpdateProjectTaskExecutor updateProjectTaskExecutor;
+    @Override
+    public RpcResult<UpdateProjectTaskResponse> updateProjectTask(UpdateProjectTaskRequest request) {
+        BizResult<UpdateProjectTaskResponse> bizResult = updateProjectTaskExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    DeleteProjectMemberExecutor deleteProjectMemberExecutor;
+    @Override
+    public RpcResult<DeleteProjectMemberResponse> deleteProjectMember(DeleteProjectMemberRequest request) {
+        BizResult<DeleteProjectMemberResponse> bizResult = deleteProjectMemberExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    UpdateProjectMemberExecutor updateProjectMemberExecutor;
+    @Override
+    public RpcResult<UpdateProjectMemberResponse> updateProjectMember(UpdateProjectMemberRequest request) {
+        BizResult<UpdateProjectMemberResponse> bizResult = updateProjectMemberExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    QueryProjectTeamExecutor queryProjectTeamExecutor;
+    @Override
+    public RpcResult<QueryProjectTeamResponse> queryProjectTeam(QueryProjectTeamRequest request) {
+        BizResult<QueryProjectTeamResponse> bizResult = queryProjectTeamExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    DeleteProjectTeamExecutor deleteProjectTeamExecutor;
+    @Override
+    public RpcResult<DeleteProjectTeamResponse> deleteProjectTeam(DeleteProjectTeamRequest request) {
+        BizResult<DeleteProjectTeamResponse> bizResult = deleteProjectTeamExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    UpdateProjectTeamExecutor updateProjectTeamExecutor;
+    @Override
+    public RpcResult<UpdateProjectTeamResponse> updateProjectTeam(UpdateProjectTeamRequest request) {
+        BizResult<UpdateProjectTeamResponse> bizResult = updateProjectTeamExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    QueryDevProjectExecutor queryDevProjectExecutor;
+    @Override
+    public RpcResult<QueryDevProjectResponse> queryDevProject(QueryDevProjectRequest request) {
+        BizResult<QueryDevProjectResponse> bizResult = queryDevProjectExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    DeleteDevProjectExecutor deleteDevProjectExecutor;
+    @Override
+    public RpcResult<DeleteDevProjectResponse> deleteDevProject(DeleteDevProjectRequest request) {
+        BizResult<DeleteDevProjectResponse> bizResult = deleteDevProjectExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    UpdateDevProjectExecutor updateDevProjectExecutor;
+    @Override
+    public RpcResult<UpdateDevProjectResponse> updateDevProject(UpdateDevProjectRequest request) {
+        BizResult<UpdateDevProjectResponse> bizResult = updateDevProjectExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    DeleteDevWorkspaceMemberExecutor deleteDevWorkspaceMemberExecutor;
+    @Override
+    public RpcResult<DeleteDevWorkspaceMemberResponse> deleteDevWorkspaceMember(DeleteDevWorkspaceMemberRequest request) {
+        BizResult<DeleteDevWorkspaceMemberResponse> bizResult = deleteDevWorkspaceMemberExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    UpdateDevWorkspaceMemberExecutor updateDevWorkspaceMemberExecutor;
+    @Override
+    public RpcResult<UpdateDevWorkspaceMemberResponse> updateDevWorkspaceMember(UpdateDevWorkspaceMemberRequest request) {
+        BizResult<UpdateDevWorkspaceMemberResponse> bizResult = updateDevWorkspaceMemberExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    DeleteDevWorkspaceFolderExecutor deleteDevWorkspaceFolderExecutor;
+    @Override
+    public RpcResult<DeleteDevWorkspaceFolderResponse> deleteDevWorkspaceFolder(DeleteDevWorkspaceFolderRequest request) {
+        BizResult<DeleteDevWorkspaceFolderResponse> bizResult = deleteDevWorkspaceFolderExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    UpdateDevWorkspaceFolderExecutor updateDevWorkspaceFolderExecutor;
+    @Override
+    public RpcResult<UpdateDevWorkspaceFolderResponse> updateDevWorkspaceFolder(UpdateDevWorkspaceFolderRequest request) {
+        BizResult<UpdateDevWorkspaceFolderResponse> bizResult = updateDevWorkspaceFolderExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    QueryDevWorkspaceExecutor queryDevWorkspaceExecutor;
+    @Override
+    public RpcResult<QueryDevWorkspaceResponse> queryDevWorkspace(QueryDevWorkspaceRequest request) {
+        BizResult<QueryDevWorkspaceResponse> bizResult = queryDevWorkspaceExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    DeleteDevWorkspaceExecutor deleteDevWorkspaceExecutor;
+    @Override
+    public RpcResult<DeleteDevWorkspaceResponse> deleteDevWorkspace(DeleteDevWorkspaceRequest request) {
+        BizResult<DeleteDevWorkspaceResponse> bizResult = deleteDevWorkspaceExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    UpdateDevWorkspaceExecutor updateDevWorkspaceExecutor;
+    @Override
+    public RpcResult<UpdateDevWorkspaceResponse> updateDevWorkspace(UpdateDevWorkspaceRequest request) {
+        BizResult<UpdateDevWorkspaceResponse> bizResult = updateDevWorkspaceExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
 	
     @Resource
     ImportLdapExcelExecutor importLdapExcelExecutor;

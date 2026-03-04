@@ -7,6 +7,8 @@ import lombok.Setter;
 import org.nutz.dao.entity.annotation.*;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 系统工作空间目录
@@ -53,5 +55,10 @@ public class DevWorkspaceFolderEntity implements Serializable, IsSerializable {
     @Comment("目录显示颜色")
     @ColDefine(width = 64)
     String color;
+
+    /**
+     * 该字段不会映射到数据库中
+     */
+    private List<DevWorkspaceFolderEntity> children = new ArrayList<>();
 
 }

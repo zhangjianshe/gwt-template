@@ -1,6 +1,7 @@
 package cn.mapway.gwt_template.shared.db;
 
 import cn.mapway.document.annotation.Doc;
+import cn.mapway.gwt_template.shared.rpc.project.module.ProjectMember;
 import com.google.gwt.user.client.rpc.IsSerializable;
 import lombok.Getter;
 import lombok.Setter;
@@ -8,6 +9,8 @@ import org.nutz.dao.entity.annotation.*;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 项目管理成员分组
@@ -34,6 +37,7 @@ public class DevProjectTeamEntity implements Serializable, IsSerializable {
     public static final String FLD_ICON = "icon";
     public static final String FLD_SUMMARY = "summary";
     public static final String FLD_CHARGER = "charger";
+    public static final String FLD_TEAM_PERMISSION = "team_permission";
 
     @Name
     @Column(FLD_ID)
@@ -84,4 +88,12 @@ public class DevProjectTeamEntity implements Serializable, IsSerializable {
     @Column(FLD_CHARGER)
     @Comment("分组组长")
     Long charger;
+
+    @Column(FLD_TEAM_PERMISSION)
+    @Comment("小组权限")
+    Integer teamPermission;
+
+    private List<DevProjectTeamEntity> children = new ArrayList<>();
+
+    private List<ProjectMember> members = new ArrayList<>();
 }

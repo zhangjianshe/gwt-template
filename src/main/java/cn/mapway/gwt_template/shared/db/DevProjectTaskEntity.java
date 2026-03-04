@@ -8,6 +8,8 @@ import org.nutz.dao.entity.annotation.*;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 项目的任务
@@ -35,6 +37,9 @@ public class DevProjectTaskEntity implements Serializable, IsSerializable {
     public static final String FLD_ESTIMATE_TIME = "estimate_time";
     public static final String FLD_END_TIME = "end_time";
     public static final String FLD_PRIORITY = "priority";
+    public static final String FLD_STATUS = "status";
+    public static final String FLD_SUMMARY = "summary";
+    public static final String FLD_CODE = "code";
 
     @Name
     @Column(FLD_ID)
@@ -96,4 +101,21 @@ public class DevProjectTaskEntity implements Serializable, IsSerializable {
     @Default("0")
     Integer priority;
 
+    @Column(FLD_STATUS)
+    @Comment("任务状态")
+    @Default("0")
+    Integer status;
+
+    @Column(FLD_SUMMARY)
+    @Comment("任务描述")
+    @ColDefine(type = ColType.TEXT)
+    String summary;
+
+    @Column(FLD_CODE)
+    @Comment("任务代码")
+    @ColDefine(notNull = true)
+    Integer code;
+
+
+    private List<DevProjectTaskEntity> children = new ArrayList<>();
 }

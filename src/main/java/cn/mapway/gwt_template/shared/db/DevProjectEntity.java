@@ -33,6 +33,7 @@ public class DevProjectEntity implements Serializable, IsSerializable {
     public static final String FLD_UNICODE = "unicode";
     public static final String FLD_ICON = "icon";
     public static final String FLD_SUMMARY = "summary";
+    public static final String FLD_UPDATE_TIME = "update_time";
 
     @Name
     @Comment("项目ID")
@@ -83,4 +84,9 @@ public class DevProjectEntity implements Serializable, IsSerializable {
     @Column(FLD_SUMMARY)
     @ColDefine(width = 1024, notNull = true)
     String summary;
+
+    @Comment("更新时间")
+    @Column(FLD_UPDATE_TIME)
+    Timestamp updateTime;
+
 }

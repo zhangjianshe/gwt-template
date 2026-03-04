@@ -6,6 +6,7 @@ import cn.mapway.gwt_template.shared.rpc.dev.*;
 import cn.mapway.gwt_template.shared.rpc.dns.*;
 import cn.mapway.gwt_template.shared.rpc.ldap.*;
 import cn.mapway.gwt_template.shared.rpc.message.*;
+import cn.mapway.gwt_template.shared.rpc.project.*;
 import cn.mapway.gwt_template.shared.rpc.repository.*;
 import cn.mapway.gwt_template.shared.rpc.soft.*;
 import cn.mapway.gwt_template.shared.rpc.user.UpdateUserInfoRequest;
@@ -19,6 +20,78 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public interface IAppServerAsync {
 
     ///CODE_GEN_INSERT_POINT///
+	void queryDevWorkspaceMember(QueryDevWorkspaceMemberRequest request, AsyncCallback<RpcResult<QueryDevWorkspaceMemberResponse>> async);
+
+	void queryProjectActions(QueryProjectActionsRequest request, AsyncCallback<RpcResult<QueryProjectActionsResponse>> async);
+
+	void deleteProjectFiles(DeleteProjectFilesRequest request, AsyncCallback<RpcResult<DeleteProjectFilesResponse>> async);
+
+	void uploadProjectFiles(UploadProjectFilesRequest request, AsyncCallback<RpcResult<UploadProjectFilesResponse>> async);
+
+	void queryProjectFiles(QueryProjectFilesRequest request, AsyncCallback<RpcResult<QueryProjectFilesResponse>> async);
+
+	void uploadProjectAttachment(UploadProjectAttachmentRequest request, AsyncCallback<RpcResult<UploadProjectAttachmentResponse>> async);
+
+	void queryProjectCase(QueryProjectCaseRequest request, AsyncCallback<RpcResult<QueryProjectCaseResponse>> async);
+
+	void deleteProjectCase(DeleteProjectCaseRequest request, AsyncCallback<RpcResult<DeleteProjectCaseResponse>> async);
+
+	void updateProjectCase(UpdateProjectCaseRequest request, AsyncCallback<RpcResult<UpdateProjectCaseResponse>> async);
+
+	void queryProjectIssueComment(QueryProjectIssueCommentRequest request, AsyncCallback<RpcResult<QueryProjectIssueCommentResponse>> async);
+
+	void deleteProjectIssueComment(DeleteProjectIssueCommentRequest request, AsyncCallback<RpcResult<DeleteProjectIssueCommentResponse>> async);
+
+	void updateProjectIssueComment(UpdateProjectIssueCommentRequest request, AsyncCallback<RpcResult<UpdateProjectIssueCommentResponse>> async);
+
+	void queryProjectIssue(QueryProjectIssueRequest request, AsyncCallback<RpcResult<QueryProjectIssueResponse>> async);
+
+	void deleteProjectIssue(DeleteProjectIssueRequest request, AsyncCallback<RpcResult<DeleteProjectIssueResponse>> async);
+
+	void updateProjectIssue(UpdateProjectIssueRequest request, AsyncCallback<RpcResult<UpdateProjectIssueResponse>> async);
+
+	void queryProjectTaskComment(QueryProjectTaskCommentRequest request, AsyncCallback<RpcResult<QueryProjectTaskCommentResponse>> async);
+
+	void deleteProjectTaskComment(DeleteProjectTaskCommentRequest request, AsyncCallback<RpcResult<DeleteProjectTaskCommentResponse>> async);
+
+	void updateProjectTaskComment(UpdateProjectTaskCommentRequest request, AsyncCallback<RpcResult<UpdateProjectTaskCommentResponse>> async);
+
+	void queryProjectTask(QueryProjectTaskRequest request, AsyncCallback<RpcResult<QueryProjectTaskResponse>> async);
+
+	void deleteProjectTask(DeleteProjectTaskRequest request, AsyncCallback<RpcResult<DeleteProjectTaskResponse>> async);
+
+	void updateProjectTask(UpdateProjectTaskRequest request, AsyncCallback<RpcResult<UpdateProjectTaskResponse>> async);
+
+	void deleteProjectMember(DeleteProjectMemberRequest request, AsyncCallback<RpcResult<DeleteProjectMemberResponse>> async);
+
+	void updateProjectMember(UpdateProjectMemberRequest request, AsyncCallback<RpcResult<UpdateProjectMemberResponse>> async);
+
+	void queryProjectTeam(QueryProjectTeamRequest request, AsyncCallback<RpcResult<QueryProjectTeamResponse>> async);
+
+	void deleteProjectTeam(DeleteProjectTeamRequest request, AsyncCallback<RpcResult<DeleteProjectTeamResponse>> async);
+
+	void updateProjectTeam(UpdateProjectTeamRequest request, AsyncCallback<RpcResult<UpdateProjectTeamResponse>> async);
+
+	void queryDevProject(QueryDevProjectRequest request, AsyncCallback<RpcResult<QueryDevProjectResponse>> async);
+
+	void deleteDevProject(DeleteDevProjectRequest request, AsyncCallback<RpcResult<DeleteDevProjectResponse>> async);
+
+	void updateDevProject(UpdateDevProjectRequest request, AsyncCallback<RpcResult<UpdateDevProjectResponse>> async);
+
+	void deleteDevWorkspaceMember(DeleteDevWorkspaceMemberRequest request, AsyncCallback<RpcResult<DeleteDevWorkspaceMemberResponse>> async);
+
+	void updateDevWorkspaceMember(UpdateDevWorkspaceMemberRequest request, AsyncCallback<RpcResult<UpdateDevWorkspaceMemberResponse>> async);
+
+	void deleteDevWorkspaceFolder(DeleteDevWorkspaceFolderRequest request, AsyncCallback<RpcResult<DeleteDevWorkspaceFolderResponse>> async);
+
+	void updateDevWorkspaceFolder(UpdateDevWorkspaceFolderRequest request, AsyncCallback<RpcResult<UpdateDevWorkspaceFolderResponse>> async);
+
+	void queryDevWorkspace(QueryDevWorkspaceRequest request, AsyncCallback<RpcResult<QueryDevWorkspaceResponse>> async);
+
+	void deleteDevWorkspace(DeleteDevWorkspaceRequest request, AsyncCallback<RpcResult<DeleteDevWorkspaceResponse>> async);
+
+	void updateDevWorkspace(UpdateDevWorkspaceRequest request, AsyncCallback<RpcResult<UpdateDevWorkspaceResponse>> async);
+
 	void importLdapExcel(ImportLdapExcelRequest request, AsyncCallback<RpcResult<ImportLdapExcelResponse>> async);
 
 	void exportLdapDIF(ExportLdapDIFRequest request, AsyncCallback<RpcResult<ExportLdapDIFResponse>> async);

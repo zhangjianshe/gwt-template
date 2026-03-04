@@ -7,6 +7,7 @@ import cn.mapway.gwt_template.shared.rpc.dev.*;
 import cn.mapway.gwt_template.shared.rpc.dns.*;
 import cn.mapway.gwt_template.shared.rpc.ldap.*;
 import cn.mapway.gwt_template.shared.rpc.message.*;
+import cn.mapway.gwt_template.shared.rpc.project.*;
 import cn.mapway.gwt_template.shared.rpc.repository.*;
 import cn.mapway.gwt_template.shared.rpc.soft.*;
 import cn.mapway.gwt_template.shared.rpc.user.UpdateUserInfoRequest;
@@ -21,6 +22,78 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 @RemoteServiceRelativePath(AppConstant.DEFAULT_SERVER_PATH)
 public interface IAppServer extends RemoteService {
     ///CODE_GEN_INSERT_POINT///
+	RpcResult<QueryDevWorkspaceMemberResponse> queryDevWorkspaceMember(QueryDevWorkspaceMemberRequest request);
+
+	RpcResult<QueryProjectActionsResponse> queryProjectActions(QueryProjectActionsRequest request);
+
+	RpcResult<DeleteProjectFilesResponse> deleteProjectFiles(DeleteProjectFilesRequest request);
+
+	RpcResult<UploadProjectFilesResponse> uploadProjectFiles(UploadProjectFilesRequest request);
+
+	RpcResult<QueryProjectFilesResponse> queryProjectFiles(QueryProjectFilesRequest request);
+
+	RpcResult<UploadProjectAttachmentResponse> uploadProjectAttachment(UploadProjectAttachmentRequest request);
+
+	RpcResult<QueryProjectCaseResponse> queryProjectCase(QueryProjectCaseRequest request);
+
+	RpcResult<DeleteProjectCaseResponse> deleteProjectCase(DeleteProjectCaseRequest request);
+
+	RpcResult<UpdateProjectCaseResponse> updateProjectCase(UpdateProjectCaseRequest request);
+
+	RpcResult<QueryProjectIssueCommentResponse> queryProjectIssueComment(QueryProjectIssueCommentRequest request);
+
+	RpcResult<DeleteProjectIssueCommentResponse> deleteProjectIssueComment(DeleteProjectIssueCommentRequest request);
+
+	RpcResult<UpdateProjectIssueCommentResponse> updateProjectIssueComment(UpdateProjectIssueCommentRequest request);
+
+	RpcResult<QueryProjectIssueResponse> queryProjectIssue(QueryProjectIssueRequest request);
+
+	RpcResult<DeleteProjectIssueResponse> deleteProjectIssue(DeleteProjectIssueRequest request);
+
+	RpcResult<UpdateProjectIssueResponse> updateProjectIssue(UpdateProjectIssueRequest request);
+
+	RpcResult<QueryProjectTaskCommentResponse> queryProjectTaskComment(QueryProjectTaskCommentRequest request);
+
+	RpcResult<DeleteProjectTaskCommentResponse> deleteProjectTaskComment(DeleteProjectTaskCommentRequest request);
+
+	RpcResult<UpdateProjectTaskCommentResponse> updateProjectTaskComment(UpdateProjectTaskCommentRequest request);
+
+	RpcResult<QueryProjectTaskResponse> queryProjectTask(QueryProjectTaskRequest request);
+
+	RpcResult<DeleteProjectTaskResponse> deleteProjectTask(DeleteProjectTaskRequest request);
+
+	RpcResult<UpdateProjectTaskResponse> updateProjectTask(UpdateProjectTaskRequest request);
+
+	RpcResult<DeleteProjectMemberResponse> deleteProjectMember(DeleteProjectMemberRequest request);
+
+	RpcResult<UpdateProjectMemberResponse> updateProjectMember(UpdateProjectMemberRequest request);
+
+	RpcResult<QueryProjectTeamResponse> queryProjectTeam(QueryProjectTeamRequest request);
+
+	RpcResult<DeleteProjectTeamResponse> deleteProjectTeam(DeleteProjectTeamRequest request);
+
+	RpcResult<UpdateProjectTeamResponse> updateProjectTeam(UpdateProjectTeamRequest request);
+
+	RpcResult<QueryDevProjectResponse> queryDevProject(QueryDevProjectRequest request);
+
+	RpcResult<DeleteDevProjectResponse> deleteDevProject(DeleteDevProjectRequest request);
+
+	RpcResult<UpdateDevProjectResponse> updateDevProject(UpdateDevProjectRequest request);
+
+	RpcResult<DeleteDevWorkspaceMemberResponse> deleteDevWorkspaceMember(DeleteDevWorkspaceMemberRequest request);
+
+	RpcResult<UpdateDevWorkspaceMemberResponse> updateDevWorkspaceMember(UpdateDevWorkspaceMemberRequest request);
+
+	RpcResult<DeleteDevWorkspaceFolderResponse> deleteDevWorkspaceFolder(DeleteDevWorkspaceFolderRequest request);
+
+	RpcResult<UpdateDevWorkspaceFolderResponse> updateDevWorkspaceFolder(UpdateDevWorkspaceFolderRequest request);
+
+	RpcResult<QueryDevWorkspaceResponse> queryDevWorkspace(QueryDevWorkspaceRequest request);
+
+	RpcResult<DeleteDevWorkspaceResponse> deleteDevWorkspace(DeleteDevWorkspaceRequest request);
+
+	RpcResult<UpdateDevWorkspaceResponse> updateDevWorkspace(UpdateDevWorkspaceRequest request);
+
 	RpcResult<ImportLdapExcelResponse> importLdapExcel(ImportLdapExcelRequest request);
 
 	RpcResult<ExportLdapDIFResponse> exportLdapDIF(ExportLdapDIFRequest request);
