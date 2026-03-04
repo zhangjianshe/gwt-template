@@ -6,7 +6,7 @@ import cn.mapway.gwt_template.shared.rpc.dev.*;
 import cn.mapway.gwt_template.shared.rpc.dns.*;
 import cn.mapway.gwt_template.shared.rpc.ldap.*;
 import cn.mapway.gwt_template.shared.rpc.message.*;
-import cn.mapway.gwt_template.shared.rpc.project.*;
+import cn.mapway.gwt_template.shared.rpc.repository.*;
 import cn.mapway.gwt_template.shared.rpc.soft.*;
 import cn.mapway.gwt_template.shared.rpc.user.UpdateUserInfoRequest;
 import cn.mapway.gwt_template.shared.rpc.user.UpdateUserInfoResponse;
@@ -78,11 +78,11 @@ public interface IAppServerAsync {
     void queryRepoFiles(QueryRepoFilesRequest request, AsyncCallback<RpcResult<QueryRepoFilesResponse>> async);
 
 
-    void queryProjectMember(QueryProjectMemberRequest request, AsyncCallback<RpcResult<QueryProjectMemberResponse>> async);
+    void queryProjectMember(QueryRepositoryMemberRequest request, AsyncCallback<RpcResult<QueryRepositoryMemberResponse>> async);
 
-    void deleteProjectMember(DeleteProjectMemberRequest request, AsyncCallback<RpcResult<DeleteProjectMemberResponse>> async);
+    void deleteProjectMember(DeleteRepositoryMemberRequest request, AsyncCallback<RpcResult<DeleteRepositoryMemberResponse>> async);
 
-    void updateProjectMember(UpdateProjectMemberRequest request, AsyncCallback<RpcResult<UpdateProjectMemberResponse>> async);
+    void updateProjectMember(UpdateRepositoryMemberRequest request, AsyncCallback<RpcResult<UpdateRepositoryMemberResponse>> async);
 
 
     void queryGroupMember(QueryGroupMemberRequest request, AsyncCallback<RpcResult<QueryGroupMemberResponse>> async);

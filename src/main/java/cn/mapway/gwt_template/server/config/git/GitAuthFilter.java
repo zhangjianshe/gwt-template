@@ -1,7 +1,7 @@
 package cn.mapway.gwt_template.server.config.git;
 
 import cn.mapway.biz.core.BizResult;
-import cn.mapway.gwt_template.server.service.project.ProjectService;
+import cn.mapway.gwt_template.server.service.repository.RepositoryService;
 import cn.mapway.gwt_template.server.service.user.login.LoginProvider;
 import cn.mapway.gwt_template.shared.rpc.user.CommonPermission;
 import cn.mapway.rbac.shared.rpc.LoginResponse;
@@ -24,16 +24,16 @@ import java.util.concurrent.TimeUnit;
 public class GitAuthFilter extends OncePerRequestFilter {
 
     LoginProvider loginProvider;
-    ProjectService projectService;
+    RepositoryService repositoryService;
 
     private final Cache<String, LoginResponse> authCache = CacheBuilder.newBuilder()
             .expireAfterWrite(5, TimeUnit.MINUTES) // Cache credentials for 5 mins
             .maximumSize(1000) // Don't let the cache grow too large
             .build();
 
-    public GitAuthFilter(LoginProvider loginProvider,ProjectService projectService) {
+    public GitAuthFilter(LoginProvider loginProvider, RepositoryService repositoryService) {
         this.loginProvider = loginProvider;
-        this.projectService = projectService;
+        this.repositoryService = repositoryService;
     }
 
     @Override
@@ -64,7 +64,7 @@ public class GitAuthFilter extends OncePerRequestFilter {
                 "git-receive-pack".equals(request.getParameter("service"));
 
 
-        boolean isPublic = projectService.isProjectPublic(ownerName, projectName);
+        boolean isPublic = repositoryService.isProjectPublic(ownerName, projectName);
 
         // If it's a read operation on a public project, allow without auth
         if (!isPush && isPublic) {
@@ -108,7 +108,7 @@ public class GitAuthFilter extends OncePerRequestFilter {
         // so we check these against the DB/Service every time)
         IUserInfo currentUser = loginData.getCurrentUser();
         Long userId = Long.parseLong(currentUser.getId());
-        CommonPermission permission = projectService.findUserPermissionInProjectByName(userId, ownerName, projectName);
+        CommonPermission permission = repositoryService.findUserPermissionInProjectByName(userId, ownerName, projectName);
 
         if (isPush ? permission.canWrite() : permission.canRead()) {
             filterChain.doFilter(request, response);

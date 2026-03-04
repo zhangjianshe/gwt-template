@@ -4,13 +4,13 @@ import cn.mapway.biz.core.AbstractBizExecutor;
 import cn.mapway.biz.core.BizContext;
 import cn.mapway.biz.core.BizRequest;
 import cn.mapway.biz.core.BizResult;
-import cn.mapway.gwt_template.server.service.project.ProjectService;
+import cn.mapway.gwt_template.server.service.repository.RepositoryService;
 import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.db.DevProjectEntity;
 import cn.mapway.gwt_template.shared.db.VwProjectEntity;
 import cn.mapway.gwt_template.shared.rpc.dev.UpdateProjectRequest;
 import cn.mapway.gwt_template.shared.rpc.dev.UpdateProjectResponse;
-import cn.mapway.gwt_template.shared.rpc.project.ProjectOwnerKind;
+import cn.mapway.gwt_template.shared.rpc.repository.RepositoryOwnerKind;
 import cn.mapway.gwt_template.shared.rpc.user.CommonPermission;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +31,7 @@ import java.sql.Timestamp;
 @Slf4j
 public class UpdateProjectExecutor extends AbstractBizExecutor<UpdateProjectResponse, UpdateProjectRequest> {
     @Resource
-    ProjectService projectService;
+    RepositoryService repositoryService;
 
     @Override
     protected BizResult<UpdateProjectResponse> process(BizContext context, BizRequest<UpdateProjectRequest> bizParam) {
@@ -49,19 +49,19 @@ public class UpdateProjectExecutor extends AbstractBizExecutor<UpdateProjectResp
             }
             assertTrue(Strings.isNotBlank(project.getName()), "没有项目名称");
             project.setOwnerName(user.getUser().getUserName());
-            project.setOwnerKind(ProjectOwnerKind.PWK_PERSONAL.getCode());
+            project.setOwnerKind(RepositoryOwnerKind.PWK_PERSONAL.getCode());
             if (Strings.isBlank(project.getSummary())) {
                 project.setSummary(project.getFullName());
             }
         } else {
-            CommonPermission permission = projectService.userProjectPermission(user.getUser().getUserId(), project.getId());
+            CommonPermission permission = repositoryService.userProjectPermission(user.getUser().getUserId(), project.getId());
             assertNotNull(permission.canWrite(), "没有更新权限");
         }
-        BizResult<DevProjectEntity> updateResult = projectService.saveOrUpdateProject(user.getUserName(), project);
+        BizResult<DevProjectEntity> updateResult = repositoryService.saveOrUpdateProject(user.getUserName(), project);
         if (updateResult.isFailed()) {
             return updateResult.asBizResult();
         }
-        VwProjectEntity view = projectService.findProjectView(updateResult.getData().getId());
+        VwProjectEntity view = repositoryService.findProjectView(updateResult.getData().getId());
         UpdateProjectResponse resp = new UpdateProjectResponse();
         resp.setProject(view);
         return BizResult.success(resp);

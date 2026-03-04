@@ -1,7 +1,7 @@
 package cn.mapway.gwt_template.server.config.git;
 
 import cn.mapway.gwt_template.server.config.AppConfig;
-import cn.mapway.gwt_template.server.service.project.ProjectService;
+import cn.mapway.gwt_template.server.service.repository.RepositoryService;
 import cn.mapway.gwt_template.server.service.user.login.LoginProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
@@ -27,9 +27,9 @@ public class JGitConfig {
     AppConfig appConfig;
 
     @Bean
-    public FilterRegistrationBean<GitAuthFilter> gitAuthFilterRegistration(LoginProvider loginProvider, ProjectService projectService) {
+    public FilterRegistrationBean<GitAuthFilter> gitAuthFilterRegistration(LoginProvider loginProvider, RepositoryService repositoryService) {
         FilterRegistrationBean<GitAuthFilter> registration = new FilterRegistrationBean<>();
-        registration.setFilter(new GitAuthFilter(loginProvider, projectService));
+        registration.setFilter(new GitAuthFilter(loginProvider, repositoryService));
         registration.addUrlPatterns("/code/*"); // Only protect git traffic
         registration.setName("gitAuthFilter");
         registration.setOrder(1); // Run before the GitServlet
@@ -38,7 +38,7 @@ public class JGitConfig {
 
     @Bean
     public ServletRegistrationBean<GitServlet> gitServletRegistration(
-            final ProjectService projectService) {
+            final RepositoryService repositoryService) {
         GitServlet gitServlet = new GitServlet();
 
         // 1. The Repository Resolver tells JGit WHERE to find the .git folders
@@ -83,7 +83,7 @@ public class JGitConfig {
 
             rp.setPostReceiveHook((receivePack, commands) -> {
 
-                projectService.handlePostReceiveHook(rp,commands);
+                repositoryService.handlePostReceiveHook(rp,commands);
 
             });
             return rp;

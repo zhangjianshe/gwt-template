@@ -28,7 +28,7 @@ public class SystemWatcher {
         notifyMessage.progress = ticker;
         notifyMessage.phase = AppConstant.MESSAGE_PHASE_IMPORT;
         notifyMessage.type = AppConstant.MESSAGE_TYPE_PROGRESS; // Using 'kind' based on your previous GitRepoService logic
-        notifyMessage.projectId = "65ca892c16b74bbcaa828942bd543f9d";
+        notifyMessage.repositoryId = "65ca892c16b74bbcaa828942bd543f9d";
         msg.data = notifyMessage;
 
         GitNotifyWebSocket.sendMessage(6L, Json.toJson(msg));

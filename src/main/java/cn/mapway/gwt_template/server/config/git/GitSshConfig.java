@@ -2,7 +2,7 @@ package cn.mapway.gwt_template.server.config.git;
 
 import cn.mapway.gwt_template.server.config.AppConfig;
 import cn.mapway.gwt_template.server.service.file.FileCustomUtils;
-import cn.mapway.gwt_template.server.service.project.ProjectService;
+import cn.mapway.gwt_template.server.service.repository.RepositoryService;
 import cn.mapway.gwt_template.shared.db.SysUserKeyEntity;
 import cn.mapway.gwt_template.shared.rpc.user.CommonPermission;
 import lombok.extern.slf4j.Slf4j;
@@ -47,7 +47,7 @@ public class GitSshConfig {
     String BOLD_CYAN = "\u001b[1;36m";
     String RESET = "\u001b[0m";
     @Resource
-    ProjectService projectService; // We will use this for SSH key lookups
+    RepositoryService repositoryService; // We will use this for SSH key lookups
 
     @Bean
     public SshServer sshServer(AppConfig appConfig) throws IOException {
@@ -134,7 +134,7 @@ public class GitSshConfig {
                 log.info("Auth Check: User {} requested {} on project {}/{}",
                         userPublicKey.getUserName(), action, owner, project);
 
-                CommonPermission perm = projectService.findUserPermissionInProjectByName(
+                CommonPermission perm = repositoryService.findUserPermissionInProjectByName(
                         userPublicKey.getUserId(), owner, project);
 
                 if ((isPush && !perm.canWrite()) || (!isPush && !perm.canRead())) {
@@ -156,7 +156,7 @@ public class GitSshConfig {
                                 ReceivePack receivePack = pack;
                                 log.info("[GIT-SSH] Injecting PostReceiveHook for session: {}", session);
                                 receivePack.setPostReceiveHook((rp, commands) -> {
-                                    projectService.handlePostReceiveHook(rp, commands);
+                                    repositoryService.handlePostReceiveHook(rp, commands);
                                 });
                             }
                         });
@@ -171,7 +171,7 @@ public class GitSshConfig {
             String fingerPrint = KeyUtils.getFingerPrint(incomingKey);
 
             // Direct DB lookup by Primary Key (Fingerprint)
-            SysUserKeyEntity keyInDb = projectService.findPublicKeyById(fingerPrint);
+            SysUserKeyEntity keyInDb = repositoryService.findPublicKeyById(fingerPrint);
 
             if (keyInDb == null) {
                 log.warn("[GIT SSH] Unauthorized key fingerprint: {}", fingerPrint);

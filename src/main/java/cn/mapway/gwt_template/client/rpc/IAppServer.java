@@ -7,7 +7,7 @@ import cn.mapway.gwt_template.shared.rpc.dev.*;
 import cn.mapway.gwt_template.shared.rpc.dns.*;
 import cn.mapway.gwt_template.shared.rpc.ldap.*;
 import cn.mapway.gwt_template.shared.rpc.message.*;
-import cn.mapway.gwt_template.shared.rpc.project.*;
+import cn.mapway.gwt_template.shared.rpc.repository.*;
 import cn.mapway.gwt_template.shared.rpc.soft.*;
 import cn.mapway.gwt_template.shared.rpc.user.UpdateUserInfoRequest;
 import cn.mapway.gwt_template.shared.rpc.user.UpdateUserInfoResponse;
@@ -80,11 +80,11 @@ public interface IAppServer extends RemoteService {
 
     RpcResult<QueryRepoFilesResponse> queryRepoFiles(QueryRepoFilesRequest request);
 
-    RpcResult<QueryProjectMemberResponse> queryProjectMember(QueryProjectMemberRequest request);
+    RpcResult<QueryRepositoryMemberResponse> queryProjectMember(QueryRepositoryMemberRequest request);
 
-    RpcResult<DeleteProjectMemberResponse> deleteProjectMember(DeleteProjectMemberRequest request);
+    RpcResult<DeleteRepositoryMemberResponse> deleteProjectMember(DeleteRepositoryMemberRequest request);
 
-    RpcResult<UpdateProjectMemberResponse> updateProjectMember(UpdateProjectMemberRequest request);
+    RpcResult<UpdateRepositoryMemberResponse> updateProjectMember(UpdateRepositoryMemberRequest request);
 
 
     RpcResult<QueryGroupMemberResponse> queryGroupMember(QueryGroupMemberRequest request);

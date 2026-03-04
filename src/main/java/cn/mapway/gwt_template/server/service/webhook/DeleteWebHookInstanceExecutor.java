@@ -4,7 +4,7 @@ import cn.mapway.biz.core.AbstractBizExecutor;
 import cn.mapway.biz.core.BizContext;
 import cn.mapway.biz.core.BizRequest;
 import cn.mapway.biz.core.BizResult;
-import cn.mapway.gwt_template.server.service.project.ProjectService;
+import cn.mapway.gwt_template.server.service.repository.RepositoryService;
 import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
 import cn.mapway.gwt_template.shared.rpc.webhook.DeleteWebHookInstanceRequest;
@@ -26,14 +26,14 @@ import javax.annotation.Resource;
 @Slf4j
 public class DeleteWebHookInstanceExecutor extends AbstractBizExecutor<DeleteWebHookInstanceResponse, DeleteWebHookInstanceRequest> {
     @Resource
-    ProjectService projectService;
+    RepositoryService repositoryService;
     @Override
     protected BizResult<DeleteWebHookInstanceResponse> process(BizContext context, BizRequest<DeleteWebHookInstanceRequest> bizParam) {
         DeleteWebHookInstanceRequest request = bizParam.getData();
         log.info("DeleteWebHookInstanceExecutor {}", Json.toJson(request, JsonFormat.compact()));
         LoginUser user= (LoginUser) context.get(AppConstant.KEY_LOGIN_USER);
         assertTrue(Strings.isNotBlank(request.getInstanceId()),"没有实例ID");
-        projectService.deleteWebhookInstance(request.getInstanceId());
+        repositoryService.deleteWebhookInstance(request.getInstanceId());
         return BizResult.success(new DeleteWebHookInstanceResponse());
     }
 }

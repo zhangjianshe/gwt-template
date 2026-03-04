@@ -9,8 +9,8 @@ import cn.mapway.gwt_template.server.service.config.SystemConfigService;
 import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.db.DevProjectEntity;
 import cn.mapway.gwt_template.shared.rpc.app.AppData;
-import cn.mapway.gwt_template.shared.rpc.project.*;
-import cn.mapway.gwt_template.shared.rpc.project.git.GitRef;
+import cn.mapway.gwt_template.shared.rpc.repository.*;
+import cn.mapway.gwt_template.shared.rpc.repository.git.GitRef;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.LogCommand;
@@ -389,7 +389,7 @@ public class GitRepoService {
      * @return
      */
     public BizResult<ImportRepoResponse> importRepo(DevProjectEntity project, ImportRepoRequest request) {
-        if (!ProjectStatus.PS_INIT.getCode().equals(project.getStatus())) {
+        if (!RepositoryStatus.PS_INIT.getCode().equals(project.getStatus())) {
             return BizResult.error(500, "仓库不为空，不能导入仓库");
         }
         if (!checkProjectRepoEmpty(appConfig, project)) {
@@ -427,7 +427,7 @@ public class GitRepoService {
      * @param status    状态枚举
      * @param message   可选的消息（比如导入失败的原因）
      */
-    private void updateProjectStatus(String projectId, ProjectStatus status, String message) {
+    private void updateProjectStatus(String projectId, RepositoryStatus status, String message) {
         log.info("[GIT-STATUS] Project {} -> {}, msg: {}", projectId, status, message);
 
         // 构造更新链
@@ -450,7 +450,7 @@ public class GitRepoService {
         File repoDir = new File(appConfig.getRepoRoot(), owner + "/" + finalRepoName);
 
         // 状态更新为：正在导入
-        updateProjectStatus(project.getId(), ProjectStatus.PS_IMPORTING, "正在连接远端仓库...");
+        updateProjectStatus(project.getId(), RepositoryStatus.PS_IMPORTING, "正在连接远端仓库...");
         sendSocketNotify(project.getUserId(), AppConstant.MESSAGE_PHASE_IMPORT, AppConstant.MESSAGE_TYPE_START,
                 project.getId(), 0, "正在导入");
         // 如果目录已存在（之前的失败残留），先清理
@@ -523,7 +523,7 @@ public class GitRepoService {
 
             try (Git git = cloneCommand.call()) {
                 log.info("[GIT-IMPORT] Project {} imported successfully", repoName);
-                updateProjectStatus(project.getId(), ProjectStatus.PS_NORMAL, "导入完成");
+                updateProjectStatus(project.getId(), RepositoryStatus.PS_NORMAL, "导入完成");
                 sendSocketNotify(project.getUserId(), AppConstant.MESSAGE_PHASE_IMPORT,
                         AppConstant.MESSAGE_TYPE_SUCCESS, project.getId(), 100, "导入完成");
                 return BizResult.success(new ImportRepoResponse());
@@ -532,7 +532,7 @@ public class GitRepoService {
             log.error("[GIT-IMPORT] Project {} import failed: {}", repoName, e.getMessage());
             // 失败后回滚状态，允许用户再次尝试
             String message = "错误: " + e.getMessage();
-            updateProjectStatus(project.getId(), ProjectStatus.PS_INIT, Strings.brief(message, 120));
+            updateProjectStatus(project.getId(), RepositoryStatus.PS_INIT, Strings.brief(message, 120));
             // 清理可能产生的碎片文件
             FileSystemUtils.deleteRecursively(repoDir);
             //TODO 改成当前登录用户

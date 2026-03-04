@@ -2,8 +2,8 @@ package cn.mapway.gwt_template.client.preference.key;
 
 import cn.mapway.gwt_template.client.rpc.AppProxy;
 import cn.mapway.gwt_template.shared.db.SysUserKeyEntity;
-import cn.mapway.gwt_template.shared.rpc.project.UpdateUserKeyRequest;
-import cn.mapway.gwt_template.shared.rpc.project.UpdateUserKeyResponse;
+import cn.mapway.gwt_template.shared.rpc.repository.UpdateUserKeyRequest;
+import cn.mapway.gwt_template.shared.rpc.repository.UpdateUserKeyResponse;
 import cn.mapway.ui.client.mvc.Size;
 import cn.mapway.ui.client.tools.IData;
 import cn.mapway.ui.client.util.StringUtil;

@@ -4,7 +4,7 @@ import cn.mapway.biz.core.AbstractBizExecutor;
 import cn.mapway.biz.core.BizContext;
 import cn.mapway.biz.core.BizRequest;
 import cn.mapway.biz.core.BizResult;
-import cn.mapway.gwt_template.server.service.project.ProjectService;
+import cn.mapway.gwt_template.server.service.repository.RepositoryService;
 import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.db.VwProjectEntity;
 import cn.mapway.gwt_template.shared.rpc.dev.QueryProjectRequest;
@@ -29,7 +29,7 @@ import javax.annotation.Resource;
 @Slf4j
 public class QueryProjectExecutor extends AbstractBizExecutor<QueryProjectResponse, QueryProjectRequest> {
     @Resource
-    ProjectService projectService;
+    RepositoryService repositoryService;
 
     @Override
     protected BizResult<QueryProjectResponse> process(BizContext context, BizRequest<QueryProjectRequest> bizParam) {
@@ -38,12 +38,12 @@ public class QueryProjectExecutor extends AbstractBizExecutor<QueryProjectRespon
         LoginUser user = (LoginUser) context.get(AppConstant.KEY_LOGIN_USER);
         if (Strings.isBlank(request.getProjectId())) {
             QueryProjectResponse response = new QueryProjectResponse();
-            response.setProjects(projectService.allProjects(user.getUser().getUserId()));
+            response.setProjects(repositoryService.allProjects(user.getUser().getUserId()));
             return BizResult.success(response);
         } else {
-            CommonPermission permission = projectService.findUserPermissionInProject(user.getUser().getUserId(), request.getProjectId());
+            CommonPermission permission = repositoryService.findUserPermissionInProject(user.getUser().getUserId(), request.getProjectId());
             if (permission.canRead()) {
-                VwProjectEntity projectView = projectService.findProjectView(request.getProjectId());
+                VwProjectEntity projectView = repositoryService.findProjectView(request.getProjectId());
                 QueryProjectResponse response = new QueryProjectResponse();
                 response.setProjects(Lang.list(projectView));
                 return BizResult.success(response);

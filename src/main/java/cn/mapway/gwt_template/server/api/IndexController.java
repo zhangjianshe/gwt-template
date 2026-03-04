@@ -5,7 +5,7 @@ import cn.mapway.biz.core.BizRequest;
 import cn.mapway.biz.core.BizResult;
 import cn.mapway.gwt_template.server.service.file.FileUploadExecutor;
 import cn.mapway.gwt_template.server.service.git.GitRepoService;
-import cn.mapway.gwt_template.server.service.project.ProjectService;
+import cn.mapway.gwt_template.server.service.repository.RepositoryService;
 import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.rpc.file.UploadFileRequest;
 import cn.mapway.gwt_template.shared.rpc.file.UploadReturnResponse;
@@ -37,7 +37,7 @@ public class IndexController extends ApiBaseController{
     @Resource
     FileUploadExecutor fileUploadExecutor;
     @Resource
-    ProjectService projectService;
+    RepositoryService repositoryService;
 
     @GetMapping("/")
     public String index(Model model) {
@@ -80,7 +80,7 @@ public class IndexController extends ApiBaseController{
             response.getWriter().println("请登录后获取内容");
             return;
         }
-        CommonPermission permission = projectService.findUserPermissionInProjectByName(user.getUser().getUserId(), owner, projectName);
+        CommonPermission permission = repositoryService.findUserPermissionInProjectByName(user.getUser().getUserId(), owner, projectName);
         if (!permission.isAdmin() && !permission.canRead()) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().println("请登录后获取内容");

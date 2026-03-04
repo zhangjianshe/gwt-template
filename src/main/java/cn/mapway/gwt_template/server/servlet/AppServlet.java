@@ -21,7 +21,7 @@ import cn.mapway.gwt_template.server.service.message.QueryMessageExecutor;
 import cn.mapway.gwt_template.server.service.message.QueryUserMailboxExecutor;
 import cn.mapway.gwt_template.server.service.message.ReadMessageExecutor;
 import cn.mapway.gwt_template.server.service.message.SendMessageExecutor;
-import cn.mapway.gwt_template.server.service.project.*;
+import cn.mapway.gwt_template.server.service.repository.*;
 import cn.mapway.gwt_template.server.service.soft.CreateSoftwareExecutor;
 import cn.mapway.gwt_template.server.service.soft.DeleteSoftwareExecutor;
 import cn.mapway.gwt_template.server.service.soft.QuerySoftwareExecutor;
@@ -37,7 +37,7 @@ import cn.mapway.gwt_template.shared.rpc.dev.*;
 import cn.mapway.gwt_template.shared.rpc.dns.*;
 import cn.mapway.gwt_template.shared.rpc.ldap.*;
 import cn.mapway.gwt_template.shared.rpc.message.*;
-import cn.mapway.gwt_template.shared.rpc.project.*;
+import cn.mapway.gwt_template.shared.rpc.repository.*;
 import cn.mapway.gwt_template.shared.rpc.soft.*;
 import cn.mapway.gwt_template.shared.rpc.user.UpdateUserInfoRequest;
 import cn.mapway.gwt_template.shared.rpc.user.UpdateUserInfoResponse;
@@ -291,9 +291,9 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
     @Resource
     QueryProjectMemberExecutor queryProjectMemberExecutor;
     @Resource
-    DeleteProjectMemberExecutor deleteProjectMemberExecutor;
+    DeleteRepositoryMemberExecutor deleteRepositoryMemberExecutor;
     @Resource
-    UpdateProjectMemberExecutor updateProjectMemberExecutor;
+    UpdateRepositoryMemberExecutor updateRepositoryMemberExecutor;
     @Resource
     QueryGroupMemberExecutor queryGroupMemberExecutor;
     @Resource
@@ -398,20 +398,20 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
     }
 
     @Override
-    public RpcResult<QueryProjectMemberResponse> queryProjectMember(QueryProjectMemberRequest request) {
-        BizResult<QueryProjectMemberResponse> bizResult = queryProjectMemberExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+    public RpcResult<QueryRepositoryMemberResponse> queryProjectMember(QueryRepositoryMemberRequest request) {
+        BizResult<QueryRepositoryMemberResponse> bizResult = queryProjectMemberExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toRpcResult(bizResult);
     }
 
     @Override
-    public RpcResult<DeleteProjectMemberResponse> deleteProjectMember(DeleteProjectMemberRequest request) {
-        BizResult<DeleteProjectMemberResponse> bizResult = deleteProjectMemberExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+    public RpcResult<DeleteRepositoryMemberResponse> deleteProjectMember(DeleteRepositoryMemberRequest request) {
+        BizResult<DeleteRepositoryMemberResponse> bizResult = deleteRepositoryMemberExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toRpcResult(bizResult);
     }
 
     @Override
-    public RpcResult<UpdateProjectMemberResponse> updateProjectMember(UpdateProjectMemberRequest request) {
-        BizResult<UpdateProjectMemberResponse> bizResult = updateProjectMemberExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+    public RpcResult<UpdateRepositoryMemberResponse> updateProjectMember(UpdateRepositoryMemberRequest request) {
+        BizResult<UpdateRepositoryMemberResponse> bizResult = updateRepositoryMemberExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toRpcResult(bizResult);
     }
 
