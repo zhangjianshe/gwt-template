@@ -102,7 +102,7 @@ public interface IAppServerAsync {
 
     void queryConfig(QueryConfigRequest request, AsyncCallback<RpcResult<QueryConfigResponse>> async);
 
-    void deleteProjectBuild(DeleteProjectBuildRequest request, AsyncCallback<RpcResult<DeleteProjectBuildResponse>> async);
+    void deleteProjectBuild(DeleteRepositoryBuildRequest request, AsyncCallback<RpcResult<DeleteRepositoryBuildResponse>> async);
 
     void queryProjectBuild(QueryProjectBuildRequest request, AsyncCallback<RpcResult<QueryProjectBuildResponse>> async);
 
@@ -110,9 +110,9 @@ public interface IAppServerAsync {
 
     void queryNode(QueryNodeRequest request, AsyncCallback<RpcResult<QueryNodeResponse>> async);
 
-    void deleteProject(DeleteProjectRequest request, AsyncCallback<RpcResult<DeleteProjectResponse>> async);
+    void deleteProject(DeleteRepositoryRequest request, AsyncCallback<RpcResult<DeleteRepositoryResponse>> async);
 
-    void queryProject(QueryProjectRequest request, AsyncCallback<RpcResult<QueryProjectResponse>> async);
+    void queryRepository(QueryRepositoryRequest request, AsyncCallback<RpcResult<QueryRepositoryResponse>> async);
 
     void deleteKey(DeleteKeyRequest request, AsyncCallback<RpcResult<DeleteKeyResponse>> async);
 

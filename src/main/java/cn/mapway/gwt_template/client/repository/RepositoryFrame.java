@@ -1,7 +1,7 @@
 package cn.mapway.gwt_template.client.repository;
 
 import cn.mapway.gwt_template.client.ClientContext;
-import cn.mapway.gwt_template.shared.db.VwProjectEntity;
+import cn.mapway.gwt_template.shared.db.VwRepositoryEntity;
 import cn.mapway.gwt_template.shared.rpc.user.ResourcePoint;
 import cn.mapway.ui.client.fonts.Fonts;
 import cn.mapway.ui.client.frame.SubsystemModule;
@@ -30,12 +30,12 @@ public class RepositoryFrame extends SubsystemModule {
     public static final String MODULE_CODE = "dev_project_frame";
     private static final ProjectFrameUiBinder ourUiBinder = GWT.create(ProjectFrameUiBinder.class);
     @UiField
-    RepositoryList projectTree;
+    RepositoryList repositoryList;
     @UiField
     AiButton btnCreate;
     @UiField
-    RepositoryView projectPanel;
-    VwProjectEntity currentProject = null;
+    RepositoryView repositoryPanel;
+    VwRepositoryEntity currentRepository = null;
 
     public RepositoryFrame() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -44,7 +44,7 @@ public class RepositoryFrame extends SubsystemModule {
     @Override
     public boolean initialize(IModule parentModule, ModuleParameter parameter) {
         boolean b = super.initialize(parentModule, parameter);
-        projectTree.load();
+        repositoryList.load();
         return b;
     }
 
@@ -64,18 +64,18 @@ public class RepositoryFrame extends SubsystemModule {
         return MODULE_CODE;
     }
 
-    @UiHandler("projectTree")
-    public void projectTreeCommon(CommonEvent event) {
+    @UiHandler("repositoryList")
+    public void repositoryListCommon(CommonEvent event) {
         if (event.isSelect()) {
             ListItem listItem = event.getValue();
-            VwProjectEntity project = (VwProjectEntity) listItem.getData();
-            showProject(project);
+            VwRepositoryEntity repository = (VwRepositoryEntity) listItem.getData();
+            showRepository(repository);
         }
     }
 
-    private void showProject(VwProjectEntity project) {
-        currentProject = project;
-        projectPanel.setData(currentProject);
+    private void showRepository(VwRepositoryEntity project) {
+        currentRepository = project;
+        repositoryPanel.setData(currentRepository);
     }
 
     @UiHandler("btnCreate")
@@ -83,22 +83,22 @@ public class RepositoryFrame extends SubsystemModule {
         editProject(null);
     }
 
-    @UiHandler("projectPanel")
+    @UiHandler("repositoryPanel")
     public void projectPanelCommon(CommonEvent event) {
         if (event.isUpdate()) {
-            VwProjectEntity project = event.getValue();
-            projectTree.updateProject(project);
+            VwRepositoryEntity project = event.getValue();
+            repositoryList.updateProject(project);
         }
     }
 
 
-    private void editProject(VwProjectEntity project) {
-        Dialog<ProjectEditor> dialog = ProjectEditor.getDialog(true);
+    private void editProject(VwRepositoryEntity project) {
+        Dialog<RepositoryEditor> dialog = RepositoryEditor.getDialog(true);
         dialog.addCommonHandler(event -> {
             if (event.isOk()) {
                 dialog.hide();
-                projectTree.load();
-                projectPanel.setData(event.getValue());
+                repositoryList.load();
+                repositoryPanel.setData(event.getValue());
             } else if (event.isClose()) {
                 dialog.hide();
             }

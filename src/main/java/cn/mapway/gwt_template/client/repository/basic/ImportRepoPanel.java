@@ -4,7 +4,7 @@ import cn.mapway.gwt_template.client.rpc.AppProxy;
 import cn.mapway.gwt_template.client.user.ClientWebSocket;
 import cn.mapway.gwt_template.client.user.GitNotifyMessage;
 import cn.mapway.gwt_template.shared.AppConstant;
-import cn.mapway.gwt_template.shared.db.VwProjectEntity;
+import cn.mapway.gwt_template.shared.db.VwRepositoryEntity;
 import cn.mapway.gwt_template.shared.rpc.repository.ImportRepoRequest;
 import cn.mapway.gwt_template.shared.rpc.repository.ImportRepoResponse;
 import cn.mapway.ui.client.tools.IData;
@@ -31,7 +31,7 @@ import java.util.Objects;
 /**
  * 仓库导入面板
  */
-public class ImportRepoPanel extends CommonEventComposite implements IData<VwProjectEntity> {
+public class ImportRepoPanel extends CommonEventComposite implements IData<VwRepositoryEntity> {
     private static final ImportRepoPanelUiBinder ourUiBinder = GWT.create(ImportRepoPanelUiBinder.class);
     @UiField
     AiTextBox txtUrl;
@@ -43,7 +43,7 @@ public class ImportRepoPanel extends CommonEventComposite implements IData<VwPro
     AiTextBox txtToken;
     @UiField
     AiTextBox txtAuthorize;
-    private VwProjectEntity project;
+    private VwRepositoryEntity project;
 
     public ImportRepoPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -62,7 +62,7 @@ public class ImportRepoPanel extends CommonEventComposite implements IData<VwPro
         }
 
         ImportRepoRequest request = new ImportRepoRequest();
-        request.setProjectId(project.getId());
+        request.setRepositoryId(project.getId());
         request.setRepoUrl(txtUrl.getValue());
         request.setUser(txtAuthorize.getText());
         request.setTokenOrPassword(txtToken.getText());
@@ -122,12 +122,12 @@ public class ImportRepoPanel extends CommonEventComposite implements IData<VwPro
     }
 
     @Override
-    public VwProjectEntity getData() {
+    public VwRepositoryEntity getData() {
         return project;
     }
 
     @Override
-    public void setData(VwProjectEntity obj) {
+    public void setData(VwRepositoryEntity obj) {
         project = obj;
         toUI();
     }

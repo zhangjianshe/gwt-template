@@ -3,7 +3,7 @@ package cn.mapway.gwt_template.client.repository.member;
 import cn.mapway.gwt_template.client.ClientContext;
 import cn.mapway.gwt_template.client.rpc.AppProxy;
 import cn.mapway.gwt_template.client.widget.Head;
-import cn.mapway.gwt_template.shared.db.VwProjectMemberEntity;
+import cn.mapway.gwt_template.shared.db.VwRepositoryMemberEntity;
 import cn.mapway.gwt_template.shared.rpc.repository.*;
 import cn.mapway.gwt_template.shared.rpc.user.CommonPermission;
 import cn.mapway.ui.client.IUserInfo;
@@ -56,7 +56,7 @@ public class MemberList extends CommonEventComposite implements IData<String> {
         @Override
         public void onCommonEvent(CommonEvent event) {
             if (event.isDelete()) {
-                VwProjectMemberEntity member = event.getValue();
+                VwRepositoryMemberEntity member = event.getValue();
                 confirmdelete(member);
             }
         }
@@ -71,7 +71,7 @@ public class MemberList extends CommonEventComposite implements IData<String> {
         }
     }
 
-    private void confirmdelete(VwProjectMemberEntity member) {
+    private void confirmdelete(VwRepositoryMemberEntity member) {
         String message = "移除项目组成员" + member.getUserName() + "?";
         ClientContext.get().confirmDelete(message).then(new IThenable.ThenOnFulfilledCallbackFn<Void, Object>() {
             @Override
@@ -82,9 +82,9 @@ public class MemberList extends CommonEventComposite implements IData<String> {
         });
     }
 
-    private void doDelete(VwProjectMemberEntity member) {
+    private void doDelete(VwRepositoryMemberEntity member) {
         DeleteRepositoryMemberRequest request = new DeleteRepositoryMemberRequest();
-        request.setRepositoryId(member.getProjectId());
+        request.setRepositoryId(member.getRepositoryId());
         request.setUserId(member.getUserId());
         AppProxy.get().deleteProjectMember(request, new AsyncCallback<RpcResult<DeleteRepositoryMemberResponse>>() {
             @Override
@@ -140,7 +140,7 @@ public class MemberList extends CommonEventComposite implements IData<String> {
         });
     }
 
-    private void renderMember(boolean adminer, List<VwProjectMemberEntity> members) {
+    private void renderMember(boolean adminer, List<VwRepositoryMemberEntity> members) {
         btnAdd.setEnabled(adminer);
         if (members == null || members.isEmpty()) {
             list.clear();
@@ -148,7 +148,7 @@ public class MemberList extends CommonEventComposite implements IData<String> {
             list.add(new MessagePanel().setText("没有成员"));
             return;
         }
-        for (VwProjectMemberEntity member : members) {
+        for (VwRepositoryMemberEntity member : members) {
             MemberItem memberItem = new MemberItem();
             memberItem.setAdmin(adminer);
             memberItem.setData(member);

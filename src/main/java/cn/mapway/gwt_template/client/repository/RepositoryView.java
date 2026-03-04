@@ -3,7 +3,7 @@ package cn.mapway.gwt_template.client.repository;
 import cn.mapway.gwt_template.client.repository.basic.RepositoryCodeFrame;
 import cn.mapway.gwt_template.client.repository.basic.RepositoryFlowPanel;
 import cn.mapway.gwt_template.client.widget.IconButton;
-import cn.mapway.gwt_template.shared.db.VwProjectEntity;
+import cn.mapway.gwt_template.shared.db.VwRepositoryEntity;
 import cn.mapway.ui.client.fonts.Fonts;
 import cn.mapway.ui.client.mvc.BaseAbstractModule;
 import cn.mapway.ui.client.mvc.IModule;
@@ -30,7 +30,7 @@ import com.google.gwt.user.client.ui.LayoutPanel;
         summary = "项目详细信息",
         order = 100
 )
-public class RepositoryView extends BaseAbstractModule implements IData<VwProjectEntity> {
+public class RepositoryView extends BaseAbstractModule implements IData<VwRepositoryEntity> {
     public final static String MODULE_CODE = "git_project_view";
     private static final ProjectViewUiBinder ourUiBinder = GWT.create(ProjectViewUiBinder.class);
     @UiField
@@ -49,7 +49,7 @@ public class RepositoryView extends BaseAbstractModule implements IData<VwProjec
     RepositoryFlowPanel projectFlowPanel;
     RepositoryCodeFrame projectCodeFrame;
     RepositorySettingPanel projectSettingPanel;
-    private VwProjectEntity vwProject;
+    private VwRepositoryEntity vwProject;
 
     public RepositoryView() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -98,9 +98,9 @@ public class RepositoryView extends BaseAbstractModule implements IData<VwProjec
             projectFlowPanel = new RepositoryFlowPanel();
             projectFlowPanel.addCommonHandler(event -> {
                 if(event.isUpdate()) {
-                    VwProjectEntity vwProjectEntity = event.getValue();
-                    setData(vwProjectEntity);
-                    fireEvent(CommonEvent.updateEvent(vwProjectEntity));
+                    VwRepositoryEntity vwRepositoryEntity = event.getValue();
+                    setData(vwRepositoryEntity);
+                    fireEvent(CommonEvent.updateEvent(vwRepositoryEntity));
                 }
             });
         }
@@ -136,12 +136,12 @@ public class RepositoryView extends BaseAbstractModule implements IData<VwProjec
     }
 
     @Override
-    public VwProjectEntity getData() {
+    public VwRepositoryEntity getData() {
         return vwProject;
     }
 
     @Override
-    public void setData(VwProjectEntity obj) {
+    public void setData(VwRepositoryEntity obj) {
         vwProject = obj;
         toUI();
     }

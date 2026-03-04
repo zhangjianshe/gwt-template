@@ -11,21 +11,21 @@ import org.nutz.dao.entity.annotation.Table;
 import java.io.Serializable;
 import java.sql.Timestamp;
 
-@Table(DevProjectMemberEntity.TABLE_NAME)
+@Table(DevRepositoryMemberEntity.TABLE_NAME)
 @PK(value = {"userId", "repositoryId"})
 @Getter
 @Setter
-public class DevProjectMemberEntity implements Serializable, IsSerializable {
-    public static final String TABLE_NAME = "dev_project_member";
+public class DevRepositoryMemberEntity implements Serializable, IsSerializable {
+    public static final String TABLE_NAME = "dev_repository_member";
     public static final String FLD_USER_ID = "user_id";
-    public static final String FLD_PROJECT_ID = "repositoryId";
-    public static final String FLD_CREATE_TIME = "createTime";
+    public static final String FLD_REPOSITORY_ID = "repository_id";
+    public static final String FLD_CREATE_TIME = "create_time";
     public static final String FLD_OWNER = "owner";
 
     @Column("user_id")
     Long userId;
-    @Column("project_id")
-    String projectId;
+    @Column("repository_id")
+    String repositoryId;
     @Column("permission")
     Integer permission;
     @Column(hump = true)

@@ -6,7 +6,7 @@ import cn.mapway.biz.core.BizRequest;
 import cn.mapway.biz.core.BizResult;
 import cn.mapway.gwt_template.server.service.git.GitRepoService;
 import cn.mapway.gwt_template.shared.AppConstant;
-import cn.mapway.gwt_template.shared.db.DevProjectEntity;
+import cn.mapway.gwt_template.shared.db.DevRepositoryEntity;
 import cn.mapway.gwt_template.shared.rpc.repository.QueryRepoRefsRequest;
 import cn.mapway.gwt_template.shared.rpc.repository.QueryRepoRefsResponse;
 import cn.mapway.gwt_template.shared.rpc.user.CommonPermission;
@@ -39,16 +39,16 @@ public class QueryRepoRefsExecutor extends AbstractBizExecutor<QueryRepoRefsResp
         assertTrue(request != null && Strings.isNotBlank(request.getProjectId()), "请求参数错误或没有项目ID");
 
         // 2. Fetch Project Metadata
-        DevProjectEntity devProjectEntity = repositoryService.findProjectById(request.getProjectId());
-        assertNotNull(devProjectEntity, "找不到指定的项目: " + request.getProjectId());
+        DevRepositoryEntity devRepositoryEntity = repositoryService.findProjectById(request.getProjectId());
+        assertNotNull(devRepositoryEntity, "找不到指定的项目: " + request.getProjectId());
 
         // 3. Permission Check
         // If it's a private orbital hub, user must have read access.
-        CommonPermission permission = repositoryService.findUserPermissionInProject(user.getUser().getUserId(), request.getProjectId());
+        CommonPermission permission = repositoryService.findUserPermissionInRepository(user.getUser().getUserId(), request.getProjectId());
         assertTrue(permission.canRead(), "权限不足，无法访问该卫星数据仓库");
 
         // 4. Delegate to Git Logic
-        log.info("Fetching refs for Project: {}/{}", devProjectEntity.getOwnerName(), devProjectEntity.getName());
-        return gitRepoService.getRepoRefs(user.getUserName(), devProjectEntity.getOwnerName(), devProjectEntity.getName());
+        log.info("Fetching refs for Project: {}/{}", devRepositoryEntity.getOwnerName(), devRepositoryEntity.getName());
+        return gitRepoService.getRepoRefs(user.getUserName(), devRepositoryEntity.getOwnerName(), devRepositoryEntity.getName());
     }
 }

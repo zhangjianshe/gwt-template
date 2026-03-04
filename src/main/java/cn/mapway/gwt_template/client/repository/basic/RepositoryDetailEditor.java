@@ -1,8 +1,8 @@
 package cn.mapway.gwt_template.client.repository.basic;
 
 import cn.mapway.gwt_template.client.rpc.AppProxy;
-import cn.mapway.gwt_template.shared.db.DevProjectEntity;
-import cn.mapway.gwt_template.shared.db.VwProjectEntity;
+import cn.mapway.gwt_template.shared.db.DevRepositoryEntity;
+import cn.mapway.gwt_template.shared.db.VwRepositoryEntity;
 import cn.mapway.gwt_template.shared.rpc.dev.UpdateProjectRequest;
 import cn.mapway.gwt_template.shared.rpc.dev.UpdateProjectResponse;
 import cn.mapway.ui.client.mvc.Size;
@@ -24,7 +24,7 @@ import com.google.gwt.user.client.ui.TextArea;
 /**
  * 编辑项目详情
  */
-public class RepositoryDetailEditor extends CommonEventComposite implements IData<VwProjectEntity> {
+public class RepositoryDetailEditor extends CommonEventComposite implements IData<VwRepositoryEntity> {
     private static final ProjectEditorUiBinder ourUiBinder = GWT.create(ProjectEditorUiBinder.class);
     private static Dialog<RepositoryDetailEditor> dialog;
     @UiField
@@ -35,7 +35,7 @@ public class RepositoryDetailEditor extends CommonEventComposite implements IDat
     AiTextBox txtTags;
     @UiField
     TextArea txtSummary;
-    private VwProjectEntity project;
+    private VwRepositoryEntity project;
 
     public RepositoryDetailEditor() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -63,12 +63,12 @@ public class RepositoryDetailEditor extends CommonEventComposite implements IDat
     }
 
     @Override
-    public VwProjectEntity getData() {
+    public VwRepositoryEntity getData() {
         return project;
     }
 
     @Override
-    public void setData(VwProjectEntity obj) {
+    public void setData(VwRepositoryEntity obj) {
         assert obj != null;
         project = obj;
         toUI();
@@ -84,7 +84,7 @@ public class RepositoryDetailEditor extends CommonEventComposite implements IDat
     @UiHandler("saveBar")
     public void saveBarCommon(CommonEvent event) {
         if (event.isOk()) {
-            DevProjectEntity temp = new DevProjectEntity();
+            DevRepositoryEntity temp = new DevRepositoryEntity();
             temp.setId(project.getId());
             temp.setFullName(txtFullName.getValue());
             temp.setTags(txtTags.getValue());
@@ -95,7 +95,7 @@ public class RepositoryDetailEditor extends CommonEventComposite implements IDat
         }
     }
 
-    private void doSave(DevProjectEntity temp) {
+    private void doSave(DevRepositoryEntity temp) {
         UpdateProjectRequest request = new UpdateProjectRequest();
         request.setProject(temp);
         AppProxy.get().updateProject(request, new AsyncCallback<>() {

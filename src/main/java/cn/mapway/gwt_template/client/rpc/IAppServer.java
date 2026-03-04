@@ -103,7 +103,7 @@ public interface IAppServer extends RemoteService {
 
     RpcResult<QueryConfigResponse> queryConfig(QueryConfigRequest request);
 
-    RpcResult<DeleteProjectBuildResponse> deleteProjectBuild(DeleteProjectBuildRequest request);
+    RpcResult<DeleteRepositoryBuildResponse> deleteProjectBuild(DeleteRepositoryBuildRequest request);
 
     RpcResult<QueryProjectBuildResponse> queryProjectBuild(QueryProjectBuildRequest request);
 
@@ -111,9 +111,9 @@ public interface IAppServer extends RemoteService {
 
     RpcResult<QueryNodeResponse> queryNode(QueryNodeRequest request);
 
-    RpcResult<DeleteProjectResponse> deleteProject(DeleteProjectRequest request);
+    RpcResult<DeleteRepositoryResponse> deleteProject(DeleteRepositoryRequest request);
 
-    RpcResult<QueryProjectResponse> queryProject(QueryProjectRequest request);
+    RpcResult<QueryRepositoryResponse> queryRepository(QueryRepositoryRequest request);
 
     RpcResult<DeleteKeyResponse> deleteKey(DeleteKeyRequest request);
 

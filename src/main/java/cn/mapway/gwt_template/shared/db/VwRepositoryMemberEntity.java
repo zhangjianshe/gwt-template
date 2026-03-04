@@ -9,15 +9,15 @@ import org.nutz.dao.entity.annotation.View;
 import java.io.Serializable;
 import java.sql.Timestamp;
 
-@View("vw_project_member")
+@View("vw_repository_member")
 @Getter
 @Setter
-public class VwProjectMemberEntity implements Serializable, IsSerializable {
-    public final static String FLD_PROJECT_ID = "repositoryId";
-    public final static String FLD_USER_ID = "toUserId";
-    public final static String FLD_CREATE_TIME = "createTime";
+public class VwRepositoryMemberEntity implements Serializable, IsSerializable {
+    public final static String FLD_REPOSITORY_ID = "repository_id";
+    public final static String FLD_USER_ID = "user_id";
+    public final static String FLD_CREATE_TIME = "create_time";
     @Column(hump = true)
-    String projectId;
+    String repositoryId;
     @Column(hump = true)
     Integer permission;
     @Column(hump = true)

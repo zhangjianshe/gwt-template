@@ -1,6 +1,6 @@
 package cn.mapway.gwt_template.client.repository.basic;
 
-import cn.mapway.gwt_template.shared.db.VwProjectEntity;
+import cn.mapway.gwt_template.shared.db.VwRepositoryEntity;
 import cn.mapway.ui.client.fonts.Fonts;
 import cn.mapway.ui.client.tools.IData;
 import cn.mapway.ui.client.widget.CommonEventComposite;
@@ -15,13 +15,13 @@ import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.Label;
 
-public class RepositoryDetailPanel extends CommonEventComposite implements IData<VwProjectEntity> {
+public class RepositoryDetailPanel extends CommonEventComposite implements IData<VwRepositoryEntity> {
     private static final ProjectDetailPanelUiBinder ourUiBinder = GWT.create(ProjectDetailPanelUiBinder.class);
     @UiField
     FontIcon btnSetup;
     @UiField
     Label lbAbout;
-    private VwProjectEntity project;
+    private VwRepositoryEntity project;
 
     public RepositoryDetailPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -29,12 +29,12 @@ public class RepositoryDetailPanel extends CommonEventComposite implements IData
     }
 
     @Override
-    public VwProjectEntity getData() {
+    public VwRepositoryEntity getData() {
         return project;
     }
 
     @Override
-    public void setData(VwProjectEntity obj) {
+    public void setData(VwRepositoryEntity obj) {
         project = obj;
         toUI();
     }
@@ -48,7 +48,7 @@ public class RepositoryDetailPanel extends CommonEventComposite implements IData
         Dialog<RepositoryDetailEditor> dialog = RepositoryDetailEditor.getDialog(true);
         dialog.addCommonHandler(event1 -> {
             if (event1.isUpdate()) {
-                VwProjectEntity pro = event1.getValue();
+                VwRepositoryEntity pro = event1.getValue();
                 fireEvent(CommonEvent.updateEvent(pro));
             }
             dialog.hide();

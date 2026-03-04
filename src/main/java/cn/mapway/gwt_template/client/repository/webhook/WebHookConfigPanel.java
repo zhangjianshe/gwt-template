@@ -2,7 +2,7 @@ package cn.mapway.gwt_template.client.repository.webhook;
 
 import cn.mapway.gwt_template.client.ClientContext;
 import cn.mapway.gwt_template.client.rpc.AppProxy;
-import cn.mapway.gwt_template.shared.db.VwProjectEntity;
+import cn.mapway.gwt_template.shared.db.VwRepositoryEntity;
 import cn.mapway.gwt_template.shared.db.WebHookEntity;
 import cn.mapway.gwt_template.shared.rpc.webhook.*;
 import cn.mapway.ui.client.tools.IData;
@@ -26,14 +26,14 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
-public class WebHookConfigPanel extends CommonEventComposite implements IData<VwProjectEntity> {
+public class WebHookConfigPanel extends CommonEventComposite implements IData<VwRepositoryEntity> {
 
     private static final WebHookConfigPanelUiBinder ourUiBinder = GWT.create(WebHookConfigPanelUiBinder.class);
     @UiField
     VerticalPanel listContainer;
     @UiField
     Button btnAdd;
-    VwProjectEntity project;
+    VwRepositoryEntity project;
 
     public WebHookConfigPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -92,12 +92,12 @@ public class WebHookConfigPanel extends CommonEventComposite implements IData<Vw
         });
     }
 
-    public VwProjectEntity getData() {
+    public VwRepositoryEntity getData() {
         return project;
     }
 
     @Override
-    public void setData(VwProjectEntity obj) {
+    public void setData(VwRepositoryEntity obj) {
         project = obj;
         toUI();
     }

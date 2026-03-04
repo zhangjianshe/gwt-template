@@ -2,7 +2,7 @@ package cn.mapway.gwt_template.client.repository.basic;
 
 import cn.mapway.gwt_template.client.repository.member.MemberList;
 import cn.mapway.gwt_template.client.rpc.AppProxy;
-import cn.mapway.gwt_template.shared.db.VwProjectEntity;
+import cn.mapway.gwt_template.shared.db.VwRepositoryEntity;
 import cn.mapway.gwt_template.shared.rpc.repository.ReadRepoFileRequest;
 import cn.mapway.gwt_template.shared.rpc.repository.ReadRepoFileResponse;
 import cn.mapway.ui.client.tools.IData;
@@ -21,7 +21,7 @@ import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HTMLPanel;
 
-public class RepositoryFlowPanel extends CommonEventComposite implements IData<VwProjectEntity> {
+public class RepositoryFlowPanel extends CommonEventComposite implements IData<VwRepositoryEntity> {
     private static final ProjectFlowPanelUiBinder ourUiBinder = GWT.create(ProjectFlowPanelUiBinder.class);
     @UiField
     MemberList memberList;
@@ -31,19 +31,19 @@ public class RepositoryFlowPanel extends CommonEventComposite implements IData<V
     RepositoryDetailPanel detailPanel;
     @UiField
     HTMLPanel tipPanel;
-    private VwProjectEntity project;
+    private VwRepositoryEntity project;
 
     public RepositoryFlowPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
     }
 
     @Override
-    public VwProjectEntity getData() {
+    public VwRepositoryEntity getData() {
         return project;
     }
 
     @Override
-    public void setData(VwProjectEntity obj) {
+    public void setData(VwRepositoryEntity obj) {
         if (obj != null && obj != project) {
             project = obj;
             toUI();
@@ -99,7 +99,7 @@ public class RepositoryFlowPanel extends CommonEventComposite implements IData<V
     @UiHandler("detailPanel")
     public void detailPanelCommon(CommonEvent event) {
         if (event.isUpdate()) {
-            VwProjectEntity temp = event.getValue();
+            VwRepositoryEntity temp = event.getValue();
             setData(temp);
             fireEvent(CommonEvent.updateEvent(temp));
         }

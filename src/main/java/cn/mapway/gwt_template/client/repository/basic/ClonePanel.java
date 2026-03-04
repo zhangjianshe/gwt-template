@@ -3,7 +3,7 @@ package cn.mapway.gwt_template.client.repository.basic;
 import cn.mapway.gwt_template.client.ClientContext;
 import cn.mapway.gwt_template.client.preference.PreferenceFrame;
 import cn.mapway.gwt_template.client.preference.key.UserPublicKeyFrame;
-import cn.mapway.gwt_template.shared.db.VwProjectEntity;
+import cn.mapway.gwt_template.shared.db.VwRepositoryEntity;
 import cn.mapway.ui.client.fonts.Fonts;
 import cn.mapway.ui.client.mvc.ModuleParameter;
 import cn.mapway.ui.client.mvc.Size;
@@ -26,7 +26,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TabLayoutPanel;
 import elemental2.dom.DomGlobal;
 
-public class ClonePanel extends CommonEventComposite implements IData<VwProjectEntity> {
+public class ClonePanel extends CommonEventComposite implements IData<VwRepositoryEntity> {
     private static final ClonePanelUiBinder ourUiBinder = GWT.create(ClonePanelUiBinder.class);
     private static Popup<ClonePanel> popup;
     @UiField
@@ -45,7 +45,7 @@ public class ClonePanel extends CommonEventComposite implements IData<VwProjectE
     TabLayoutPanel tab;
     @UiField
     Anchor btnConfig;
-    private VwProjectEntity project;
+    private VwRepositoryEntity project;
 
     public ClonePanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -74,12 +74,12 @@ public class ClonePanel extends CommonEventComposite implements IData<VwProjectE
     }
 
     @Override
-    public VwProjectEntity getData() {
+    public VwRepositoryEntity getData() {
         return project;
     }
 
     @Override
-    public void setData(VwProjectEntity obj) {
+    public void setData(VwRepositoryEntity obj) {
         project = obj;
         toUI();
     }

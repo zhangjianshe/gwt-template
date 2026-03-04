@@ -62,17 +62,17 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
 
 
     @Resource
-    DeleteProjectBuildExecutor deleteProjectBuildExecutor;
+    DeleteRepositoryBuildExecutor deleteRepositoryBuildExecutor;
     @Resource
-    QueryProjectBuildExecutor queryProjectBuildExecutor;
+    QueryRepositoryBuildExecutor queryRepositoryBuildExecutor;
     @Resource
     QueryKeyExecutor queryKeyExecutor;
     @Resource
     QueryNodeExecutor queryNodeExecutor;
     @Resource
-    DeleteProjectExecutor deleteProjectExecutor;
+    DeleteRepositoryExecutor deleteRepositoryExecutor;
     @Resource
-    QueryProjectExecutor queryProjectExecutor;
+    QueryRepositoryExecutor queryRepositoryExecutor;
     @Resource
     UpdateConfigListExecutor updateConfigListExecutor;
     @Resource
@@ -289,7 +289,7 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
     @Resource
     QueryRepoFilesExecutor queryRepoFilesExecutor;
     @Resource
-    QueryProjectMemberExecutor queryProjectMemberExecutor;
+    QueryRepositoryMemberExecutor queryRepositoryMemberExecutor;
     @Resource
     DeleteRepositoryMemberExecutor deleteRepositoryMemberExecutor;
     @Resource
@@ -399,7 +399,7 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
 
     @Override
     public RpcResult<QueryRepositoryMemberResponse> queryProjectMember(QueryRepositoryMemberRequest request) {
-        BizResult<QueryRepositoryMemberResponse> bizResult = queryProjectMemberExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        BizResult<QueryRepositoryMemberResponse> bizResult = queryRepositoryMemberExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toRpcResult(bizResult);
     }
 
@@ -465,14 +465,14 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
     }
 
     @Override
-    public RpcResult<DeleteProjectBuildResponse> deleteProjectBuild(DeleteProjectBuildRequest request) {
-        BizResult<DeleteProjectBuildResponse> bizResult = deleteProjectBuildExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+    public RpcResult<DeleteRepositoryBuildResponse> deleteProjectBuild(DeleteRepositoryBuildRequest request) {
+        BizResult<DeleteRepositoryBuildResponse> bizResult = deleteRepositoryBuildExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toRpcResult(bizResult);
     }
 
     @Override
     public RpcResult<QueryProjectBuildResponse> queryProjectBuild(QueryProjectBuildRequest request) {
-        BizResult<QueryProjectBuildResponse> bizResult = queryProjectBuildExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        BizResult<QueryProjectBuildResponse> bizResult = queryRepositoryBuildExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toRpcResult(bizResult);
     }
 
@@ -489,14 +489,14 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
     }
 
     @Override
-    public RpcResult<DeleteProjectResponse> deleteProject(DeleteProjectRequest request) {
-        BizResult<DeleteProjectResponse> bizResult = deleteProjectExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+    public RpcResult<DeleteRepositoryResponse> deleteProject(DeleteRepositoryRequest request) {
+        BizResult<DeleteRepositoryResponse> bizResult = deleteRepositoryExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toRpcResult(bizResult);
     }
 
     @Override
-    public RpcResult<QueryProjectResponse> queryProject(QueryProjectRequest request) {
-        BizResult<QueryProjectResponse> bizResult = queryProjectExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+    public RpcResult<QueryRepositoryResponse> queryRepository(QueryRepositoryRequest request) {
+        BizResult<QueryRepositoryResponse> bizResult = queryRepositoryExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toRpcResult(bizResult);
     }
 

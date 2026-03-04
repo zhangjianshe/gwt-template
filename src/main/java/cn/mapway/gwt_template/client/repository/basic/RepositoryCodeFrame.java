@@ -7,9 +7,9 @@ import cn.mapway.gwt_template.client.ClientContext;
 import cn.mapway.gwt_template.client.rpc.AppProxy;
 import cn.mapway.gwt_template.client.widget.Head;
 import cn.mapway.gwt_template.client.widget.IconButton;
-import cn.mapway.gwt_template.shared.db.VwProjectEntity;
-import cn.mapway.gwt_template.shared.rpc.dev.QueryProjectRequest;
-import cn.mapway.gwt_template.shared.rpc.dev.QueryProjectResponse;
+import cn.mapway.gwt_template.shared.db.VwRepositoryEntity;
+import cn.mapway.gwt_template.shared.rpc.dev.QueryRepositoryRequest;
+import cn.mapway.gwt_template.shared.rpc.dev.QueryRepositoryResponse;
 import cn.mapway.gwt_template.shared.rpc.repository.*;
 import cn.mapway.gwt_template.shared.rpc.repository.git.GitRef;
 import cn.mapway.ui.client.fonts.Fonts;
@@ -35,7 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class RepositoryCodeFrame extends CommonEventComposite implements IData<VwProjectEntity> {
+public class RepositoryCodeFrame extends CommonEventComposite implements IData<VwRepositoryEntity> {
     private static final ProjectCodeFrameUiBinder ourUiBinder = GWT.create(ProjectCodeFrameUiBinder.class);
     @UiField
     HorizontalPanel paths;
@@ -79,7 +79,7 @@ public class RepositoryCodeFrame extends CommonEventComposite implements IData<V
     Map<String, AceEditorMode> format = new HashMap<String, AceEditorMode>();
     ImportRepoPanel importRepoPanel;
     ImportingPanel importPanel;
-    private VwProjectEntity project;
+    private VwRepositoryEntity project;
 
     public RepositoryCodeFrame() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -111,12 +111,12 @@ public class RepositoryCodeFrame extends CommonEventComposite implements IData<V
     }
 
     @Override
-    public VwProjectEntity getData() {
+    public VwRepositoryEntity getData() {
         return project;
     }
 
     @Override
-    public void setData(VwProjectEntity obj) {
+    public void setData(VwRepositoryEntity obj) {
         project = obj;
         toUI();
     }
@@ -125,16 +125,16 @@ public class RepositoryCodeFrame extends CommonEventComposite implements IData<V
         if (project == null) {
             return;
         }
-        QueryProjectRequest request = new QueryProjectRequest();
-        request.setProjectId(project.getId());
-        AppProxy.get().queryProject(request, new AsyncCallback<RpcResult<QueryProjectResponse>>() {
+        QueryRepositoryRequest request = new QueryRepositoryRequest();
+        request.setRepositoryId(project.getId());
+        AppProxy.get().queryRepository(request, new AsyncCallback<RpcResult<QueryRepositoryResponse>>() {
             @Override
             public void onFailure(Throwable caught) {
 
             }
 
             @Override
-            public void onSuccess(RpcResult<QueryProjectResponse> result) {
+            public void onSuccess(RpcResult<QueryRepositoryResponse> result) {
                 if (result.isSuccess()) {
                     setData(result.getData().getProjects().get(0));
                     fireEvent(CommonEvent.updateEvent(project));

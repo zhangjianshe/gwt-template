@@ -7,7 +7,7 @@ import cn.mapway.biz.core.BizResult;
 import cn.mapway.gwt_template.server.service.git.GitRepoService;
 import cn.mapway.gwt_template.server.service.git.MarkdownService;
 import cn.mapway.gwt_template.shared.AppConstant;
-import cn.mapway.gwt_template.shared.db.DevProjectEntity;
+import cn.mapway.gwt_template.shared.db.DevRepositoryEntity;
 import cn.mapway.gwt_template.shared.rpc.repository.ReadRepoFileRequest;
 import cn.mapway.gwt_template.shared.rpc.repository.ReadRepoFileResponse;
 import cn.mapway.gwt_template.shared.rpc.user.CommonPermission;
@@ -42,9 +42,9 @@ public class ReadRepoFileExecutor extends AbstractBizExecutor<ReadRepoFileRespon
         LoginUser user = (LoginUser) context.get(AppConstant.KEY_LOGIN_USER);
         assertTrue(Strings.isNotBlank(request.getProjectId()), "没有提供projectId");
         assertTrue(Strings.isNotBlank(request.getFilePathName()), "没有文件");
-        CommonPermission permission = repositoryService.findUserPermissionInProject(user.getUser().getUserId(), request.getProjectId());
+        CommonPermission permission = repositoryService.findUserPermissionInRepository(user.getUser().getUserId(), request.getProjectId());
         assertTrue(permission.canRead(), "没有授权读取文件");
-        DevProjectEntity project = repositoryService.findProjectById(request.getProjectId());
+        DevRepositoryEntity project = repositoryService.findProjectById(request.getProjectId());
         BizResult<String> fileContent = gitRepoService.getFileContent(project.getOwnerName(), project.getName(), request.getFilePathName());
         if (fileContent.isSuccess()) {
             ReadRepoFileResponse response = new ReadRepoFileResponse();

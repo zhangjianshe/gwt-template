@@ -6,9 +6,9 @@ import cn.mapway.biz.core.BizRequest;
 import cn.mapway.biz.core.BizResult;
 import cn.mapway.gwt_template.server.service.repository.RepositoryService;
 import cn.mapway.gwt_template.shared.AppConstant;
-import cn.mapway.gwt_template.shared.db.VwProjectEntity;
-import cn.mapway.gwt_template.shared.rpc.dev.QueryProjectRequest;
-import cn.mapway.gwt_template.shared.rpc.dev.QueryProjectResponse;
+import cn.mapway.gwt_template.shared.db.VwRepositoryEntity;
+import cn.mapway.gwt_template.shared.rpc.dev.QueryRepositoryRequest;
+import cn.mapway.gwt_template.shared.rpc.dev.QueryRepositoryResponse;
 import cn.mapway.gwt_template.shared.rpc.user.CommonPermission;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
 import lombok.extern.slf4j.Slf4j;
@@ -21,30 +21,30 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Resource;
 
 /**
- * QueryProjectExecutor
+ * QueryRepositoryExecutor
  *
  * @author zhangjianshe <zhangjianshe@gmail.com>
  */
 @Component
 @Slf4j
-public class QueryProjectExecutor extends AbstractBizExecutor<QueryProjectResponse, QueryProjectRequest> {
+public class QueryRepositoryExecutor extends AbstractBizExecutor<QueryRepositoryResponse, QueryRepositoryRequest> {
     @Resource
     RepositoryService repositoryService;
 
     @Override
-    protected BizResult<QueryProjectResponse> process(BizContext context, BizRequest<QueryProjectRequest> bizParam) {
-        QueryProjectRequest request = bizParam.getData();
+    protected BizResult<QueryRepositoryResponse> process(BizContext context, BizRequest<QueryRepositoryRequest> bizParam) {
+        QueryRepositoryRequest request = bizParam.getData();
         log.info("QueryProjectExecutor {}", Json.toJson(request, JsonFormat.compact()));
         LoginUser user = (LoginUser) context.get(AppConstant.KEY_LOGIN_USER);
-        if (Strings.isBlank(request.getProjectId())) {
-            QueryProjectResponse response = new QueryProjectResponse();
-            response.setProjects(repositoryService.allProjects(user.getUser().getUserId()));
+        if (Strings.isBlank(request.getRepositoryId())) {
+            QueryRepositoryResponse response = new QueryRepositoryResponse();
+            response.setProjects(repositoryService.allRepositorys(user.getUser().getUserId()));
             return BizResult.success(response);
         } else {
-            CommonPermission permission = repositoryService.findUserPermissionInProject(user.getUser().getUserId(), request.getProjectId());
+            CommonPermission permission = repositoryService.findUserPermissionInRepository(user.getUser().getUserId(), request.getRepositoryId());
             if (permission.canRead()) {
-                VwProjectEntity projectView = repositoryService.findProjectView(request.getProjectId());
-                QueryProjectResponse response = new QueryProjectResponse();
+                VwRepositoryEntity projectView = repositoryService.findRepositoryView(request.getRepositoryId());
+                QueryRepositoryResponse response = new QueryRepositoryResponse();
                 response.setProjects(Lang.list(projectView));
                 return BizResult.success(response);
             } else {

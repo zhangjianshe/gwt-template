@@ -3,7 +3,7 @@ package cn.mapway.gwt_template.client.repository.basic;
 import cn.mapway.gwt_template.client.user.ClientWebSocket;
 import cn.mapway.gwt_template.client.user.GitNotifyMessage;
 import cn.mapway.gwt_template.shared.AppConstant;
-import cn.mapway.gwt_template.shared.db.VwProjectEntity;
+import cn.mapway.gwt_template.shared.db.VwRepositoryEntity;
 import cn.mapway.gwt_template.shared.rpc.repository.RepositoryStatus;
 import cn.mapway.ui.client.tools.IData;
 import cn.mapway.ui.client.widget.CommonEventComposite;
@@ -18,11 +18,11 @@ import jsinterop.base.Js;
 
 import java.util.Objects;
 
-public class ImportingPanel extends CommonEventComposite implements IData<VwProjectEntity> {
+public class ImportingPanel extends CommonEventComposite implements IData<VwRepositoryEntity> {
     private static final ImportingPanelUiBinder ourUiBinder = GWT.create(ImportingPanelUiBinder.class);
     @UiField
     Label lbMessage;
-    private VwProjectEntity project;
+    private VwRepositoryEntity project;
 
     public ImportingPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -30,12 +30,12 @@ public class ImportingPanel extends CommonEventComposite implements IData<VwProj
     }
 
     @Override
-    public VwProjectEntity getData() {
+    public VwRepositoryEntity getData() {
         return project;
     }
 
     @Override
-    public void setData(VwProjectEntity obj) {
+    public void setData(VwRepositoryEntity obj) {
         project = obj;
         RepositoryStatus repositoryStatus = RepositoryStatus.fromCode(project.getStatus());
         if (repositoryStatus == RepositoryStatus.PS_IMPORTING) {

@@ -2,7 +2,7 @@ package cn.mapway.gwt_template.client.repository.member;
 
 import cn.mapway.gwt_template.client.ClientContext;
 import cn.mapway.gwt_template.client.rpc.AppProxy;
-import cn.mapway.gwt_template.shared.db.VwProjectMemberEntity;
+import cn.mapway.gwt_template.shared.db.VwRepositoryMemberEntity;
 import cn.mapway.gwt_template.shared.rpc.repository.UpdateRepositoryMemberRequest;
 import cn.mapway.gwt_template.shared.rpc.repository.UpdateRepositoryMemberResponse;
 import cn.mapway.gwt_template.shared.rpc.user.CommonPermission;
@@ -25,7 +25,7 @@ import com.google.gwt.user.client.ui.Label;
 /**
  * 项目组成员条目
  */
-public class MemberItem extends CommonEventComposite implements IData<VwProjectMemberEntity> {
+public class MemberItem extends CommonEventComposite implements IData<VwRepositoryMemberEntity> {
     private static final MemberItemUiBinder ourUiBinder = GWT.create(MemberItemUiBinder.class);
     @UiField
     Label lbName;
@@ -38,7 +38,7 @@ public class MemberItem extends CommonEventComposite implements IData<VwProjectM
     @UiField
     FontIcon btnRemove;
     boolean isAdmin = false;
-    private VwProjectMemberEntity data;
+    private VwRepositoryMemberEntity data;
 
     public MemberItem() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -56,7 +56,7 @@ public class MemberItem extends CommonEventComposite implements IData<VwProjectM
 
     private void updatePermission() {
         UpdateRepositoryMemberRequest request = new UpdateRepositoryMemberRequest();
-        request.setRepositoryId(data.getProjectId());
+        request.setRepositoryId(data.getRepositoryId());
         request.setUserId(data.getUserId());
         request.setPermission(collectPermission());
         AppProxy.get().updateProjectMember(request, new AsyncCallback<RpcResult<UpdateRepositoryMemberResponse>>() {
@@ -85,12 +85,12 @@ public class MemberItem extends CommonEventComposite implements IData<VwProjectM
     }
 
     @Override
-    public VwProjectMemberEntity getData() {
+    public VwRepositoryMemberEntity getData() {
         return data;
     }
 
     @Override
-    public void setData(VwProjectMemberEntity obj) {
+    public void setData(VwRepositoryMemberEntity obj) {
         data = obj;
         toUI();
     }

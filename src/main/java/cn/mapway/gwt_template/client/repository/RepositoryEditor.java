@@ -1,8 +1,8 @@
 package cn.mapway.gwt_template.client.repository;
 
 import cn.mapway.gwt_template.client.rpc.AppProxy;
-import cn.mapway.gwt_template.shared.db.DevProjectEntity;
-import cn.mapway.gwt_template.shared.db.VwProjectEntity;
+import cn.mapway.gwt_template.shared.db.DevRepositoryEntity;
+import cn.mapway.gwt_template.shared.db.VwRepositoryEntity;
 import cn.mapway.gwt_template.shared.rpc.dev.UpdateProjectRequest;
 import cn.mapway.gwt_template.shared.rpc.dev.UpdateProjectResponse;
 import cn.mapway.ui.client.mvc.Size;
@@ -24,9 +24,9 @@ import com.google.gwt.user.client.ui.Label;
 /**
  * 项目创建
  */
-public class ProjectEditor extends CommonEventComposite implements IData<VwProjectEntity> {
-    private static final ProjectEditorUiBinder ourUiBinder = GWT.create(ProjectEditorUiBinder.class);
-    private static Dialog<ProjectEditor> dialog;
+public class RepositoryEditor extends CommonEventComposite implements IData<VwRepositoryEntity> {
+    private static final RepositoryEditorUiBinder ourUiBinder = GWT.create(RepositoryEditorUiBinder.class);
+    private static Dialog<RepositoryEditor> dialog;
     @UiField
     SaveBar saveBar;
     @UiField
@@ -35,13 +35,13 @@ public class ProjectEditor extends CommonEventComposite implements IData<VwProje
     AiTextBox txtFullName;
     @UiField
     Label lbTip;
-    private VwProjectEntity project;
+    private VwRepositoryEntity project;
 
-    public ProjectEditor() {
+    public RepositoryEditor() {
         initWidget(ourUiBinder.createAndBindUi(this));
     }
 
-    public static Dialog<ProjectEditor> getDialog(boolean reuse) {
+    public static Dialog<RepositoryEditor> getDialog(boolean reuse) {
         if (reuse) {
             if (dialog == null) {
                 dialog = createOne();
@@ -52,8 +52,8 @@ public class ProjectEditor extends CommonEventComposite implements IData<VwProje
         }
     }
 
-    private static Dialog<ProjectEditor> createOne() {
-        ProjectEditor editor = new ProjectEditor();
+    private static Dialog<RepositoryEditor> createOne() {
+        RepositoryEditor editor = new RepositoryEditor();
         return new Dialog<>(editor, "创建项目");
     }
 
@@ -63,15 +63,15 @@ public class ProjectEditor extends CommonEventComposite implements IData<VwProje
     }
 
     @Override
-    public VwProjectEntity getData() {
+    public VwRepositoryEntity getData() {
         return project;
     }
 
     @Override
-    public void setData(VwProjectEntity obj) {
+    public void setData(VwRepositoryEntity obj) {
         project = obj;
         if (project == null) {
-            project = new VwProjectEntity();
+            project = new VwRepositoryEntity();
         }
         toUI();
     }
@@ -91,7 +91,7 @@ public class ProjectEditor extends CommonEventComposite implements IData<VwProje
     @UiHandler("saveBar")
     public void saveBarCommon(CommonEvent event) {
         if (event.isOk()) {
-            DevProjectEntity temp = new DevProjectEntity();
+            DevRepositoryEntity temp = new DevRepositoryEntity();
             temp.setId(project.getId());
             temp.setName(txtName.getValue().trim());
             boolean nameValid = isNameValid(txtName.getValue().trim());
@@ -106,7 +106,7 @@ public class ProjectEditor extends CommonEventComposite implements IData<VwProje
         }
     }
 
-    private void doSave(DevProjectEntity temp) {
+    private void doSave(DevRepositoryEntity temp) {
         UpdateProjectRequest request = new UpdateProjectRequest();
         request.setProject(temp);
         AppProxy.get().updateProject(request, new AsyncCallback<>() {
@@ -126,6 +126,6 @@ public class ProjectEditor extends CommonEventComposite implements IData<VwProje
         });
     }
 
-    interface ProjectEditorUiBinder extends UiBinder<DockLayoutPanel, ProjectEditor> {
+    interface RepositoryEditorUiBinder extends UiBinder<DockLayoutPanel, RepositoryEditor> {
     }
 }

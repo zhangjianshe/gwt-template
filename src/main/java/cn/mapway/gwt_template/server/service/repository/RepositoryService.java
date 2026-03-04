@@ -42,62 +42,62 @@ public class RepositoryService {
     @Resource
     WebHookService webHookService;
 
-    public BizResult<DevProjectEntity> saveOrUpdateProject(String userName, DevProjectEntity project) {
-        if (Strings.isBlank(project.getId())) {
-            project.setId(R.UU16());
-            project.setCreateTime(new Timestamp(
+    public BizResult<DevRepositoryEntity> saveOrUpdateProject(String userName, DevRepositoryEntity repository) {
+        if (Strings.isBlank(repository.getId())) {
+            repository.setId(R.UU16());
+            repository.setCreateTime(new Timestamp(
                     System.currentTimeMillis()
             ));
-            if (Strings.isBlank(project.getFullName())) {
-                project.setFullName(project.getName());
+            if (Strings.isBlank(repository.getFullName())) {
+                repository.setFullName(repository.getName());
             }
-            DevProjectEntity fetch = dao.fetch(DevProjectEntity.class, Cnd.where(DevProjectEntity.FLD_OWNER_NAME, "=", userName)
-                    .and(DevProjectEntity.FLD_NAME, "=", project.getName()));
+            DevRepositoryEntity fetch = dao.fetch(DevRepositoryEntity.class, Cnd.where(DevRepositoryEntity.FLD_OWNER_NAME, "=", userName)
+                    .and(DevRepositoryEntity.FLD_NAME, "=", repository.getName()));
             if (fetch != null) {
-                return BizResult.error(500, project.getName() + "已经存在不能创建");
+                return BizResult.error(500, repository.getName() + "已经存在不能创建");
             }
 
-            BizResult<String> newRepository = gitRepoService.createNewRepository(userName, project.getName());
+            BizResult<String> newRepository = gitRepoService.createNewRepository(userName, repository.getName());
             if (newRepository.isFailed()) {
                 return newRepository.asBizResult();
             }
-            project.setStatus(RepositoryStatus.PS_INIT.getCode());
+            repository.setStatus(RepositoryStatus.PS_INIT.getCode());
 
             NutTxDao txDao = new NutTxDao(dao);
             try {
                 txDao.beginRC();
-                txDao.insert(project);
+                txDao.insert(repository);
                 //插入一个用户对这个项目拥有所有的权限
-                DevProjectMemberEntity devProjectMemberEntity = new DevProjectMemberEntity();
-                devProjectMemberEntity.setProjectId(project.getId());
-                devProjectMemberEntity.setUserId(project.getUserId());
-                devProjectMemberEntity.setCreateTime(project.getCreateTime());
-                devProjectMemberEntity.setOwner(true);
-                devProjectMemberEntity.setPermission(CommonPermission.fromPermission(0).setAll().getPermission());
+                DevRepositoryMemberEntity devRepositoryMemberEntity = new DevRepositoryMemberEntity();
+                devRepositoryMemberEntity.setRepositoryId(repository.getId());
+                devRepositoryMemberEntity.setUserId(repository.getUserId());
+                devRepositoryMemberEntity.setCreateTime(repository.getCreateTime());
+                devRepositoryMemberEntity.setOwner(true);
+                devRepositoryMemberEntity.setPermission(CommonPermission.fromPermission(0).setAll().getPermission());
 
-                txDao.insert(devProjectMemberEntity);
+                txDao.insert(devRepositoryMemberEntity);
                 //创建这个用户的代码仓库
                 txDao.commit();
-                project = dao.fetch(DevProjectEntity.class, project.getId());
-                return BizResult.success(project);
+                repository = dao.fetch(DevRepositoryEntity.class, repository.getId());
+                return BizResult.success(repository);
             } catch (Throwable e) {
                 e.printStackTrace();
                 txDao.rollback();
-                gitRepoService.deleteRepository(userName, project.getName());
+                gitRepoService.deleteRepository(userName, repository.getName());
                 return BizResult.error(500, "创建项目错误" + e.getMessage());
             } finally {
                 txDao.close();
             }
         } else {
-            project.setStatus(null);//不更新状态
-            dao.updateIgnoreNull(project);
-            project = dao.fetch(DevProjectEntity.class, project.getId());
-            return BizResult.success(project);
+            repository.setStatus(null);//不更新状态
+            dao.updateIgnoreNull(repository);
+            repository = dao.fetch(DevRepositoryEntity.class, repository.getId());
+            return BizResult.success(repository);
         }
     }
 
-    public List<VwProjectEntity> allProjects(Long userId) {
-        return dao.query(VwProjectEntity.class, Cnd.where("my_id", "=", userId).desc("create_time"));
+    public List<VwRepositoryEntity> allRepositorys(Long userId) {
+        return dao.query(VwRepositoryEntity.class, Cnd.where("my_id", "=", userId).desc("create_time"));
     }
 
     public List<DevNodeEntity> allNodes() {
@@ -120,9 +120,9 @@ public class RepositoryService {
     }
 
     public CommonPermission userProjectPermission(Long userId, String projectId) {
-        DevProjectMemberEntity fetch = dao.fetch(DevProjectMemberEntity.class, Cnd.where(
-                DevProjectMemberEntity.FLD_USER_ID, "=", userId
-        ).and(DevProjectMemberEntity.FLD_PROJECT_ID, "=", projectId));
+        DevRepositoryMemberEntity fetch = dao.fetch(DevRepositoryMemberEntity.class, Cnd.where(
+                DevRepositoryMemberEntity.FLD_USER_ID, "=", userId
+        ).and(DevRepositoryMemberEntity.FLD_REPOSITORY_ID, "=", projectId));
         if (fetch == null) {
             return CommonPermission.fromPermission(0);
         } else {
@@ -156,15 +156,15 @@ public class RepositoryService {
      * 获取用户 在项目中的权限
      *
      * @param userId
-     * @param projectId
+     * @param repositoryId
      * @return
      */
-    public CommonPermission findUserPermissionInProject(Long userId, String projectId) {
+    public CommonPermission findUserPermissionInRepository(Long userId, String repositoryId) {
         CommonPermission permission = CommonPermission.fromPermission(0);
-        if (userId != null && Strings.isNotBlank(projectId)) {
-            DevProjectMemberEntity devMyProject = dao.fetch(
-                    DevProjectMemberEntity.class, Cnd.where(DevProjectMemberEntity.FLD_PROJECT_ID, "=", projectId)
-                            .and(DevProjectMemberEntity.FLD_USER_ID, "=", userId)
+        if (userId != null && Strings.isNotBlank(repositoryId)) {
+            DevRepositoryMemberEntity devMyProject = dao.fetch(
+                    DevRepositoryMemberEntity.class, Cnd.where(DevRepositoryMemberEntity.FLD_REPOSITORY_ID, "=", repositoryId)
+                            .and(DevRepositoryMemberEntity.FLD_USER_ID, "=", userId)
             );
             if (devMyProject != null) {
                 permission = CommonPermission.fromPermission(devMyProject.getPermission());
@@ -173,47 +173,47 @@ public class RepositoryService {
         return permission;
     }
 
-    public DevProjectMemberEntity findProjectMemberByMemberId(String projectId, Long userId) {
+    public DevRepositoryMemberEntity findProjectMemberByMemberId(String projectId, Long userId) {
         return dao.fetch(
-                DevProjectMemberEntity.class, Cnd.where(DevProjectMemberEntity.FLD_PROJECT_ID, "=", projectId)
-                        .and(DevProjectMemberEntity.FLD_USER_ID, "=", userId)
+                DevRepositoryMemberEntity.class, Cnd.where(DevRepositoryMemberEntity.FLD_REPOSITORY_ID, "=", projectId)
+                        .and(DevRepositoryMemberEntity.FLD_USER_ID, "=", userId)
         );
     }
 
     public void updateProjectMember(String projectId) {
 
-        int count = dao.count(DevProjectMemberEntity.class, Cnd.where(DevProjectMemberEntity.FLD_PROJECT_ID, "=", projectId));
-        DevProjectEntity project = new DevProjectEntity();
+        int count = dao.count(DevRepositoryMemberEntity.class, Cnd.where(DevRepositoryMemberEntity.FLD_REPOSITORY_ID, "=", projectId));
+        DevRepositoryEntity project = new DevRepositoryEntity();
         project.setId(projectId);
         project.setMemberCount(count);
         dao.updateIgnoreNull(project);
     }
 
-    public List<VwProjectMemberEntity> findProjectMembers(String projectId) {
-        return dao.query(VwProjectMemberEntity.class, Cnd.where(VwProjectMemberEntity.FLD_PROJECT_ID, "=", projectId).asc("create_time"));
+    public List<VwRepositoryMemberEntity> findProjectMembers(String projectId) {
+        return dao.query(VwRepositoryMemberEntity.class, Cnd.where(VwRepositoryMemberEntity.FLD_REPOSITORY_ID, "=", projectId).asc("create_time"));
     }
 
-    public VwProjectMemberEntity findProjectMemberViewByMemberId(String projectId, Long userId) {
+    public VwRepositoryMemberEntity findProjectMemberViewByMemberId(String projectId, Long userId) {
         return dao.fetch(
-                VwProjectMemberEntity.class, Cnd.where(VwProjectMemberEntity.FLD_PROJECT_ID, "=", projectId)
-                        .and(VwProjectMemberEntity.FLD_USER_ID, "=", userId)
+                VwRepositoryMemberEntity.class, Cnd.where(VwRepositoryMemberEntity.FLD_REPOSITORY_ID, "=", projectId)
+                        .and(VwRepositoryMemberEntity.FLD_USER_ID, "=", userId)
         );
     }
 
-    public DevProjectEntity findProjectById(String projectId) {
-        return dao.fetch(DevProjectEntity.class, Cnd.where(DevProjectEntity.FLD_ID, "=", projectId));
+    public DevRepositoryEntity findProjectById(String projectId) {
+        return dao.fetch(DevRepositoryEntity.class, Cnd.where(DevRepositoryEntity.FLD_ID, "=", projectId));
     }
 
     public CommonPermission findUserPermissionInProjectByName(Long userId, String ownerName, String projectName) {
         CommonPermission permission = CommonPermission.fromPermission(0);
-        DevProjectEntity project = findProjectByOwnerAndName(ownerName, projectName);
+        DevRepositoryEntity project = findProjectByOwnerAndName(ownerName, projectName);
         if (project == null) {
             return permission;
         }
         if (userId != null) {
-            DevProjectMemberEntity devMyProject = dao.fetch(
-                    DevProjectMemberEntity.class, Cnd.where(DevProjectMemberEntity.FLD_PROJECT_ID, "=", project.getId())
-                            .and(DevProjectMemberEntity.FLD_USER_ID, "=", userId)
+            DevRepositoryMemberEntity devMyProject = dao.fetch(
+                    DevRepositoryMemberEntity.class, Cnd.where(DevRepositoryMemberEntity.FLD_REPOSITORY_ID, "=", project.getId())
+                            .and(DevRepositoryMemberEntity.FLD_USER_ID, "=", userId)
             );
             if (devMyProject != null) {
                 permission = CommonPermission.fromPermission(devMyProject.getPermission());
@@ -222,13 +222,13 @@ public class RepositoryService {
         return permission;
     }
 
-    private DevProjectEntity findProjectByOwnerAndName(String ownerName, String projectName) {
-        return dao.fetch(DevProjectEntity.class, Cnd.where(DevProjectEntity.FLD_OWNER_NAME, "=", ownerName)
-                .and(DevProjectEntity.FLD_NAME, "=", projectName));
+    private DevRepositoryEntity findProjectByOwnerAndName(String ownerName, String projectName) {
+        return dao.fetch(DevRepositoryEntity.class, Cnd.where(DevRepositoryEntity.FLD_OWNER_NAME, "=", ownerName)
+                .and(DevRepositoryEntity.FLD_NAME, "=", projectName));
     }
 
     public boolean isProjectPublic(String ownerName, String projectName) {
-        DevProjectEntity projectByOwnerAndName = findProjectByOwnerAndName(ownerName, projectName);
+        DevRepositoryEntity projectByOwnerAndName = findProjectByOwnerAndName(ownerName, projectName);
         return projectByOwnerAndName != null && projectByOwnerAndName.getIsPublic();
     }
 
@@ -240,7 +240,7 @@ public class RepositoryService {
      */
     public void handlePostReceiveHook(ReceivePack rp, Collection<ReceiveCommand> commands) {
         // 1. Identify the project
-        DevProjectEntity project = findProjectByPath(rp.getRepository().getDirectory().getAbsolutePath());
+        DevRepositoryEntity project = findProjectByPath(rp.getRepository().getDirectory().getAbsolutePath());
         if (project == null) {
             log.error("[WEBHOOK] 不能找到项目 {}", rp.getRepository().getDirectory().getAbsolutePath());
             return;
@@ -298,7 +298,7 @@ public class RepositoryService {
         return "update";
     }
 
-    private DevProjectEntity findProjectByPath(String absolutePath) {
+    private DevRepositoryEntity findProjectByPath(String absolutePath) {
         // Standard format: .../ownerName/projectName.git
         // We need to normalize and extract the last two parts
         String normalized = absolutePath.replace("\\", "/");
@@ -336,7 +336,7 @@ public class RepositoryService {
         dao.delete(WebHookInstanceEntity.class, instanceId);
     }
 
-    public VwProjectEntity findProjectView(String id) {
-        return dao.fetch(VwProjectEntity.class, Cnd.where(VwProjectEntity.FLD_ID, "=", id));
+    public VwRepositoryEntity findRepositoryView(String id) {
+        return dao.fetch(VwRepositoryEntity.class, Cnd.where(VwRepositoryEntity.FLD_ID, "=", id));
     }
 }

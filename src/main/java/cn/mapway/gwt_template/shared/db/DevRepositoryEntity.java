@@ -9,12 +9,12 @@ import org.nutz.dao.entity.annotation.*;
 import java.io.Serializable;
 import java.sql.Timestamp;
 
-@Doc("开发项目表")
-@Table(DevProjectEntity.TABLE_NAME)
+@Doc("GIT 仓库表")
+@Table(DevRepositoryEntity.TABLE_NAME)
 @Getter
 @Setter
-public class DevProjectEntity implements Serializable, IsSerializable {
-    public static final String TABLE_NAME = "dev_project";
+public class DevRepositoryEntity implements Serializable, IsSerializable {
+    public static final String TABLE_NAME = "dev_repository";
     public static final String FLD_ID = "id";
     public static final String FLD_OWNER_NAME = "owner_name";
     public static final String FLD_FULL_NAME = "full_name";

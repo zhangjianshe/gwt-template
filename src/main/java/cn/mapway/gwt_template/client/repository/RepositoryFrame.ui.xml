@@ -30,13 +30,13 @@
                 </g:north>
                 <g:center>
                     <g:ScrollPanel addStyleNames="{style.left} {style.content}">
-                        <project:RepositoryList width="100%" ui:field="projectTree"/>
+                        <project:RepositoryList width="100%" ui:field="repositoryList"/>
                     </g:ScrollPanel>
                 </g:center>
             </g:DockLayoutPanel>
         </g:west>
         <g:center>
-            <project:RepositoryView ui:field="projectPanel"/>
+            <project:RepositoryView ui:field="repositoryPanel"/>
         </g:center>
     </g:DockLayoutPanel>
 </ui:UiBinder>

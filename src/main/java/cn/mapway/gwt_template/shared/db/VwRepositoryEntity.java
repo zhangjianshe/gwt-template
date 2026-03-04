@@ -13,13 +13,13 @@ import java.sql.Timestamp;
 /**
  * 我的项目视图
  */
-@View("vw_project")
+@View("vw_repository")
 @Getter
 @Setter
-public class VwProjectEntity implements Serializable, IsSerializable {
+public class VwRepositoryEntity implements Serializable, IsSerializable {
     public static final String FLD_ID = "id";
     @Column("id")
-    String id;  //项目ID
+    String id;  //repository ID
 
     @Column("name")
     String name;

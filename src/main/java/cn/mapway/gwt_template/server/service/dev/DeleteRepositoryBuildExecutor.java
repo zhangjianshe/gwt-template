@@ -1,7 +1,7 @@
 package cn.mapway.gwt_template.server.service.dev;
 
-import cn.mapway.gwt_template.shared.rpc.dev.DeleteProjectRequest;
-import cn.mapway.gwt_template.shared.rpc.dev.DeleteProjectResponse;
+import cn.mapway.gwt_template.shared.rpc.dev.DeleteRepositoryBuildRequest;
+import cn.mapway.gwt_template.shared.rpc.dev.DeleteRepositoryBuildResponse;
 import cn.mapway.biz.core.AbstractBizExecutor;
 import cn.mapway.biz.core.BizContext;
 import cn.mapway.biz.core.BizRequest;
@@ -13,21 +13,19 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
-import org.nutz.lang.Strings;
-import javax.annotation.Resource;
 
 /**
- * DeleteProjectExecutor
+ DeleteRepositoryBuildExecutor
  *
  * @author zhangjianshe <zhangjianshe@gmail.com>
  */
 @Component
 @Slf4j
-public class DeleteProjectExecutor extends AbstractBizExecutor<DeleteProjectResponse, DeleteProjectRequest> {
+public class DeleteRepositoryBuildExecutor extends AbstractBizExecutor<DeleteRepositoryBuildResponse, DeleteRepositoryBuildRequest> {
     @Override
-    protected BizResult<DeleteProjectResponse> process(BizContext context, BizRequest<DeleteProjectRequest> bizParam) {
-        DeleteProjectRequest request = bizParam.getData();
-        log.info("DeleteProjectExecutor {}", Json.toJson(request, JsonFormat.compact()));
+    protected BizResult<DeleteRepositoryBuildResponse> process(BizContext context, BizRequest<DeleteRepositoryBuildRequest> bizParam) {
+        DeleteRepositoryBuildRequest request = bizParam.getData();
+        log.info("DeleteProjectBuildExecutor {}", Json.toJson(request, JsonFormat.compact()));
         LoginUser user= (LoginUser) context.get(AppConstant.KEY_LOGIN_USER);
 
         return BizResult.success(null);

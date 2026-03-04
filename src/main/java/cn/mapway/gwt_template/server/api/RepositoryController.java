@@ -34,15 +34,15 @@ public class RepositoryController extends ApiBaseController {
     DeleteKeyExecutor deleteKeyExecutor;
 
     @Resource
-    QueryProjectExecutor queryProjectExecutor;
+    QueryRepositoryExecutor queryRepositoryExecutor;
     @Resource
-    DeleteProjectExecutor deleteProjectExecutor;
+    DeleteRepositoryExecutor deleteRepositoryExecutor;
     @Resource
     QueryNodeExecutor queryNodeExecutor;
     @Resource
     QueryKeyExecutor queryKeyExecutor;
     @Resource
-    QueryProjectBuildExecutor queryProjectBuildExecutor;
+    QueryRepositoryBuildExecutor queryRepositoryBuildExecutor;
 
 
     @Resource
@@ -58,7 +58,7 @@ public class RepositoryController extends ApiBaseController {
     @Resource
     QueryGroupMemberExecutor queryGroupMemberExecutor;
     @Resource
-    DeleteProjectBuildExecutor deleteProjectBuildExecutor;
+    DeleteRepositoryBuildExecutor deleteRepositoryBuildExecutor;
 
 
     @Resource
@@ -186,19 +186,19 @@ public class RepositoryController extends ApiBaseController {
     @Resource
     DeleteRepositoryMemberExecutor deleteRepositoryMemberExecutor;
     /**
-     * DeleteProjectMember
+     * deleteRepositoryMember
      *
      * @param request request
      * @return data
      */
-    @Doc(value = "DeleteProjectMember", retClazz = {DeleteRepositoryMemberResponse.class})
-    @RequestMapping(value = "/deleteProjectMember", method = RequestMethod.POST)
+    @Doc(value = "deleteRepositoryMember", retClazz = {DeleteRepositoryMemberResponse.class})
+    @RequestMapping(value = "/deleteRepositoryMember", method = RequestMethod.POST)
     public RpcResult<DeleteRepositoryMemberResponse> deleteProjectMember(@RequestBody DeleteRepositoryMemberRequest request) {
         BizResult<DeleteRepositoryMemberResponse> bizResult = deleteRepositoryMemberExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toApiResult(bizResult);
     }
     @Resource
-    QueryProjectMemberExecutor queryProjectMemberExecutor;
+    QueryRepositoryMemberExecutor queryRepositoryMemberExecutor;
     /**
      * QueryProjectMember
      *
@@ -208,7 +208,7 @@ public class RepositoryController extends ApiBaseController {
     @Doc(value = "QueryProjectMember", retClazz = {QueryRepositoryMemberResponse.class})
     @RequestMapping(value = "/queryProjectMember", method = RequestMethod.POST)
     public RpcResult<QueryRepositoryMemberResponse> queryProjectMember(@RequestBody QueryRepositoryMemberRequest request) {
-        BizResult<QueryRepositoryMemberResponse> bizResult = queryProjectMemberExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        BizResult<QueryRepositoryMemberResponse> bizResult = queryRepositoryMemberExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toApiResult(bizResult);
     }
 
@@ -300,7 +300,7 @@ public class RepositoryController extends ApiBaseController {
     @Doc(value = "QueryProjectBuild", retClazz = {QueryProjectBuildResponse.class})
     @RequestMapping(value = "/queryProjectBuild", method = RequestMethod.POST)
     public RpcResult<QueryProjectBuildResponse> queryProjectBuild(@RequestBody QueryProjectBuildRequest request) {
-        BizResult<QueryProjectBuildResponse> bizResult = queryProjectBuildExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        BizResult<QueryProjectBuildResponse> bizResult = queryRepositoryBuildExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toApiResult(bizResult);
     }
 
@@ -310,10 +310,10 @@ public class RepositoryController extends ApiBaseController {
      * @param request request
      * @return data
      */
-    @Doc(value = "DeleteProjectBuild", retClazz = {DeleteProjectBuildResponse.class})
+    @Doc(value = "DeleteProjectBuild", retClazz = {DeleteRepositoryBuildResponse.class})
     @RequestMapping(value = "/deleteProjectBuild", method = RequestMethod.POST)
-    public RpcResult<DeleteProjectBuildResponse> deleteProjectBuild(@RequestBody DeleteProjectBuildRequest request) {
-        BizResult<DeleteProjectBuildResponse> bizResult = deleteProjectBuildExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+    public RpcResult<DeleteRepositoryBuildResponse> deleteProjectBuild(@RequestBody DeleteRepositoryBuildRequest request) {
+        BizResult<DeleteRepositoryBuildResponse> bizResult = deleteRepositoryBuildExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toApiResult(bizResult);
     }
 
@@ -323,10 +323,10 @@ public class RepositoryController extends ApiBaseController {
      * @param request request
      * @return data
      */
-    @Doc(value = "QueryProject", retClazz = {QueryProjectResponse.class})
+    @Doc(value = "QueryProject", retClazz = {QueryRepositoryResponse.class})
     @RequestMapping(value = "/queryProject", method = RequestMethod.POST)
-    public RpcResult<QueryProjectResponse> queryProject(@RequestBody QueryProjectRequest request) {
-        BizResult<QueryProjectResponse> bizResult = queryProjectExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+    public RpcResult<QueryRepositoryResponse> queryProject(@RequestBody QueryRepositoryRequest request) {
+        BizResult<QueryRepositoryResponse> bizResult = queryRepositoryExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toApiResult(bizResult);
     }
 
@@ -336,10 +336,10 @@ public class RepositoryController extends ApiBaseController {
      * @param request request
      * @return data
      */
-    @Doc(value = "DeleteProject", retClazz = {DeleteProjectResponse.class})
+    @Doc(value = "DeleteProject", retClazz = {DeleteRepositoryResponse.class})
     @RequestMapping(value = "/deleteProject", method = RequestMethod.POST)
-    public RpcResult<DeleteProjectResponse> deleteProject(@RequestBody DeleteProjectRequest request) {
-        BizResult<DeleteProjectResponse> bizResult = deleteProjectExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+    public RpcResult<DeleteRepositoryResponse> deleteProject(@RequestBody DeleteRepositoryRequest request) {
+        BizResult<DeleteRepositoryResponse> bizResult = deleteRepositoryExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toApiResult(bizResult);
     }
 

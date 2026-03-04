@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Slf4j
-public class QueryProjectBuildExecutor extends AbstractBizExecutor<QueryProjectBuildResponse, QueryProjectBuildRequest> {
+public class QueryRepositoryBuildExecutor extends AbstractBizExecutor<QueryProjectBuildResponse, QueryProjectBuildRequest> {
     @Override
     protected BizResult<QueryProjectBuildResponse> process(BizContext context, BizRequest<QueryProjectBuildRequest> bizParam) {
         QueryProjectBuildRequest request = bizParam.getData();

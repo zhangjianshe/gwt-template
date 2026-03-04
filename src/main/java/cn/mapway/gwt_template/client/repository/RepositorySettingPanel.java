@@ -1,7 +1,7 @@
 package cn.mapway.gwt_template.client.repository;
 
 import cn.mapway.gwt_template.client.repository.webhook.WebHookConfigPanel;
-import cn.mapway.gwt_template.shared.db.VwProjectEntity;
+import cn.mapway.gwt_template.shared.db.VwRepositoryEntity;
 import cn.mapway.ui.client.tools.IData;
 import cn.mapway.ui.client.widget.CommonEventComposite;
 import cn.mapway.ui.client.widget.list.List;
@@ -18,14 +18,14 @@ import com.google.gwt.user.client.ui.LayoutPanel;
 /**
  * 项目设置面板
  */
-public class RepositorySettingPanel extends CommonEventComposite implements IData<VwProjectEntity> {
+public class RepositorySettingPanel extends CommonEventComposite implements IData<VwRepositoryEntity> {
     private static final ProjectSettingPanelUiBinder ourUiBinder = GWT.create(ProjectSettingPanelUiBinder.class);
     @UiField
     LayoutPanel root;
     @UiField
     List list;
     WebHookConfigPanel webHookConfigPanel;
-    private VwProjectEntity project;
+    private VwRepositoryEntity project;
 
     public RepositorySettingPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -60,12 +60,12 @@ public class RepositorySettingPanel extends CommonEventComposite implements IDat
     }
 
     @Override
-    public VwProjectEntity getData() {
+    public VwRepositoryEntity getData() {
         return project;
     }
 
     @Override
-    public void setData(VwProjectEntity obj) {
+    public void setData(VwRepositoryEntity obj) {
         project = obj;
         toUI();
     }

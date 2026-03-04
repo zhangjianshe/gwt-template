@@ -6,8 +6,8 @@ import cn.mapway.biz.core.BizRequest;
 import cn.mapway.biz.core.BizResult;
 import cn.mapway.gwt_template.server.service.repository.RepositoryService;
 import cn.mapway.gwt_template.shared.AppConstant;
-import cn.mapway.gwt_template.shared.db.DevProjectEntity;
-import cn.mapway.gwt_template.shared.db.VwProjectEntity;
+import cn.mapway.gwt_template.shared.db.DevRepositoryEntity;
+import cn.mapway.gwt_template.shared.db.VwRepositoryEntity;
 import cn.mapway.gwt_template.shared.rpc.dev.UpdateProjectRequest;
 import cn.mapway.gwt_template.shared.rpc.dev.UpdateProjectResponse;
 import cn.mapway.gwt_template.shared.rpc.repository.RepositoryOwnerKind;
@@ -38,7 +38,7 @@ public class UpdateProjectExecutor extends AbstractBizExecutor<UpdateProjectResp
         UpdateProjectRequest request = bizParam.getData();
         log.info("UpdateProjectExecutor {}", Json.toJson(request, JsonFormat.compact()));
         LoginUser user = (LoginUser) context.get(AppConstant.KEY_LOGIN_USER);
-        DevProjectEntity project = request.getProject();
+        DevRepositoryEntity project = request.getProject();
         assertNotNull(project, "没有项目信息");
         if (Strings.isBlank(project.getId())) {
             project.setUserId(user.getUser().getUserId());
@@ -57,11 +57,11 @@ public class UpdateProjectExecutor extends AbstractBizExecutor<UpdateProjectResp
             CommonPermission permission = repositoryService.userProjectPermission(user.getUser().getUserId(), project.getId());
             assertNotNull(permission.canWrite(), "没有更新权限");
         }
-        BizResult<DevProjectEntity> updateResult = repositoryService.saveOrUpdateProject(user.getUserName(), project);
+        BizResult<DevRepositoryEntity> updateResult = repositoryService.saveOrUpdateProject(user.getUserName(), project);
         if (updateResult.isFailed()) {
             return updateResult.asBizResult();
         }
-        VwProjectEntity view = repositoryService.findProjectView(updateResult.getData().getId());
+        VwRepositoryEntity view = repositoryService.findRepositoryView(updateResult.getData().getId());
         UpdateProjectResponse resp = new UpdateProjectResponse();
         resp.setProject(view);
         return BizResult.success(resp);

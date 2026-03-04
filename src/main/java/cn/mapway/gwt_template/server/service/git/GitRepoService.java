@@ -7,7 +7,7 @@ import cn.mapway.gwt_template.server.config.AppConfig;
 import cn.mapway.gwt_template.server.config.websocket.GitNotifyWebSocket;
 import cn.mapway.gwt_template.server.service.config.SystemConfigService;
 import cn.mapway.gwt_template.shared.AppConstant;
-import cn.mapway.gwt_template.shared.db.DevProjectEntity;
+import cn.mapway.gwt_template.shared.db.DevRepositoryEntity;
 import cn.mapway.gwt_template.shared.rpc.app.AppData;
 import cn.mapway.gwt_template.shared.rpc.repository.*;
 import cn.mapway.gwt_template.shared.rpc.repository.git.GitRef;
@@ -388,7 +388,7 @@ public class GitRepoService {
      * @param request
      * @return
      */
-    public BizResult<ImportRepoResponse> importRepo(DevProjectEntity project, ImportRepoRequest request) {
+    public BizResult<ImportRepoResponse> importRepo(DevRepositoryEntity project, ImportRepoRequest request) {
         if (!RepositoryStatus.PS_INIT.getCode().equals(project.getStatus())) {
             return BizResult.error(500, "仓库不为空，不能导入仓库");
         }
@@ -431,19 +431,19 @@ public class GitRepoService {
         log.info("[GIT-STATUS] Project {} -> {}, msg: {}", projectId, status, message);
 
         // 构造更新链
-        Chain chain = Chain.make(DevProjectEntity.FLD_STATUS, status.getCode());
+        Chain chain = Chain.make(DevRepositoryEntity.FLD_STATUS, status.getCode());
         if (message != null) {
             chain.add("lastMessage", message);
         }
 
         // 使用字段常量 DevProjectEntity.FLD_ID 增加代码健壮性
-        dao.update(DevProjectEntity.class, chain, Cnd.where(DevProjectEntity.FLD_ID, "=", projectId));
+        dao.update(DevRepositoryEntity.class, chain, Cnd.where(DevRepositoryEntity.FLD_ID, "=", projectId));
     }
 
     /**
      * 执行具体的导入工作
      */
-    private BizResult<ImportRepoResponse> doImportWork(DevProjectEntity project, ImportRepoRequest request) {
+    private BizResult<ImportRepoResponse> doImportWork(DevRepositoryEntity project, ImportRepoRequest request) {
         String owner = project.getOwnerName();
         String repoName = project.getName();
         String finalRepoName = repoName.endsWith(".git") ? repoName : repoName + ".git";
@@ -542,7 +542,7 @@ public class GitRepoService {
         }
     }
 
-    private boolean checkProjectRepoEmpty(AppConfig config, DevProjectEntity project) {
+    private boolean checkProjectRepoEmpty(AppConfig config, DevRepositoryEntity project) {
         String finalRepoName = project.getName().endsWith(".git")
                 ? project.getName()
                 : project.getName() + ".git";

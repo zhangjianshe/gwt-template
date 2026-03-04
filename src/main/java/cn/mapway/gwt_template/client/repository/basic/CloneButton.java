@@ -1,6 +1,6 @@
 package cn.mapway.gwt_template.client.repository.basic;
 
-import cn.mapway.gwt_template.shared.db.VwProjectEntity;
+import cn.mapway.gwt_template.shared.db.VwRepositoryEntity;
 import cn.mapway.ui.client.fonts.Fonts;
 import cn.mapway.ui.client.tools.IData;
 import cn.mapway.ui.client.widget.FontIcon;
@@ -16,7 +16,7 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.Label;
 
-public class CloneButton extends Composite implements IData<VwProjectEntity> {
+public class CloneButton extends Composite implements IData<VwRepositoryEntity> {
 
     private static final CloneButtonUiBinder ourUiBinder = GWT.create(CloneButtonUiBinder.class);
     @UiField
@@ -51,14 +51,14 @@ public class CloneButton extends Composite implements IData<VwProjectEntity> {
         popup.showRelativeTo(this);
     }
 
-    VwProjectEntity project;
+    VwRepositoryEntity project;
     @Override
-    public VwProjectEntity getData() {
+    public VwRepositoryEntity getData() {
         return project;
     }
 
     @Override
-    public void setData(VwProjectEntity obj) {
+    public void setData(VwRepositoryEntity obj) {
         project=obj;
         toUI();
     }

@@ -14,7 +14,7 @@ import java.io.Serializable;
 @Data
 @Doc("ImportRepoRequest")
 public class ImportRepoRequest implements Serializable, IsSerializable {
-    String projectId;
+    String repositoryId;
     String repoUrl;
     String user;
     String tokenOrPassword;
