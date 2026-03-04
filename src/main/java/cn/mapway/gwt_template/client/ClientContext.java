@@ -18,6 +18,7 @@ import cn.mapway.ui.client.IClientContext;
 import cn.mapway.ui.client.IUserInfo;
 import cn.mapway.ui.client.mvc.Size;
 import cn.mapway.ui.client.mvc.attribute.DataCastor;
+import cn.mapway.ui.client.util.StringUtil;
 import cn.mapway.ui.client.widget.dialog.AiConfirm;
 import cn.mapway.ui.client.widget.dialog.Dialog;
 import cn.mapway.ui.client.widget.panel.MessagePanel;
@@ -42,6 +43,8 @@ import java.util.List;
 
 
 public class ClientContext implements IClientContext, HasCommonHandlers {
+    @Getter
+    private static final CompileFactory compileFactory = GWT.create(CompileFactory.class);
     private static ClientContext instance;
     private static Dialog<MessagePanel> messagePanelDialog;
     SimpleEventBus eventBus;
@@ -51,9 +54,6 @@ public class ClientContext implements IClientContext, HasCommonHandlers {
     AppData appData;
     @Setter
     private UserPermissions userPermissions;
-
-    @Getter
-    private static final CompileFactory compileFactory = GWT.create(CompileFactory.class);
 
 
     public ClientContext() {
@@ -273,8 +273,11 @@ public class ClientContext implements IClientContext, HasCommonHandlers {
     }
 
     public boolean isAssignResource(String resource) {
+        if (StringUtil.isBlank(resource)) {
+            return true;
+        }
         for (Res res : userPermissions.resources) {
-            if (res.resourceCode.equals(resource)) {
+            if (resource.equals(res.resourceCode)) {
                 return true;
             }
         }
@@ -285,7 +288,7 @@ public class ClientContext implements IClientContext, HasCommonHandlers {
         List<Res> ress = new ArrayList<Res>();
         for (int i = 0; i < userPermissions.resources.length; i++) {
             Res res = userPermissions.resources[i];
-            if (res.kind.equals(resourceKind.getCode())) {
+            if (resourceKind.getCode().equals(res.kind)) {
                 ress.add(res);
             }
         }
