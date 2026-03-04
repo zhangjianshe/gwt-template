@@ -78,11 +78,11 @@ public interface IAppServerAsync {
     void queryRepoFiles(QueryRepoFilesRequest request, AsyncCallback<RpcResult<QueryRepoFilesResponse>> async);
 
 
-    void queryProjectMember(QueryRepositoryMemberRequest request, AsyncCallback<RpcResult<QueryRepositoryMemberResponse>> async);
+    void queryRepositoryMember(QueryRepositoryMemberRequest request, AsyncCallback<RpcResult<QueryRepositoryMemberResponse>> async);
 
-    void deleteProjectMember(DeleteRepositoryMemberRequest request, AsyncCallback<RpcResult<DeleteRepositoryMemberResponse>> async);
+    void deleteRepositoryMember(DeleteRepositoryMemberRequest request, AsyncCallback<RpcResult<DeleteRepositoryMemberResponse>> async);
 
-    void updateProjectMember(UpdateRepositoryMemberRequest request, AsyncCallback<RpcResult<UpdateRepositoryMemberResponse>> async);
+    void updateRepositoryMember(UpdateRepositoryMemberRequest request, AsyncCallback<RpcResult<UpdateRepositoryMemberResponse>> async);
 
 
     void queryGroupMember(QueryGroupMemberRequest request, AsyncCallback<RpcResult<QueryGroupMemberResponse>> async);
@@ -102,15 +102,15 @@ public interface IAppServerAsync {
 
     void queryConfig(QueryConfigRequest request, AsyncCallback<RpcResult<QueryConfigResponse>> async);
 
-    void deleteProjectBuild(DeleteRepositoryBuildRequest request, AsyncCallback<RpcResult<DeleteRepositoryBuildResponse>> async);
+    void deleteRepositoryBuild(DeleteRepositoryBuildRequest request, AsyncCallback<RpcResult<DeleteRepositoryBuildResponse>> async);
 
-    void queryProjectBuild(QueryProjectBuildRequest request, AsyncCallback<RpcResult<QueryProjectBuildResponse>> async);
+    void queryRepositoryBuild(QueryRepositoryBuildRequest request, AsyncCallback<RpcResult<QueryRepositoryBuildResponse>> async);
 
     void queryKey(QueryKeyRequest request, AsyncCallback<RpcResult<QueryKeyResponse>> async);
 
     void queryNode(QueryNodeRequest request, AsyncCallback<RpcResult<QueryNodeResponse>> async);
 
-    void deleteProject(DeleteRepositoryRequest request, AsyncCallback<RpcResult<DeleteRepositoryResponse>> async);
+    void deleteRepository(DeleteRepositoryRequest request, AsyncCallback<RpcResult<DeleteRepositoryResponse>> async);
 
     void queryRepository(QueryRepositoryRequest request, AsyncCallback<RpcResult<QueryRepositoryResponse>> async);
 
@@ -122,11 +122,11 @@ public interface IAppServerAsync {
 
     void updateNode(UpdateNodeRequest request, AsyncCallback<RpcResult<UpdateNodeResponse>> async);
 
-    void restartProject(RestartProjectRequest request, AsyncCallback<RpcResult<RestartProjectResponse>> async);
+    void restartRepository(RestartRepositoryRequest request, AsyncCallback<RpcResult<RestartRepositoryResponse>> async);
 
-    void compileProject(CompileProjectRequest request, AsyncCallback<RpcResult<CompileProjectResponse>> async);
+    void compileRepository(CompileRepositoryRequest request, AsyncCallback<RpcResult<CompileRepositoryResponse>> async);
 
-    void updateProject(UpdateProjectRequest request, AsyncCallback<RpcResult<UpdateProjectResponse>> async);
+    void updateRepository(UpdateRepositoryRequest request, AsyncCallback<RpcResult<UpdateRepositoryResponse>> async);
 
 
     void updateConfigList(UpdateConfigListRequest request, AsyncCallback<RpcResult<UpdateConfigListResponse>> async);

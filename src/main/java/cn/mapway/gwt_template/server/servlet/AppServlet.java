@@ -98,11 +98,11 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
     @Resource
     LoginProvider loginProvider;
     @Resource
-    UpdateProjectExecutor updateProjectExecutor;
+    UpdateRepositoryExecutor updateRepositoryExecutor;
     @Resource
-    CompileProjectExecutor compileProjectExecutor;
+    CompileRepositoryExecutor compileRepositoryExecutor;
     @Resource
-    RestartProjectExecutor restartProjectExecutor;
+    RestartRepositoryExecutor restartRepositoryExecutor;
     @Resource
     UpdateNodeExecutor updateNodeExecutor;
     @Resource
@@ -398,19 +398,19 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
     }
 
     @Override
-    public RpcResult<QueryRepositoryMemberResponse> queryProjectMember(QueryRepositoryMemberRequest request) {
+    public RpcResult<QueryRepositoryMemberResponse> queryRepositoryMember(QueryRepositoryMemberRequest request) {
         BizResult<QueryRepositoryMemberResponse> bizResult = queryRepositoryMemberExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toRpcResult(bizResult);
     }
 
     @Override
-    public RpcResult<DeleteRepositoryMemberResponse> deleteProjectMember(DeleteRepositoryMemberRequest request) {
+    public RpcResult<DeleteRepositoryMemberResponse> deleteRepositoryMember(DeleteRepositoryMemberRequest request) {
         BizResult<DeleteRepositoryMemberResponse> bizResult = deleteRepositoryMemberExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toRpcResult(bizResult);
     }
 
     @Override
-    public RpcResult<UpdateRepositoryMemberResponse> updateProjectMember(UpdateRepositoryMemberRequest request) {
+    public RpcResult<UpdateRepositoryMemberResponse> updateRepositoryMember(UpdateRepositoryMemberRequest request) {
         BizResult<UpdateRepositoryMemberResponse> bizResult = updateRepositoryMemberExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toRpcResult(bizResult);
     }
@@ -465,14 +465,14 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
     }
 
     @Override
-    public RpcResult<DeleteRepositoryBuildResponse> deleteProjectBuild(DeleteRepositoryBuildRequest request) {
+    public RpcResult<DeleteRepositoryBuildResponse> deleteRepositoryBuild(DeleteRepositoryBuildRequest request) {
         BizResult<DeleteRepositoryBuildResponse> bizResult = deleteRepositoryBuildExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toRpcResult(bizResult);
     }
 
     @Override
-    public RpcResult<QueryProjectBuildResponse> queryProjectBuild(QueryProjectBuildRequest request) {
-        BizResult<QueryProjectBuildResponse> bizResult = queryRepositoryBuildExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+    public RpcResult<QueryRepositoryBuildResponse> queryRepositoryBuild(QueryRepositoryBuildRequest request) {
+        BizResult<QueryRepositoryBuildResponse> bizResult = queryRepositoryBuildExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toRpcResult(bizResult);
     }
 
@@ -489,7 +489,7 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
     }
 
     @Override
-    public RpcResult<DeleteRepositoryResponse> deleteProject(DeleteRepositoryRequest request) {
+    public RpcResult<DeleteRepositoryResponse> deleteRepository(DeleteRepositoryRequest request) {
         BizResult<DeleteRepositoryResponse> bizResult = deleteRepositoryExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toRpcResult(bizResult);
     }
@@ -527,20 +527,20 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
     }
 
     @Override
-    public RpcResult<UpdateProjectResponse> updateProject(UpdateProjectRequest request) {
-        BizResult<UpdateProjectResponse> bizResult = updateProjectExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+    public RpcResult<UpdateRepositoryResponse> updateRepository(UpdateRepositoryRequest request) {
+        BizResult<UpdateRepositoryResponse> bizResult = updateRepositoryExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toRpcResult(bizResult);
     }
 
     @Override
-    public RpcResult<CompileProjectResponse> compileProject(CompileProjectRequest request) {
-        BizResult<CompileProjectResponse> bizResult = compileProjectExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+    public RpcResult<CompileRepositoryResponse> compileRepository(CompileRepositoryRequest request) {
+        BizResult<CompileRepositoryResponse> bizResult = compileRepositoryExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toRpcResult(bizResult);
     }
 
     @Override
-    public RpcResult<RestartProjectResponse> restartProject(RestartProjectRequest request) {
-        BizResult<RestartProjectResponse> bizResult = restartProjectExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+    public RpcResult<RestartRepositoryResponse> restartRepository(RestartRepositoryRequest request) {
+        BizResult<RestartRepositoryResponse> bizResult = restartRepositoryExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toRpcResult(bizResult);
     }
 

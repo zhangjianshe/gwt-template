@@ -6,7 +6,7 @@ import jsinterop.annotations.JsType;
 public class GitNotifyMessage {
     public String phase;
     public String type;
-    public String projectId;
+    public String repositoryId;
     public String message;
     public Double progress;
 }

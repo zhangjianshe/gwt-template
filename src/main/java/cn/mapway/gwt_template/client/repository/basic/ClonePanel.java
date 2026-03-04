@@ -45,7 +45,7 @@ public class ClonePanel extends CommonEventComposite implements IData<VwReposito
     TabLayoutPanel tab;
     @UiField
     Anchor btnConfig;
-    private VwRepositoryEntity project;
+    private VwRepositoryEntity repository;
 
     public ClonePanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -75,31 +75,31 @@ public class ClonePanel extends CommonEventComposite implements IData<VwReposito
 
     @Override
     public VwRepositoryEntity getData() {
-        return project;
+        return repository;
     }
 
     @Override
     public void setData(VwRepositoryEntity obj) {
-        project = obj;
+        repository = obj;
         toUI();
     }
 
     private void toUI() {
-        if (project == null) {
+        if (repository == null) {
             return;
         }
 
         // --- HTTP Clone URL ---
         String baseUrl = GWT.getHostPageBaseURL();
         String cloneUrl = baseUrl + "code/"
-                + project.getOwnerName() + "/" + project.getName() + ".git";
+                + repository.getOwnerName() + "/" + repository.getName() + ".git";
         txtHttp.setValue(cloneUrl);
 
         // --- SSH Clone URL ---
         String cloneSshTemplate=ClientContext.get().getAppData().getSshServer();
         if(StringUtil.isNotBlank(cloneSshTemplate)){
-            cloneSshTemplate=cloneSshTemplate.replaceAll("ownerName",project.getOwnerName());
-            cloneSshTemplate=cloneSshTemplate.replaceAll("projectName",project.getName());
+            cloneSshTemplate=cloneSshTemplate.replaceAll("ownerName", repository.getOwnerName());
+            cloneSshTemplate=cloneSshTemplate.replaceAll("projectName", repository.getName());
             cloneSshTemplate=cloneSshTemplate.replaceAll("userName",ClientContext.get().getUserInfo().getUserName());
         }
         txtSSH.setValue(cloneSshTemplate);

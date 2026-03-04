@@ -43,7 +43,7 @@ public class ImportRepoPanel extends CommonEventComposite implements IData<VwRep
     AiTextBox txtToken;
     @UiField
     AiTextBox txtAuthorize;
-    private VwRepositoryEntity project;
+    private VwRepositoryEntity repository;
 
     public ImportRepoPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -62,7 +62,7 @@ public class ImportRepoPanel extends CommonEventComposite implements IData<VwRep
         }
 
         ImportRepoRequest request = new ImportRepoRequest();
-        request.setRepositoryId(project.getId());
+        request.setRepositoryId(repository.getId());
         request.setRepoUrl(txtUrl.getValue());
         request.setUser(txtAuthorize.getText());
         request.setTokenOrPassword(txtToken.getText());
@@ -106,7 +106,7 @@ public class ImportRepoPanel extends CommonEventComposite implements IData<VwRep
                     Timer timer = new Timer() {
                         @Override
                         public void run() {
-                            fireEvent(CommonEvent.reloadEvent(project));
+                            fireEvent(CommonEvent.reloadEvent(repository));
                         }
                     };
                     timer.schedule(1000);
@@ -123,12 +123,12 @@ public class ImportRepoPanel extends CommonEventComposite implements IData<VwRep
 
     @Override
     public VwRepositoryEntity getData() {
-        return project;
+        return repository;
     }
 
     @Override
     public void setData(VwRepositoryEntity obj) {
-        project = obj;
+        repository = obj;
         toUI();
     }
 

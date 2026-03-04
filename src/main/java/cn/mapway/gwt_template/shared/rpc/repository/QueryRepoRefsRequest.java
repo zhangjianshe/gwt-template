@@ -14,5 +14,5 @@ import java.io.Serializable;
 @Data
 @Doc("QueryRepoRefsRequest")
 public class QueryRepoRefsRequest implements Serializable, IsSerializable {
-    String projectId;
+    String repositoryId;
 }

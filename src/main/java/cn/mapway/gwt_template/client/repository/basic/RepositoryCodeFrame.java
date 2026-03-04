@@ -36,7 +36,7 @@ import java.util.List;
 import java.util.Map;
 
 public class RepositoryCodeFrame extends CommonEventComposite implements IData<VwRepositoryEntity> {
-    private static final ProjectCodeFrameUiBinder ourUiBinder = GWT.create(ProjectCodeFrameUiBinder.class);
+    private static final RepositoryCodeFrameUiBinder ourUiBinder = GWT.create(RepositoryCodeFrameUiBinder.class);
     @UiField
     HorizontalPanel paths;
     @UiField
@@ -79,7 +79,7 @@ public class RepositoryCodeFrame extends CommonEventComposite implements IData<V
     Map<String, AceEditorMode> format = new HashMap<String, AceEditorMode>();
     ImportRepoPanel importRepoPanel;
     ImportingPanel importPanel;
-    private VwRepositoryEntity project;
+    private VwRepositoryEntity repository;
 
     public RepositoryCodeFrame() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -112,21 +112,21 @@ public class RepositoryCodeFrame extends CommonEventComposite implements IData<V
 
     @Override
     public VwRepositoryEntity getData() {
-        return project;
+        return repository;
     }
 
     @Override
     public void setData(VwRepositoryEntity obj) {
-        project = obj;
+        repository = obj;
         toUI();
     }
 
     void reload() {
-        if (project == null) {
+        if (repository == null) {
             return;
         }
         QueryRepositoryRequest request = new QueryRepositoryRequest();
-        request.setRepositoryId(project.getId());
+        request.setRepositoryId(repository.getId());
         AppProxy.get().queryRepository(request, new AsyncCallback<RpcResult<QueryRepositoryResponse>>() {
             @Override
             public void onFailure(Throwable caught) {
@@ -136,8 +136,8 @@ public class RepositoryCodeFrame extends CommonEventComposite implements IData<V
             @Override
             public void onSuccess(RpcResult<QueryRepositoryResponse> result) {
                 if (result.isSuccess()) {
-                    setData(result.getData().getProjects().get(0));
-                    fireEvent(CommonEvent.updateEvent(project));
+                    setData(result.getData().getRepositories().get(0));
+                    fireEvent(CommonEvent.updateEvent(repository));
                 }
             }
         });
@@ -147,7 +147,7 @@ public class RepositoryCodeFrame extends CommonEventComposite implements IData<V
 
         final ReadRepoFileRequest request = new ReadRepoFileRequest();
         request.setToHtml(false);
-        request.setProjectId(project.getId());
+        request.setRepositoryId(repository.getId());
         request.setFilePathName(repoItem.getPath());
         AppProxy.get().readRepoFile(request, new AsyncCallback<RpcResult<ReadRepoFileResponse>>() {
             @Override
@@ -197,7 +197,7 @@ public class RepositoryCodeFrame extends CommonEventComposite implements IData<V
     private void loadRefs() {
         files.clear();
         QueryRepoRefsRequest request = new QueryRepoRefsRequest();
-        request.setProjectId(project.getId());
+        request.setRepositoryId(repository.getId());
         AppProxy.get().queryRepoRefs(request, new AsyncCallback<RpcResult<QueryRepoRefsResponse>>() {
             @Override
             public void onFailure(Throwable caught) {
@@ -281,7 +281,7 @@ public class RepositoryCodeFrame extends CommonEventComposite implements IData<V
         contentPanel.setWidgetTopBottom(messagePanel, 0, Style.Unit.PX, 0, Style.Unit.PX);
         msgContainer.clear();
         msgContainer.add(importRepoPanel);
-        importRepoPanel.setData(project);
+        importRepoPanel.setData(repository);
         HTML html1 = new HTML(html);
         html1.addStyleName("markdown-body");
         msgContainer.add(html1);
@@ -318,7 +318,7 @@ public class RepositoryCodeFrame extends CommonEventComposite implements IData<V
 
     private void loadDir(String ref, String path) {
         final QueryRepoFilesRequest request = new QueryRepoFilesRequest();
-        request.setProjectId(project.getId());
+        request.setRepositoryId(repository.getId());
         request.setPath(path);
         request.setRef(ref);
         AppProxy.get().queryRepoFiles(request, new AsyncCallback<RpcResult<QueryRepoFilesResponse>>() {
@@ -342,7 +342,7 @@ public class RepositoryCodeFrame extends CommonEventComposite implements IData<V
 
     private void toUI() {
 
-        RepositoryStatus repositoryStatus = RepositoryStatus.fromCode(project.getStatus());
+        RepositoryStatus repositoryStatus = RepositoryStatus.fromCode(repository.getStatus());
         switch (repositoryStatus) {
             case PS_INIT:
                 showEmptyRepoPanel("");
@@ -358,7 +358,7 @@ public class RepositoryCodeFrame extends CommonEventComposite implements IData<V
             default:
                 showFilesPanel();
                 files.clear();
-                btnClone.setData(project);
+                btnClone.setData(repository);
                 loadRefs();
         }
     }
@@ -384,14 +384,14 @@ public class RepositoryCodeFrame extends CommonEventComposite implements IData<V
         contentPanel.setWidgetTopBottom(messagePanel, 0, Style.Unit.PX, 0, Style.Unit.PX);
         msgContainer.clear();
         msgContainer.add(importPanel);
-        importPanel.setData(project);
+        importPanel.setData(repository);
     }
 
     private void renderPath(String path) {
         paths.clear();
         Head head = new Head();
         head.addStyleName(style.link());
-        head.setText(project.getName());
+        head.setText(repository.getName());
         head.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -451,7 +451,7 @@ public class RepositoryCodeFrame extends CommonEventComposite implements IData<V
         // Hide editor
         showFilesPanel();
         // Create a URL to your raw file servlet (recommended approach)
-        String imageUrl = GWT.getHostPageBaseURL() + "raw/" + project.getOwnerName() + "/" + project.getName() + "/" + repoItem.getPath();
+        String imageUrl = GWT.getHostPageBaseURL() + "raw/" + repository.getOwnerName() + "/" + repository.getName() + "/" + repoItem.getPath();
 
         Image image = new Image(imageUrl);
         image.addStyleName(style.imagePreview()); // Add some CSS to center it and limit size
@@ -479,7 +479,7 @@ public class RepositoryCodeFrame extends CommonEventComposite implements IData<V
         String files();
     }
 
-    interface ProjectCodeFrameUiBinder extends UiBinder<DockLayoutPanel, RepositoryCodeFrame> {
+    interface RepositoryCodeFrameUiBinder extends UiBinder<DockLayoutPanel, RepositoryCodeFrame> {
     }
 
     CommonEventHandler itemHandler = new CommonEventHandler() {

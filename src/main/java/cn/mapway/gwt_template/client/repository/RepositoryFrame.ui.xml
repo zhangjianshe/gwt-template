@@ -1,6 +1,6 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
              xmlns:g='urn:import:com.google.gwt.user.client.ui'
-             xmlns:project="urn:import:cn.mapway.gwt_template.client.repository"
+             xmlns:repository="urn:import:cn.mapway.gwt_template.client.repository"
              xmlns:widget="urn:import:cn.mapway.gwt_template.client.widget"
              xmlns:buttons="urn:import:cn.mapway.ui.client.widget.buttons">
     <ui:style>
@@ -30,13 +30,13 @@
                 </g:north>
                 <g:center>
                     <g:ScrollPanel addStyleNames="{style.left} {style.content}">
-                        <project:RepositoryList width="100%" ui:field="repositoryList"/>
+                        <repository:RepositoryList width="100%" ui:field="repositoryList"/>
                     </g:ScrollPanel>
                 </g:center>
             </g:DockLayoutPanel>
         </g:west>
         <g:center>
-            <project:RepositoryView ui:field="repositoryPanel"/>
+            <repository:RepositoryView ui:field="repositoryPanel"/>
         </g:center>
     </g:DockLayoutPanel>
 </ui:UiBinder>

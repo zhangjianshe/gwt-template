@@ -121,7 +121,7 @@ public class GitSshConfig {
 
                 boolean isPush = action.equals("git-receive-pack");
 
-                // Split segments: owner/project
+                // Split segments: owner/repository
                 String[] segments = cleanPath.split("/");
                 if (segments.length < 2) {
                     log.error("Invalid path format. Raw: {}, Clean: {}", rawPath, cleanPath);
@@ -131,7 +131,7 @@ public class GitSshConfig {
                 String owner = segments[segments.length - 2];
                 String project = segments[segments.length - 1];
 
-                log.info("Auth Check: User {} requested {} on project {}/{}",
+                log.info("Auth Check: User {} requested {} on repository {}/{}",
                         userPublicKey.getUserName(), action, owner, project);
 
                 CommonPermission perm = repositoryService.findUserPermissionInProjectByName(

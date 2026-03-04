@@ -31,8 +31,8 @@ import com.google.gwt.user.client.ui.LayoutPanel;
         order = 100
 )
 public class RepositoryView extends BaseAbstractModule implements IData<VwRepositoryEntity> {
-    public final static String MODULE_CODE = "git_project_view";
-    private static final ProjectViewUiBinder ourUiBinder = GWT.create(ProjectViewUiBinder.class);
+    public final static String MODULE_CODE = "git_repository_view";
+    private static final RepositoryViewUiBinder ourUiBinder = GWT.create(RepositoryViewUiBinder.class);
     @UiField
     HorizontalPanel buttons;
     @UiField
@@ -46,10 +46,10 @@ public class RepositoryView extends BaseAbstractModule implements IData<VwReposi
     @UiField
     LayoutPanel content;
     IconButton selected = null;
-    RepositoryFlowPanel projectFlowPanel;
-    RepositoryCodeFrame projectCodeFrame;
-    RepositorySettingPanel projectSettingPanel;
-    private VwRepositoryEntity vwProject;
+    RepositoryFlowPanel repositoryFlowPanel;
+    RepositoryCodeFrame repositoryCodeFrame;
+    RepositorySettingPanel repositorySettingPanel;
+    private VwRepositoryEntity vwRepository;
 
     public RepositoryView() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -83,20 +83,20 @@ public class RepositoryView extends BaseAbstractModule implements IData<VwReposi
     }
 
     private void gotoSetting() {
-        if (projectSettingPanel == null) {
-            projectSettingPanel = new RepositorySettingPanel();
+        if (repositorySettingPanel == null) {
+            repositorySettingPanel = new RepositorySettingPanel();
         }
         content.clear();
-        content.add(projectSettingPanel);
-        content.setWidgetLeftRight(projectSettingPanel, 0, Style.Unit.PX, 0, Style.Unit.PX);
-        content.setWidgetTopBottom(projectSettingPanel, 0, Style.Unit.PX, 0, Style.Unit.PX);
-        projectSettingPanel.setData(vwProject);
+        content.add(repositorySettingPanel);
+        content.setWidgetLeftRight(repositorySettingPanel, 0, Style.Unit.PX, 0, Style.Unit.PX);
+        content.setWidgetTopBottom(repositorySettingPanel, 0, Style.Unit.PX, 0, Style.Unit.PX);
+        repositorySettingPanel.setData(vwRepository);
     }
 
     private void gotoBasic() {
-        if (projectFlowPanel == null) {
-            projectFlowPanel = new RepositoryFlowPanel();
-            projectFlowPanel.addCommonHandler(event -> {
+        if (repositoryFlowPanel == null) {
+            repositoryFlowPanel = new RepositoryFlowPanel();
+            repositoryFlowPanel.addCommonHandler(event -> {
                 if(event.isUpdate()) {
                     VwRepositoryEntity vwRepositoryEntity = event.getValue();
                     setData(vwRepositoryEntity);
@@ -105,24 +105,24 @@ public class RepositoryView extends BaseAbstractModule implements IData<VwReposi
             });
         }
         content.clear();
-        content.add(projectFlowPanel);
-        content.setWidgetLeftRight(projectFlowPanel, 0, Style.Unit.PX, 0, Style.Unit.PX);
-        content.setWidgetTopBottom(projectFlowPanel, 0, Style.Unit.PX, 0, Style.Unit.PX);
-        projectFlowPanel.setData(vwProject);
+        content.add(repositoryFlowPanel);
+        content.setWidgetLeftRight(repositoryFlowPanel, 0, Style.Unit.PX, 0, Style.Unit.PX);
+        content.setWidgetTopBottom(repositoryFlowPanel, 0, Style.Unit.PX, 0, Style.Unit.PX);
+        repositoryFlowPanel.setData(vwRepository);
     }
 
     private void gotoWiki() {
     }
 
     private void gotoCode() {
-        if (projectCodeFrame == null) {
-            projectCodeFrame = new RepositoryCodeFrame();
+        if (repositoryCodeFrame == null) {
+            repositoryCodeFrame = new RepositoryCodeFrame();
         }
         content.clear();
-        content.add(projectCodeFrame);
-        content.setWidgetLeftRight(projectCodeFrame, 0, Style.Unit.PX, 0, Style.Unit.PX);
-        content.setWidgetTopBottom(projectCodeFrame, 0, Style.Unit.PX, 0, Style.Unit.PX);
-        projectCodeFrame.setData(vwProject);
+        content.add(repositoryCodeFrame);
+        content.setWidgetLeftRight(repositoryCodeFrame, 0, Style.Unit.PX, 0, Style.Unit.PX);
+        content.setWidgetTopBottom(repositoryCodeFrame, 0, Style.Unit.PX, 0, Style.Unit.PX);
+        repositoryCodeFrame.setData(vwRepository);
     }
 
     public void selectButton(IconButton button) {
@@ -137,12 +137,12 @@ public class RepositoryView extends BaseAbstractModule implements IData<VwReposi
 
     @Override
     public VwRepositoryEntity getData() {
-        return vwProject;
+        return vwRepository;
     }
 
     @Override
     public void setData(VwRepositoryEntity obj) {
-        vwProject = obj;
+        vwRepository = obj;
         toUI();
     }
 
@@ -162,6 +162,6 @@ public class RepositoryView extends BaseAbstractModule implements IData<VwReposi
         return MODULE_CODE;
     }
 
-    interface ProjectViewUiBinder extends UiBinder<DockLayoutPanel, RepositoryView> {
+    interface RepositoryViewUiBinder extends UiBinder<DockLayoutPanel, RepositoryView> {
     }
 }

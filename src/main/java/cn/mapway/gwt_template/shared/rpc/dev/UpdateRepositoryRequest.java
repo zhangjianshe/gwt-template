@@ -1,19 +1,19 @@
 package cn.mapway.gwt_template.shared.rpc.dev;
 
 import cn.mapway.document.annotation.Doc;
-import cn.mapway.gwt_template.shared.db.VwRepositoryEntity;
+import cn.mapway.gwt_template.shared.db.DevRepositoryEntity;
 import com.google.gwt.user.client.rpc.IsSerializable;
 import lombok.Data;
 
 import java.io.Serializable;
 
 /**
- * UpdateProjectResponse
+ * UpdateRepositoryRequest
  *
  * @author zhangjianshe@gmail.com
  */
 @Data
-@Doc("UpdateProjectResponse")
-public class UpdateProjectResponse implements Serializable, IsSerializable {
-    VwRepositoryEntity project;
+@Doc("UpdateRepositoryRequest")
+public class UpdateRepositoryRequest implements Serializable, IsSerializable {
+    DevRepositoryEntity repository;
 }

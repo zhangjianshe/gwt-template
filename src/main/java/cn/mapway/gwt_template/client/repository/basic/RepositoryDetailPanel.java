@@ -16,12 +16,12 @@ import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.Label;
 
 public class RepositoryDetailPanel extends CommonEventComposite implements IData<VwRepositoryEntity> {
-    private static final ProjectDetailPanelUiBinder ourUiBinder = GWT.create(ProjectDetailPanelUiBinder.class);
+    private static final RepositoryDetailPanelUiBinder ourUiBinder = GWT.create(RepositoryDetailPanelUiBinder.class);
     @UiField
     FontIcon btnSetup;
     @UiField
     Label lbAbout;
-    private VwRepositoryEntity project;
+    private VwRepositoryEntity repository;
 
     public RepositoryDetailPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -30,17 +30,17 @@ public class RepositoryDetailPanel extends CommonEventComposite implements IData
 
     @Override
     public VwRepositoryEntity getData() {
-        return project;
+        return repository;
     }
 
     @Override
     public void setData(VwRepositoryEntity obj) {
-        project = obj;
+        repository = obj;
         toUI();
     }
 
     private void toUI() {
-        lbAbout.setText(project.getSummary());
+        lbAbout.setText(repository.getSummary());
     }
 
     @UiHandler("btnSetup")
@@ -53,10 +53,10 @@ public class RepositoryDetailPanel extends CommonEventComposite implements IData
             }
             dialog.hide();
         });
-        dialog.getContent().setData(project);
+        dialog.getContent().setData(repository);
         dialog.center();
     }
 
-    interface ProjectDetailPanelUiBinder extends UiBinder<HTMLPanel, RepositoryDetailPanel> {
+    interface RepositoryDetailPanelUiBinder extends UiBinder<HTMLPanel, RepositoryDetailPanel> {
     }
 }

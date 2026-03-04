@@ -3,8 +3,8 @@ package cn.mapway.gwt_template.client.repository;
 import cn.mapway.gwt_template.client.rpc.AppProxy;
 import cn.mapway.gwt_template.shared.db.DevRepositoryEntity;
 import cn.mapway.gwt_template.shared.db.VwRepositoryEntity;
-import cn.mapway.gwt_template.shared.rpc.dev.UpdateProjectRequest;
-import cn.mapway.gwt_template.shared.rpc.dev.UpdateProjectResponse;
+import cn.mapway.gwt_template.shared.rpc.dev.UpdateRepositoryRequest;
+import cn.mapway.gwt_template.shared.rpc.dev.UpdateRepositoryResponse;
 import cn.mapway.ui.client.mvc.Size;
 import cn.mapway.ui.client.tools.IData;
 import cn.mapway.ui.client.widget.AiTextBox;
@@ -35,7 +35,7 @@ public class RepositoryEditor extends CommonEventComposite implements IData<VwRe
     AiTextBox txtFullName;
     @UiField
     Label lbTip;
-    private VwRepositoryEntity project;
+    private VwRepositoryEntity repository;
 
     public RepositoryEditor() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -64,21 +64,21 @@ public class RepositoryEditor extends CommonEventComposite implements IData<VwRe
 
     @Override
     public VwRepositoryEntity getData() {
-        return project;
+        return repository;
     }
 
     @Override
     public void setData(VwRepositoryEntity obj) {
-        project = obj;
-        if (project == null) {
-            project = new VwRepositoryEntity();
+        repository = obj;
+        if (repository == null) {
+            repository = new VwRepositoryEntity();
         }
         toUI();
     }
 
     private void toUI() {
-        txtName.setValue(project.getName());
-        txtFullName.setValue(project.getFullName());
+        txtName.setValue(repository.getName());
+        txtFullName.setValue(repository.getFullName());
     }
 
     boolean isNameValid(String name) {
@@ -92,7 +92,7 @@ public class RepositoryEditor extends CommonEventComposite implements IData<VwRe
     public void saveBarCommon(CommonEvent event) {
         if (event.isOk()) {
             DevRepositoryEntity temp = new DevRepositoryEntity();
-            temp.setId(project.getId());
+            temp.setId(repository.getId());
             temp.setName(txtName.getValue().trim());
             boolean nameValid = isNameValid(txtName.getValue().trim());
             if (!nameValid) {
@@ -107,18 +107,18 @@ public class RepositoryEditor extends CommonEventComposite implements IData<VwRe
     }
 
     private void doSave(DevRepositoryEntity temp) {
-        UpdateProjectRequest request = new UpdateProjectRequest();
-        request.setProject(temp);
-        AppProxy.get().updateProject(request, new AsyncCallback<>() {
+        UpdateRepositoryRequest request = new UpdateRepositoryRequest();
+        request.setRepository(temp);
+        AppProxy.get().updateRepository(request, new AsyncCallback<>() {
             @Override
             public void onFailure(Throwable caught) {
                 saveBar.msg(caught.getMessage());
             }
 
             @Override
-            public void onSuccess(RpcResult<UpdateProjectResponse> result) {
+            public void onSuccess(RpcResult<UpdateRepositoryResponse> result) {
                 if (result.isSuccess()) {
-                    fireEvent(CommonEvent.okEvent(result.getData().getProject()));
+                    fireEvent(CommonEvent.okEvent(result.getData().getRepository()));
                 } else {
                     saveBar.msg(result.getMessage());
                 }

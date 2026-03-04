@@ -51,7 +51,7 @@ public class MemberList extends CommonEventComposite implements IData<String> {
     HorizontalPanel buttons;
     @UiField
     Head lbHeader;
-    private String projectId;
+    private String repositoryId;
     private final CommonEventHandler itemHandler = new CommonEventHandler() {
         @Override
         public void onCommonEvent(CommonEvent event) {
@@ -86,7 +86,7 @@ public class MemberList extends CommonEventComposite implements IData<String> {
         DeleteRepositoryMemberRequest request = new DeleteRepositoryMemberRequest();
         request.setRepositoryId(member.getRepositoryId());
         request.setUserId(member.getUserId());
-        AppProxy.get().deleteProjectMember(request, new AsyncCallback<RpcResult<DeleteRepositoryMemberResponse>>() {
+        AppProxy.get().deleteRepositoryMember(request, new AsyncCallback<RpcResult<DeleteRepositoryMemberResponse>>() {
             @Override
             public void onFailure(Throwable caught) {
                 ClientContext.get().toast(0, 0, caught.getMessage());
@@ -105,12 +105,12 @@ public class MemberList extends CommonEventComposite implements IData<String> {
 
     @Override
     public String getData() {
-        return projectId;
+        return repositoryId;
     }
 
     @Override
     public void setData(String obj) {
-        projectId = obj;
+        repositoryId = obj;
         loadMembers();
     }
 
@@ -121,8 +121,8 @@ public class MemberList extends CommonEventComposite implements IData<String> {
         list.clear();
         lbHeader.setText("项目组成员");
         QueryRepositoryMemberRequest request = new QueryRepositoryMemberRequest();
-        request.setRepositoryId(projectId);
-        AppProxy.get().queryProjectMember(request, new AsyncCallback<RpcResult<QueryRepositoryMemberResponse>>() {
+        request.setRepositoryId(repositoryId);
+        AppProxy.get().queryRepositoryMember(request, new AsyncCallback<RpcResult<QueryRepositoryMemberResponse>>() {
             @Override
             public void onFailure(Throwable caught) {
                 ClientContext.get().toast(0, 0, caught.getMessage());
@@ -186,8 +186,8 @@ public class MemberList extends CommonEventComposite implements IData<String> {
         UpdateRepositoryMemberRequest request = new UpdateRepositoryMemberRequest();
         request.setPermission(CommonPermission.fromPermission(0).setRead(true).getPermission());
         request.setUserId(userId);
-        request.setRepositoryId(projectId);
-        AppProxy.get().updateProjectMember(request, new AsyncCallback<RpcResult<UpdateRepositoryMemberResponse>>() {
+        request.setRepositoryId(repositoryId);
+        AppProxy.get().updateRepositoryMember(request, new AsyncCallback<RpcResult<UpdateRepositoryMemberResponse>>() {
             @Override
             public void onFailure(Throwable caught) {
                 ClientContext.get().toast(0, 0, caught.getMessage());

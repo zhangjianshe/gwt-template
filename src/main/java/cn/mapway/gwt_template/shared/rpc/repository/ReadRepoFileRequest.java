@@ -14,7 +14,7 @@ import java.io.Serializable;
 @Data
 @Doc("ReadRepoFileRequest")
 public class ReadRepoFileRequest implements Serializable, IsSerializable {
-    String projectId;
+    String repositoryId;
     String filePathName;
     Boolean toHtml=false;
 }

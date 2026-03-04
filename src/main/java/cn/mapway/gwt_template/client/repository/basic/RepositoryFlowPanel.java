@@ -22,7 +22,7 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HTMLPanel;
 
 public class RepositoryFlowPanel extends CommonEventComposite implements IData<VwRepositoryEntity> {
-    private static final ProjectFlowPanelUiBinder ourUiBinder = GWT.create(ProjectFlowPanelUiBinder.class);
+    private static final RepositoryFlowPanelUiBinder ourUiBinder = GWT.create(RepositoryFlowPanelUiBinder.class);
     @UiField
     MemberList memberList;
     @UiField
@@ -31,7 +31,7 @@ public class RepositoryFlowPanel extends CommonEventComposite implements IData<V
     RepositoryDetailPanel detailPanel;
     @UiField
     HTMLPanel tipPanel;
-    private VwRepositoryEntity project;
+    private VwRepositoryEntity repository;
 
     public RepositoryFlowPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -39,27 +39,27 @@ public class RepositoryFlowPanel extends CommonEventComposite implements IData<V
 
     @Override
     public VwRepositoryEntity getData() {
-        return project;
+        return repository;
     }
 
     @Override
     public void setData(VwRepositoryEntity obj) {
-        if (obj != null && obj != project) {
-            project = obj;
+        if (obj != null && obj != repository) {
+            repository = obj;
             toUI();
         }
     }
 
     private void toUI() {
-        memberList.setData(project.getId());
-        loadReadme(project.getId());
-        detailPanel.setData(project);
+        memberList.setData(repository.getId());
+        loadReadme(repository.getId());
+        detailPanel.setData(repository);
     }
 
-    private void loadReadme(String projectId) {
+    private void loadReadme(String repositoryId) {
         readme.setHTML("loadding");
         ReadRepoFileRequest request = new ReadRepoFileRequest();
-        request.setProjectId(projectId);
+        request.setRepositoryId(repositoryId);
         request.setFilePathName("README.md");
         request.setToHtml(true);
         AppProxy.get().readRepoFile(request, new AsyncCallback<RpcResult<ReadRepoFileResponse>>() {
@@ -105,6 +105,6 @@ public class RepositoryFlowPanel extends CommonEventComposite implements IData<V
         }
     }
 
-    interface ProjectFlowPanelUiBinder extends UiBinder<DockLayoutPanel, RepositoryFlowPanel> {
+    interface RepositoryFlowPanelUiBinder extends UiBinder<DockLayoutPanel, RepositoryFlowPanel> {
     }
 }

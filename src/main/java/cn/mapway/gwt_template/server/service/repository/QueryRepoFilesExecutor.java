@@ -37,11 +37,11 @@ public class QueryRepoFilesExecutor extends AbstractBizExecutor<QueryRepoFilesRe
         QueryRepoFilesRequest request = bizParam.getData();
         log.info("QueryRepoFilesExecutor {}", Json.toJson(request, JsonFormat.compact()));
         LoginUser user = (LoginUser) context.get(AppConstant.KEY_LOGIN_USER);
-        assertTrue(Strings.isNotBlank(request.getProjectId()), "提供项目ID");
+        assertTrue(Strings.isNotBlank(request.getRepositoryId()), "提供项目ID");
 
-        CommonPermission permission = repositoryService.findUserPermissionInRepository(user.getUser().getUserId(), request.getProjectId());
+        CommonPermission permission = repositoryService.findUserPermissionInRepository(user.getUser().getUserId(), request.getRepositoryId());
         assertTrue(permission.canRead(), "没有授权读取文件");
-        DevRepositoryEntity project = repositoryService.findProjectById(request.getProjectId());
+        DevRepositoryEntity project = repositoryService.findProjectById(request.getRepositoryId());
 
         try {
             if (Strings.isBlank(request.getPath())) {

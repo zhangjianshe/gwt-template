@@ -3,8 +3,8 @@ package cn.mapway.gwt_template.client.repository.basic;
 import cn.mapway.gwt_template.client.rpc.AppProxy;
 import cn.mapway.gwt_template.shared.db.DevRepositoryEntity;
 import cn.mapway.gwt_template.shared.db.VwRepositoryEntity;
-import cn.mapway.gwt_template.shared.rpc.dev.UpdateProjectRequest;
-import cn.mapway.gwt_template.shared.rpc.dev.UpdateProjectResponse;
+import cn.mapway.gwt_template.shared.rpc.dev.UpdateRepositoryRequest;
+import cn.mapway.gwt_template.shared.rpc.dev.UpdateRepositoryResponse;
 import cn.mapway.ui.client.mvc.Size;
 import cn.mapway.ui.client.tools.IData;
 import cn.mapway.ui.client.widget.AiTextBox;
@@ -25,7 +25,7 @@ import com.google.gwt.user.client.ui.TextArea;
  * 编辑项目详情
  */
 public class RepositoryDetailEditor extends CommonEventComposite implements IData<VwRepositoryEntity> {
-    private static final ProjectEditorUiBinder ourUiBinder = GWT.create(ProjectEditorUiBinder.class);
+    private static final RepositoryEditorUiBinder ourUiBinder = GWT.create(RepositoryEditorUiBinder.class);
     private static Dialog<RepositoryDetailEditor> dialog;
     @UiField
     SaveBar saveBar;
@@ -35,7 +35,7 @@ public class RepositoryDetailEditor extends CommonEventComposite implements IDat
     AiTextBox txtTags;
     @UiField
     TextArea txtSummary;
-    private VwRepositoryEntity project;
+    private VwRepositoryEntity repository;
 
     public RepositoryDetailEditor() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -64,20 +64,20 @@ public class RepositoryDetailEditor extends CommonEventComposite implements IDat
 
     @Override
     public VwRepositoryEntity getData() {
-        return project;
+        return repository;
     }
 
     @Override
     public void setData(VwRepositoryEntity obj) {
         assert obj != null;
-        project = obj;
+        repository = obj;
         toUI();
     }
 
     private void toUI() {
-        txtFullName.setValue(project.getFullName());
-        txtTags.setValue(project.getTags());
-        txtSummary.setValue(project.getSummary());
+        txtFullName.setValue(repository.getFullName());
+        txtTags.setValue(repository.getTags());
+        txtSummary.setValue(repository.getSummary());
     }
 
 
@@ -85,7 +85,7 @@ public class RepositoryDetailEditor extends CommonEventComposite implements IDat
     public void saveBarCommon(CommonEvent event) {
         if (event.isOk()) {
             DevRepositoryEntity temp = new DevRepositoryEntity();
-            temp.setId(project.getId());
+            temp.setId(repository.getId());
             temp.setFullName(txtFullName.getValue());
             temp.setTags(txtTags.getValue());
             temp.setSummary(txtSummary.getValue());
@@ -96,18 +96,18 @@ public class RepositoryDetailEditor extends CommonEventComposite implements IDat
     }
 
     private void doSave(DevRepositoryEntity temp) {
-        UpdateProjectRequest request = new UpdateProjectRequest();
-        request.setProject(temp);
-        AppProxy.get().updateProject(request, new AsyncCallback<>() {
+        UpdateRepositoryRequest request = new UpdateRepositoryRequest();
+        request.setRepository(temp);
+        AppProxy.get().updateRepository(request, new AsyncCallback<>() {
             @Override
             public void onFailure(Throwable caught) {
                 saveBar.msg(caught.getMessage());
             }
 
             @Override
-            public void onSuccess(RpcResult<UpdateProjectResponse> result) {
+            public void onSuccess(RpcResult<UpdateRepositoryResponse> result) {
                 if (result.isSuccess()) {
-                    fireEvent(CommonEvent.updateEvent(result.getData().getProject()));
+                    fireEvent(CommonEvent.updateEvent(result.getData().getRepository()));
                 } else {
                     saveBar.msg(result.getMessage());
                 }
@@ -115,6 +115,6 @@ public class RepositoryDetailEditor extends CommonEventComposite implements IDat
         });
     }
 
-    interface ProjectEditorUiBinder extends UiBinder<DockLayoutPanel, RepositoryDetailEditor> {
+    interface RepositoryEditorUiBinder extends UiBinder<DockLayoutPanel, RepositoryDetailEditor> {
     }
 }

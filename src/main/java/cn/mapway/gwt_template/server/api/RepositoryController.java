@@ -19,11 +19,11 @@ import javax.annotation.Resource;
 public class RepositoryController extends ApiBaseController {
 
     @Resource
-    UpdateProjectExecutor updateProjectExecutor;
+    UpdateRepositoryExecutor updateRepositoryExecutor;
     @Resource
-    CompileProjectExecutor compileProjectExecutor;
+    CompileRepositoryExecutor compileRepositoryExecutor;
     @Resource
-    RestartProjectExecutor restartProjectExecutor;
+    RestartRepositoryExecutor restartRepositoryExecutor;
     @Resource
     UpdateNodeExecutor updateNodeExecutor;
     @Resource
@@ -297,10 +297,10 @@ public class RepositoryController extends ApiBaseController {
      * @param request request
      * @return data
      */
-    @Doc(value = "QueryProjectBuild", retClazz = {QueryProjectBuildResponse.class})
+    @Doc(value = "QueryProjectBuild", retClazz = {QueryRepositoryBuildResponse.class})
     @RequestMapping(value = "/queryProjectBuild", method = RequestMethod.POST)
-    public RpcResult<QueryProjectBuildResponse> queryProjectBuild(@RequestBody QueryProjectBuildRequest request) {
-        BizResult<QueryProjectBuildResponse> bizResult = queryRepositoryBuildExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+    public RpcResult<QueryRepositoryBuildResponse> queryProjectBuild(@RequestBody QueryRepositoryBuildRequest request) {
+        BizResult<QueryRepositoryBuildResponse> bizResult = queryRepositoryBuildExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toApiResult(bizResult);
     }
 
@@ -375,10 +375,10 @@ public class RepositoryController extends ApiBaseController {
      * @param request request
      * @return data
      */
-    @Doc(value = "UpdateProject", retClazz = {UpdateProjectResponse.class})
+    @Doc(value = "UpdateProject", retClazz = {UpdateRepositoryResponse.class})
     @RequestMapping(value = "/updateProject", method = RequestMethod.POST)
-    public RpcResult<UpdateProjectResponse> updateProject(@RequestBody UpdateProjectRequest request) {
-        BizResult<UpdateProjectResponse> bizResult = updateProjectExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+    public RpcResult<UpdateRepositoryResponse> updateProject(@RequestBody UpdateRepositoryRequest request) {
+        BizResult<UpdateRepositoryResponse> bizResult = updateRepositoryExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toApiResult(bizResult);
     }
 
@@ -388,10 +388,10 @@ public class RepositoryController extends ApiBaseController {
      * @param request request
      * @return data
      */
-    @Doc(value = "CompileProject", retClazz = {CompileProjectResponse.class})
+    @Doc(value = "CompileProject", retClazz = {CompileRepositoryResponse.class})
     @RequestMapping(value = "/compileProject", method = RequestMethod.POST)
-    public RpcResult<CompileProjectResponse> compileProject(@RequestBody CompileProjectRequest request) {
-        BizResult<CompileProjectResponse> bizResult = compileProjectExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+    public RpcResult<CompileRepositoryResponse> compileProject(@RequestBody CompileRepositoryRequest request) {
+        BizResult<CompileRepositoryResponse> bizResult = compileRepositoryExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toApiResult(bizResult);
     }
 
@@ -401,10 +401,10 @@ public class RepositoryController extends ApiBaseController {
      * @param request request
      * @return data
      */
-    @Doc(value = "RestartProject", retClazz = {RestartProjectResponse.class})
+    @Doc(value = "RestartProject", retClazz = {RestartRepositoryResponse.class})
     @RequestMapping(value = "/restartProject", method = RequestMethod.POST)
-    public RpcResult<RestartProjectResponse> restartProject(@RequestBody RestartProjectRequest request) {
-        BizResult<RestartProjectResponse> bizResult = restartProjectExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+    public RpcResult<RestartRepositoryResponse> restartProject(@RequestBody RestartRepositoryRequest request) {
+        BizResult<RestartRepositoryResponse> bizResult = restartRepositoryExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toApiResult(bizResult);
     }
 

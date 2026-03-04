@@ -43,7 +43,7 @@ public class UpdateWebHookExecutor extends AbstractBizExecutor<UpdateWebHookResp
         Long userId = user.getUser().getUserId();
 
         switch (sourceKind) {
-            case HOOK_SOURCE_PROJECT:
+            case HOOK_SOURCE_REPOSITORY:
                 return checkAndSaveProjectWebHook(userId, request.getWebhook());
             case HOOK_SOURCE_WIKI:
             default:

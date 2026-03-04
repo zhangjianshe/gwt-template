@@ -33,7 +33,7 @@ public class WebHookConfigPanel extends CommonEventComposite implements IData<Vw
     VerticalPanel listContainer;
     @UiField
     Button btnAdd;
-    VwRepositoryEntity project;
+    VwRepositoryEntity repository;
 
     public WebHookConfigPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -93,17 +93,17 @@ public class WebHookConfigPanel extends CommonEventComposite implements IData<Vw
     }
 
     public VwRepositoryEntity getData() {
-        return project;
+        return repository;
     }
 
     @Override
     public void setData(VwRepositoryEntity obj) {
-        project = obj;
+        repository = obj;
         toUI();
     }
 
     private void toUI() {
-        if (project == null) return;
+        if (repository == null) return;
 
         loadData();
     }
@@ -127,8 +127,8 @@ public class WebHookConfigPanel extends CommonEventComposite implements IData<Vw
 
     private void createNewHook() {
         WebHookEntity newHook = new WebHookEntity();
-        newHook.setSourceId(project.getId());
-        newHook.setSourceKind(WebHookSourceKind.HOOK_SOURCE_PROJECT.getCode());
+        newHook.setSourceId(repository.getId());
+        newHook.setSourceKind(WebHookSourceKind.HOOK_SOURCE_REPOSITORY.getCode());
         newHook.setActive(false);
         newHook.setTargetKind(WebHookTargetKind.HOOK_TARGET_NORMAL.getCode());
         newHook.setMethod(HttpMethod.POST.name());
@@ -154,8 +154,8 @@ public class WebHookConfigPanel extends CommonEventComposite implements IData<Vw
     private void loadData() {
         listContainer.clear();
         QueryWebHookRequest request = new QueryWebHookRequest();
-        request.setSourceId(project.getId());
-        request.setWebhookSourceKind(WebHookSourceKind.HOOK_SOURCE_PROJECT.getCode());
+        request.setSourceId(repository.getId());
+        request.setWebhookSourceKind(WebHookSourceKind.HOOK_SOURCE_REPOSITORY.getCode());
 
         AppProxy.get().queryWebHook(request, new AsyncCallback<RpcResult<QueryWebHookResponse>>() {
             @Override

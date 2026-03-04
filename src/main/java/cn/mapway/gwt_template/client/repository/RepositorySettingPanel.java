@@ -19,13 +19,13 @@ import com.google.gwt.user.client.ui.LayoutPanel;
  * 项目设置面板
  */
 public class RepositorySettingPanel extends CommonEventComposite implements IData<VwRepositoryEntity> {
-    private static final ProjectSettingPanelUiBinder ourUiBinder = GWT.create(ProjectSettingPanelUiBinder.class);
+    private static final RepositorySettingPanelUiBinder ourUiBinder = GWT.create(RepositorySettingPanelUiBinder.class);
     @UiField
     LayoutPanel root;
     @UiField
     List list;
     WebHookConfigPanel webHookConfigPanel;
-    private VwRepositoryEntity project;
+    private VwRepositoryEntity repository;
 
     public RepositorySettingPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -43,8 +43,8 @@ public class RepositorySettingPanel extends CommonEventComposite implements IDat
         if (event.isSelect()) {
             root.clear();
             ListItem listItem = event.getValue();
-            RepositoryConfigPageEnum projectConfigPageEnum = (RepositoryConfigPageEnum) listItem.getData();
-            switch (projectConfigPageEnum) {
+            RepositoryConfigPageEnum repositoryConfigPageEnum = (RepositoryConfigPageEnum) listItem.getData();
+            switch (repositoryConfigPageEnum) {
                 case CONFIG_WEBHOOK:
                     if (webHookConfigPanel == null) {
                         webHookConfigPanel = new WebHookConfigPanel();
@@ -52,7 +52,7 @@ public class RepositorySettingPanel extends CommonEventComposite implements IDat
                     root.add(webHookConfigPanel);
                     root.setWidgetTopBottom(webHookConfigPanel, 0, Style.Unit.PX, 0, Style.Unit.PX);
                     root.setWidgetLeftRight(webHookConfigPanel, 0, Style.Unit.PX, 0, Style.Unit.PX);
-                    webHookConfigPanel.setData(project);
+                    webHookConfigPanel.setData(repository);
                     break;
             }
 
@@ -61,12 +61,12 @@ public class RepositorySettingPanel extends CommonEventComposite implements IDat
 
     @Override
     public VwRepositoryEntity getData() {
-        return project;
+        return repository;
     }
 
     @Override
     public void setData(VwRepositoryEntity obj) {
-        project = obj;
+        repository = obj;
         toUI();
     }
 
@@ -74,6 +74,6 @@ public class RepositorySettingPanel extends CommonEventComposite implements IDat
         list.selectFirst(true);
     }
 
-    interface ProjectSettingPanelUiBinder extends UiBinder<DockLayoutPanel, RepositorySettingPanel> {
+    interface RepositorySettingPanelUiBinder extends UiBinder<DockLayoutPanel, RepositorySettingPanel> {
     }
 }

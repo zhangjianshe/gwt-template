@@ -14,7 +14,7 @@ import java.util.List;
  * @author zhangjianshe@gmail.com
  */
 @Data
-@Doc("QueryProjectResponse")
+@Doc("QueryRepositoryResponse")
 public class QueryRepositoryResponse implements Serializable, IsSerializable {
-    List<VwRepositoryEntity> projects;
+    List<VwRepositoryEntity> repositories;
 }

@@ -7,11 +7,10 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * DeleteProjectBuildResponse
- *
+ * DeleteRepositoryBuildResponse
  * @author zhangjianshe@gmail.com
  */
 @Data
-@Doc("DeleteProjectBuildResponse")
+@Doc("DeleteRepositoryBuildResponse")
 public class DeleteRepositoryBuildResponse implements Serializable, IsSerializable {
 }

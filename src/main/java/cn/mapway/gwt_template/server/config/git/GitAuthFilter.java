@@ -44,7 +44,7 @@ public class GitAuthFilter extends OncePerRequestFilter {
         String contextPath = request.getContextPath();
         String pathWithinApp = uri.substring(contextPath.length()); // e.g., /code/zhangjianshe/zjk3.git/...
 
-        // Assuming the format is always /code/{owner}/{project}.git/...
+        // Assuming the format is always /code/{owner}/{repository}.git/...
         String[] parts = pathWithinApp.split("/");
         if (parts.length < 4) {
             // Not a valid git request path for our structure
@@ -66,7 +66,7 @@ public class GitAuthFilter extends OncePerRequestFilter {
 
         boolean isPublic = repositoryService.isProjectPublic(ownerName, projectName);
 
-        // If it's a read operation on a public project, allow without auth
+        // If it's a read operation on a public repository, allow without auth
         if (!isPush && isPublic) {
             filterChain.doFilter(request, response);
             return;

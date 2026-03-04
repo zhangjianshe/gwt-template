@@ -36,15 +36,15 @@ public class QueryRepoRefsExecutor extends AbstractBizExecutor<QueryRepoRefsResp
         LoginUser user = (LoginUser) context.get(AppConstant.KEY_LOGIN_USER);
 
         // 1. Validation
-        assertTrue(request != null && Strings.isNotBlank(request.getProjectId()), "请求参数错误或没有项目ID");
+        assertTrue(request != null && Strings.isNotBlank(request.getRepositoryId()), "请求参数错误或没有项目ID");
 
         // 2. Fetch Project Metadata
-        DevRepositoryEntity devRepositoryEntity = repositoryService.findProjectById(request.getProjectId());
-        assertNotNull(devRepositoryEntity, "找不到指定的项目: " + request.getProjectId());
+        DevRepositoryEntity devRepositoryEntity = repositoryService.findProjectById(request.getRepositoryId());
+        assertNotNull(devRepositoryEntity, "找不到指定的项目: " + request.getRepositoryId());
 
         // 3. Permission Check
         // If it's a private orbital hub, user must have read access.
-        CommonPermission permission = repositoryService.findUserPermissionInRepository(user.getUser().getUserId(), request.getProjectId());
+        CommonPermission permission = repositoryService.findUserPermissionInRepository(user.getUser().getUserId(), request.getRepositoryId());
         assertTrue(permission.canRead(), "权限不足，无法访问该卫星数据仓库");
 
         // 4. Delegate to Git Logic

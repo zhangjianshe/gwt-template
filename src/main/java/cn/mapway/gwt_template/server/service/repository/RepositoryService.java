@@ -239,7 +239,7 @@ public class RepositoryService {
      * @param commands
      */
     public void handlePostReceiveHook(ReceivePack rp, Collection<ReceiveCommand> commands) {
-        // 1. Identify the project
+        // 1. Identify the repository
         DevRepositoryEntity project = findProjectByPath(rp.getRepository().getDirectory().getAbsolutePath());
         if (project == null) {
             log.error("[WEBHOOK] 不能找到项目 {}", rp.getRepository().getDirectory().getAbsolutePath());
@@ -283,9 +283,9 @@ public class RepositoryService {
         }
 
         // 4. Single Dispatch
-        log.info("[GIT-HOOK] Single dispatch for project: {}", project.getName());
+        log.info("[GIT-HOOK] Single dispatch for repository: {}", project.getName());
         webHookService.triggerWebHooks(
-                WebHookSourceKind.HOOK_SOURCE_PROJECT.getCode(),
+                WebHookSourceKind.HOOK_SOURCE_REPOSITORY.getCode(),
                 project.getId(),
                 "push",
                 payload

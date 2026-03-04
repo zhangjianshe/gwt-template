@@ -8,8 +8,8 @@ import cn.mapway.gwt_template.server.service.repository.RepositoryService;
 import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.db.DevRepositoryEntity;
 import cn.mapway.gwt_template.shared.db.VwRepositoryEntity;
-import cn.mapway.gwt_template.shared.rpc.dev.UpdateProjectRequest;
-import cn.mapway.gwt_template.shared.rpc.dev.UpdateProjectResponse;
+import cn.mapway.gwt_template.shared.rpc.dev.UpdateRepositoryRequest;
+import cn.mapway.gwt_template.shared.rpc.dev.UpdateRepositoryResponse;
 import cn.mapway.gwt_template.shared.rpc.repository.RepositoryOwnerKind;
 import cn.mapway.gwt_template.shared.rpc.user.CommonPermission;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
@@ -29,16 +29,16 @@ import java.sql.Timestamp;
  */
 @Component
 @Slf4j
-public class UpdateProjectExecutor extends AbstractBizExecutor<UpdateProjectResponse, UpdateProjectRequest> {
+public class UpdateRepositoryExecutor extends AbstractBizExecutor<UpdateRepositoryResponse, UpdateRepositoryRequest> {
     @Resource
     RepositoryService repositoryService;
 
     @Override
-    protected BizResult<UpdateProjectResponse> process(BizContext context, BizRequest<UpdateProjectRequest> bizParam) {
-        UpdateProjectRequest request = bizParam.getData();
+    protected BizResult<UpdateRepositoryResponse> process(BizContext context, BizRequest<UpdateRepositoryRequest> bizParam) {
+        UpdateRepositoryRequest request = bizParam.getData();
         log.info("UpdateProjectExecutor {}", Json.toJson(request, JsonFormat.compact()));
         LoginUser user = (LoginUser) context.get(AppConstant.KEY_LOGIN_USER);
-        DevRepositoryEntity project = request.getProject();
+        DevRepositoryEntity project = request.getRepository();
         assertNotNull(project, "没有项目信息");
         if (Strings.isBlank(project.getId())) {
             project.setUserId(user.getUser().getUserId());
@@ -62,8 +62,8 @@ public class UpdateProjectExecutor extends AbstractBizExecutor<UpdateProjectResp
             return updateResult.asBizResult();
         }
         VwRepositoryEntity view = repositoryService.findRepositoryView(updateResult.getData().getId());
-        UpdateProjectResponse resp = new UpdateProjectResponse();
-        resp.setProject(view);
+        UpdateRepositoryResponse resp = new UpdateRepositoryResponse();
+        resp.setRepository(view);
         return BizResult.success(resp);
     }
 }

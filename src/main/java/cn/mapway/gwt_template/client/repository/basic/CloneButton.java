@@ -47,19 +47,19 @@ public class CloneButton extends Composite implements IData<VwRepositoryEntity> 
                 popup.hide();
             }
         });
-        popup.getContent().setData(project);
+        popup.getContent().setData(repository);
         popup.showRelativeTo(this);
     }
 
-    VwRepositoryEntity project;
+    VwRepositoryEntity repository;
     @Override
     public VwRepositoryEntity getData() {
-        return project;
+        return repository;
     }
 
     @Override
     public void setData(VwRepositoryEntity obj) {
-        project=obj;
+        repository =obj;
         toUI();
     }
 

@@ -7,11 +7,11 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * CompileProjectResponse
+ * CompileRepositoryRequest
  *
  * @author zhangjianshe@gmail.com
  */
 @Data
-@Doc("CompileProjectResponse")
-public class CompileProjectResponse implements Serializable, IsSerializable {
+@Doc("CompileRepositoryRequest")
+public class CompileRepositoryRequest implements Serializable, IsSerializable {
 }

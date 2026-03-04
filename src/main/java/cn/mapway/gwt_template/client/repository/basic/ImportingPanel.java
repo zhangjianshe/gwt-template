@@ -22,7 +22,7 @@ public class ImportingPanel extends CommonEventComposite implements IData<VwRepo
     private static final ImportingPanelUiBinder ourUiBinder = GWT.create(ImportingPanelUiBinder.class);
     @UiField
     Label lbMessage;
-    private VwRepositoryEntity project;
+    private VwRepositoryEntity repository;
 
     public ImportingPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -31,13 +31,13 @@ public class ImportingPanel extends CommonEventComposite implements IData<VwRepo
 
     @Override
     public VwRepositoryEntity getData() {
-        return project;
+        return repository;
     }
 
     @Override
     public void setData(VwRepositoryEntity obj) {
-        project = obj;
-        RepositoryStatus repositoryStatus = RepositoryStatus.fromCode(project.getStatus());
+        repository = obj;
+        RepositoryStatus repositoryStatus = RepositoryStatus.fromCode(repository.getStatus());
         if (repositoryStatus == RepositoryStatus.PS_IMPORTING) {
             lbMessage.setText("正在导入 进度:");
         } else {
@@ -68,7 +68,7 @@ public class ImportingPanel extends CommonEventComposite implements IData<VwRepo
                     Timer timer = new Timer() {
                         @Override
                         public void run() {
-                            fireEvent(CommonEvent.reloadEvent(project));
+                            fireEvent(CommonEvent.reloadEvent(repository));
                         }
                     };
                     timer.schedule(1000);

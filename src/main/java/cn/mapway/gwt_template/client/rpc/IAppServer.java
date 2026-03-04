@@ -80,11 +80,11 @@ public interface IAppServer extends RemoteService {
 
     RpcResult<QueryRepoFilesResponse> queryRepoFiles(QueryRepoFilesRequest request);
 
-    RpcResult<QueryRepositoryMemberResponse> queryProjectMember(QueryRepositoryMemberRequest request);
+    RpcResult<QueryRepositoryMemberResponse> queryRepositoryMember(QueryRepositoryMemberRequest request);
 
-    RpcResult<DeleteRepositoryMemberResponse> deleteProjectMember(DeleteRepositoryMemberRequest request);
+    RpcResult<DeleteRepositoryMemberResponse> deleteRepositoryMember(DeleteRepositoryMemberRequest request);
 
-    RpcResult<UpdateRepositoryMemberResponse> updateProjectMember(UpdateRepositoryMemberRequest request);
+    RpcResult<UpdateRepositoryMemberResponse> updateRepositoryMember(UpdateRepositoryMemberRequest request);
 
 
     RpcResult<QueryGroupMemberResponse> queryGroupMember(QueryGroupMemberRequest request);
@@ -103,15 +103,15 @@ public interface IAppServer extends RemoteService {
 
     RpcResult<QueryConfigResponse> queryConfig(QueryConfigRequest request);
 
-    RpcResult<DeleteRepositoryBuildResponse> deleteProjectBuild(DeleteRepositoryBuildRequest request);
+    RpcResult<DeleteRepositoryBuildResponse> deleteRepositoryBuild(DeleteRepositoryBuildRequest request);
 
-    RpcResult<QueryProjectBuildResponse> queryProjectBuild(QueryProjectBuildRequest request);
+    RpcResult<QueryRepositoryBuildResponse> queryRepositoryBuild(QueryRepositoryBuildRequest request);
 
     RpcResult<QueryKeyResponse> queryKey(QueryKeyRequest request);
 
     RpcResult<QueryNodeResponse> queryNode(QueryNodeRequest request);
 
-    RpcResult<DeleteRepositoryResponse> deleteProject(DeleteRepositoryRequest request);
+    RpcResult<DeleteRepositoryResponse> deleteRepository(DeleteRepositoryRequest request);
 
     RpcResult<QueryRepositoryResponse> queryRepository(QueryRepositoryRequest request);
 
@@ -123,11 +123,11 @@ public interface IAppServer extends RemoteService {
 
     RpcResult<UpdateNodeResponse> updateNode(UpdateNodeRequest request);
 
-    RpcResult<RestartProjectResponse> restartProject(RestartProjectRequest request);
+    RpcResult<RestartRepositoryResponse> restartRepository(RestartRepositoryRequest request);
 
-    RpcResult<CompileProjectResponse> compileProject(CompileProjectRequest request);
+    RpcResult<CompileRepositoryResponse> compileRepository(CompileRepositoryRequest request);
 
-    RpcResult<UpdateProjectResponse> updateProject(UpdateProjectRequest request);
+    RpcResult<UpdateRepositoryResponse> updateRepository(UpdateRepositoryRequest request);
 
 
     RpcResult<QuerySoftwareFilesResponse> querySoftwareFiles(QuerySoftwareFilesRequest request);

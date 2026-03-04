@@ -29,27 +29,27 @@ public class RepositoryList extends List {
 
     private void renderRepository(QueryRepositoryResponse data) {
         clear();
-        for (VwRepositoryEntity project : data.getProjects()) {
+        for (VwRepositoryEntity repository : data.getRepositories()) {
             ListItem item = new ListItem();
             item.setIcon(Fonts.APPS);
-            item.setText(project.getFullName() + "(" + project.getOwnerName() + ")");
-            item.setData(project);
-            Label label = new Label(String.valueOf(project.getMemberCount()));
+            item.setText(repository.getFullName() + "(" + repository.getOwnerName() + ")");
+            item.setData(repository);
+            Label label = new Label(String.valueOf(repository.getMemberCount()));
             label.getElement().getStyle().setTextAlign(Style.TextAlign.RIGHT);
             item.appendRight(label, 50);
             addItem(item);
         }
     }
 
-    public void updateProject(VwRepositoryEntity project) {
+    public void updateRepository(VwRepositoryEntity repository) {
         eachItem(e -> {
             VwRepositoryEntity p = (VwRepositoryEntity) e.getData();
-            if (p.getId().equals(project.getId())) {
+            if (p.getId().equals(repository.getId())) {
                 e.setIcon(Fonts.APPS);
-                e.setText(project.getFullName() + "(" + project.getOwnerName() + ")");
-                e.setData(project);
+                e.setText(repository.getFullName() + "(" + repository.getOwnerName() + ")");
+                e.setData(repository);
                 Label right = (Label) e.getRight(0);
-                right.setText(String.valueOf(project.getMemberCount()));
+                right.setText(String.valueOf(repository.getMemberCount()));
                 return false;
             }
             return true;

@@ -564,7 +564,7 @@ public class GitRepoService {
         GitNotifyMessage notify = new GitNotifyMessage();
         notify.phase = phase;
         notify.type = type;
-        notify.projectId = projectId;
+        notify.repositoryId = projectId;
         notify.progress = progress.doubleValue();
         notify.message = msg;
         GitNotifyWebSocket.sendMessage(userId, org.nutz.json.Json.toJson(notify));

@@ -1,7 +1,7 @@
 package cn.mapway.gwt_template.server.service.dev;
 
-import cn.mapway.gwt_template.shared.rpc.dev.RestartProjectRequest;
-import cn.mapway.gwt_template.shared.rpc.dev.RestartProjectResponse;
+import cn.mapway.gwt_template.shared.rpc.dev.RestartRepositoryRequest;
+import cn.mapway.gwt_template.shared.rpc.dev.RestartRepositoryResponse;
 import cn.mapway.biz.core.AbstractBizExecutor;
 import cn.mapway.biz.core.BizContext;
 import cn.mapway.biz.core.BizRequest;
@@ -13,8 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
-import org.nutz.lang.Strings;
-import javax.annotation.Resource;
 
 /**
  * RestartProjectExecutor
@@ -23,10 +21,10 @@ import javax.annotation.Resource;
  */
 @Component
 @Slf4j
-public class RestartProjectExecutor extends AbstractBizExecutor<RestartProjectResponse, RestartProjectRequest> {
+public class RestartRepositoryExecutor extends AbstractBizExecutor<RestartRepositoryResponse, RestartRepositoryRequest> {
     @Override
-    protected BizResult<RestartProjectResponse> process(BizContext context, BizRequest<RestartProjectRequest> bizParam) {
-        RestartProjectRequest request = bizParam.getData();
+    protected BizResult<RestartRepositoryResponse> process(BizContext context, BizRequest<RestartRepositoryRequest> bizParam) {
+        RestartRepositoryRequest request = bizParam.getData();
         log.info("RestartProjectExecutor {}", Json.toJson(request, JsonFormat.compact()));
         LoginUser user= (LoginUser) context.get(AppConstant.KEY_LOGIN_USER);
 

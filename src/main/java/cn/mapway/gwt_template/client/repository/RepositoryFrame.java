@@ -22,13 +22,13 @@ import com.google.gwt.user.client.ui.DockLayoutPanel;
 @ModuleMarker(
         name = "开发仓库",
         value = RepositoryFrame.MODULE_CODE,
-        unicode = Fonts.PROJECT,
+        unicode = Fonts.GITLAB,
         summary = "我参与的开发仓库",
         order = 100
 )
 public class RepositoryFrame extends SubsystemModule {
-    public static final String MODULE_CODE = "dev_project_frame";
-    private static final ProjectFrameUiBinder ourUiBinder = GWT.create(ProjectFrameUiBinder.class);
+    public static final String MODULE_CODE = "dev_repository_frame";
+    private static final RespositoryFrameUiBinder ourUiBinder = GWT.create(RespositoryFrameUiBinder.class);
     @UiField
     RepositoryList repositoryList;
     @UiField
@@ -73,26 +73,26 @@ public class RepositoryFrame extends SubsystemModule {
         }
     }
 
-    private void showRepository(VwRepositoryEntity project) {
-        currentRepository = project;
+    private void showRepository(VwRepositoryEntity repository) {
+        currentRepository = repository;
         repositoryPanel.setData(currentRepository);
     }
 
     @UiHandler("btnCreate")
     public void btnCreateClick(ClickEvent event) {
-        editProject(null);
+        editRepository(null);
     }
 
     @UiHandler("repositoryPanel")
-    public void projectPanelCommon(CommonEvent event) {
+    public void repositoryPanelCommon(CommonEvent event) {
         if (event.isUpdate()) {
-            VwRepositoryEntity project = event.getValue();
-            repositoryList.updateProject(project);
+            VwRepositoryEntity repository = event.getValue();
+            repositoryList.updateRepository(repository);
         }
     }
 
 
-    private void editProject(VwRepositoryEntity project) {
+    private void editRepository(VwRepositoryEntity repository) {
         Dialog<RepositoryEditor> dialog = RepositoryEditor.getDialog(true);
         dialog.addCommonHandler(event -> {
             if (event.isOk()) {
@@ -103,10 +103,10 @@ public class RepositoryFrame extends SubsystemModule {
                 dialog.hide();
             }
         });
-        dialog.getContent().setData(project);
+        dialog.getContent().setData(repository);
         dialog.center();
     }
 
-    interface ProjectFrameUiBinder extends UiBinder<DockLayoutPanel, RepositoryFrame> {
+    interface RespositoryFrameUiBinder extends UiBinder<DockLayoutPanel, RepositoryFrame> {
     }
 }

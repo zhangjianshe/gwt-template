@@ -38,14 +38,14 @@ public class QueryRepositoryExecutor extends AbstractBizExecutor<QueryRepository
         LoginUser user = (LoginUser) context.get(AppConstant.KEY_LOGIN_USER);
         if (Strings.isBlank(request.getRepositoryId())) {
             QueryRepositoryResponse response = new QueryRepositoryResponse();
-            response.setProjects(repositoryService.allRepositorys(user.getUser().getUserId()));
+            response.setRepositories(repositoryService.allRepositorys(user.getUser().getUserId()));
             return BizResult.success(response);
         } else {
             CommonPermission permission = repositoryService.findUserPermissionInRepository(user.getUser().getUserId(), request.getRepositoryId());
             if (permission.canRead()) {
                 VwRepositoryEntity projectView = repositoryService.findRepositoryView(request.getRepositoryId());
                 QueryRepositoryResponse response = new QueryRepositoryResponse();
-                response.setProjects(Lang.list(projectView));
+                response.setRepositories(Lang.list(projectView));
                 return BizResult.success(response);
             } else {
                 return BizResult.error(403, "没有权限操作");

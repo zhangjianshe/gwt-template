@@ -101,10 +101,10 @@ public class WebHookService {
     }
 
     /**
-     * Finds all active hooks for the project and dispatches the payload.
+     * Finds all active hooks for the repository and dispatches the payload.
      */
     public void triggerWebHooks(Integer sourceKind, String sourceId, String event, Object payload) {
-        // 1. Fetch all active hooks for this project/mission
+        // 1. Fetch all active hooks for this repository/mission
         List<WebHookEntity> hooks = dao.query(WebHookEntity.class,
                 Cnd.where(WebHookEntity.FLD_SOURCE_ID, "=", sourceId)
                         .and(WebHookEntity.FLD_SOURCE_KIND, "=", sourceKind)

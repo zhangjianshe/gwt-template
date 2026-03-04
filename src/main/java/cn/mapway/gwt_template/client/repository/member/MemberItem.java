@@ -59,7 +59,7 @@ public class MemberItem extends CommonEventComposite implements IData<VwReposito
         request.setRepositoryId(data.getRepositoryId());
         request.setUserId(data.getUserId());
         request.setPermission(collectPermission());
-        AppProxy.get().updateProjectMember(request, new AsyncCallback<RpcResult<UpdateRepositoryMemberResponse>>() {
+        AppProxy.get().updateRepositoryMember(request, new AsyncCallback<RpcResult<UpdateRepositoryMemberResponse>>() {
             @Override
             public void onFailure(Throwable caught) {
                 ClientContext.get().toast(0, 0, caught.getMessage());
