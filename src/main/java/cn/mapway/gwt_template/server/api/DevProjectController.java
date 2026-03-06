@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 
 @Doc(value = "项目管理", group = "系统")
-@RestController("/api/v1/devproject")
+@RestController("/api/v1/project")
 public class DevProjectController extends ApiBaseController {
     @Resource
     UpdateDevWorkspaceExecutor updateDevWorkspaceExecutor;

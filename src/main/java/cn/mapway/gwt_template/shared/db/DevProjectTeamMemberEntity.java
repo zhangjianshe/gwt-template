@@ -7,6 +7,7 @@ import lombok.Setter;
 import org.nutz.dao.entity.annotation.*;
 
 import java.io.Serializable;
+import java.sql.Timestamp;
 
 /**
  * 项目分组成员关联表
@@ -26,8 +27,10 @@ public class DevProjectTeamMemberEntity implements Serializable, IsSerializable 
     /* 字段名常量 */
     public static final String FLD_TEAM_ID = "team_id";
     public static final String FLD_USER_ID = "user_id";
+    public static final String FLD_PROJECT_ID = "project_id";
     public static final String FLD_SUMMARY = "summary";
     public static final String FLD_PERMISSION = "permission";
+    public static final String FLD_CREATE_TIME = "create_time";
 
     @Column(FLD_TEAM_ID)
     @Comment("分组ID")
@@ -38,14 +41,27 @@ public class DevProjectTeamMemberEntity implements Serializable, IsSerializable 
     @Comment("成员ID")
     Long userId;
 
+    @Column(FLD_PROJECT_ID)
+    @Comment("分组ID")
+    @ColDefine(width = 64, notNull = true)
+    String projectId;
+
     @Column(FLD_SUMMARY)
     @Comment("成员在组内的简介或备注")
-    @ColDefine(width = 256, notNull = true)
+    @ColDefine(width = 256)
     String summary;
 
     @Column(FLD_PERMISSION)
     @Comment("成员在组内的权限级别")
     @Default("0")
     Integer permission;
+
+    @Column(FLD_CREATE_TIME)
+    @Comment("加入时间")
+    Timestamp createTime;
+
+
+    String memberName;
+    String memberAvatar;
 
 }

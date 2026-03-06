@@ -1,6 +1,7 @@
 package cn.mapway.gwt_template.client;
 
 import cn.mapway.gwt_template.client.main.MainFrame;
+import cn.mapway.gwt_template.client.resource.AppResource;
 import cn.mapway.gwt_template.client.rpc.AppProxy;
 import cn.mapway.gwt_template.client.user.AppLoginFrame;
 import cn.mapway.gwt_template.shared.rpc.app.AppData;
@@ -34,8 +35,9 @@ public class ClientApp implements EntryPoint {
 
     public void onModuleLoad() {
         MapwayResource.INSTANCE.css().ensureInjected();
-        QueryConfigRequest request=new QueryConfigRequest();
-        List<String> list=new ArrayList<>();
+        AppResource.INSTANCE.styles().ensureInjected();
+        QueryConfigRequest request = new QueryConfigRequest();
+        List<String> list = new ArrayList<>();
         list.add(ConfigEnums.CONFIG_APP.getCode());
         request.setConfigKeys(list);
         AppProxy.get().queryConfig(request, new AsyncCallback<RpcResult<QueryConfigResponse>>() {

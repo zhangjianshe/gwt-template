@@ -172,14 +172,14 @@ public class RepositoryController extends ApiBaseController {
     }
 
     /**
-     * UpdateProjectMember
+     * UpdateRepositoryMember
      *
      * @param request request
      * @return data
      */
-    @Doc(value = "UpdateProjectMember", retClazz = {UpdateRepositoryMemberResponse.class})
-    @RequestMapping(value = "/updateProjectMember", method = RequestMethod.POST)
-    public RpcResult<UpdateRepositoryMemberResponse> updateProjectMember(@RequestBody UpdateRepositoryMemberRequest request) {
+    @Doc(value = "UpdateRepositoryMember", retClazz = {UpdateRepositoryMemberResponse.class})
+    @RequestMapping(value = "/updateRepositoryMember", method = RequestMethod.POST)
+    public RpcResult<UpdateRepositoryMemberResponse> UpdateRepositoryMember(@RequestBody UpdateRepositoryMemberRequest request) {
         BizResult<UpdateRepositoryMemberResponse> bizResult = updateRepositoryMemberExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toApiResult(bizResult);
     }
@@ -200,14 +200,14 @@ public class RepositoryController extends ApiBaseController {
     @Resource
     QueryRepositoryMemberExecutor queryRepositoryMemberExecutor;
     /**
-     * QueryProjectMember
+     * QueryRepositoryMember
      *
      * @param request request
      * @return data
      */
-    @Doc(value = "QueryProjectMember", retClazz = {QueryRepositoryMemberResponse.class})
-    @RequestMapping(value = "/queryProjectMember", method = RequestMethod.POST)
-    public RpcResult<QueryRepositoryMemberResponse> queryProjectMember(@RequestBody QueryRepositoryMemberRequest request) {
+    @Doc(value = "QueryRepositoryMember", retClazz = {QueryRepositoryMemberResponse.class})
+    @RequestMapping(value = "/queryRepositoryMember", method = RequestMethod.POST)
+    public RpcResult<QueryRepositoryMemberResponse> queryRepositoryMember(@RequestBody QueryRepositoryMemberRequest request) {
         BizResult<QueryRepositoryMemberResponse> bizResult = queryRepositoryMemberExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toApiResult(bizResult);
     }
@@ -370,14 +370,14 @@ public class RepositoryController extends ApiBaseController {
     }
 
     /**
-     * UpdateProject
+     * UpdateRepository
      *
      * @param request request
      * @return data
      */
-    @Doc(value = "UpdateProject", retClazz = {UpdateRepositoryResponse.class})
-    @RequestMapping(value = "/updateProject", method = RequestMethod.POST)
-    public RpcResult<UpdateRepositoryResponse> updateProject(@RequestBody UpdateRepositoryRequest request) {
+    @Doc(value = "UpdateRepository", retClazz = {UpdateRepositoryResponse.class})
+    @RequestMapping(value = "/updateRepository", method = RequestMethod.POST)
+    public RpcResult<UpdateRepositoryResponse> UpdateRepository(@RequestBody UpdateRepositoryRequest request) {
         BizResult<UpdateRepositoryResponse> bizResult = updateRepositoryExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toApiResult(bizResult);
     }

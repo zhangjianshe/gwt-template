@@ -1,0 +1,113 @@
+/* 表格基础样式：消除单元格间隙并设置折叠边框 */
+.table {
+    width: 100%;
+    border-collapse: collapse; /* 关键：合并相邻边框 */
+    border-spacing: 0;
+}
+
+/* 表头样式：底部加深分割线 */
+.tableHeader {
+    background-color: #fafafa;
+    font-weight: bold;
+    color: #666;
+}
+
+.tableHeader td {
+    padding: 12px 10px;
+    border-bottom: 2px solid #e8e8e8; /* 表头与内容间的强分割线 */
+    text-align: left;
+}
+
+/* 行样式：单元格间的细分割线 */
+.tableRow {
+    transition: background-color 0.2s;
+}
+
+.tableRow td {
+    padding: 8px 10px; /* 略微缩小 padding，因为头像增加了行高 */
+    border-bottom: 1px solid #f0f0f0;
+    vertical-align: middle; /* 确保内容垂直居中 */
+}
+
+/* 最后一个 cell 的特殊处理（可选：如果需要垂直分割线） */
+/* .tableRow td:not(:last-child) { border-right: 1px solid #f0f0f0; } */
+
+.tableRow:hover {
+    background-color: #f0f7ff;
+}
+
+/* 成功状态（如进度100%） */
+.success {
+    color: #52c41a;
+    font-weight: bold;
+}
+
+/* 可以根据需要添加其他通用样式 */
+.secondaryText {
+    color: #999;
+    font-size: 12px;
+}
+
+/* 用户信息容器 */
+.userBox {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* 头像与文字的间距 */
+}
+
+/* 头像样式 */
+.avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%; /* 圆形 */
+    background-color: #eee;
+    object-fit: cover;
+    border: 1px solid #f0f0f0;
+}
+
+/* 用户卡片容器 */
+.userCard {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    padding: 16px;
+    border: 1px solid #eee;
+    width: 200px;
+}
+
+.userCardAvatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    margin-bottom: 10px;
+}
+
+.userName {
+    font-weight: bold;
+    font-size: 16px;
+    display: block;
+}
+
+.userRole {
+    color: #888;
+    font-size: 12px;
+}
+
+.menuItem {
+    padding: 8px 5px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #333333;
+}
+
+.menuItem:HOVER {
+    background-color: #f5f5f5;
+}
+
+.menu {
+    background-color: #ffffff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+    padding: 4px 0;
+    z-index: 1000;
+}

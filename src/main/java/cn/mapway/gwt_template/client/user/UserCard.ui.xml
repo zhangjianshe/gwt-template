@@ -1,0 +1,56 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+    <ui:style>
+        .container {
+            padding: 15px;
+            background-color: #fcfcfc;
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 15px;
+            align-items: start;
+            min-width: 300px;
+        }
+        .avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+        }
+        .info {
+            display: grid;
+            gap: 5px;
+        }
+        .name {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .details {
+            color: #555;
+        }
+        .remark {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+            color: #777;
+            font-style: italic;
+        }
+        .nameAndSex {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+    </ui:style>
+    <g:HTMLPanel ui:field="root" addStyleNames="{style.container}">
+        <g:Image ui:field="userAvatar" addStyleNames="{style.avatar}"/>
+        <g:FlowPanel>
+            <g:FlowPanel addStyleNames="{style.info}">
+                <g:FlowPanel addStyleNames="{style.nameAndSex}">
+                    <g:Label ui:field="lbName" addStyleNames="{style.name}"/>
+                    <g:Label ui:field="lbSex" addStyleNames="{style.details}"/>
+                </g:FlowPanel>
+                <g:Label ui:field="lbEmail" addStyleNames="{style.details}"/>
+                <g:Label ui:field="lbPhone" addStyleNames="{style.details}"/>
+            </g:FlowPanel>
+            <g:Label ui:field="lbRemark" addStyleNames="{style.remark}"/>
+        </g:FlowPanel>
+    </g:HTMLPanel>
+</ui:UiBinder>

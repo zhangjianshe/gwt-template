@@ -8,6 +8,8 @@ import org.nutz.dao.entity.annotation.*;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 系统工作空间
@@ -62,6 +64,7 @@ public class DevWorkspaceEntity implements Serializable, IsSerializable {
     @Column(FLD_SUMMARY)
     @Comment("介绍")
     @ColDefine(width = 1024, notNull = true)
+    @Default("")
     String summary;
 
     @Column(FLD_COLOR)
@@ -78,4 +81,8 @@ public class DevWorkspaceEntity implements Serializable, IsSerializable {
     @Comment("工作空间图标")
     @ColDefine(width = 256)
     String icon;
+    /**
+     * 工作空间的子目录
+     */
+    List<DevWorkspaceFolderEntity> folders = new ArrayList<>();
 }

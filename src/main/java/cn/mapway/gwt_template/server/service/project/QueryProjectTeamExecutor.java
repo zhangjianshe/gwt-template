@@ -52,7 +52,7 @@ public class QueryProjectTeamExecutor extends AbstractBizExecutor<QueryProjectTe
         String sqlStr = "SELECT " +
                 "T2.user_id as userId, T2.user_name as userName, T2.nick_name as nickName, " +
                 "T2.avatar, T2.email, " +
-                "T1.team_id as teamId, T1.permission, T1.summary " +
+                "T1.team_id as teamId, T1.permission, T1.summary, T1.create_time as createTime " +
                 "FROM dev_project_team_member T1 " +
                 "INNER JOIN rbac_user T2 ON T1.user_id = T2.user_id " +
                 "WHERE T1.team_id IN (SELECT id FROM dev_project_team WHERE project_id = @pid)";

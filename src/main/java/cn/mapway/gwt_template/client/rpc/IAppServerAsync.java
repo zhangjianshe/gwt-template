@@ -9,6 +9,8 @@ import cn.mapway.gwt_template.shared.rpc.message.*;
 import cn.mapway.gwt_template.shared.rpc.project.*;
 import cn.mapway.gwt_template.shared.rpc.repository.*;
 import cn.mapway.gwt_template.shared.rpc.soft.*;
+import cn.mapway.gwt_template.shared.rpc.user.QueryUserInfoRequest;
+import cn.mapway.gwt_template.shared.rpc.user.QueryUserInfoResponse;
 import cn.mapway.gwt_template.shared.rpc.user.UpdateUserInfoRequest;
 import cn.mapway.gwt_template.shared.rpc.user.UpdateUserInfoResponse;
 import cn.mapway.gwt_template.shared.rpc.webhook.*;
@@ -20,6 +22,8 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public interface IAppServerAsync {
 
     ///CODE_GEN_INSERT_POINT///
+	void queryUserInfo(QueryUserInfoRequest request, AsyncCallback<RpcResult<QueryUserInfoResponse>> async);
+
 	void queryDevWorkspaceMember(QueryDevWorkspaceMemberRequest request, AsyncCallback<RpcResult<QueryDevWorkspaceMemberResponse>> async);
 
 	void queryProjectActions(QueryProjectActionsRequest request, AsyncCallback<RpcResult<QueryProjectActionsResponse>> async);

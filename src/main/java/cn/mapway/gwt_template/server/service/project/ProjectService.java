@@ -2,15 +2,21 @@ package cn.mapway.gwt_template.server.service.project;
 
 import cn.mapway.biz.core.BizResult;
 import cn.mapway.gwt_template.shared.db.*;
+import cn.mapway.gwt_template.shared.rpc.user.CommonPermission;
+import cn.mapway.rbac.shared.db.postgis.RbacUserEntity;
+import cn.mapway.ui.client.IUserInfo;
 import cn.mapway.ui.client.fonts.Fonts;
+import lombok.extern.slf4j.Slf4j;
 import org.nutz.dao.Cnd;
 import org.nutz.dao.Dao;
 import org.nutz.dao.Sqls;
+import org.nutz.dao.entity.Record;
 import org.nutz.dao.sql.Sql;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
+import org.nutz.trans.Trans;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -23,6 +29,7 @@ import java.util.Map;
 /**
  * 项目服务类
  */
+@Slf4j
 @Service
 public class ProjectService {
     @Resource
@@ -64,15 +71,27 @@ public class ProjectService {
         dao.insert(team);
         return team.getId();
     }
-    /**
-     * 检查用户是否为工作空间的管理员
-     */
-    public boolean isWorkspaceAdmin(Long userId, String workspaceId) {
-        if (userId == null || Strings.isBlank(workspaceId)) return false;
 
-        // 查询该用户在空间中的角色
-        // 假设 role 0 是创建者，1 是管理员
-        Sql sql = Sqls.create("SELECT count(1) FROM dev_workspace_member WHERE workspace_id = @wid AND user_id = @uid AND role <= 1");
+    /**
+     * 检查用户是否为工作空间的成员
+     */
+    public boolean isMemberOfWorkspace(Long userId, String workspaceId) {
+        DevWorkspaceMemberEntity fetchx = dao.fetchx(DevWorkspaceMemberEntity.class, workspaceId, userId);
+        return fetchx != null;
+    }
+
+    /**
+     * 检查用户是否可以访问该工作空间，他是该工作空间下某个项目的成员
+     */
+    public boolean canAccessWorkspace(Long userId, String workspaceId) {
+        // 检查是否是该空间下任何项目的成员
+        // SQL 逻辑：连接项目表和小组项目成员表，限定工作空间ID和用户ID
+        String sqlStr = "SELECT count(1) FROM dev_project_team_member m " +
+                "INNER JOIN dev_project_team t ON m.team_id = t.id " +
+                "INNER JOIN dev_project p ON t.project_id = p.id " +
+                "WHERE p.workspace_id = @wid AND m.user_id = @uid";
+
+        Sql sql = Sqls.create(sqlStr);
         sql.setParam("wid", workspaceId);
         sql.setParam("uid", userId);
         sql.setCallback(Sqls.callback.integer());
@@ -80,6 +99,16 @@ public class ProjectService {
 
         return sql.getInt() > 0;
     }
+
+
+    /**
+     * 检查用户是否为工作空间的管理员
+     */
+    public boolean isWorkspaceAdmin(Long userId, String workspaceId) {
+        DevWorkspaceMemberEntity member = dao.fetchx(DevWorkspaceMemberEntity.class, workspaceId, userId);
+        return member != null && member.getIsOwner();
+    }
+
     /**
      * 检查用户是否为项目成员（属于该项目下任何一个小组）
      */
@@ -104,10 +133,11 @@ public class ProjectService {
     /**
      * 将用户加入到项目小组中
      * * @param teamId   小组ID
-     * @param userId   用户ID
-     * @param permission     角色描述 (例如 "OWNER", "LEADER", "MEMBER")
+     *
+     * @param userId     用户ID
+     * @param permission 角色描述 (例如 "OWNER", "LEADER", "MEMBER")
      */
-    public void addUserToTeam(String teamId, Long userId, Integer permission,String summary) {
+    public void addUserToTeam(String projectId,String teamId, Long userId, Integer permission, String summary) {
         if (Strings.isBlank(teamId) || userId == null) {
             return;
         }
@@ -123,6 +153,7 @@ public class ProjectService {
             member.setTeamId(teamId);
             member.setUserId(userId); // 实体类中是 String 类型
             member.setSummary(summary);
+            member.setProjectId(projectId);
             member.setPermission(permission);
 
             dao.insert(member);
@@ -179,6 +210,8 @@ public class ProjectService {
         action.setProjectId(projectId);
         action.setUserId(userId);
         action.setActionType(actionType);
+        action.setTargetType("");
+        action.setTargetId("");
         action.setContent(content);
         action.setCreateTime(new Timestamp(System.currentTimeMillis()));
 
@@ -224,5 +257,153 @@ public class ProjectService {
             }
         }
         return roots;
+    }
+
+    /**
+     * 初始化用户与项目管俩相关的数据
+     *
+     * @param currentUser
+     */
+    public void checkUserInitializeData(IUserInfo currentUser) {
+        Long userId = Long.parseLong(currentUser.getId());
+        //没有个用户都一个自己的缺省工作空间
+        int count = dao.count(DevWorkspaceEntity.class, Cnd.where(DevWorkspaceEntity.FLD_USER_ID, "=", userId));
+        if (count == 0) {
+            Trans.exec(() -> {
+                try {
+                    DevWorkspaceEntity workspace = new DevWorkspaceEntity();
+                    workspace.setName(currentUser.getUserName() + "的项目空间");
+                    createUserWorkspace(userId, workspace);
+                } catch (Exception e) {
+                    log.error("[WORKSPACE] 初始化用户工作空间错误:{}", e.getMessage());
+                }
+            });
+        }
+    }
+
+    /**
+     * 新建一个工作空间
+     *
+     * @param userId
+     * @param workspace
+     */
+    public void createUserWorkspace(Long userId, DevWorkspaceEntity workspace) {
+        workspace.setId(R.UU16());
+        workspace.setUserId(userId);
+        workspace.setCreateTime(new Timestamp(System.currentTimeMillis()));
+
+        // 默认值处理
+        if (Strings.isBlank(workspace.getColor())) workspace.setColor("#3099ff");
+        if (Strings.isBlank(workspace.getUnicode())) workspace.setUnicode(Fonts.PROJECT);
+        if (workspace.getIsShare() == null) workspace.setIsShare(false);
+        if (Strings.isBlank(workspace.getSummary())) {
+            workspace.setSummary(workspace.getName());
+        }
+
+        dao.insert(workspace);
+
+        // 初始化成员关系
+        DevWorkspaceMemberEntity member = new DevWorkspaceMemberEntity();
+        member.setUserId(userId);
+        member.setWorkspaceId(workspace.getId());
+        member.setCreateTime(workspace.getCreateTime());
+        member.setIsOwner(true);
+        member.setPermission(CommonPermission.fromPermission(0).setAll().getPermission());
+        dao.insert(member);
+    }
+
+    /**
+     * 查询工作空间下的所有目录，并以树形结构返回（仅返回顶级节点）
+     *
+     * @param workspaceId 工作空间ID
+     * @return 顶级目录列表
+     */
+    public List<DevWorkspaceFolderEntity> queryWorkspaceFolder(String workspaceId) {
+        if (Strings.isBlank(workspaceId)) {
+            return new ArrayList<>();
+        }
+
+        // 1. 获取该空间下所有的目录记录
+        List<DevWorkspaceFolderEntity> allFolders = dao.query(DevWorkspaceFolderEntity.class,
+                Cnd.where(DevWorkspaceFolderEntity.FLD_WORKSPACE_ID, "=", workspaceId));
+
+        if (allFolders == null || allFolders.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        // 2. 使用 Map 建立 ID 与 对象的映射，方便快速查找父节点
+        Map<String, DevWorkspaceFolderEntity> folderMap = new HashMap<>();
+        for (DevWorkspaceFolderEntity folder : allFolders) {
+            // 确保 children 是初始化过的，防止后面 NPE
+            if (folder.getChildren() == null) {
+                folder.setChildren(new ArrayList<>());
+            }
+            folderMap.put(folder.getId(), folder);
+        }
+
+        // 3. 构建树形结构
+        List<DevWorkspaceFolderEntity> roots = new ArrayList<>();
+        for (DevWorkspaceFolderEntity folder : allFolders) {
+            String pid = folder.getParentId();
+
+            // 如果没有父ID，或者父ID在当前空间中找不到，则视为顶级节点
+            if (Strings.isBlank(pid) || !folderMap.containsKey(pid)) {
+                roots.add(folder);
+            } else {
+                // 找到父节点，并把自己加入父节点的 children 列表中
+                DevWorkspaceFolderEntity parent = folderMap.get(pid);
+                parent.getChildren().add(folder);
+            }
+        }
+
+        return roots;
+    }
+
+    /**
+     * 获取项目额外信息：创建人名称、头像、成员总数、任务进度
+     *
+     * @param project 项目实体
+     */
+    public void fillProjectExtraInformation(DevProjectEntity project) {
+        if (project == null || Strings.isBlank(project.getId())) {
+            return;
+        }
+
+        // 1. 获取创建人信息 (关联 rbac_user 表)
+        // 假设你有通用的用户服务或直接查询
+        RbacUserEntity rbacUser = dao.fetch(RbacUserEntity.class, project.getUserId());
+        if (rbacUser == null) {
+            project.setCreateUserName("查无此人");
+            project.setCreateUserAvatar("/img/avatar.png");
+        } else {
+            project.setCreateUserName(rbacUser.getUserName());
+            project.setCreateUserAvatar(rbacUser.getAvatar());
+        }
+
+
+        // 2. 获取项目成员总数
+        // 逻辑：该项目下所有小组的不重复成员总数
+        int count = dao.count(DevProjectTeamMemberEntity.class, Cnd.where(DevProjectTeamMemberEntity.FLD_PROJECT_ID, "=", project.getId()));
+        project.setMemberCount(count);
+
+        // 3. 计算项目进度
+        // 逻辑：已完成任务数 / 总任务数 (以百分比字符串表示)
+        String progressSqlStr = "SELECT " +
+                "count(*) as total, " +
+                "sum(CASE WHEN status = 2 THEN 1 ELSE 0 END) as completed " + // 假设 2 是完成状态
+                "FROM dev_project_task WHERE project_id = @pid";
+        Sql progressSql = Sqls.create(progressSqlStr);
+        progressSql.setParam("pid", project.getId());
+        progressSql.setCallback(Sqls.callback.record());
+        dao.execute(progressSql);
+        org.nutz.dao.entity.Record progRec = (Record) progressSql.getResult();
+
+        if (progRec != null && progRec.getInt("total") > 0) {
+            int total = progRec.getInt("total");
+            int completed = progRec.getInt("completed");
+            project.setProgress((completed * 100 / total) + "%");
+        } else {
+            project.setProgress("0%");
+        }
     }
 }

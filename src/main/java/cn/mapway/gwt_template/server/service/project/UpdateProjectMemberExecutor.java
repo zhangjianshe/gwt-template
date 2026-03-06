@@ -9,7 +9,9 @@ import cn.mapway.gwt_template.shared.db.DevProjectTeamEntity;
 import cn.mapway.gwt_template.shared.db.DevProjectTeamMemberEntity;
 import cn.mapway.gwt_template.shared.rpc.project.UpdateProjectMemberRequest;
 import cn.mapway.gwt_template.shared.rpc.project.UpdateProjectMemberResponse;
+import cn.mapway.gwt_template.shared.rpc.project.module.ProjectMember;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
+import cn.mapway.rbac.shared.db.postgis.RbacUserEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.nutz.dao.Cnd;
 import org.nutz.dao.Dao;
@@ -42,7 +44,7 @@ public class UpdateProjectMemberExecutor extends AbstractBizExecutor<UpdateProje
         DevProjectTeamMemberEntity member = request.getMember();
         assertNotNull(member, "成员信息不能为空");
         assertTrue(Strings.isNotBlank(member.getTeamId()), "小组ID不能为空");
-        assertTrue(member.getUserId()!=null, "用户ID不能为空");
+        assertTrue(member.getUserId() != null, "用户ID不能为空");
 
         // --- 1. 事务外的查询与校验 ---
         DevProjectTeamEntity team = dao.fetch(DevProjectTeamEntity.class, member.getTeamId());
@@ -60,6 +62,7 @@ public class UpdateProjectMemberExecutor extends AbstractBizExecutor<UpdateProje
         Trans.exec(() -> {
             if (dbMember == null) {
                 // 新增
+                member.setProjectId(team.getProjectId());
                 dao.insert(member);
                 projectService.recordAction(team.getProjectId(), currentUserId, "ADD_MEMBER",
                         "向小组[" + team.getName() + "]添加成员", member);
@@ -77,9 +80,26 @@ public class UpdateProjectMemberExecutor extends AbstractBizExecutor<UpdateProje
         DevProjectTeamMemberEntity finalResult = dao.fetch(DevProjectTeamMemberEntity.class,
                 Cnd.where(DevProjectTeamMemberEntity.FLD_TEAM_ID, "=", member.getTeamId())
                         .and(DevProjectTeamMemberEntity.FLD_USER_ID, "=", member.getUserId()));
+        ProjectMember projectMember = new ProjectMember();
+        projectMember.setProjectId(finalResult.getProjectId());
+        projectMember.setTeamId(finalResult.getTeamId());
+        projectMember.setUserId(finalResult.getUserId());
+        projectMember.setPermission(finalResult.getPermission());
+        projectMember.setCreateTime(finalResult.getCreateTime());
+
+        RbacUserEntity fetch = dao.fetch(RbacUserEntity.class, finalResult.getUserId());
+        if (fetch == null) {
+            log.error("[PROJECT] add user to project team, can not find user {}", finalResult.getUserId());
+            return BizResult.error(500, "不能添加成员到项目中");
+        }
+        projectMember.setIsOwner(false);
+        projectMember.setUserName(fetch.getUserName());
+        projectMember.setAvatar(fetch.getAvatar());
+        projectMember.setNickName(fetch.getNickName());
+        projectMember.setEmail(fetch.getEmail());
 
         UpdateProjectMemberResponse response = new UpdateProjectMemberResponse();
-        response.setMember(finalResult);
+        response.setMember(projectMember);
         return BizResult.success(response);
     }
 }

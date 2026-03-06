@@ -1,0 +1,20 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+    <ui:style>
+        .container {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px;
+        }
+
+        .image {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+        }</ui:style>
+    <g:HTMLPanel addStyleNames="{style.container}">
+        <g:Image ui:field="image" addStyleNames="{style.image}"/>
+        <g:Label ui:field="lbName"/>
+    </g:HTMLPanel>
+</ui:UiBinder>

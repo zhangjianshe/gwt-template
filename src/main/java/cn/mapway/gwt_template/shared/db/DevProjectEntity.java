@@ -89,4 +89,9 @@ public class DevProjectEntity implements Serializable, IsSerializable {
     @Column(FLD_UPDATE_TIME)
     Timestamp updateTime;
 
+    String createUserName;
+    String createUserAvatar;
+    String progress;
+    Integer memberCount;
+
 }

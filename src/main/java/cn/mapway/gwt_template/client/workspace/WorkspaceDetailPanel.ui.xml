@@ -1,0 +1,19 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:workspace="urn:import:cn.mapway.gwt_template.client.workspace">
+    <ui:style>
+        .table {
+            padding: 15px;
+        }</ui:style>
+    <g:DockLayoutPanel ui:field="root">
+        <g:west size="800">
+            <g:ScrollPanel>
+                <g:HTMLPanel  addStyleNames="{style.table}" ui:field="table" width="100%">
+                </g:HTMLPanel>
+            </g:ScrollPanel>
+        </g:west>
+        <g:center>
+            <workspace:ProjectTeamMemberPanel ui:field="memberPanel"/>
+        </g:center>
+    </g:DockLayoutPanel>
+</ui:UiBinder>

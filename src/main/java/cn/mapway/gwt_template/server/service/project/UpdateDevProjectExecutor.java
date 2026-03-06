@@ -81,6 +81,12 @@ public class UpdateDevProjectExecutor extends AbstractBizExecutor<UpdateDevProje
                 project.setId(R.UU16());
                 project.setCreateTime(new Timestamp(System.currentTimeMillis()));
                 project.setUserId(currentUserId);
+                if (Strings.isBlank(project.getColor())) {
+                    project.setColor("brown");
+                }
+                if (Strings.isBlank(project.getSummary())) {
+                    project.setSummary(project.getName());
+                }
                 dao.insert(project);
 
                 // 初始化小组树
@@ -88,7 +94,7 @@ public class UpdateDevProjectExecutor extends AbstractBizExecutor<UpdateDevProje
 
                 // 设置负责人并加入成员
                 dao.update(DevProjectTeamEntity.class, Chain.make(DevProjectTeamEntity.FLD_CHARGER, currentUserId), Cnd.where(DevProjectTeamEntity.FLD_ID, "=", adminTeamId));
-                projectService.addUserToTeam(adminTeamId, currentUserId, CommonPermission.fromPermission(0).setAll().getPermission(), "创建者");
+                projectService.addUserToTeam(project.getId(), adminTeamId, currentUserId, CommonPermission.fromPermission(0).setAll().getPermission(), "创建者");
 
                 // 创建子小组
                 projectService.createProjectTeam(project.getId(), adminTeamId, "产品组", 0x0008, "#1890FF", "需求与原型");

@@ -2,6 +2,7 @@ package cn.mapway.gwt_template.server.config.startup;
 
 import cn.mapway.biz.core.BizResult;
 import cn.mapway.gwt_template.client.repository.RepositoryFrame;
+import cn.mapway.gwt_template.client.workspace.DevWorkspaceFrame;
 import cn.mapway.gwt_template.server.config.AppConfig;
 import cn.mapway.gwt_template.server.rbac.Permissions;
 import cn.mapway.gwt_template.server.service.user.TokenService;
@@ -53,8 +54,6 @@ public class ServerStartedOnce extends ApplicationObjectSupport implements IServ
     TokenService tokenService;
     @Resource
     RbacResourceService rbacResourceService;
-    @Resource
-    RbacUserService rbacUserService;
 
 
     @Override
@@ -314,6 +313,7 @@ public class ServerStartedOnce extends ApplicationObjectSupport implements IServ
         //分配普通用户的权限
         log.info("[START] 分配普通用户拥有　资源");
         rbacResourceService.confirmResourceInRole(RepositoryFrame.MODULE_CODE, RbacConstant.ROLE_NORMAL_USER);
+        rbacResourceService.confirmResourceInRole(DevWorkspaceFrame.MODULE_CODE, RbacConstant.ROLE_NORMAL_USER);
 
 
         //管理员拥有消息管理角色
