@@ -77,6 +77,6 @@ public class DevProjectActionEntity implements Serializable, IsSerializable {
 
     @Column(FLD_EXTRA_DATA)
     @Comment("额外数据(JSON格式存储变更前后的对比)")
-    @ColDefine(type = ColType.PSQL_JSON)
+    @ColDefine(type = ColType.TEXT)
     String extraData;
 }

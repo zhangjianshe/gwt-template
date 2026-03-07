@@ -14,14 +14,14 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 /**
  * 通用的右键操作菜单
  */
-public class ActionMenu extends PopupPanel implements HasCommonHandlers, IData<LayoutNode> {
+public class ActionMenu extends PopupPanel implements HasCommonHandlers, IData<TeamGroupNode> {
     private final VerticalPanel container;
     ClickHandler itemClicked = event -> {
         AiLabel source = (AiLabel) event.getSource();
         ActionMenuKind kind = (ActionMenuKind) source.getData();
         fireEvent(CommonEvent.selectEvent(kind));
     };
-    private LayoutNode layoutNode;
+    private TeamGroupNode layoutNode;
 
     public ActionMenu() {
         super(true); // 点击外部自动消失
@@ -52,12 +52,12 @@ public class ActionMenu extends PopupPanel implements HasCommonHandlers, IData<L
     }
 
     @Override
-    public LayoutNode getData() {
+    public TeamGroupNode getData() {
         return layoutNode;
     }
 
     @Override
-    public void setData(LayoutNode obj) {
+    public void setData(TeamGroupNode obj) {
         layoutNode = obj;
     }
 }

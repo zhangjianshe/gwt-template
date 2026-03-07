@@ -137,7 +137,7 @@ public class ProjectService {
      * @param userId     用户ID
      * @param permission 角色描述 (例如 "OWNER", "LEADER", "MEMBER")
      */
-    public void addUserToTeam(String projectId,String teamId, Long userId, Integer permission, String summary) {
+    public void addUserToTeam(String projectId, String teamId, Long userId, Integer permission, String summary) {
         if (Strings.isBlank(teamId) || userId == null) {
             return;
         }
@@ -212,12 +212,12 @@ public class ProjectService {
         action.setActionType(actionType);
         action.setTargetType("");
         action.setTargetId("");
-        action.setContent(content);
+        action.setContent(Strings.brief(content, 500));
         action.setCreateTime(new Timestamp(System.currentTimeMillis()));
 
         if (data != null) {
             // 使用紧凑格式序列化，节省数据库空间
-            action.setContent(Json.toJson(data, JsonFormat.compact()));
+            action.setExtraData(Json.toJson(data, JsonFormat.compact()));
         }
 
         dao.insert(action);
