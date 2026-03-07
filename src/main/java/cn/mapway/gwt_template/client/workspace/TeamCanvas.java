@@ -65,8 +65,15 @@ public class TeamCanvas extends CanvasWidget implements IData<List<DevProjectTea
     private final Size startMousePos = new Size(0, 0);  // 按下时的鼠标位置 (屏幕坐标)
     private final Size dragOffset = new Size(0, 0);     // 鼠标相对于节点左上角的逻辑位移
     private final Rect contentBounds = new Rect();
+    private final Size currentMouse=new Size(0,0);
+
     ActionMenu menuNode = new ActionMenu();
+    TeamGroupNode lastHoverNode = null;
+    private TeamGroupNode sourceNode = null;
+    private ProjectMember draggingMemberData = null;
+    private boolean isDraggingMember = false;
     private List<DevProjectTeamEntity> rootTeams;
+
     private List<TeamGroupNode> rootNodes = new ArrayList<>();
     CommonEventHandler menuNodeHandler = new CommonEventHandler() {
         @Override
@@ -145,6 +152,7 @@ public class TeamCanvas extends CanvasWidget implements IData<List<DevProjectTea
             // 获取点击位置
             double rx = event.getRelativeX(getElement());
             double ry = event.getRelativeY(getElement());
+            currentMouse.set(rx, ry);
             Size logicPos = toLogicPos(rx, ry);
 
             // 命中检测
@@ -167,9 +175,16 @@ public class TeamCanvas extends CanvasWidget implements IData<List<DevProjectTea
                     break;
 
                 case MEMBER_ITEM:
+                    // 选中节点视觉反馈
                     hit.node.setSelected(true);
-                    // 这里可以记录当前点击的成员，供后续 MouseUp 使用
-                    DomGlobal.console.log("选中成员: " + hit.memberIndex);
+                    // 启动成员拖拽状态
+                    this.isDraggingMember = true;
+                    this.draggingMemberData = hit.member; // 记录被拖拽的人员数据
+                    this.sourceNode = hit.node;           // 记录起始小组
+
+                    // 捕获鼠标，防止移出画布丢失事件
+                    com.google.gwt.user.client.DOM.setCapture(getElement());
+                    DomGlobal.console.log("开始拖拽成员: " + hit.member.getUserName());
                     break;
 
                 case NODE_BODY:
@@ -201,15 +216,16 @@ public class TeamCanvas extends CanvasWidget implements IData<List<DevProjectTea
             }
 
             Size logicPos = toLogicPos(mx, my);
+            currentMouse.set(mx,my);
 
             if (draggedNode != null) {
-                // 分支 A: 节点拖拽逻辑
                 handleNodeDragging(mx, my, logicPos);
+            } else if (isDraggingMember) {
+                handleMemberDragging(logicPos);
+                redraw(); // 2. 关键：必须重绘，否则你看不到蓝色插入线
             } else if (isPanning) {
-                // 分支 B: 画布平移逻辑
                 handleCanvasPanning(mx, my);
             } else {
-                // 分支 C: 静态悬停反馈
                 handlePassiveHover(logicPos);
             }
 
@@ -222,29 +238,149 @@ public class TeamCanvas extends CanvasWidget implements IData<List<DevProjectTea
             // 停止 DOM 事件捕获
             com.google.gwt.user.client.DOM.releaseCapture(getElement());
 
-            if (isDragging && draggedNode != null) {
-                // 只有真正发生了移动才触发逻辑
-                TeamGroupNode finalParent = findPotentialParent(draggedNode);
-
-                // 逻辑判定：是否真的改变了父节点
-                if (finalParent != null && !finalParent.data.getId().equals(draggedNode.data.getParentId())) {
-                    if (!isInvalidDropTarget(finalParent)) {
-                        doChangeTeamParent(draggedNode.data, finalParent.data);
-                    } else {
-                        // 非法操作，弹回原位
-                        calculateLayout();
-                    }
-                } else {
-                    // 原地放下或取消，恢复自动布局
-                    calculateLayout();
+            if (isDraggingMember && draggingMemberData != null) {
+                // 1. 成员放下逻辑
+                if (lastHoverNode != null && lastHoverNode.getInsertionIndex() != -1) {
+                    executeMemberMove(draggingMemberData, sourceNode, lastHoverNode, lastHoverNode.getInsertionIndex());
                 }
+            } else if (draggedNode != null) {
+                // 2. 节点放下逻辑 (你原有的逻辑)
+                processNodeDrop();
             }
 
-            // 重置所有标志位
-            resetInteractionState();
-            setCursor("grab");
+            // 3. 清理所有临时状态
+            if (lastHoverNode != null) lastHoverNode.setInsertionIndex(-1);
+            resetInteractionState(); // 内部需包含 isDraggingMember = false 等
             redraw();
         });
+    }
+
+    private void handleMemberDragging(Size logicPos) {
+        for (TeamGroupNode node : layoutNodes) {
+            node.setInsertionIndex(-1);
+        }
+        TeamHitResult hit = findHitTarget(logicPos.x, logicPos.y);
+        switch (hit.area) {
+            case MEMBER_ITEM:
+                // 计算鼠标是在该成员的上半部分还是下半部分
+                double relativeY = logicPos.y - (hit.node.rect.y + TITLE_HEIGHT + (hit.memberIndex * MEMBER_LINE_HEIGHT));
+                if (relativeY > MEMBER_LINE_HEIGHT / 2.0) {
+                    hit.node.setInsertionIndex(hit.memberIndex + 1);
+                } else {
+                    hit.node.setInsertionIndex(hit.memberIndex);
+                }
+                break;
+            case NODE_BODY:
+                // 如果节点被收起了，通常不允许插入（或者自动展开）
+                if (!hit.node.isExpanded()) {
+                    hit.node.setInsertionIndex(-1);
+                    return;
+                }
+                // 关键：即使没有成员，只要在 Body 区域，就判定为插入到当前列表末尾（对于空节点就是 0）
+                int count = (hit.node.getData().getMembers() == null) ? 0 : hit.node.getData().getMembers().size();
+                hit.node.setInsertionIndex(count);
+                break;
+
+        }
+    }
+
+    private void processNodeDrop() {
+        if (draggedNode == null) return;
+
+        // 1. 寻找当前鼠标位置下的潜在父节点
+        TeamGroupNode finalParent = findPotentialParent(draggedNode);
+
+        // 2. 逻辑校验：只有当目标节点存在，且不是当前节点的现有父节点时，才触发移动
+        if (finalParent != null && !finalParent.data.getId().equals(draggedNode.data.getParentId())) {
+
+            // 3. 安全校验：目标是否合法（例如：不能移到自己的子孙节点下，不能移到非法类型下）
+            if (!isInvalidDropTarget(finalParent)) {
+                // 执行真正的业务逻辑：修改数据结构、发送 RPC
+                doChangeTeamParent(draggedNode, finalParent);
+            } else {
+                // 非法操作：震动提示或直接弹回
+                DomGlobal.console.warn("无效的放置目标");
+                calculateLayout(); // 恢复到自动布局的位置
+            }
+        } else {
+            // 4. 情况 A: 掉在了空白处；情况 B: 掉在了原父节点上
+            // 这种情况下通常视为“手动调序”或者“取消操作”，直接重新布局即可
+            calculateLayout();
+        }
+    }
+
+    private void doChangeTeamParent(TeamGroupNode node, TeamGroupNode newParent) {
+        // 1. 从旧父节点的 children 列表中移除自己
+        TeamGroupNode oldParent = findTeamGroupNodeById(node.data.getParentId());
+        if (oldParent != null) {
+            oldParent.getChildren().remove(node);
+        }
+
+        // 2. 更新数据模型中的 ParentId
+        node.data.setParentId(newParent.data.getId());
+        node.setParent(newParent);
+
+        // 3. 加入新父节点的 children 列表
+        if (!newParent.getChildren().contains(node)) {
+            newParent.getChildren().add(node);
+        }
+
+        // 4. 重新计算全局布局
+        calculateLayout();
+
+        // 5. 可以在这里触发异步保存
+        // saveRelationToServer(node.data.getId(), newParent.data.getId());
+
+        DomGlobal.console.log("节点 " + node.data.getName() + " 已移动至 " + newParent.data.getName());
+    }
+
+    private void resetInteractionState() {
+        // 1. 清理节点拖拽状态
+        this.draggedNode = null;
+        this.isDragging = false; // 对应你 MouseUp 里的判断位
+
+        // 2. 清理成员拖拽状态
+        this.isDraggingMember = false;
+        this.draggingMemberData = null;
+        this.sourceNode = null;
+
+        // 3. 清理画布平移状态
+        this.isPanning = false;
+
+        // 4. 清理所有节点的临时视觉反馈 (非常重要)
+        for (TeamGroupNode node : layoutNodes) {
+            node.setBeingDragged(false);
+            node.setHoveringMemberIndex(-1);
+            node.setInsertionIndex(-1); // 移除蓝色插入指示线
+            node.setHoveringExpandBtn(false);
+            // 如果你有 isDropTarget 这种高亮，也在这里清除
+        }
+
+        // 5. 重置目标记录
+        this.hoverDropTarget = null;
+        this.lastHoverNode = null;
+
+        // 6. 恢复光标样式
+        setCursor("default");
+    }
+
+    private void executeMemberMove(ProjectMember member, TeamGroupNode from, TeamGroupNode to, int index) {
+        List<ProjectMember> sourceList = from.getData().getMembers();
+        List<ProjectMember> targetList = to.getData().getMembers();
+
+        // 跨组移动或同组位置改变
+        sourceList.remove(member);
+
+        // 修正：如果在同组向后移动，remove 之后 index 可能需要减 1
+        // 但因为我们计算 insertionIndex 时是基于实时位置，通常直接 add 即可
+        if (index > targetList.size()) index = targetList.size();
+        targetList.add(index, member);
+
+        // 触发后端同步
+        // service.moveMember(member.getId(), to.getData().getId(), index, ...);
+
+        calculateLayout(); // 重新布局，因为节点高度可能随成员增减变化
+        redraw();
     }
 
     private void setCursor(String cursorStyle) {
@@ -255,13 +391,6 @@ public class TeamCanvas extends CanvasWidget implements IData<List<DevProjectTea
         }
     }
 
-    private void resetInteractionState() {
-        if (draggedNode != null) draggedNode.setBeingDragged(false);
-        draggedNode = null;
-        hoverDropTarget = null;
-        isDragging = false;
-        isPanning = false;
-    }
 
     // 每次重建数据或 RPC 返回时同步
     private void syncNodes() {
@@ -402,8 +531,8 @@ public class TeamCanvas extends CanvasWidget implements IData<List<DevProjectTea
 
         // 2. 关键补丁：同步 LayoutNode 包装器引用
         // 如果不更新这个，calculateLayout 内部的递归可能还是走的老路
-        TeamGroupNode childNode = findLayoutNodeById(nodeId);
-        TeamGroupNode newParentNode = findLayoutNodeById(newParentId);
+        TeamGroupNode childNode = findTeamGroupNodeById(nodeId);
+        TeamGroupNode newParentNode = findTeamGroupNodeById(newParentId);
 
         if (childNode != null && newParentNode != null) {
             // 解除旧关系
@@ -423,7 +552,7 @@ public class TeamCanvas extends CanvasWidget implements IData<List<DevProjectTea
         redraw();
     }
 
-    private TeamGroupNode findLayoutNodeById(String nodeId) {
+    private TeamGroupNode findTeamGroupNodeById(String nodeId) {
         return nodeMap.get(nodeId); // 瞬间定位，不再需要 for 循环
     }
 
@@ -500,31 +629,28 @@ public class TeamCanvas extends CanvasWidget implements IData<List<DevProjectTea
     }
 
     private void handlePassiveHover(Size lp) {
-        // 2. 获取命中结果
         TeamHitResult hit = findHitTarget(lp.x, lp.y);
 
-        // 3. 极其重要：清除所有节点的临时悬停状态，否则状态会“粘死”
+        // 先重置所有节点感应
         for (TeamGroupNode n : layoutNodes) {
             n.setHoveringMemberIndex(-1);
             n.setHoveringExpandBtn(false);
         }
 
-        // 4. 更新状态
-        if (hit.area == TeamHitTest.NONE) {
-            setCursor("grab");
-        } else {
-            if (hit.area == TeamHitTest.EXPAND_BUTTON) {
-                hit.node.setHoveringExpandBtn(true); // 按钮高亮触发点
+        switch (hit.area) {
+            case MEMBER_ITEM:
+                hit.node.setHoveringMemberIndex(hit.memberIndex);
                 setCursor("pointer");
-            } else if (hit.area == TeamHitTest.MEMBER_ITEM) {
-                hit.node.setHoveringMemberIndex(hit.memberIndex); // 成员背景高亮触发点
+                break;
+            case EXPAND_BUTTON:
+                hit.node.setHoveringExpandBtn(true);
                 setCursor("pointer");
-            } else {
-                setCursor("default");
-            }
+                break;
+            case NODE_BODY:
+                setCursor("grab");
+                break;
         }
 
-        // 5. 必须重绘，否则视觉上看不到状态变化
         redraw();
     }
 
@@ -806,6 +932,7 @@ public class TeamCanvas extends CanvasWidget implements IData<List<DevProjectTea
         }
     }
 
+
     /**
      * 切换全局展开/折叠状态
      *
@@ -874,10 +1001,39 @@ public class TeamCanvas extends CanvasWidget implements IData<List<DevProjectTea
             activeDragging.draw(ctx);
             ctx.restore();
         }
-
         ctx.restore();
-    }
 
+        if (isDraggingMember && draggingMemberData != null) {
+            double ghostX = currentMouse.x + 5;
+            double ghostY = currentMouse.y + 5;
+
+            withContext(ctx, () -> {
+                ctx.globalAlpha = 0.6; // 设置透明度
+
+                // 绘制一个带阴影的小背景
+                ctx.shadowBlur = 5;
+                ctx.shadowColor = "rgba(0,0,0,0.2)";
+                ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("#ffffff");
+                BaseNode.drawRoundedRect(ctx, ghostX, ghostY, 100, 26, 4);
+                ctx.fill();
+
+                // 绘制文字
+                ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("#333333");
+                ctx.font = "12px sans-serif";
+                ctx.textBaseline = "middle";
+                ctx.fillText(draggingMemberData.getUserName(), ghostX + 8, ghostY + 13);
+            });
+        }
+
+    }
+    public void withContext(CanvasRenderingContext2D ctx, Runnable action) {
+        ctx.save(); // 保存当前画笔状态
+        try {
+            action.run();
+        } finally {
+            ctx.restore(); // 无论如何都要恢复，防止污染下一个节点
+        }
+    }
     private void drawLinks(CanvasRenderingContext2D ctx, TeamGroupNode p) {
         // 关键修正：删掉 !p.isExpanded 判断
         if (p.children == null || p.children.isEmpty()) return;

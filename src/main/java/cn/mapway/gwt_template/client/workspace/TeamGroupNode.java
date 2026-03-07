@@ -32,11 +32,18 @@ public class TeamGroupNode extends BaseNode {
 
     public int hoveringMemberIndex = -1; // -1 表示没悬停在成员上
     public boolean isHoveringExpandBtn = false; // 仅用于视觉反馈，不参与逻辑计算
+    public int insertionIndex = -1; // -1 表示不显示插入线
 
     // 动态计算高度：封装布局规则
     public double getDesiredHeight(double titleH, double rowH, double paddingB) {
         if (!isExpanded) return titleH;
         int count = (data.getMembers() == null) ? 0 : data.getMembers().size();
+
+        // 如果正在拖拽人员，且节点为空，给它一个“空槽位”的高度，方便用户放入
+        if (count == 0) {
+            return titleH + rowH; // 预留出一行的高度作为 Drop Zone
+        }
+
         return titleH + (count * rowH) + paddingB;
     }
 
@@ -169,43 +176,69 @@ public class TeamGroupNode extends BaseNode {
     }
 
     private void drawMembers(CanvasRenderingContext2D ctx) {
+
         List<ProjectMember> members = data.getMembers();
-        if (members == null || members.isEmpty()) return;
+        int memberCount = (members == null) ? 0 : members.size();
 
-        // 设置全局对齐方式，这样内部逻辑更清爽
+        // 1. 核心修复：独立处理插入线绘制
+        // 无论有没有成员，只要 insertionIndex 有效 (>=0)，就绘制
+        if (isExpanded && insertionIndex != -1) {
+            double lineY = rect.y + TITLE_HEIGHT + (insertionIndex * MEMBER_LINE_HEIGHT);
+            drawInsertionLine(ctx, rect.x, lineY);
+        }
+
+        if (memberCount == 0) return;
+
+        // 2. 原有的成员文字绘制循环
         ctx.textBaseline = "middle";
+        for (int i = 0; i < memberCount; i++) {
 
-        for (int i = 0; i < members.size(); i++) {
-            // 计算这一行的中心 $y$ 坐标
-            // 公式：起始 $y$ + 标题高 + (索引 * 行高) + (行高 / 2)
-            double rowCenterY = rect.y + TITLE_HEIGHT + (i * MEMBER_LINE_HEIGHT) + (MEMBER_LINE_HEIGHT / 2.0);
-            double rowTopY = rect.y + TITLE_HEIGHT + (i * MEMBER_LINE_HEIGHT);
             ProjectMember projectMember = members.get(i);
-            if (i == hoveringMemberIndex) {
-                withContext(ctx, () -> {
-                    double padding = 4;
-                    ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("rgba(24, 144, 255, 0.08)");
-                    // 悬停背景依然从 rowTopY 开始画
-                    drawRoundedRect(ctx, rect.x + padding, rowTopY + 2, rect.width - (padding * 2), MEMBER_LINE_HEIGHT - 4, 4);
-                    ctx.fill();
-
-                    ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("#1890ff");
-                    ctx.font = "500 12px sans-serif";
-                    // 绘制文字，使用 rowCenterY
-                    fillTextWithEllipsis(ctx, projectMember.getUserName(), rect.x + 12, rowCenterY, rect.width - 24);
-                });
-            } else {
-                ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("#666666");
-                ctx.font = "12px sans-serif";
-                // 绘制文字，使用 rowCenterY
-                fillTextWithEllipsis(ctx, projectMember.getUserName(), rect.x + 12, rowCenterY, rect.width - 24);
-            }
+            // 绘制成员背景和文字...
+            drawSingleMember(ctx, projectMember,i);
         }
 
         // 记得重置状态，避免影响其他地方的绘制
         ctx.textBaseline = "alphabetic";
     }
 
+    private void drawSingleMember(CanvasRenderingContext2D ctx,ProjectMember member,int index) {
+        double itemY = rect.y + TITLE_HEIGHT + (index * MEMBER_LINE_HEIGHT);
+        double rowCenterY = itemY + (MEMBER_LINE_HEIGHT / 2.0);
+        if (index == hoveringMemberIndex) {
+            withContext(ctx, () -> {
+                double padding = 4;
+                ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("rgba(24, 144, 255, 0.08)");
+                // 悬停背景依然从 rowTopY 开始画
+                drawRoundedRect(ctx, rect.x + padding, itemY + 2, rect.width - (padding * 2), MEMBER_LINE_HEIGHT - 4, 4);
+                ctx.fill();
+
+                ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("#1890ff");
+                ctx.font = "500 12px sans-serif";
+                // 绘制文字，使用 rowCenterY
+                fillTextWithEllipsis(ctx, member.getUserName(), rect.x + 12, rowCenterY, rect.width - 24);
+            });
+        } else {
+            ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("#666666");
+            ctx.font = "12px sans-serif";
+            // 绘制文字，使用 rowCenterY
+            fillTextWithEllipsis(ctx, member.getUserName(), rect.x + 12, rowCenterY, rect.width - 24);
+        }
+    }
+    private void drawInsertionLine(CanvasRenderingContext2D ctx, double x, double y) {
+        withContext(ctx, () -> {
+            ctx.strokeStyle = BaseRenderingContext2D.StrokeStyleUnionType.of("#1890ff");
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            // 画一条带圆点的线
+            ctx.arc(x + 5, y, 3, 0, Math.PI * 2);
+            ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("#1890ff");
+            ctx.fill();
+            ctx.moveTo(x + 5, y);
+            ctx.lineTo(x + rect.width - 5, y);
+            ctx.stroke();
+        });
+    }
     private void drawExpandButton(CanvasRenderingContext2D ctx) {
         double cx = rect.x + rect.width - 20;
         double cy = rect.y + TITLE_HEIGHT / 2.0;

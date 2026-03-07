@@ -5,7 +5,7 @@ import elemental2.dom.CanvasRenderingContext2D;
 import jsinterop.base.Js;
 
 public class BaseNode {
-    public void drawRoundedRect(CanvasRenderingContext2D ctx, double x, double y, double w, double h, double r) {
+    public static void drawRoundedRect(CanvasRenderingContext2D ctx, double x, double y, double w, double h, double r) {
         // 检查原生方法是否存在 (GWT/JsInterop 语法)
         if (Js.asPropertyMap(ctx).has("roundRect")) {
             ctx.beginPath();
@@ -16,7 +16,7 @@ public class BaseNode {
         }
     }
 
-    private void renderLegacyRoundedRect(CanvasRenderingContext2D ctx, double x, double y, double w, double h, double r) {
+    private static void renderLegacyRoundedRect(CanvasRenderingContext2D ctx, double x, double y, double w, double h, double r) {
         ctx.beginPath();
         ctx.moveTo(x + r, y);
         ctx.lineTo(x + w - r, y);
