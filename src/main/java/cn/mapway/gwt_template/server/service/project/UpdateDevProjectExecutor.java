@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.nutz.dao.Chain;
 import org.nutz.dao.Cnd;
 import org.nutz.dao.Dao;
+import org.nutz.json.Json;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
 import org.nutz.trans.Trans;
@@ -45,6 +46,7 @@ public class UpdateDevProjectExecutor extends AbstractBizExecutor<UpdateDevProje
     @Override
     protected BizResult<UpdateDevProjectResponse> process(BizContext context, BizRequest<UpdateDevProjectRequest> bizParam) {
         UpdateDevProjectRequest request = bizParam.getData();
+        log.info("[WORKSPACE] {}", Json.toJson(request));
         LoginUser user = (LoginUser) context.get(AppConstant.KEY_LOGIN_USER);
         Long currentUserId = user.getUser().getUserId();
         DevProjectEntity project = request.getProject();

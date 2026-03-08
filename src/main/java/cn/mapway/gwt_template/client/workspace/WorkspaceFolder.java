@@ -151,13 +151,16 @@ public class WorkspaceFolder extends CommonEventComposite implements IData<DevWo
         AppProxy.get().updateDevProject(request, new AsyncCallback<RpcResult<UpdateDevProjectResponse>>() {
             @Override
             public void onFailure(Throwable caught) {
-
+                ClientContext.get().toast(0,0,caught.getMessage());
             }
 
             @Override
             public void onSuccess(RpcResult<UpdateDevProjectResponse> result) {
                 if (result.isSuccess()) {
                     fireEvent(CommonEvent.reloadEvent(null));
+                }
+                else {
+                    ClientContext.get().toast(0,0,result.getMessage());
                 }
             }
         });
