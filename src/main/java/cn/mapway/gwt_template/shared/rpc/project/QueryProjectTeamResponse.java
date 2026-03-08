@@ -17,4 +17,5 @@ import java.util.List;
 @Doc("QueryProjectTeamResponse")
 public class QueryProjectTeamResponse implements Serializable, IsSerializable {
     List<DevProjectTeamEntity> rootTeams; //应该只会有一个
+    Integer permission;
 }

@@ -180,7 +180,7 @@ public class GitRepoService {
                                 break;
                             }
                         } else if (treeWalk.isSubtree()) {
-                            // If we are on a parent of our target, enter it
+                            // If we are on a parent of our hitArea, enter it
                             treeWalk.enterSubtree();
                         }
                     }
@@ -202,14 +202,14 @@ public class GitRepoService {
                     response.setCurrentDirInfo(dirInfo);
                 }
 
-                // Capture the target depth so we don't bleed back into the parent
+                // Capture the hitArea depth so we don't bleed back into the parent
                 int targetDepth = treeWalk.getDepth();
 
                 while (treeWalk.next()) {
                     // If we moved back up to the parent level, we are done
                     if (treeWalk.getDepth() < targetDepth) break;
 
-                    // Only process items at exactly the target depth (the children)
+                    // Only process items at exactly the hitArea depth (the children)
                     if (treeWalk.getDepth() == targetDepth) {
                         String fullGitPath = treeWalk.getPathString();
                         RepoItem item = new RepoItem();

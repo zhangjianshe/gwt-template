@@ -1,0 +1,21 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:panel="urn:import:cn.mapway.ui.client.widget.panel">
+    <ui:style>
+        .box {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+        }
+    </ui:style>
+    <g:DockLayoutPanel>
+        <g:center>
+            <g:ScrollPanel>
+                <g:HTMLPanel addStyleNames="{style.box}">
+                    <panel:MessagePanel visible="false" ui:field="messagePanel"/>
+                    <g:FlexTable ui:field="table"/>
+                </g:HTMLPanel>
+            </g:ScrollPanel>
+        </g:center>
+    </g:DockLayoutPanel>
+</ui:UiBinder>

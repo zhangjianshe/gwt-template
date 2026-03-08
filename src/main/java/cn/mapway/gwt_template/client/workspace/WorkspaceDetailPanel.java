@@ -31,8 +31,6 @@ public class WorkspaceDetailPanel extends CommonEventComposite implements Requir
     @UiField
     HTMLPanel table;
     @UiField
-    ProjectTeamMemberPanel memberPanel;
-    @UiField
     DockLayoutPanel root;
     private DevWorkspaceEntity workspace;
 
@@ -65,19 +63,7 @@ public class WorkspaceDetailPanel extends CommonEventComposite implements Requir
                 renderProjects(result.getData());
             }
         });
-    }    private final CommonEventHandler folderHandler = new CommonEventHandler() {
-        @Override
-        public void onCommonEvent(CommonEvent event) {
-            if (event.isReload()) {
-                //重新加载
-                setData(workspace);
-            }
-            if (event.isSelect()) {
-                DevProjectEntity project = event.getValue();
-                memberPanel.setData(project.getId());
-            }
-        }
-    };
+    }
 
     private void renderProjects(QueryDevProjectResponse response) {
         Map<String, WorkspaceFolder> maper = new HashMap<>();
@@ -111,7 +97,19 @@ public class WorkspaceDetailPanel extends CommonEventComposite implements Requir
         for (WorkspaceFolder folder : maper.values()) {
             table.add(folder);
         }
-    }
+    }    private final CommonEventHandler folderHandler = new CommonEventHandler() {
+        @Override
+        public void onCommonEvent(CommonEvent event) {
+            if (event.isReload()) {
+                //重新加载
+                setData(workspace);
+            }
+            if (event.isSelect()) {
+                DevProjectEntity project = event.getValue();
+                fireEvent(CommonEvent.selectEvent(project));
+            }
+        }
+    };
 
     @Override
     public void onResize() {
@@ -120,6 +118,8 @@ public class WorkspaceDetailPanel extends CommonEventComposite implements Requir
 
     interface WorkspaceDetailPanelUiBinder extends UiBinder<DockLayoutPanel, WorkspaceDetailPanel> {
     }
+
+
 
 
 }

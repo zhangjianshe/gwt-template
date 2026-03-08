@@ -59,9 +59,6 @@ public class DevProjectTeamMemberEntity implements Serializable, IsSerializable 
     @Column(FLD_CREATE_TIME)
     @Comment("加入时间")
     Timestamp createTime;
-
-
-    String memberName;
-    String memberAvatar;
+    
 
 }

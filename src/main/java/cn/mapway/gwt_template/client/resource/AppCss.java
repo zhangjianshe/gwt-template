@@ -41,4 +41,6 @@ public interface AppCss extends CssResource {
     String menuItem();
 
     String menu();
+
+    String menuSeparator();
 }

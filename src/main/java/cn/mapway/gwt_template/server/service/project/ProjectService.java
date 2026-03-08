@@ -406,4 +406,35 @@ public class ProjectService {
             project.setProgress("0%");
         }
     }
+
+    /**
+     * 用户在项目中的权限
+     *
+     * @param operatorId
+     * @param projectId
+     * @return
+     */
+    public CommonPermission userPermissionInProject(Long operatorId, String projectId) {
+        CommonPermission permission = CommonPermission.fromPermission(0);
+        if (operatorId == null) return permission;
+
+        DevProjectEntity project = dao.fetch(DevProjectEntity.class, projectId);
+        if (project == null) {
+            return permission;
+        }
+
+        if (project.getUserId().equals(operatorId)) {
+            permission.setAll();
+            return permission;
+        }
+
+        DevProjectTeamMemberEntity memberEntity = dao.fetch(DevProjectTeamMemberEntity.class, Cnd.where(DevProjectTeamMemberEntity.FLD_PROJECT_ID, "=", projectId)
+                .and(DevProjectTeamMemberEntity.FLD_USER_ID, "=", operatorId));
+        if (memberEntity == null) {
+            return permission;
+        }
+        permission = CommonPermission.fromPermission(permission.getPermission());
+        permission.setRead(true);
+        return permission;
+    }
 }

@@ -2,15 +2,21 @@
              xmlns:g='urn:import:com.google.gwt.user.client.ui'
              xmlns:workspace="urn:import:cn.mapway.gwt_template.client.workspace">
     <ui:style>
-        .table {
-            padding: 15px;
-        }</ui:style>
+        .left {
+            background-color: whitesmoke;
+        }
+    </ui:style>
     <g:DockLayoutPanel ui:field="root">
-        <g:center>
-            <g:ScrollPanel>
-                <g:HTMLPanel  addStyleNames="{style.table}" ui:field="table" width="100%">
+        <g:west size="300">
+            <g:ScrollPanel addStyleNames="{style.left}">
+                <g:HTMLPanel>
+                    <g:Label ui:field="lbName"/>
+
                 </g:HTMLPanel>
             </g:ScrollPanel>
+        </g:west>
+        <g:center>
+            <workspace:ProjectTeamMemberPanel ui:field="teamPanel"/>
         </g:center>
     </g:DockLayoutPanel>
 </ui:UiBinder>

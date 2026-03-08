@@ -4,10 +4,13 @@ import cn.mapway.biz.core.AbstractBizExecutor;
 import cn.mapway.biz.core.BizContext;
 import cn.mapway.biz.core.BizRequest;
 import cn.mapway.biz.core.BizResult;
+import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.db.DevProjectTeamEntity;
 import cn.mapway.gwt_template.shared.rpc.project.QueryProjectTeamRequest;
 import cn.mapway.gwt_template.shared.rpc.project.QueryProjectTeamResponse;
 import cn.mapway.gwt_template.shared.rpc.project.module.ProjectMember;
+import cn.mapway.gwt_template.shared.rpc.user.CommonPermission;
+import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
 import lombok.extern.slf4j.Slf4j;
 import org.nutz.dao.Cnd;
 import org.nutz.dao.Dao;
@@ -35,13 +38,23 @@ public class QueryProjectTeamExecutor extends AbstractBizExecutor<QueryProjectTe
     @Resource
     Dao dao;
 
+    @Resource
+    ProjectService projectService;
+
     @Override
     protected BizResult<QueryProjectTeamResponse> process(BizContext context, BizRequest<QueryProjectTeamRequest> bizParam) {
         QueryProjectTeamRequest request = bizParam.getData();
         log.info("QueryProjectTeamExecutor {}", Json.toJson(request, JsonFormat.compact()));
+        LoginUser loginUser = (LoginUser) context.get(AppConstant.KEY_LOGIN_USER);
+        Long operatorId = loginUser.getUser().getUserId();
 
         String projectId = request.getProjectId();
         assertTrue(Strings.isNotBlank(projectId), "必须指定项目ID");
+        CommonPermission commonPermission=projectService.userPermissionInProject(operatorId,request.getProjectId());
+        if(!commonPermission.canRead())
+        {
+            return BizResult.error(500,"没有读取权限");
+        }
 
         // 1. 查询该项目下所有小组（按 ID 或创建时间排序，方便构建树）
         List<DevProjectTeamEntity> allTeams = dao.query(DevProjectTeamEntity.class,
@@ -99,6 +112,9 @@ public class QueryProjectTeamExecutor extends AbstractBizExecutor<QueryProjectTe
             }
         }
 
+        // 3.4 各个分组按照名称排序
+        sortTeams(rootTeams);
+
         // 4. 返回结果
         QueryProjectTeamResponse response = new QueryProjectTeamResponse();
         // 如果逻辑上只有一个根（管理组），可以取第一个：
@@ -107,7 +123,17 @@ public class QueryProjectTeamExecutor extends AbstractBizExecutor<QueryProjectTe
         } else {
             response.setRootTeams(new ArrayList<>());
         }
+        response.setPermission(commonPermission.getPermission());
 
         return BizResult.success(response);
+    }
+
+
+    private void sortTeams(List<DevProjectTeamEntity> teams) {
+        if (teams == null || teams.isEmpty()) return;
+        teams.sort((a, b) -> Strings.sNull(a.getName()).compareTo(Strings.sNull(b.getName())));
+        for (DevProjectTeamEntity team : teams) {
+            sortTeams(team.getChildren());
+        }
     }
 }

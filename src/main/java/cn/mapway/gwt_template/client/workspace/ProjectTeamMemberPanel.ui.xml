@@ -1,28 +1,11 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
              xmlns:g='urn:import:com.google.gwt.user.client.ui'
-             xmlns:workspace="urn:import:cn.mapway.gwt_template.client.workspace">
+             xmlns:team="urn:import:cn.mapway.gwt_template.client.workspace.team">
     <ui:style>
-        .container {
-            padding: 15px;
-            background-color: #fcfcfc;
-        }
-
-        .actionBar {
-            margin-bottom: 15px;
-            display: flex;
-            justify-content: flex-end;
-        }
     </ui:style>
     <g:DockLayoutPanel ui:field="root">
-        <g:north size="70">
-            <g:HTMLPanel styleName="{style.container}">
-                <g:HTMLPanel styleName="{style.actionBar}">
-                    <g:Anchor ui:field="btnAddTeam" text="+ 创建小组"/>
-                </g:HTMLPanel>
-            </g:HTMLPanel>
-        </g:north>
         <g:center>
-            <workspace:TeamCanvas width="100%" height="100%" ui:field="teamCanvas"/>
+            <team:TeamCanvas width="100%" height="100%" ui:field="teamCanvas"/>
         </g:center>
     </g:DockLayoutPanel>
 

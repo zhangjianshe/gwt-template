@@ -1,4 +1,4 @@
-package cn.mapway.gwt_template.client.workspace;
+package cn.mapway.gwt_template.client.workspace.team;
 
 import elemental2.dom.BaseRenderingContext2D;
 import elemental2.dom.CanvasRenderingContext2D;
@@ -33,7 +33,7 @@ public class BaseNode {
     /**
      * 简单的文字截断处理，防止名字过长超出节点宽度
      */
-    public void fillTextWithEllipsis(CanvasRenderingContext2D ctx, String text, double x, double y, double maxWidth) {
+    public static void fillTextWithEllipsis(CanvasRenderingContext2D ctx, String text, double x, double y, double maxWidth) {
         // 强制设置基线为 middle 确保调用者不需要反复设置
         ctx.textBaseline = "middle";
 

@@ -2,12 +2,36 @@
              xmlns:g='urn:import:com.google.gwt.user.client.ui'
              xmlns:widget="urn:import:cn.mapway.gwt_template.client.widget">
     <ui:style>
-        .box{
-            padding: 10px;
+        .box {
+            padding: 14px 20px;
+            background: #FFFFFF;
+            border-radius: 4px; /* 稍微减小圆角，更显精致 */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            border-left: 4px solid #1890ff;
+            min-width: 280px;
+            max-width: 400px;
+            /* 强制覆盖可能的系统字体干扰 */
+            font-family: sans-serif;
+        }
+
+        .headerStyle {
+            font-size: 15px !important;
+            font-weight: bold;
+            margin-bottom: 4px;
+            color: #333;
+            display: block;
+        }
+
+        .content {
+            font-size: 14px !important;
+            line-height: 1.4;
+            color: #666;
+            word-wrap: break-word;
         }
     </ui:style>
+
     <g:HTMLPanel addStyleNames="{style.box}">
-        <widget:Head ui:field="header"/>
-        <g:HTML ui:field="htmlContent"/>
+        <widget:Head ui:field="header" addStyleNames="{style.headerStyle}"/>
+        <g:HTML ui:field="htmlContent" addStyleNames="{style.content}"/>
     </g:HTMLPanel>
 </ui:UiBinder>
