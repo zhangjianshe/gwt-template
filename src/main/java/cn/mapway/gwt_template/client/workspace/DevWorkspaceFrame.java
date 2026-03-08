@@ -50,7 +50,7 @@ public class DevWorkspaceFrame extends BaseAbstractModule implements RequiresRes
 
     public DevWorkspaceFrame() {
         initWidget(ourUiBinder.createAndBindUi(this));
-        btnHome.setInfo(Fonts.HOME, "工作空间");
+        btnHome.setInfo(Fonts.HOME, "工作空间", false);
         navi.add(btnHome);
         btnHome.addCommonHandler(new CommonEventHandler() {
             @Override
@@ -111,11 +111,9 @@ public class DevWorkspaceFrame extends BaseAbstractModule implements RequiresRes
             root.add(workspaceDetailPanel);
         }
 
-        navi.clear();
-        navi.add(btnHome);
-        navi.add(btnWorkspace);
-        btnWorkspace.setInfo(Fonts.WORKSPACE, workspace.getName());
+        btnWorkspace.setInfo(Fonts.WORKSPACE, workspace.getName(), false);
         btnWorkspace.setData(workspace);
+        updateNavi(btnHome, btnWorkspace);
 
     }
 
@@ -138,12 +136,9 @@ public class DevWorkspaceFrame extends BaseAbstractModule implements RequiresRes
             root.add(projectDetailPanel);
         }
         projectDetailPanel.setData(project);
-        navi.clear();
-        navi.add(btnHome);
-        navi.add(btnWorkspace);
-        navi.add(btnProject);
-        btnProject.setInfo(Fonts.PROJECT, project.getName());
+        btnProject.setInfo(Fonts.PROJECT, project.getName(), false);
         btnProject.setData(project);
+        updateNavi(btnHome, btnWorkspace, btnProject);
     }
 
     private void gotoTeamPanel(DevProjectEntity devProject) {
@@ -161,12 +156,9 @@ public class DevWorkspaceFrame extends BaseAbstractModule implements RequiresRes
             root.add(teamMemberPanel);
         }
         navi.clear();
-        navi.add(btnHome);
-        navi.add(btnWorkspace);
-        navi.add(btnProject);
-        navi.add(btnTeam);
-        btnTeam.setInfo(Fonts.ORG_TREE, "组织架构");
+        btnTeam.setInfo(Fonts.ORG_TREE, "组织架构", false);
         btnTeam.setData(devProject);
+        updateNavi(btnHome, btnWorkspace, btnProject, btnTeam);
     }
 
     @Override
@@ -208,6 +200,25 @@ public class DevWorkspaceFrame extends BaseAbstractModule implements RequiresRes
     @Override
     public void onResize() {
         root.onResize();
+    }
+
+    private void updateNavi(NavibarItem... items) {
+        navi.clear();
+        for (int i = 0; i < items.length; i++) {
+            NavibarItem item = items[i];
+            // 只有不是最后一项时，才显示箭头
+            boolean isLast = (i == items.length - 1);
+
+            // 假设我们在 NavibarItem 里有对应的 setLast 方法
+            // 或者直接在这里操作子元素的可见性
+            navi.add(item);
+            item.setArrow(true);
+
+            // 如果是最后一项，移除 hover 效果或改变颜色
+            if (isLast) {
+                item.setArrow(false);
+            }
+        }
     }
 
     interface DevWorkspaceFrameUiBinder extends UiBinder<DockLayoutPanel, DevWorkspaceFrame> {
