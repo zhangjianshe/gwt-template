@@ -60,7 +60,7 @@ public class DevWorkspaceFolderEntity implements Serializable, IsSerializable {
 
     @Column(FLD_CREATE_TIME)
     @Comment("创建时间")
-    @Default("DEFAULT NOW()")
+    @ColDefine(customType = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", insert = false, update = false)
     Timestamp createTime;
     /**
      * 该字段不会映射到数据库中
