@@ -5,7 +5,7 @@
         .top {
             display: flex;
             align-items: center;
-            justify-content: flex-start;
+            justify-content: space-between;
             gap: 4px;
             border-bottom: solid 1px #e0e0e0;
             padding: 0 10px;
@@ -17,7 +17,11 @@
                 <g:HorizontalPanel ui:field="navi" verticalAlignment="middle" spacing="4">
 
                 </g:HorizontalPanel>
+                <g:HTMLPanel ui:field="tools">
+
+                </g:HTMLPanel>
             </g:HTMLPanel>
         </g:north>
+
     </g:DockLayoutPanel>
 </ui:UiBinder>

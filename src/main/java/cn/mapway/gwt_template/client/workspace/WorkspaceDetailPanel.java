@@ -6,6 +6,7 @@ import cn.mapway.gwt_template.shared.db.DevWorkspaceEntity;
 import cn.mapway.gwt_template.shared.db.DevWorkspaceFolderEntity;
 import cn.mapway.gwt_template.shared.rpc.project.QueryDevProjectRequest;
 import cn.mapway.gwt_template.shared.rpc.project.QueryDevProjectResponse;
+import cn.mapway.ui.client.mvc.IToolsProvider;
 import cn.mapway.ui.client.tools.IData;
 import cn.mapway.ui.client.widget.CommonEventComposite;
 import cn.mapway.ui.shared.CommonEvent;
@@ -15,9 +16,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.DockLayoutPanel;
-import com.google.gwt.user.client.ui.HTMLPanel;
-import com.google.gwt.user.client.ui.RequiresResize;
+import com.google.gwt.user.client.ui.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,7 +25,7 @@ import java.util.Map;
 /**
  * 工作空间详情
  */
-public class WorkspaceDetailPanel extends CommonEventComposite implements RequiresResize, IData<DevWorkspaceEntity> {
+public class WorkspaceDetailPanel extends CommonEventComposite implements IToolsProvider, RequiresResize, IData<DevWorkspaceEntity> {
     private static final WorkspaceDetailPanelUiBinder ourUiBinder = GWT.create(WorkspaceDetailPanelUiBinder.class);
     @UiField
     HTMLPanel table;
@@ -97,6 +96,11 @@ public class WorkspaceDetailPanel extends CommonEventComposite implements Requir
         for (WorkspaceFolder folder : maper.values()) {
             table.add(folder);
         }
+    }
+
+    @Override
+    public void onResize() {
+        root.onResize();
     }    private final CommonEventHandler folderHandler = new CommonEventHandler() {
         @Override
         public void onCommonEvent(CommonEvent event) {
@@ -112,8 +116,8 @@ public class WorkspaceDetailPanel extends CommonEventComposite implements Requir
     };
 
     @Override
-    public void onResize() {
-        root.onResize();
+    public Widget getTools() {
+        return new Label("");
     }
 
     interface WorkspaceDetailPanelUiBinder extends UiBinder<DockLayoutPanel, WorkspaceDetailPanel> {

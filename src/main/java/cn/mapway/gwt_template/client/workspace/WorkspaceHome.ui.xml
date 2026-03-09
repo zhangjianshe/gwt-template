@@ -1,6 +1,8 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
              xmlns:g='urn:import:com.google.gwt.user.client.ui'
-             xmlns:panel="urn:import:cn.mapway.ui.client.widget.panel">
+             xmlns:panel="urn:import:cn.mapway.ui.client.widget.panel"
+             xmlns:inspector="urn:import:cn.mapway.ui.client.mvc.attribute.editor.inspector"
+             xmlns:buttons="urn:import:cn.mapway.ui.client.widget.buttons">
     <ui:style>
         .container {
             padding: 30px;
@@ -9,17 +11,25 @@
             gap: 20px;
             align-content: flex-start;
         }
+
         .scroll {
             background-color: #f5f7fa;
         }
     </ui:style>
-    <g:DockLayoutPanel>
+    <g:DockLayoutPanel ui:field="root">
         <g:center>
             <g:ScrollPanel addStyleNames="{style.scroll}">
                 <g:HTMLPanel ui:field="cardContainer" addStyleNames="{style.container}">
+                    <g:HorizontalPanel ui:field="tools">
+                        <buttons:AiButton ui:field="btnCreate">创建工作空间</buttons:AiButton>
+                    </g:HorizontalPanel>
                     <panel:MessagePanel visible="false" ui:field="messagePanel"/>
                 </g:HTMLPanel>
             </g:ScrollPanel>
         </g:center>
+        <g:east size="0">
+            <inspector:ObjectInspector saveButtonVisible="true" addStyleNames="ai-border-left" ui:field="objectInspector" saveButtonEnable="true"
+                                       vertical="true"/>
+        </g:east>
     </g:DockLayoutPanel>
 </ui:UiBinder>

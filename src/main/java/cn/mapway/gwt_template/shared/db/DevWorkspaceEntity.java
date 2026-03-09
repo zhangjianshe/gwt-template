@@ -85,4 +85,8 @@ public class DevWorkspaceEntity implements Serializable, IsSerializable {
      * 工作空间的子目录
      */
     List<DevWorkspaceFolderEntity> folders = new ArrayList<>();
+
+    String userName;
+    String userAvatar;
+    Integer projectCount;
 }

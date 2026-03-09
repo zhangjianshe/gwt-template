@@ -2,8 +2,8 @@
              xmlns:g='urn:import:com.google.gwt.user.client.ui' xmlns:widget="urn:import:cn.mapway.ui.client.widget">
     <ui:style>
         .ws-card {
-            width: 260px;
-            height: 180px;
+            width: 360px;
+            min-height: 280px;
             background: white;
             border: 1px solid #eef0f2;
             border-radius: 12px;
@@ -13,6 +13,7 @@
             display: flex;
             flex-direction: column;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            position: relative;
         }
 
         .ws-card:hover {
@@ -48,16 +49,118 @@
             border-top: 1px solid #f0f0f0;
             padding-top: 10px;
         }
+
+        .actions {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            transition: all 0.2s ease;
+        }
+
+        btnEdit {
+            cursor: pointer;
+            padding: 5px 10px; /* 稍微增大点击区域 */
+            border-radius: 6px; /* 更圆润一点 */
+            color: #595959; /* 默认深灰，不用 #bfbfbf */
+            font-size: 14px;
+            line-height: 1;
+            display: inline-block;
+            /* 新增：常驻的半透明白色底色，保证文字对比度 */
+            background-color: rgba(255, 255, 255, 0.75);
+            /* 新增：轻微阴影，增加“悬浮感” */
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+            backdrop-filter: blur(2px); /* 可选：增加高斯模糊，更现代 */
+        }
+
+        /* 当鼠标 Hover 到按钮本身时，应用明显的反馈（品牌蓝系） */
+        .btnEdit:hover {
+            color: #1890ff;
+            background-color: #f0f5ff; /* 浅蓝底 */
+            box-shadow: 0 4px 10px rgba(24, 144, 255, 0.3); /* 蓝色阴影 */
+        }
+
+        .ws-image-box {
+            width: 100%;
+            height: 100px; /* 固定高度 */
+            margin-bottom: 12px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ws-image {
+            width: 100%;
+            height: 100%;
+            /* 关键：保证图片按比例填充，多余部分裁切，不拉伸 */
+            object-fit: cover;
+        }
+
+        /* 如果没有图片时显示的占位图标样式 */
+        .ws-icon-placeholder {
+            font-size: 32px;
+            color: #d9d9d9;
+        }
+
+        .ws-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between; /* 左右分布 */
+            border-top: 1px solid #f0f0f0;
+            padding-top: 10px;
+            margin-top: auto; /* 确保footer始终在底部 */
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .avatar {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #eee;
+        }
+
+        .project-tag {
+            background: #f5f5f5;
+            color: #8c8c8c;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+        }
+
+        .user-name {
+            font-size: 12px;
+            color: #595959;
+        }
     </ui:style>
     <g:HTMLPanel ui:field="container" addStyleNames="{style.ws-card}">
-        <div class="{style.ws-icon}">
-            <widget:FontIcon ui:field="icon"/>
+        <div class="{style.actions}">
+            <g:Label ui:field="lbEdit" addStyleNames="{style.btnEdit}" title="编辑"/>
         </div>
+
+        <div class="{style.ws-image-box}">
+            <g:Image ui:field="imgCover" addStyleNames="{style.ws-image}" visible="false"/>
+            <widget:FontIcon ui:field="icon" addStyleNames="{style.ws-icon-placeholder}"/>
+        </div>
+
         <g:Label ui:field="lbName" addStyleNames="{style.ws-title}"/>
         <g:Label ui:field="lbSummary" addStyleNames="{style.ws-info}"/>
+
         <div class="{style.ws-footer}">
-            <g:Label ui:field="lbTime"/>
-            <g:Label ui:field="lbStatus"/>
+            <div class="{style.user-info}">
+                <g:Image ui:field="imgAvatar" addStyleNames="{style.avatar}"/>
+                <g:Label ui:field="lbUserName" styleName="{style.user-name}"/>
+            </div>
+            <div class="{style.project-tag}">
+                <g:InlineLabel ui:field="lbProjectCount"/>
+                个项目
+            </div>
         </div>
     </g:HTMLPanel>
 </ui:UiBinder>

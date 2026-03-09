@@ -12,10 +12,7 @@ import cn.mapway.ui.shared.CommonEventHandler;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.user.client.ui.DockLayoutPanel;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.RequiresResize;
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.*;
 
 import static cn.mapway.gwt_template.client.workspace.DevWorkspaceFrame.MODULE_CODE;
 
@@ -39,6 +36,8 @@ public class DevWorkspaceFrame extends BaseAbstractModule implements RequiresRes
     HorizontalPanel navi;
     @UiField
     DockLayoutPanel root;
+    @UiField
+    HTMLPanel tools;
     ProjectDetailPanel projectDetailPanel;
     NavibarItem btnHome = new NavibarItem();
     NavibarItem btnWorkspace = new NavibarItem();
@@ -50,7 +49,7 @@ public class DevWorkspaceFrame extends BaseAbstractModule implements RequiresRes
 
     public DevWorkspaceFrame() {
         initWidget(ourUiBinder.createAndBindUi(this));
-        btnHome.setInfo(Fonts.HOME, "工作空间", false);
+        btnHome.setInfo(Fonts.HOME, "项目空间", false);
         navi.add(btnHome);
         btnHome.addCommonHandler(new CommonEventHandler() {
             @Override
@@ -109,6 +108,8 @@ public class DevWorkspaceFrame extends BaseAbstractModule implements RequiresRes
             }
             current = workspaceDetailPanel;
             root.add(workspaceDetailPanel);
+            tools.clear();
+            tools.add(workspaceDetailPanel.getTools());
         }
 
         btnWorkspace.setInfo(Fonts.WORKSPACE, workspace.getName(), false);
@@ -134,6 +135,8 @@ public class DevWorkspaceFrame extends BaseAbstractModule implements RequiresRes
             }
             current = projectDetailPanel;
             root.add(projectDetailPanel);
+            tools.clear();
+            tools.add(projectDetailPanel.getTools());
         }
         projectDetailPanel.setData(project);
         btnProject.setInfo(Fonts.PROJECT, project.getName(), false);
@@ -154,6 +157,8 @@ public class DevWorkspaceFrame extends BaseAbstractModule implements RequiresRes
             }
             current = teamMemberPanel;
             root.add(teamMemberPanel);
+            tools.clear();
+            tools.add(teamMemberPanel.getTools());
         }
         navi.clear();
         btnTeam.setInfo(Fonts.ORG_TREE, "组织架构", false);
@@ -174,8 +179,10 @@ public class DevWorkspaceFrame extends BaseAbstractModule implements RequiresRes
             workspaceHome.addCommonHandler(new CommonEventHandler() {
                 @Override
                 public void onCommonEvent(CommonEvent event) {
-                    DevWorkspaceEntity workspace = event.getValue();
-                    gotoWorkspace(workspace);
+                    if (event.isSelect()) {
+                        DevWorkspaceEntity workspace = event.getValue();
+                        gotoWorkspace(workspace);
+                    }
                 }
             });
         }
@@ -185,12 +192,14 @@ public class DevWorkspaceFrame extends BaseAbstractModule implements RequiresRes
             }
             current = workspaceHome;
             root.add(workspaceHome);
-            workspaceHome.load();
+            tools.clear();
+            tools.add(workspaceHome.getTools());
         }
+        workspaceHome.load();
         navi.clear();
         navi.add(btnHome);
-
     }
+
 
     @Override
     public String getModuleCode() {

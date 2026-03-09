@@ -1,6 +1,7 @@
 package cn.mapway.gwt_template.client.workspace;
 
 import cn.mapway.gwt_template.shared.db.DevProjectEntity;
+import cn.mapway.ui.client.mvc.IToolsProvider;
 import cn.mapway.ui.client.tools.IData;
 import cn.mapway.ui.client.widget.CommonEventComposite;
 import com.google.gwt.core.client.GWT;
@@ -9,8 +10,9 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RequiresResize;
+import com.google.gwt.user.client.ui.Widget;
 
-public class ProjectDetailPanel extends CommonEventComposite implements RequiresResize, IData<DevProjectEntity> {
+public class ProjectDetailPanel extends CommonEventComposite implements IToolsProvider, RequiresResize, IData<DevProjectEntity> {
     private static final ProjectDetailPanelUiBinder ourUiBinder = GWT.create(ProjectDetailPanelUiBinder.class);
     @UiField
     Label lbName;
@@ -43,6 +45,10 @@ public class ProjectDetailPanel extends CommonEventComposite implements Requires
     @Override
     public void onResize() {
         root.onResize();
+    }
+    @Override
+    public Widget getTools() {
+        return new Label("");
     }
 
     interface ProjectDetailPanelUiBinder extends UiBinder<DockLayoutPanel, ProjectDetailPanel> {

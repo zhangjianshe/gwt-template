@@ -57,10 +57,13 @@ public class NavibarItem extends CommonEventComposite implements IData<Object> {
     }
 
     public void setArrow(boolean showArrow) {
-        if (showArrow) {
-            lbNext.removeStyleName(style.hideNext());
-        } else {
+        if (!showArrow) {
+            lbNext.setText(""); // 最后一级不显示箭头
             lbNext.addStyleName(style.hideNext());
+        } else {
+            // 使用 Unicode: ‹ (U+2039) 或 › (U+203A)
+            lbNext.setText("\u203A");
+            lbNext.removeStyleName(style.hideNext());
         }
     }
 
@@ -69,7 +72,6 @@ public class NavibarItem extends CommonEventComposite implements IData<Object> {
         String next();
 
         String hideNext();
-
         String icon();
 
         String name();
