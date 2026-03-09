@@ -1,4 +1,4 @@
-package cn.mapway.gwt_template.client.workspace;
+package cn.mapway.gwt_template.client.workspace.widget;
 
 public enum ActionMenuKind {
     AMK_ADD_GROUP,

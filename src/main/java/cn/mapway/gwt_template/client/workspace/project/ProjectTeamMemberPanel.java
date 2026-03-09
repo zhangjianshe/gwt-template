@@ -1,4 +1,4 @@
-package cn.mapway.gwt_template.client.workspace;
+package cn.mapway.gwt_template.client.workspace.project;
 
 import cn.mapway.gwt_template.client.workspace.team.TeamCanvas;
 import cn.mapway.ui.client.mvc.IToolsProvider;

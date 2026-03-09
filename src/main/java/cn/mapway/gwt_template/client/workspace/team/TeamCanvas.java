@@ -2,8 +2,8 @@ package cn.mapway.gwt_template.client.workspace.team;
 
 import cn.mapway.gwt_template.client.ClientContext;
 import cn.mapway.gwt_template.client.rpc.AppProxy;
-import cn.mapway.gwt_template.client.workspace.ActionMenu;
-import cn.mapway.gwt_template.client.workspace.ActionMenuKind;
+import cn.mapway.gwt_template.client.workspace.widget.ActionMenu;
+import cn.mapway.gwt_template.client.workspace.widget.ActionMenuKind;
 import cn.mapway.gwt_template.shared.db.DevProjectTeamEntity;
 import cn.mapway.gwt_template.shared.rpc.project.UpdateProjectTeamRequest;
 import cn.mapway.gwt_template.shared.rpc.project.UpdateProjectTeamResponse;

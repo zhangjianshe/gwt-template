@@ -1,5 +1,9 @@
 package cn.mapway.gwt_template.client.workspace;
 
+import cn.mapway.gwt_template.client.workspace.home.WorkspaceHome;
+import cn.mapway.gwt_template.client.workspace.project.ProjectDetailPanel;
+import cn.mapway.gwt_template.client.workspace.project.ProjectTeamMemberPanel;
+import cn.mapway.gwt_template.client.workspace.widget.NavibarItem;
 import cn.mapway.gwt_template.shared.db.DevProjectEntity;
 import cn.mapway.gwt_template.shared.db.DevWorkspaceEntity;
 import cn.mapway.ui.client.fonts.Fonts;

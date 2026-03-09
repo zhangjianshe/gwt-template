@@ -1,4 +1,4 @@
-package cn.mapway.gwt_template.client.workspace;
+package cn.mapway.gwt_template.client.workspace.widget;
 
 import cn.mapway.ui.client.fonts.Fonts;
 import cn.mapway.ui.client.tools.IData;

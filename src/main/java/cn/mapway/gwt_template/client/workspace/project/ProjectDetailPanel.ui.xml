@@ -1,6 +1,7 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
              xmlns:g='urn:import:com.google.gwt.user.client.ui'
-             xmlns:workspace="urn:import:cn.mapway.gwt_template.client.workspace">
+             xmlns:workspace="urn:import:cn.mapway.gwt_template.client.workspace"
+             xmlns:project="urn:import:cn.mapway.gwt_template.client.workspace.project">
     <ui:style>
         .left {
             background-color: whitesmoke;
@@ -16,7 +17,7 @@
             </g:ScrollPanel>
         </g:west>
         <g:center>
-            <workspace:ProjectTeamMemberPanel ui:field="teamPanel"/>
+            <project:ProjectTeamMemberPanel ui:field="teamPanel"/>
         </g:center>
     </g:DockLayoutPanel>
 </ui:UiBinder>

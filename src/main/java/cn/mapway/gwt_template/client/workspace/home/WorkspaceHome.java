@@ -1,4 +1,4 @@
-package cn.mapway.gwt_template.client.workspace;
+package cn.mapway.gwt_template.client.workspace.home;
 
 import cn.mapway.gwt_template.client.ClientContext;
 import cn.mapway.gwt_template.client.rpc.AppProxy;

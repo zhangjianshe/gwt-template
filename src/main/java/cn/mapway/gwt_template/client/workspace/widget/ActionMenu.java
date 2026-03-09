@@ -1,4 +1,4 @@
-package cn.mapway.gwt_template.client.workspace;
+package cn.mapway.gwt_template.client.workspace.widget;
 
 import cn.mapway.gwt_template.client.resource.AppResource;
 import cn.mapway.gwt_template.client.workspace.team.TeamGroupNode;
