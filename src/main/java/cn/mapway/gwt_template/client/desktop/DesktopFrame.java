@@ -1,6 +1,7 @@
 package cn.mapway.gwt_template.client.desktop;
 
 import cn.mapway.gwt_template.client.ClientContext;
+import cn.mapway.gwt_template.client.resource.AppResource;
 import cn.mapway.gwt_template.client.rpc.AppProxy;
 import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.db.DesktopItemEntity;
@@ -31,6 +32,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.HTMLPanel;
+import com.google.gwt.user.client.ui.ScrollPanel;
 import elemental2.core.JsArray;
 import elemental2.promise.IThenable;
 import org.jspecify.annotations.Nullable;
@@ -67,6 +69,8 @@ public class DesktopFrame extends BaseAbstractModule {
     DockLayoutPanel root;
     @UiField
     DockLayoutPanel msgPanel;
+    @UiField
+    ScrollPanel content;
 
     public DesktopFrame() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -86,6 +90,7 @@ public class DesktopFrame extends BaseAbstractModule {
             }
         }, ClickEvent.getType());
         btnMessage.setSelect(true);
+        content.setStyleName(AppResource.INSTANCE.styles().mainBackground());
     }
 
     @Override

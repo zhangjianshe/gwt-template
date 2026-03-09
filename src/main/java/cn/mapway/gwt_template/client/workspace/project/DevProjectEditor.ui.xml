@@ -1,0 +1,32 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:dialog="urn:import:cn.mapway.ui.client.widget.dialog"
+             xmlns:widget="urn:import:cn.mapway.ui.client.widget">
+    <ui:style>
+        .table {
+            display: grid;
+            grid-template-columns: 120px 1fr;
+            gap: 1rem;
+            padding: 20px;
+        }
+    </ui:style>
+    <g:DockLayoutPanel>
+        <g:south size="68">
+            <dialog:SaveBar ui:field="saveBar"/>
+        </g:south>
+        <g:center>
+            <g:ScrollPanel>
+                <g:HTMLPanel addStyleNames="{style.table}">
+                    <widget:Header>项目名称</widget:Header>
+                    <widget:AiTextBox ui:field="txtName"/>
+                    <widget:Header>项目颜色</widget:Header>
+                    <widget:AiTextBox ui:field="txtColor"/>
+                    <widget:Header>介绍</widget:Header>
+                    <g:TextArea addStyleNames="ai-input" height="130px" ui:field="txtSummary"/>
+                    <widget:Header>图片</widget:Header>
+                    <widget:ImageUploader height="180px" ui:field="uploader"/>
+                </g:HTMLPanel>
+            </g:ScrollPanel>
+        </g:center>
+    </g:DockLayoutPanel>
+</ui:UiBinder>

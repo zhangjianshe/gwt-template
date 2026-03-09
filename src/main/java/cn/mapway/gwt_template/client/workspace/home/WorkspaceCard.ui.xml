@@ -22,10 +22,7 @@
             border-color: #1890ff;
         }
 
-        .ws-icon {
-            font-size: 32px;
-            margin-bottom: 15px;
-        }
+
 
         .ws-title {
             font-size: 18px;
@@ -41,6 +38,19 @@
             font-size: 13px;
             color: #8c8c8c;
             flex-grow: 1;
+
+            /* 核心：多行省略逻辑 */
+            display: -webkit-box;
+            -webkit-line-clamp: 3; /* 控制显示的行数 */
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: break-spaces;
+
+            /* 容错处理：确保高度不会因为文字太少而塌陷 */
+            line-height: 1.5;
+            max-height: 4.5em; /* 行高 1.5 * 3 行 */
+            margin-bottom: 12px;
         }
 
         .ws-footer {
@@ -57,7 +67,7 @@
             transition: all 0.2s ease;
         }
 
-        btnEdit {
+        .btnEdit {
             cursor: pointer;
             padding: 5px 10px; /* 稍微增大点击区域 */
             border-radius: 6px; /* 更圆润一点 */

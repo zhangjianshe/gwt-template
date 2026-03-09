@@ -24,17 +24,6 @@
 
         }
 
-        .main {
-            background-image: url("/img/desktop.png");
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            background-attachment: fixed; /* 保持背景固定，增加景深 */
-
-            /* 增加一个极淡的蓝色渐变叠加，提升科技感 */
-            background-blend-mode: overlay;
-            background-color: rgba(230, 235, 245, 0.6);
-        }
     </ui:style>
     <g:DockLayoutPanel ui:field="root">
         <g:west size="70">
@@ -60,7 +49,7 @@
             </g:DockLayoutPanel>
         </g:west>
         <g:center>
-            <g:ScrollPanel addStyleNames="{style.main}">
+            <g:ScrollPanel ui:field="content">
                 <g:HTMLPanel ui:field="panel" addStyleNames="{style.box}">
                      <desktop:DesktopItem ui:field="btnAdd"/>
                 </g:HTMLPanel>

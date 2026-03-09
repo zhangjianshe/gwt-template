@@ -1,11 +1,10 @@
 package cn.mapway.gwt_template.client.workspace.provider;
 
-import cn.mapway.gwt_template.shared.db.DevWorkspaceEntity;
+import cn.mapway.gwt_template.shared.db.DevProjectEntity;
 import cn.mapway.ui.client.mvc.attribute.AbstractAttribute;
 import cn.mapway.ui.client.mvc.attribute.AbstractAttributesProvider;
 import cn.mapway.ui.client.mvc.attribute.DataCastor;
 import cn.mapway.ui.client.mvc.attribute.IAttribute;
-import cn.mapway.ui.client.mvc.attribute.atts.CheckBoxAttribute;
 import cn.mapway.ui.client.mvc.attribute.atts.ColorBoxAttribute;
 import cn.mapway.ui.client.mvc.attribute.atts.ImageUploadBoxAttribute;
 import cn.mapway.ui.client.mvc.attribute.atts.TextBoxAttribute;
@@ -17,73 +16,62 @@ import com.google.gwt.core.client.GWT;
 
 import java.util.List;
 
-public class WorkspaceAttrProvider extends AbstractAttributesProvider {
-    DevWorkspaceEntity workspace;
+public class DevProjectAttrProvider extends AbstractAttributesProvider {
+    DevProjectEntity project;
 
-    public void rebuild(DevWorkspaceEntity workspace) {
-        this.workspace = workspace;
+    public void rebuild(DevProjectEntity project) {
+        this.project = project;
         List<IAttribute> attributes = getAttributes();
         attributes.clear();
-        if (workspace == null) {
+        if (project == null) {
             notifyAttributeReady();
             return;
         }
         attributes.add(new TextBoxAttribute("name", "名称") {
             @Override
             public Object getValue() {
-                return workspace.getName();
+                return project.getName();
             }
 
             @Override
             public void setValue(Object value) {
-                workspace.setName(DataCastor.castToString(value));
+                project.setName(DataCastor.castToString(value));
             }
         });
         attributes.add(new ColorBoxAttribute("color", "颜色") {
             @Override
             public Object getValue() {
-                return workspace.getColor();
+                return project.getColor();
             }
 
             @Override
             public void setValue(Object value) {
-                workspace.setColor(DataCastor.castToString(value));
+                project.setColor(DataCastor.castToString(value));
             }
         });
         attributes.add(new ImageUploadBoxAttribute("icon", "图片") {
             @Override
             public Object getValue() {
-                return workspace.getIcon();
+                return project.getIcon();
             }
 
             @Override
             public void setValue(Object value) {
-                workspace.setIcon(DataCastor.castToString(value));
+                project.setIcon(DataCastor.castToString(value));
             }
         }.param(ParameterKeys.KEY_HEIGHT, "150px")
                 .param(ParameterKeys.KEY_IMAGE_UPLOAD_ACTION, GWT.getHostPageBaseURL() + "fileUpload")
                 .param(ParameterKeys.KEY_IMAGE_UPLOAD_REL, "project"));
 
-        attributes.add(new CheckBoxAttribute("share", "共享") {
-            @Override
-            public Object getValue() {
-                return workspace.getIsShare();
-            }
-
-            @Override
-            public void setValue(Object value) {
-                workspace.setIsShare(DataCastor.castToBoolean(value));
-            }
-        });
         attributes.add(new TextAreaAttribute("summary", "介绍") {
             @Override
             public Object getValue() {
-                return workspace.getSummary();
+                return project.getSummary();
             }
 
             @Override
             public void setValue(Object value) {
-                workspace.setSummary(DataCastor.castToString(value));
+                project.setSummary(DataCastor.castToString(value));
             }
         });
         attributes.add(new AbstractAttribute("unicode", "图标") {
@@ -94,12 +82,12 @@ public class WorkspaceAttrProvider extends AbstractAttributesProvider {
 
             @Override
             public Object getValue() {
-                return workspace.getUnicode();
+                return project.getUnicode();
             }
 
             @Override
             public void setValue(Object value) {
-                workspace.setUnicode(DataCastor.castToString(value));
+                project.setUnicode(DataCastor.castToString(value));
             }
         });
         notifyAttributeReady();
@@ -107,14 +95,14 @@ public class WorkspaceAttrProvider extends AbstractAttributesProvider {
 
     @Override
     public String getAttributeTitle() {
-        if (workspace == null) {
+        if (project == null) {
             return "没有目标";
         } else {
-            return workspace.getName();
+            return project.getName();
         }
     }
 
-    public DevWorkspaceEntity getData() {
-        return workspace;
+    public DevProjectEntity getData() {
+        return project;
     }
 }

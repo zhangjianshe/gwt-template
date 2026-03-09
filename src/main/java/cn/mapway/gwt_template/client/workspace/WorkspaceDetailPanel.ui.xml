@@ -1,14 +1,38 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
              xmlns:g='urn:import:com.google.gwt.user.client.ui'
-             xmlns:workspace="urn:import:cn.mapway.gwt_template.client.workspace">
+             xmlns:buttons="urn:import:cn.mapway.ui.client.widget.buttons"
+             xmlns:list="urn:import:cn.mapway.ui.client.widget.list"
+             xmlns:workspace="urn:import:cn.mapway.gwt_template.client.workspace"
+             xmlns:widget="urn:import:cn.mapway.ui.client.widget">
     <ui:style>
-        .table {
-            padding: 15px;
+        .box {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 8px;
+        }
+
+        .content {
+            padding: 20px;
         }</ui:style>
     <g:DockLayoutPanel ui:field="root">
+        <g:west size="400">
+            <g:DockLayoutPanel>
+                <g:north size="50">
+                    <g:HTMLPanel addStyleNames="{style.box}">
+                        <widget:Header>项目文件夹</widget:Header>
+                        <buttons:AiButton ui:field="btnCreateDir">创建目录</buttons:AiButton>
+                    </g:HTMLPanel>
+                </g:north>
+                <g:center>
+                    <list:CommonList ui:field="folders"/>
+                </g:center>
+            </g:DockLayoutPanel>
+        </g:west>
         <g:center>
             <g:ScrollPanel>
-                <g:HTMLPanel  addStyleNames="{style.table}" ui:field="table" width="100%">
+                <g:HTMLPanel addStyleNames="{style.content}">
+                    <workspace:WorkspaceFolder ui:field="workspaceFolder"/>
                 </g:HTMLPanel>
             </g:ScrollPanel>
         </g:center>

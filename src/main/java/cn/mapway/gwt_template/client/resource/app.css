@@ -20,6 +20,7 @@
 
 /* 行样式：单元格间的细分割线 */
 .tableRow {
+    cursor: pointer;
     transition: background-color 0.2s;
 }
 
@@ -137,4 +138,34 @@
     /* 左右留出 12px 边距，与 menuItem 的 padding 对齐，视觉上更统一 */
     margin: 6px 12px;
     overflow: hidden;
+}
+
+.primaryText {
+    color: #1890ff;       /* 品牌蓝 */
+    font-weight: 600;      /* 加粗 */
+    cursor: pointer;       /* 提示可点击 */
+    font-size: 14px;
+    transition: color 0.2s ease;
+}
+
+.primaryText:hover {
+    color: #40a9ff;       /* 悬停时变浅 */
+    text-decoration: underline; /* 增加下划线暗示链接属性 */
+}
+
+/* 补充：次要文本，用于创建时间等 */
+.secondaryText {
+    color: #8c8c8c;
+    font-size: 12px;
+}
+.mainBackground{
+    background-image: url("/img/desktop.png");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed; /* 保持背景固定，增加景深 */
+
+    /* 增加一个极淡的蓝色渐变叠加，提升科技感 */
+    background-blend-mode: overlay;
+    background-color: rgba(230, 235, 245, 0.6);
 }

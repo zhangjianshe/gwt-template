@@ -18,7 +18,7 @@
     </ui:style>
     <g:DockLayoutPanel ui:field="root">
         <g:center>
-            <g:ScrollPanel addStyleNames="{style.scroll}">
+            <g:ScrollPanel ui:field="content" addStyleNames="{style.scroll}">
                 <g:HTMLPanel ui:field="cardContainer" addStyleNames="{style.container}">
                     <g:HorizontalPanel ui:field="tools">
                         <buttons:AiButton ui:field="btnCreate">创建工作空间</buttons:AiButton>

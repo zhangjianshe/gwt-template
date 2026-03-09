@@ -7,6 +7,7 @@ import lombok.Setter;
 import org.nutz.dao.entity.annotation.*;
 
 import java.io.Serializable;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,6 +31,7 @@ public class DevWorkspaceFolderEntity implements Serializable, IsSerializable {
     public static final String FLD_NAME = "name";
     public static final String FLD_PARENT_ID = "parent_id";
     public static final String FLD_COLOR = "color";
+    public static final String FLD_CREATE_TIME = "create_time";
 
     @Name
     @Column(FLD_ID)
@@ -56,6 +58,10 @@ public class DevWorkspaceFolderEntity implements Serializable, IsSerializable {
     @ColDefine(width = 64)
     String color;
 
+    @Column(FLD_CREATE_TIME)
+    @Comment("创建时间")
+    @Default("DEFAULT NOW()")
+    Timestamp createTime;
     /**
      * 该字段不会映射到数据库中
      */

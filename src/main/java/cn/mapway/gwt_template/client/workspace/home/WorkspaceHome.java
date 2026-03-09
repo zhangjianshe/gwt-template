@@ -1,6 +1,7 @@
 package cn.mapway.gwt_template.client.workspace.home;
 
 import cn.mapway.gwt_template.client.ClientContext;
+import cn.mapway.gwt_template.client.resource.AppResource;
 import cn.mapway.gwt_template.client.rpc.AppProxy;
 import cn.mapway.gwt_template.client.workspace.provider.WorkspaceAttrProvider;
 import cn.mapway.gwt_template.shared.db.DevWorkspaceEntity;
@@ -25,10 +26,7 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.DockLayoutPanel;
-import com.google.gwt.user.client.ui.HTMLPanel;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.*;
 
 import java.util.List;
 
@@ -49,6 +47,8 @@ public class WorkspaceHome extends CommonEventComposite implements IToolsProvide
     AiButton btnCreate;
     @UiField
     HorizontalPanel tools;
+    @UiField
+    ScrollPanel content;
     WorkspaceAttrProvider workspaceAttrProvider = new WorkspaceAttrProvider();
     CommonEventHandler cardHandler = new CommonEventHandler() {
         @Override
@@ -64,11 +64,17 @@ public class WorkspaceHome extends CommonEventComposite implements IToolsProvide
     public WorkspaceHome() {
         initWidget(ourUiBinder.createAndBindUi(this));
         objectInspector.setData(workspaceAttrProvider);
+        content.setStyleName(AppResource.INSTANCE.styles().mainBackground());
     }
 
     private void edit(DevWorkspaceEntity entity) {
-        root.setWidgetSize(objectInspector, 400);
-        workspaceAttrProvider.rebuild(entity);
+        if (root.getWidgetSize(objectInspector) > 0) {
+            root.setWidgetSize(objectInspector, 0);
+        } else {
+            root.setWidgetSize(objectInspector, 400);
+            workspaceAttrProvider.rebuild(entity);
+        }
+        root.animate(200);
     }
 
     public void load() {

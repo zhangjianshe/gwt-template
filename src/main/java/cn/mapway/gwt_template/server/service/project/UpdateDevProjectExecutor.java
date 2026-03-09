@@ -116,6 +116,7 @@ public class UpdateDevProjectExecutor extends AbstractBizExecutor<UpdateDevProje
 
 
         DevProjectEntity finalProject = dao.fetch(DevProjectEntity.class, project.getId());
+        projectService.fillProjectExtraInformation(finalProject);
         UpdateDevProjectResponse response = new UpdateDevProjectResponse();
         response.setProject(finalProject);
         return BizResult.success(response);

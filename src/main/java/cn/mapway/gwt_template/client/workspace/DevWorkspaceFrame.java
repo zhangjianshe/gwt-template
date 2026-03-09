@@ -1,7 +1,7 @@
 package cn.mapway.gwt_template.client.workspace;
 
 import cn.mapway.gwt_template.client.workspace.home.WorkspaceHome;
-import cn.mapway.gwt_template.client.workspace.project.ProjectDetailPanel;
+import cn.mapway.gwt_template.client.workspace.project.ProjectHomePanel;
 import cn.mapway.gwt_template.client.workspace.project.ProjectTeamMemberPanel;
 import cn.mapway.gwt_template.client.workspace.widget.NavibarItem;
 import cn.mapway.gwt_template.shared.db.DevProjectEntity;
@@ -42,7 +42,7 @@ public class DevWorkspaceFrame extends BaseAbstractModule implements RequiresRes
     DockLayoutPanel root;
     @UiField
     HTMLPanel tools;
-    ProjectDetailPanel projectDetailPanel;
+    ProjectHomePanel projectDetailPanel;
     NavibarItem btnHome = new NavibarItem();
     NavibarItem btnWorkspace = new NavibarItem();
     NavibarItem btnProject = new NavibarItem();
@@ -124,7 +124,7 @@ public class DevWorkspaceFrame extends BaseAbstractModule implements RequiresRes
 
     private void gotoProject(DevProjectEntity project) {
         if (projectDetailPanel == null) {
-            projectDetailPanel = new ProjectDetailPanel();
+            projectDetailPanel = new ProjectHomePanel();
             projectDetailPanel.addCommonHandler(event -> {
                 if (event.isSelect()) {
                     DevProjectEntity devProject = event.getValue();
@@ -133,7 +133,7 @@ public class DevWorkspaceFrame extends BaseAbstractModule implements RequiresRes
             });
         }
 
-        if (!(current instanceof ProjectDetailPanel)) {
+        if (!(current instanceof ProjectHomePanel)) {
             if (current != null) {
                 root.remove(current);
             }

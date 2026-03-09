@@ -1,0 +1,43 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:project="urn:import:cn.mapway.gwt_template.client.workspace.project">
+    <ui:style>
+        .tabContent {
+            padding: 15px;
+            /* 允许内容滚动 */
+            overflow: auto;
+        }
+    </ui:style>
+    <g:TabLayoutPanel ui:field="mainTab" barHeight="50">
+        <g:tab>
+            <g:header>项目概况</g:header>
+            <g:HTMLPanel styleName="{style.tabContent}" ui:field="content">
+                <project:ProjectCard ui:field="projectCard"/>
+            </g:HTMLPanel>
+        </g:tab>
+        <g:tab>
+            <g:header>项目活动</g:header>
+            <g:HTMLPanel/>
+        </g:tab>
+        <g:tab>
+            <g:header>项目问题</g:header>
+            <g:HTMLPanel/>
+        </g:tab>
+        <g:tab>
+            <g:header>项目任务</g:header>
+            <g:HTMLPanel/>
+        </g:tab>
+        <g:tab>
+            <g:header>项目资源</g:header>
+            <g:HTMLPanel/>
+        </g:tab>
+        <g:tab>
+            <g:header>代码仓库</g:header>
+            <g:HTMLPanel/>
+        </g:tab>
+        <g:tab>
+            <g:header>项目人员</g:header>
+            <project:ProjectTeamMemberPanel ui:field="teamPanel"/>
+        </g:tab>
+    </g:TabLayoutPanel>
+</ui:UiBinder>

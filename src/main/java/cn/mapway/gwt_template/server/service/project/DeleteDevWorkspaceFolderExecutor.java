@@ -11,6 +11,7 @@ import cn.mapway.gwt_template.shared.rpc.project.DeleteDevWorkspaceFolderRequest
 import cn.mapway.gwt_template.shared.rpc.project.DeleteDevWorkspaceFolderResponse;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
 import lombok.extern.slf4j.Slf4j;
+import org.nutz.dao.Chain;
 import org.nutz.dao.Cnd;
 import org.nutz.dao.Dao;
 import org.nutz.json.Json;
@@ -58,9 +59,14 @@ public class DeleteDevWorkspaceFolderExecutor extends AbstractBizExecutor<Delete
         assertTrue(subFolderCount == 0, "该目录下还存在子目录，请先处理子目录");
 
         // 4. 安全校验：检查是否有项目
-        long projectCount = dao.count(DevProjectEntity.class, Cnd.where(DevProjectEntity.FLD_FOLDER_ID, "=", folderId));
-        assertTrue(projectCount == 0, "该目录下还存在项目，请先将项目移动到其他目录或删除项目");
+        int updatedCount = dao.update(DevProjectEntity.class,
+                Chain.make(DevProjectEntity.FLD_FOLDER_ID, ""),
+                Cnd.where(DevProjectEntity.FLD_FOLDER_ID, "=", folderId)
+        );
 
+        if (updatedCount > 0) {
+            log.info("已将目录 {} 下的 {} 个项目移动到根目录", folder.getName(), updatedCount);
+        }
         // 5. 执行物理删除
         dao.delete(folder);
 
