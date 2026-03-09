@@ -11,7 +11,6 @@ import cn.mapway.gwt_template.shared.rpc.user.ResourcePoint;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
 import cn.mapway.rbac.client.user.RbacFrame;
 import cn.mapway.rbac.server.service.RbacResourceService;
-import cn.mapway.rbac.server.service.RbacUserService;
 import cn.mapway.rbac.shared.RbacConstant;
 import cn.mapway.rbac.shared.RbacRole;
 import cn.mapway.rbac.shared.ResourceKind;
@@ -301,6 +300,7 @@ public class ServerStartedOnce extends ApplicationObjectSupport implements IServ
         //分配项目管理员 创建项目资源
         log.info("[START] 分配项目管理员 角色资源");
         rbacResourceService.confirmResourceInRole(ResourcePoint.RP_PROJECT_CREATE.getCode(), AppConstant.ROLE_SYS_PROJECT_MANAGER);
+        rbacResourceService.confirmResourceInRole(ResourcePoint.RP_REPOSITORY_CREATE.getCode(), AppConstant.ROLE_SYS_PROJECT_MANAGER);
 
         //发布公共信箱权限
         log.info("[START] 创建发布公共信箱权限点");
@@ -314,6 +314,7 @@ public class ServerStartedOnce extends ApplicationObjectSupport implements IServ
         log.info("[START] 分配普通用户拥有　资源");
         rbacResourceService.confirmResourceInRole(RepositoryFrame.MODULE_CODE, RbacConstant.ROLE_NORMAL_USER);
         rbacResourceService.confirmResourceInRole(DevWorkspaceFrame.MODULE_CODE, RbacConstant.ROLE_NORMAL_USER);
+        rbacResourceService.confirmResourceInRole(ResourcePoint.RP_REPOSITORY_CREATE.getCode(), RbacConstant.ROLE_NORMAL_USER);
 
 
         //管理员拥有消息管理角色
