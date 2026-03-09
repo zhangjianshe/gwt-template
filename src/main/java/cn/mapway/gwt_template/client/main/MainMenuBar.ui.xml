@@ -42,7 +42,7 @@
 
         .logo {
             overflow: hidden;
-            object-fit: contain;
+            height: 70px;
         }
 
         .buttons {
