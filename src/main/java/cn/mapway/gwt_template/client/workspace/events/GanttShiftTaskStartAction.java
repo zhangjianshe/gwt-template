@@ -58,6 +58,7 @@ public class GanttShiftTaskStartAction implements IMouseHandler {
             if (result.getGanttItem() != null) {
                 result.getGanttItem().offsetStartTime(chart.getDocument(), deltaX);
             }
+            chart.redraw();
         }
     }
 }

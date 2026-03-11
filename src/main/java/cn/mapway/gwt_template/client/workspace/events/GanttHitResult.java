@@ -49,6 +49,10 @@ public class GanttHitResult {
         hitTest = GanttHitTest.HIT_GANTT_EMPTY;
     }
 
+    public void hitTestGanttControlEmpty() {
+        hitTest = GanttHitTest.HIT_GANTT_CONTROL_EMPTY;
+    }
+
     public void hitTestResizeLeftPanel() {
         hitTest = GanttHitTest.HIT_RESIZE_LEFT_PANEL;
     }

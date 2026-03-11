@@ -76,6 +76,7 @@ public class GanttMouseEventProxy implements IMouseHandler {
                         currentActionHandler = shiftTaskEstimateActionHandler;
                         shiftTaskEstimateActionHandler.start(hitResult, event);
                         action = GanttMouseAction.ACTION_ADJUST_ESTIMATE_TIME;
+                        break;
                     case HIT_GANTT_ITEM:
                     case HIT_NONE:
                     case HIT_GANTT_CONTROL_EMPTY:

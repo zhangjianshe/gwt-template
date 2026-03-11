@@ -46,6 +46,10 @@ public class GanttDocument {
     boolean isDraggingLeftPanel = false;
     List<GanttItem> selectedItems = new ArrayList<>();
     Map<String, HTMLImageElement> avatars = new HashMap<>();
+    int maxCode = -1;
+    int maxCodeLength = 3;
+    @Getter
+    String projectId;
     @Getter
     private List<DevProjectTaskEntity> rootTasks;
     private long startTimeMillis = System.currentTimeMillis();   // 视图起始时间戳
@@ -104,6 +108,13 @@ public class GanttDocument {
     }
 
     public void loadDocument(String projectId) {
+        this.projectId = projectId;
+        flatItems.clear();
+        rootItems.clear();
+        items.clear();
+        rootTasks.clear();
+        chart.redraw();
+
         QueryProjectTaskRequest request = new QueryProjectTaskRequest();
         request.setProjectId(projectId);
         AppProxy.get().queryProjectTask(request, new AsyncCallback<RpcResult<QueryProjectTaskResponse>>() {
@@ -132,8 +143,9 @@ public class GanttDocument {
         rootTasks = data.getRootTasks();
         flatItems.clear();
         items.clear();
-
+        maxCodeLength = 3;
         recursiveBuild(null, rootTasks);
+        maxCodeLength = Math.max(maxCodeLength, (maxCode + "").length());
         // 重新计算起始时间：找到所有任务中的最早时间
         if (!flatItems.isEmpty()) {
             long minStart = Long.MAX_VALUE;
@@ -147,6 +159,7 @@ public class GanttDocument {
             startTimeMillis = System.currentTimeMillis() - (long) (getLeftPanelWidth() / getDayWidth() + 2) * MS_PER_DAY;
         }
         reLayout();
+        chart.redraw();
     }
 
     private void recursiveBuild(GanttItem parent, List<DevProjectTaskEntity> tasks) {
@@ -156,6 +169,9 @@ public class GanttDocument {
         for (DevProjectTaskEntity task : tasks) {
             GanttItem item = new GanttItem();
             item.setEntity(task);
+            if (task.getCode() != null && task.getCode() > maxCode) {
+                maxCode = task.getCode();
+            }
             if (item.getEntity().getStartTime().getTime() < startTimeMillis) {
                 startTimeMillis = item.getEntity().getStartTime().getTime();
             }
@@ -183,7 +199,6 @@ public class GanttDocument {
             top += layoutItem(item, top, left);
         }
         totalHeight = top - GANTT_HEAD_HEIGHT;
-        chart.redraw();
     }
 
     private double layoutItem(GanttItem item, double top, double left) {
@@ -192,14 +207,12 @@ public class GanttDocument {
         // rect 存储在屏幕上的显示位置
         item.getRect().set(left, top, chart.getOffsetWidth(), h);
 
-        double totalHeight = h;
+        double th = h;
         for (GanttItem child : item.getChildren()) {
             // 子任务纵向累加，横向缩进
-            top += totalHeight;
-            totalHeight += layoutItem(child, top, left);
-
+            th += layoutItem(child, top + th, left);
         }
-        return totalHeight;
+        return th;
     }
 
     public void clear() {
@@ -231,6 +244,11 @@ public class GanttDocument {
         if (logic.x > getLeftPanelWidth() && logic.y > GANTT_HEAD_HEIGHT + scrollTop + totalHeight) {
             //右侧空白区
             result.hitTestGanttEmpty();
+            return true;
+        }
+        if (logic.x < getLeftPanelWidth() && logic.y > GANTT_HEAD_HEIGHT + scrollTop + totalHeight) {
+            //左侧空白区
+            result.hitTestGanttControlEmpty();
             return true;
         }
 
@@ -395,5 +413,85 @@ public class GanttDocument {
                 selectedItems.add(item);
             }
         }
+        if (selectedItems.size() == 1) {
+            scrollToItem(selectedItems.get(0));
+        }
+    }
+
+    public String formatTaskCode(Integer code) {
+        return "#" + StringUtil.formatNumber(code, maxCodeLength);
+    }
+
+    /**
+     * 新插入一个任务
+     *
+     * @param entity
+     */
+    public void insertTask(DevProjectTaskEntity entity) {
+        // 1. 设置合理的默认时间 (如果实体内没有)
+        if (entity.getStartTime() == null) {
+            entity.setStartTime(new Timestamp(System.currentTimeMillis()));
+        }
+        if (entity.getEstimateTime() == null) {
+            entity.setEstimateTime(new Timestamp(entity.getStartTime().getTime() + MS_PER_DAY * 3));
+        }
+
+        // 2. 找到挂载点
+        GanttItem newItem = new GanttItem();
+        newItem.setEntity(entity);
+
+        if (StringUtil.isBlank(entity.getParentId())) {
+            rootTasks.add(entity);
+            rootItems.add(newItem);
+            newItem.setLevel(0);
+        } else {
+            GanttItem parentItem = items.get(entity.getParentId());
+            if (parentItem != null) {
+                parentItem.addChild(newItem);
+            }
+        }
+
+        // 3. 注册到全局索引
+        items.put(entity.getId(), newItem);
+        populateCharge(newItem); // 记得拉取头像
+
+        // 4. 更新 flatItems (最简单的方式是增量添加或局部重排，这里暂时沿用重排逻辑但保留状态)
+        rebuildFlatList();
+        reLayout();
+        chart.redraw();
+    }
+
+    private void rebuildFlatList() {
+        flatItems.clear();
+        for (GanttItem root : rootItems) {
+            traverse(root);
+        }
+    }
+
+    private void traverse(GanttItem item) {
+        flatItems.add(item);
+        for (GanttItem child : item.getChildren()) {
+            traverse(child);
+        }
+    }
+
+    public void scrollToItem(GanttItem item) {
+        double itemTop = item.getRect().y;
+        double itemBottom = itemTop + item.getRect().height;
+        double viewTop = GANTT_HEAD_HEIGHT;
+        double viewBottom = chart.getOffsetHeight();
+
+        // 如果在上方看不见
+        if (itemTop < viewTop) {
+            scrollTop -= (viewTop - itemTop);
+        }
+        // 如果在下方看不见
+        else if (itemBottom > viewBottom) {
+            scrollTop += (itemBottom - viewBottom);
+        }
+        startTimeMillis = item.getEntity().getStartTime().getTime() - 2 * MS_PER_DAY - getTimeBySpan(getLeftPanelWidth());
+        // 应用 scrollTop 到 reLayout 的偏移中 (或者在绘制时应用)
+        reLayout();
+        chart.redraw();
     }
 }

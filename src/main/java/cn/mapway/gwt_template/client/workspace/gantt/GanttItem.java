@@ -29,10 +29,7 @@ public class GanttItem extends BaseNode {
     List<GanttItem> children;
     int level = 0;
     HTMLImageElement avatar = null;
-    @Setter
-    @Getter
     GanttItemHoverPosition hoverPosition = GanttItemHoverPosition.GHIP_NONE;
-    @Setter
     boolean selected = false;
 
     public GanttItem() {
@@ -99,7 +96,7 @@ public class GanttItem extends BaseNode {
         if (avatar != null && avatar.complete) {
             withContext(ctx, () -> {
                 double avatarSize = h - 8; // 留出上下各 4px 间距
-                double avatarX = document.getLeftPanelWidth()-h; // 放在 Code 和 Name 之间或指定位置
+                double avatarX = document.getLeftPanelWidth() - h; // 放在 Code 和 Name 之间或指定位置
                 double avatarY = y + 4;
 
                 // 创建圆形裁剪路径
@@ -117,8 +114,9 @@ public class GanttItem extends BaseNode {
         ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("#333");
         ctx.setFont(selected ? BOLD_NORMAL_FONT : NORMAL_FONT); // 选中时可以加粗
 
+        String code = document.formatTaskCode(entity.getCode());
         // 绘制各列
-        fillTextWithEllipsis(ctx, String.valueOf(entity.getCode()), 10, y + h / 2, 60);
+        fillTextWithEllipsis(ctx, code, 10, y + h / 2, 60);
 
         double nameX = 100 + 20 * level;
         // 动态计算剩余宽度，防止文字挤到负责人那一列
@@ -262,7 +260,7 @@ public class GanttItem extends BaseNode {
     }
 
     // 调整结束时间（右边缘拖拽）
-    public void offsetEndTime(GanttDocument document, double deltaX) {
+    public void offsetEstimateTime(GanttDocument document, double deltaX) {
         long timeDiff = document.getTimeBySpan(deltaX);
         long newEnd = entity.getEstimateTime().getTime() + timeDiff;
         // 保护：结束时间不能早于开始时间

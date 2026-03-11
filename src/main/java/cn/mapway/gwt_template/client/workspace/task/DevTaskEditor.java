@@ -7,6 +7,7 @@ import cn.mapway.gwt_template.shared.rpc.project.UpdateProjectTaskResponse;
 import cn.mapway.gwt_template.shared.rpc.project.module.ProjectMember;
 import cn.mapway.ui.client.mvc.Size;
 import cn.mapway.ui.client.tools.IData;
+import cn.mapway.ui.client.util.StringUtil;
 import cn.mapway.ui.client.widget.AiTextBox;
 import cn.mapway.ui.client.widget.CommonEventComposite;
 import cn.mapway.ui.client.widget.dialog.Dialog;
@@ -61,8 +62,13 @@ public class DevTaskEditor extends CommonEventComposite implements IData<DevProj
     @UiHandler("saveBar")
     public void saveBarCommon(CommonEvent event) {
         if (event.isOk()) {
-            DevProjectTaskEntity temp = new DevProjectTaskEntity();
-            temp.setId(task.getId());
+            DevProjectTaskEntity temp;
+            if (StringUtil.isBlank(task.getId())) {
+                temp = task;
+            } else {
+                temp = new DevProjectTaskEntity();
+                temp.setId(task.getId());
+            }
             temp.setName(txtName.getText());
             temp.setProjectId(task.getProjectId());
             temp.setCharger(task.getCharger());

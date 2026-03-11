@@ -6,6 +6,8 @@ import cn.mapway.gwt_template.client.workspace.task.DevTaskEditor;
 import cn.mapway.gwt_template.client.workspace.widget.ActionMenu;
 import cn.mapway.gwt_template.client.workspace.widget.ActionMenuKind;
 import cn.mapway.gwt_template.shared.db.DevProjectTaskEntity;
+import cn.mapway.gwt_template.shared.rpc.project.module.DevTaskKind;
+import cn.mapway.gwt_template.shared.rpc.project.module.DevTaskStatus;
 import cn.mapway.ui.client.mvc.Size;
 import cn.mapway.ui.client.widget.dialog.Dialog;
 import cn.mapway.ui.shared.CommonEvent;
@@ -13,6 +15,8 @@ import cn.mapway.ui.shared.CommonEventHandler;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.*;
+
+import java.sql.Timestamp;
 
 public class GanttMouseActionDefault implements IMouseHandler {
     final GanttChart chart;
@@ -22,6 +26,7 @@ public class GanttMouseActionDefault implements IMouseHandler {
     GanttHitResult result = new GanttHitResult();
     GanttItem lastHoverItem = null;
     private ActionMenu ganttMenu;
+    private ActionMenu ganttControlMenu;
     private final CommonEventHandler menuHandler = new CommonEventHandler() {
         @Override
         public void onCommonEvent(CommonEvent event) {
@@ -31,8 +36,19 @@ public class GanttMouseActionDefault implements IMouseHandler {
                     case AMK_EDIT_TASK:
                         editTask(result.getGanttItem());
                         break;
+                    case AMK_CREATE_TASK:
+                        addTask(result.getGanttItem());
+                        break;
+                    case AMK_CREATE_SUB_TASK:
+                        addSubTask(result.getGanttItem());
+                        break;
                 }
-                ganttMenu.hide();
+                if (ganttMenu.isShowing()) {
+                    ganttMenu.hide();
+                }
+                if (ganttControlMenu.isShowing()) {
+                    ganttControlMenu.hide();
+                }
             }
         }
     };
@@ -41,6 +57,100 @@ public class GanttMouseActionDefault implements IMouseHandler {
         chart = ganttChart;
         result.reset();
         buildMenu();
+    }
+
+    /**
+     * 创建任务
+     *
+     * @param ganttItem 新创建的任务应该和 ganttItem 位于一个级别 如果他为null 创建一个根任务
+     */
+    private void addTask(GanttItem ganttItem) {
+        DevProjectTaskEntity taskEntity = new DevProjectTaskEntity();
+        taskEntity.setId(null);
+        taskEntity.setProjectId(chart.getDocument().getProjectId());
+        taskEntity.setName("新的任务");
+        taskEntity.setCharger(null);
+        taskEntity.setStartTime(nextDayAtMorning(1));
+        taskEntity.setEstimateTime(nextDayAtMorning(3));
+        if (ganttItem != null) {
+            taskEntity.setParentId(ganttItem.getEntity().getParentId());
+        } else {
+            taskEntity.setParentId(null);
+        }
+        if (taskEntity.getParentId() == null) {
+            taskEntity.setKind(DevTaskKind.DTK_FEATURE.getCode());
+        } else {
+            taskEntity.setKind(DevTaskKind.DTK_TASK.getCode());
+        }
+        taskEntity.setStatus(DevTaskStatus.DTS_CREATED.getCode());
+        taskEntity.setChargeAvatar("");
+        taskEntity.setChargeUserName("");
+        doAddEntity(taskEntity);
+
+    }
+
+    /**
+     * 创建任务
+     *
+     * @param ganttItem 新创建的任务应该和 ganttItem 位于一个级别 如果他为null 创建一个根任务
+     */
+    private void addSubTask(GanttItem ganttItem) {
+        DevProjectTaskEntity taskEntity = new DevProjectTaskEntity();
+        taskEntity.setId(null);
+        taskEntity.setProjectId(chart.getDocument().getProjectId());
+        taskEntity.setName("新的任务");
+        taskEntity.setCharger(null);
+        taskEntity.setStartTime(nextDayAtMorning(1));
+        taskEntity.setEstimateTime(nextDayAtMorning(3));
+        if (ganttItem != null) {
+            taskEntity.setParentId(ganttItem.getEntity().getId());
+        } else {
+            taskEntity.setParentId(null);
+        }
+        if (taskEntity.getParentId() == null) {
+            taskEntity.setKind(DevTaskKind.DTK_FEATURE.getCode());
+        } else {
+            taskEntity.setKind(DevTaskKind.DTK_TASK.getCode());
+        }
+        taskEntity.setStatus(DevTaskStatus.DTS_CREATED.getCode());
+        taskEntity.setChargeAvatar("");
+        taskEntity.setChargeUserName("");
+        doAddEntity(taskEntity);
+
+    }
+
+    private void doAddEntity(DevProjectTaskEntity taskEntity) {
+
+        Dialog<DevTaskEditor> dialog = DevTaskEditor.getDialog(true);
+        dialog.addCommonHandler(new CommonEventHandler() {
+            @Override
+            public void onCommonEvent(CommonEvent event) {
+                if (event.isUpdate()) {
+                    DevProjectTaskEntity entity = event.getValue();
+                    chart.getDocument().insertTask(entity);
+                }
+                dialog.hide();
+            }
+        });
+        dialog.getContent().setData(taskEntity);
+        dialog.center();
+    }
+
+    private Timestamp nextDay(int days) {
+        // 使用 JsDate 处理日期加减，能自动处理跨月/跨年（例如 1月31日 + 1 = 2月1日）
+        elemental2.core.JsDate now = new elemental2.core.JsDate(System.currentTimeMillis());
+        now.setDate(now.getDate() + days);
+
+        // 关键修正：必须使用 getTime() 获取 1970 至今的毫秒数
+        return new Timestamp((long) now.getTime());
+    }
+
+    private Timestamp nextDayAtMorning(int days) {
+        elemental2.core.JsDate now = new elemental2.core.JsDate();
+        now.setDate(now.getDate() + days);
+        // 对齐到凌晨 0 点
+        now.setHours(0, 0, 0, 0);
+        return new Timestamp((long) now.getTime());
     }
 
     private void editTask(GanttItem ganttItem) {
@@ -68,6 +178,7 @@ public class GanttMouseActionDefault implements IMouseHandler {
 
     private void buildMenu() {
         ganttMenu = new ActionMenu();
+        ganttControlMenu = new ActionMenu();
         // 使用 Unicode 字符作为图标
         ganttMenu.addItem(createUnicodeIcon("✎", "编辑任务"), ActionMenuKind.AMK_EDIT_TASK);
         ganttMenu.addItem(createUnicodeIcon("✚", "创建任务"), ActionMenuKind.AMK_CREATE_TASK);
@@ -78,6 +189,9 @@ public class GanttMouseActionDefault implements IMouseHandler {
 
         ganttMenu.addItem(createUnicodeIcon("🗑", "删除任务"), ActionMenuKind.AMK_DELETE_TASK);
         ganttMenu.addCommonHandler(menuHandler);
+
+        ganttControlMenu.addItem(createUnicodeIcon("✚", "创建任务"), ActionMenuKind.AMK_CREATE_TASK);
+        ganttControlMenu.addCommonHandler(menuHandler);
     }
 
     /**
@@ -96,6 +210,9 @@ public class GanttMouseActionDefault implements IMouseHandler {
                 case HIT_GANTT_ITEM:
                     showItemMenu(event);
                     break;
+                case HIT_GANTT_CONTROL_EMPTY:
+                    showControlMenu(event);
+                    break;
             }
             return;
         }
@@ -105,6 +222,15 @@ public class GanttMouseActionDefault implements IMouseHandler {
                 chart.getDocument().appendSelect(result.getGanttItem(), true);
                 break;
         }
+        chart.redraw();
+    }
+
+    private void showControlMenu(MouseDownEvent event) {
+        // 阻止浏览器默认右键菜单（虽然 GanttChart 已经全局阻止，但这里加一层保护）
+        event.preventDefault();
+        event.stopPropagation();
+        // 显示菜单
+        ganttControlMenu.setPopupPositionAndShow((offsetWidth, offsetHeight) -> ganttControlMenu.setPopupPosition(event.getClientX() + 3, event.getClientY() + 3));
     }
 
     private void showItemMenu(MouseDownEvent event) {
@@ -126,6 +252,7 @@ public class GanttMouseActionDefault implements IMouseHandler {
                 chart.getDocument().selectNext();
                 break;
         }
+        chart.redraw();
     }
 
     @Override
@@ -193,5 +320,6 @@ public class GanttMouseActionDefault implements IMouseHandler {
                 }
                 chart.resetCursor();
         }
+        chart.redraw();
     }
 }

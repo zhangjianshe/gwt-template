@@ -2,7 +2,6 @@ package cn.mapway.gwt_template.client.workspace.gantt;
 
 import cn.mapway.gwt_template.client.workspace.events.GanttHitResult;
 import cn.mapway.gwt_template.client.workspace.events.GanttMouseEventProxy;
-import cn.mapway.gwt_template.client.workspace.widget.ActionMenu;
 import cn.mapway.ui.client.mvc.Size;
 import cn.mapway.ui.client.tools.IData;
 import cn.mapway.ui.client.util.StringUtil;
@@ -24,9 +23,9 @@ public class GanttChart extends CanvasWidget implements RequiresResize, IData<St
 
     @Getter
     GanttDocument document;
+    @Getter
     String projectId;
     GanttMouseEventProxy mouseHandlerProxy;
-    ActionMenu ganttMenu;
 
     public GanttChart() {
         document = new GanttDocument();
@@ -72,8 +71,7 @@ public class GanttChart extends CanvasWidget implements RequiresResize, IData<St
             setCoordinateSpaceHeight((int) (newH * dpr));
             document.reLayout();
         }
-
-
+        redraw();
     }
 
     public boolean hitTest(GanttHitResult result, Size logic) {
@@ -88,7 +86,6 @@ public class GanttChart extends CanvasWidget implements RequiresResize, IData<St
         ctx.setTransform(dpr, 0, 0, dpr, -0.5, -0.5);
         ctx.clearRect(0, 0, getOffsetWidth(), getOffsetHeight());
 
-        if (document.isEmpty()) return;
         withContext(ctx, () -> {
 
             drawGrid(ctx, getOffsetWidth(), getOffsetHeight());
@@ -313,6 +310,7 @@ public class GanttChart extends CanvasWidget implements RequiresResize, IData<St
     public void resetToDefaultAction() {
         mouseHandlerProxy.reset();
         setCursor("default");
+        redraw();
     }
 
     public void setCursor(String cursorStyle) {
@@ -325,6 +323,7 @@ public class GanttChart extends CanvasWidget implements RequiresResize, IData<St
 
     public void offsetLeftPanel(double deltaX, double deltaY) {
         document.offsetLeftPanel(deltaX, deltaY);
+        redraw();
     }
 
     public void resetCursor() {
