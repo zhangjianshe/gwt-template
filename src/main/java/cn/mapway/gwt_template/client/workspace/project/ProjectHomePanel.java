@@ -1,6 +1,7 @@
 package cn.mapway.gwt_template.client.workspace.project;
 
 import cn.mapway.gwt_template.client.resource.AppResource;
+import cn.mapway.gwt_template.client.workspace.gantt.GanttChart;
 import cn.mapway.gwt_template.shared.db.DevProjectEntity;
 import cn.mapway.ui.client.mvc.IToolsProvider;
 import cn.mapway.ui.client.tools.IData;
@@ -8,10 +9,12 @@ import cn.mapway.ui.client.widget.CommonEventComposite;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.RequiresResize;
+import com.google.gwt.user.client.ui.TabLayoutPanel;
+import com.google.gwt.user.client.ui.Widget;
 
 public class ProjectHomePanel extends CommonEventComposite implements IToolsProvider, RequiresResize, IData<DevProjectEntity> {
-    private static final ProjectHomePanelUiBinder ourUiBinder = GWT.create(ProjectHomePanelUiBinder.class);
     // 定义 Tab 索引常量，提高可读性
     // 重新定义常量，确保与 XML 中的 Tab 顺序严格对应
     public static final int TAB_OVERVIEW = 0;
@@ -21,13 +24,15 @@ public class ProjectHomePanel extends CommonEventComposite implements IToolsProv
     public static final int TAB_RESOURCE = 4;
     public static final int TAB_REPO = 5;
     public static final int TAB_TEAM = 6;
-
+    private static final ProjectHomePanelUiBinder ourUiBinder = GWT.create(ProjectHomePanelUiBinder.class);
     @UiField
     ProjectTeamMemberPanel teamPanel;
     @UiField
     TabLayoutPanel mainTab;
     @UiField
     ProjectCard projectCard;
+    @UiField
+    GanttChart ganttChart;
     private DevProjectEntity project;
     private boolean teamDataLoaded = false; // 懒加载标志位
 
@@ -42,6 +47,8 @@ public class ProjectHomePanel extends CommonEventComposite implements IToolsProv
             Integer index = event.getSelectedItem();
             if (index == TAB_TEAM) {
                 loadTeamData();
+            } else if (index == TAB_TASK) {
+                ganttChart.setData(project.getId());
             }
         });
     }
@@ -68,7 +75,7 @@ public class ProjectHomePanel extends CommonEventComposite implements IToolsProv
 
         this.project = obj;
         toUI();
-        mainTab.selectTab(0,true);
+        mainTab.selectTab(0, true);
     }
 
     private void toUI() {

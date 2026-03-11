@@ -1,6 +1,7 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
              xmlns:g='urn:import:com.google.gwt.user.client.ui'
-             xmlns:project="urn:import:cn.mapway.gwt_template.client.workspace.project">
+             xmlns:project="urn:import:cn.mapway.gwt_template.client.workspace.project"
+             xmlns:gantt="urn:import:cn.mapway.gwt_template.client.workspace.gantt">
     <ui:style>
         .tabContent {
             padding: 15px;
@@ -25,7 +26,11 @@
         </g:tab>
         <g:tab>
             <g:header>项目任务</g:header>
-            <g:HTMLPanel/>
+            <g:DockLayoutPanel>
+                <g:center>
+                    <gantt:GanttChart width="100%" height="100%" ui:field="ganttChart"/>
+                </g:center>
+            </g:DockLayoutPanel>
         </g:tab>
         <g:tab>
             <g:header>项目资源</g:header>

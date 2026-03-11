@@ -39,7 +39,14 @@ import org.jspecify.annotations.Nullable;
  * 功能：平移缩放、树状布局、左键选中、右键菜单、动态鼠标样式
  */
 public class TeamCanvas extends CanvasWidget implements IData<String> {
-
+    public void withContext(CanvasRenderingContext2D ctx, Runnable action) {
+        ctx.save(); // 保存当前画笔状态
+        try {
+            action.run();
+        } finally {
+            ctx.restore(); // 无论如何都要恢复，防止污染下一个节点
+        }
+    }
     public final Size translation = new Size(0, 0); // 替代 translateX, translateY
     // 交互辅助
     private final Size lastMousePos = new Size(0, 0);   // 上一次鼠标位置 (屏幕坐标)
@@ -896,14 +903,7 @@ public class TeamCanvas extends CanvasWidget implements IData<String> {
     }
 
 
-    public void withContext(CanvasRenderingContext2D ctx, Runnable action) {
-        ctx.save(); // 保存当前画笔状态
-        try {
-            action.run();
-        } finally {
-            ctx.restore(); // 无论如何都要恢复，防止污染下一个节点
-        }
-    }
+
 
     private void drawLinks(CanvasRenderingContext2D ctx, TeamGroupNode p) {
         if (p.getChildren() == null || p.getChildren().isEmpty()) return;

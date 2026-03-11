@@ -75,7 +75,7 @@ public class UpdateProjectTaskExecutor extends AbstractBizExecutor<UpdateProject
         // 3. 指派合法性校验
         // 如果指定了负责人(Charger)，必须保证该负责人也是项目成员
         if (task.getCharger() != null) {
-            assertTrue(projectService.isMemberOfProject(task.getCharger(),task.getProjectId()), "指定的负责人不是该项目的成员");
+            assertTrue(projectService.isMemberOfProject(task.getCharger(), task.getProjectId()), "指定的负责人不是该项目的成员");
         }
 
         // 3. 执行核心事务

@@ -9,6 +9,7 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
+import com.google.gwt.user.client.ui.RequiresResize;
 
 @ModuleMarker(value = MainFrame.MODULE_CODE,
         name = "APP主窗口",
@@ -16,7 +17,7 @@ import com.google.gwt.user.client.ui.DockLayoutPanel;
         summary = "App Main Frame",
         order = 0
 )
-public class MainFrame extends BaseAbstractModule {
+public class MainFrame extends BaseAbstractModule implements RequiresResize {
     public static final String MODULE_CODE = "app_main_frame";
     private static final MainFrameUiBinder ourUiBinder = GWT.create(MainFrameUiBinder.class);
     @UiField
@@ -73,6 +74,12 @@ public class MainFrame extends BaseAbstractModule {
         currentModule = module;
         root.add(currentModule.getRootWidget());
         currentModule.initialize(null, switchModuleData.getParameters());
+        root.forceLayout();
+    }
+
+    @Override
+    public void onResize() {
+        root.onResize();
     }
 
     interface MainFrameUiBinder extends UiBinder<DockLayoutPanel, MainFrame> {

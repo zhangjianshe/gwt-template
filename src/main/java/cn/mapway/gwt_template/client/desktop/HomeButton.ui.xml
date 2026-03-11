@@ -8,7 +8,6 @@
             width: 70px;
             height: 70px;
             overflow: hidden;
-            display: flex;
             align-items: center;
             justify-content: center;
             border-radius: 35px 35px;
@@ -34,6 +33,6 @@
         }
     </ui:style>
     <g:HTMLPanel addStyleNames="{style.box}">
-        <widget:FontIcon fontSize="40" ui:field="icon" styleName="{style.btn}"/>
+        <widget:FontIcon fontSize="40" visible="true" ui:field="icon" styleName="{style.btn}"/>
     </g:HTMLPanel>
 </ui:UiBinder>

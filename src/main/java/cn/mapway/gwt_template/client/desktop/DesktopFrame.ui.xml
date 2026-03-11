@@ -31,6 +31,7 @@
                 <g:VerticalPanel width="100%">
                     <desktop:HomeButton ui:field="btnHome"/>
                     <desktop:HomeButton ui:field="btnMessage"/>
+                    <desktop:HomeButton ui:field="btnTest"/>
                 </g:VerticalPanel>
             </g:ScrollPanel>
         </g:west>

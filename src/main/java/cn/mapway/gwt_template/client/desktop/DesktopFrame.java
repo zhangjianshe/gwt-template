@@ -3,6 +3,7 @@ package cn.mapway.gwt_template.client.desktop;
 import cn.mapway.gwt_template.client.ClientContext;
 import cn.mapway.gwt_template.client.resource.AppResource;
 import cn.mapway.gwt_template.client.rpc.AppProxy;
+import cn.mapway.gwt_template.client.workspace.gantt.GanttChart;
 import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.db.DesktopItemEntity;
 import cn.mapway.gwt_template.shared.db.MailboxEntity;
@@ -29,10 +30,7 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.Anchor;
-import com.google.gwt.user.client.ui.DockLayoutPanel;
-import com.google.gwt.user.client.ui.HTMLPanel;
-import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.*;
 import elemental2.core.JsArray;
 import elemental2.promise.IThenable;
 import org.jspecify.annotations.Nullable;
@@ -46,7 +44,7 @@ import static cn.mapway.gwt_template.client.desktop.DesktopFrame.MODULE_CODE;
         summary = "Personal Desktop",
         unicode = Fonts.CONSOLE
 )
-public class DesktopFrame extends BaseAbstractModule {
+public class DesktopFrame extends BaseAbstractModule implements RequiresResize {
     public static final String MODULE_CODE = "desktop_frame";
     private static final DesktopFrameUiBinder ourUiBinder = GWT.create(DesktopFrameUiBinder.class);
     @UiField
@@ -71,6 +69,11 @@ public class DesktopFrame extends BaseAbstractModule {
     DockLayoutPanel msgPanel;
     @UiField
     ScrollPanel content;
+    @UiField
+    HomeButton btnTest;
+    Widget currentWidget = content;
+    GanttChart ganttChart;
+
 
     public DesktopFrame() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -78,8 +81,7 @@ public class DesktopFrame extends BaseAbstractModule {
             edit(null);
         }, ClickEvent.getType());
         btnAdd.setValue("img/plus.svg", "添加快捷方式");
-        btnHome.setIcon(Fonts.HOME);
-        btnMessage.setIcon(Fonts.POPUP);
+
         btnMessage.addDomHandler(e -> {
             if (btnMessage.isSelected()) {
                 btnMessage.setSelect(false);
@@ -88,9 +90,42 @@ public class DesktopFrame extends BaseAbstractModule {
                 btnMessage.setSelect(true);
                 root.setWidgetSize(msgPanel, 400);
             }
+            root.forceLayout();
         }, ClickEvent.getType());
         btnMessage.setSelect(true);
         content.setStyleName(AppResource.INSTANCE.styles().mainBackground());
+
+        btnHome.addDomHandler(e -> {
+            gotoHome();
+        }, ClickEvent.getType());
+        btnTest.addDomHandler(e -> {
+            gotoTest();
+        }, ClickEvent.getType());
+        currentWidget = content;
+    }
+
+    private void gotoTest() {
+        if (ganttChart == null) {
+            ganttChart = new GanttChart();
+            ganttChart.setWidth("100%");
+            ganttChart.setHeight("100%");
+        }
+        if (currentWidget != ganttChart) {
+            root.remove(currentWidget);
+            root.add(ganttChart);
+            currentWidget = ganttChart;
+            root.forceLayout();
+        }
+        ganttChart.setData("a46e116a56534aa5a52b397d75ba58ed");
+    }
+
+    private void gotoHome() {
+        if (currentWidget != content) {
+            root.remove(currentWidget);
+            currentWidget = content;
+            root.add(currentWidget);
+            root.forceLayout();
+        }
     }
 
     @Override
@@ -101,6 +136,9 @@ public class DesktopFrame extends BaseAbstractModule {
     @Override
     public boolean initialize(IModule parentModule, ModuleParameter parameter) {
         boolean b = super.initialize(parentModule, parameter);
+        btnHome.setIcon(Fonts.HOME);
+        btnMessage.setIcon(Fonts.POPUP);
+        btnTest.setIcon(Fonts.WORKSPACE);
         load();
         mailboxPanel.load();
         return b;
@@ -234,7 +272,6 @@ public class DesktopFrame extends BaseAbstractModule {
         });
     }
 
-
     private void edit(DesktopItemEntity item) {
         Dialog<DesktopEditor> dialog = DesktopEditor.getDialog(true);
         dialog.addCommonHandler(event -> {
@@ -247,6 +284,11 @@ public class DesktopFrame extends BaseAbstractModule {
         });
         dialog.getContent().setData(item);
         dialog.center();
+    }
+
+    @Override
+    public void onResize() {
+        root.onResize();
     }
 
     interface DesktopFrameUiBinder extends UiBinder<DockLayoutPanel, DesktopFrame> {
@@ -264,6 +306,5 @@ public class DesktopFrame extends BaseAbstractModule {
             }
         }
     };
-
 
 }

@@ -50,6 +50,22 @@ public class BaseNode {
     }
 
     /**
+     * 辅助方法：在指定区域内裁剪并绘制文字
+     */
+    public void drawClippedText(CanvasRenderingContext2D ctx, String text, double x, double y, double w, double h) {
+        withContext(ctx, () -> {
+            // 定义裁剪区域
+            ctx.beginPath();
+            ctx.rect(x, y, w, h);
+            ctx.clip();
+
+            // 在裁剪区内绘图，超出 w 的部分会被自动隐藏
+            // 你也可以配合使用你 BaseNode 里的 fillTextWithEllipsis
+            ctx.fillText(text, x, y + h / 2);
+        });
+    }
+
+    /**
      * 快速设置样式并自动恢复状态（使用 Runnable 简化代码）
      * 这样在 LayoutNode 里写高亮阴影会非常整洁
      */
@@ -64,6 +80,7 @@ public class BaseNode {
 
     /**
      * 绘制人字头箭头 (Chevron)
+     *
      * @param direction 0: 下 (展开状态暗示向下), 1: 上 (收起状态暗示向上), 2: 左, 3: 右
      */
     public void drawChevron(CanvasRenderingContext2D ctx, double cx, double cy, double size, double lineWidth, int direction, String color) {

@@ -94,6 +94,5 @@ public class DevProjectTeamEntity implements Serializable, IsSerializable {
     Integer teamPermission;
 
     private List<DevProjectTeamEntity> children = new ArrayList<>();
-
     private List<ProjectMember> members = new ArrayList<>();
 }

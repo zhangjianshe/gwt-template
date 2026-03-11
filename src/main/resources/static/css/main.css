@@ -1897,7 +1897,6 @@ img[tip]:hover::before {
 
 .gwt-TabLayoutPanel .gwt-TabLayoutPanelContent {
     border-top: solid 1px var(--color-text-tip);
-    padding: 8px;
 }
 
 
@@ -1928,14 +1927,6 @@ img[tip]:hover::before {
 }
 
 
-.ai-cert-input {
-    font-family: courier, monospace;
-    resize: none;
-    margin: 0 5px;
-    line-height: 1.0;
-    padding: 5px;
-    color: var(--color-text-title);
-}
 
 
 .gwt-DatePicker {

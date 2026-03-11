@@ -37,6 +37,7 @@ public class ResourceConfig implements WebMvcConfigurer {
                 .addResourceLocations("/static/img/", "classpath:/static/img/", "classpath:/META-INF/public-web-resources/img/")
                 .setCacheControl(CacheControl.maxAge(365, TimeUnit.DAYS).cachePublic());
         registry.addResourceHandler("/webfonts/**")
-                .addResourceLocations("classpath:/META-INF/public-web-resources/webfonts/", "/static/webfonts/", "classpath:/static/webfonts/");
+                .addResourceLocations("classpath:/META-INF/public-web-resources/webfonts/", "/static/webfonts/", "classpath:/static/webfonts/")
+                .setCacheControl(CacheControl.maxAge(365, TimeUnit.DAYS).cachePublic());
     }
 }

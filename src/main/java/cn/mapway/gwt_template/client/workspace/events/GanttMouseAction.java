@@ -1,0 +1,6 @@
+package cn.mapway.gwt_template.client.workspace.events;
+
+public enum GanttMouseAction {
+    ACTION_DEFAULT,
+    ACTION_SHIFT_TIMELINE, ACTION_ADJUST_CONTROL_PANEL, ACTION_SHIFT_TASK, ACTION_ADJUST_START_TIME, ACTION_ADJUST_ESTIMATE_TIME,
+}
