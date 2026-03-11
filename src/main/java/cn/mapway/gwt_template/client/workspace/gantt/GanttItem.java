@@ -8,6 +8,7 @@ import cn.mapway.ui.client.mvc.Rect;
 import cn.mapway.ui.client.mvc.Size;
 import elemental2.dom.BaseRenderingContext2D;
 import elemental2.dom.CanvasRenderingContext2D;
+import elemental2.dom.HTMLImageElement;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -27,6 +28,7 @@ public class GanttItem extends BaseNode {
     GanttItem parent;
     List<GanttItem> children;
     int level = 0;
+    HTMLImageElement avatar = null;
     @Setter
     @Getter
     GanttItemHoverPosition hoverPosition = GanttItemHoverPosition.GHIP_NONE;
@@ -84,43 +86,50 @@ public class GanttItem extends BaseNode {
         double h = rect.height;
         double panelWidth = document.getLeftPanelWidth();
 
-        if (!selected) {
-            // Hover 效果
-            if (hoverPosition == GanttItemHoverPosition.GIHP_ITEM) {
-                ctx.beginPath();
-                ctx.fillStyle = FILL_HOVER;
-                ctx.rect(0, y, panelWidth, h);
-                ctx.fill();
-            }
-        } else {
+        // 1. 绘制背景 (选中态优先级高于 Hover)
+        if (selected) {
             ctx.fillStyle = FILL_SELECTED;
-            ctx.beginPath();
-            ctx.rect(0, y, panelWidth, h);
-            ctx.fill();
+            ctx.fillRect(0, y, panelWidth, h);
+        } else if (hoverPosition == GanttItemHoverPosition.GIHP_ITEM) {
+            ctx.fillStyle = FILL_HOVER;
+            ctx.fillRect(0, y, panelWidth, h);
         }
 
+        // 2. 绘制头像 (圆形裁剪)
+        if (avatar != null && avatar.complete) {
+            withContext(ctx, () -> {
+                double avatarSize = h - 8; // 留出上下各 4px 间距
+                double avatarX = document.getLeftPanelWidth()-h; // 放在 Code 和 Name 之间或指定位置
+                double avatarY = y + 4;
+
+                // 创建圆形裁剪路径
+                ctx.beginPath();
+                ctx.arc(avatarX + avatarSize / 2, avatarY + avatarSize / 2, avatarSize / 2, 0, Math.PI * 2);
+                ctx.clip();
+
+                // 绘制头像
+                ctx.drawImage(avatar, avatarX, avatarY, avatarSize, avatarSize);
+            });
+        }
+
+        // 3. 绘制文字
         ctx.textBaseline = "middle";
         ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("#333");
-        ctx.setFont(BOLD_NORMAL_FONT);
+        ctx.setFont(selected ? BOLD_NORMAL_FONT : NORMAL_FONT); // 选中时可以加粗
 
-        // 列宽度定义 (建议放到 Document 或常量中)
-        double colCodeW = 80;
-        double colNameW = 150;
-
-        // 绘制各列 (配合 ellipsis 防止列间重叠)
-        fillTextWithEllipsis(ctx, String.valueOf(entity.getCode()), 10, y + h / 2, colCodeW);
+        // 绘制各列
+        fillTextWithEllipsis(ctx, String.valueOf(entity.getCode()), 10, y + h / 2, 60);
 
         double nameX = 100 + 20 * level;
+        // 动态计算剩余宽度，防止文字挤到负责人那一列
         fillTextWithEllipsis(ctx, entity.getName(), nameX, y + h / 2, 240 - nameX);
 
-        fillTextWithEllipsis(ctx, String.valueOf(entity.getCharger()), 250, y + h / 2, panelWidth - 250 - 5);
-
-        // 行分割线
+        // 4. 底部线条 (建议在外面 drawFloatingLeftPanel 里统一画，或者保持在这里)
         ctx.strokeStyle = LINE_STYLE;
         ctx.lineWidth = 1.0;
         ctx.beginPath();
-        ctx.moveTo(0, y + h);
-        ctx.lineTo(panelWidth, y + h);
+        ctx.moveTo(0, y + h - 0.5); // -0.5 对齐像素
+        ctx.lineTo(panelWidth, y + h - 0.5);
         ctx.stroke();
     }
 

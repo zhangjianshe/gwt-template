@@ -437,4 +437,41 @@ public class ProjectService {
         permission.setRead(true);
         return permission;
     }
+
+    public List<RbacUserEntity> queryProjectMember(String projectId) {
+        if (Strings.isBlank(projectId)) {
+            return new ArrayList<>();
+        }
+
+        // 方案 A: 使用子查询 (IN)
+        // 首先获取项目中所有成员的 userId 列表
+        List<DevProjectTeamMemberEntity> members = dao.query(DevProjectTeamMemberEntity.class,
+                Cnd.where(DevProjectTeamMemberEntity.FLD_PROJECT_ID, "=", projectId));
+
+        if (members.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        List<Long> userIds = new ArrayList<>();
+        for (DevProjectTeamMemberEntity m : members) {
+            userIds.add(m.getUserId());
+        }
+
+        // 根据 userId 列表查询用户信息
+        return dao.query(RbacUserEntity.class, Cnd.where(RbacUserEntity.FLD_USER_ID, "in", userIds));
+    }
+
+    public void fillTaskExtraInfo(DevProjectTaskEntity finalTask) {
+        finalTask.setChargeUserName("");
+        finalTask.setChargeAvatar("");
+        if (finalTask.getCharger() == null) {
+            return;
+        }
+        RbacUserEntity fetch = dao.fetch(RbacUserEntity.class, finalTask.getCharger());
+        if (fetch == null) {
+            return;
+        }
+        finalTask.setChargeUserName(fetch.getUserName());
+        finalTask.setChargeAvatar(fetch.getAvatar());
+    }
 }

@@ -116,6 +116,8 @@ public class DevProjectTaskEntity implements Serializable, IsSerializable {
     @ColDefine(notNull = true)
     Integer code;
 
+    String chargeUserName;
+    String chargeAvatar;
 
     private List<DevProjectTaskEntity> children = new ArrayList<>();
 }

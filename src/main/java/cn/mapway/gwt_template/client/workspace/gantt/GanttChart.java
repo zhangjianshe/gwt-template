@@ -2,6 +2,7 @@ package cn.mapway.gwt_template.client.workspace.gantt;
 
 import cn.mapway.gwt_template.client.workspace.events.GanttHitResult;
 import cn.mapway.gwt_template.client.workspace.events.GanttMouseEventProxy;
+import cn.mapway.gwt_template.client.workspace.widget.ActionMenu;
 import cn.mapway.ui.client.mvc.Size;
 import cn.mapway.ui.client.tools.IData;
 import cn.mapway.ui.client.util.StringUtil;
@@ -25,6 +26,7 @@ public class GanttChart extends CanvasWidget implements RequiresResize, IData<St
     GanttDocument document;
     String projectId;
     GanttMouseEventProxy mouseHandlerProxy;
+    ActionMenu ganttMenu;
 
     public GanttChart() {
         document = new GanttDocument();
@@ -40,6 +42,7 @@ public class GanttChart extends CanvasWidget implements RequiresResize, IData<St
         });
         installEvents();
     }
+
 
     private void installEvents() {
         addMouseDownHandler(event -> {

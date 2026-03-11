@@ -10,6 +10,7 @@ import cn.mapway.gwt_template.shared.db.DevProjectTaskEntity;
 import cn.mapway.gwt_template.shared.rpc.project.QueryProjectTaskRequest;
 import cn.mapway.gwt_template.shared.rpc.project.QueryProjectTaskResponse;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
+import cn.mapway.rbac.shared.db.postgis.RbacUserEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.nutz.dao.Cnd;
 import org.nutz.dao.Dao;
@@ -50,9 +51,9 @@ public class QueryProjectTaskExecutor extends AbstractBizExecutor<QueryProjectTa
         DevProjectEntity project = dao.fetch(DevProjectEntity.class, projectId);
         assertNotNull(project, "项目不存在");
 
-// 校验：当前用户是否为项目成员
+        // 校验：当前用户是否为项目成员
         boolean isMember = projectService.isMemberOfProject(currentUserId, projectId);
-// 如果不是成员，且项目不是公开的（假设有一个 isPublic 字段），则拒绝
+        // 如果不是成员，且项目不是公开的（假设有一个 isPublic 字段），则拒绝
         assertTrue(isMember, "您不是该项目的成员，无权查看任务");
 
         // 1. 查询该项目下的所有任务，按优先级和编号排序
@@ -89,9 +90,33 @@ public class QueryProjectTaskExecutor extends AbstractBizExecutor<QueryProjectTa
         }
 
         QueryProjectTaskResponse response = new QueryProjectTaskResponse();
-        // 建议在 Response 中添加 List<DevProjectTaskEntity> tasks 字段
         response.setRootTasks(rootTasks);
-
+        fillTaskUserInfo(request.getProjectId(), allTasks);
         return BizResult.success(response);
+    }
+
+    private void fillTaskUserInfo(String projectId, List<DevProjectTaskEntity> list) {
+        if (list.isEmpty()) {
+            return;
+        }
+        List<RbacUserEntity> users = projectService.queryProjectMember(projectId);
+        for (DevProjectTaskEntity task : list) {
+            fillTaskExtraInfo(task, users);
+        }
+    }
+
+    private void fillTaskExtraInfo(DevProjectTaskEntity task, List<RbacUserEntity> users) {
+        task.setChargeUserName("");
+        task.setChargeAvatar("");
+        if (task.getCharger() == null) {
+            return;
+        }
+        for (RbacUserEntity user : users) {
+            if (user.getUserId().equals(task.getCharger())) {
+                task.setChargeUserName(Strings.isBlank(user.getNickName()) ? user.getUserName() : user.getNickName());
+                task.setChargeAvatar(user.getAvatar());
+                break;
+            }
+        }
     }
 }

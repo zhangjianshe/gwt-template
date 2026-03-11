@@ -1,6 +1,7 @@
 package cn.mapway.gwt_template.client.workspace.gantt;
 
 import cn.mapway.gwt_template.client.ClientContext;
+import cn.mapway.gwt_template.client.resource.AppResource;
 import cn.mapway.gwt_template.client.rpc.AppProxy;
 import cn.mapway.gwt_template.client.workspace.events.GanttHitResult;
 import cn.mapway.gwt_template.shared.db.DevProjectTaskEntity;
@@ -9,8 +10,11 @@ import cn.mapway.gwt_template.shared.rpc.project.QueryProjectTaskResponse;
 import cn.mapway.gwt_template.shared.rpc.project.UpdateProjectTaskRequest;
 import cn.mapway.gwt_template.shared.rpc.project.UpdateProjectTaskResponse;
 import cn.mapway.ui.client.mvc.Size;
+import cn.mapway.ui.client.util.StringUtil;
 import cn.mapway.ui.shared.rpc.RpcResult;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import elemental2.dom.DomGlobal;
+import elemental2.dom.HTMLImageElement;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -24,7 +28,6 @@ import java.util.Map;
 public class GanttDocument {
     //甘特图的头部高度
     public static final double GANTT_HEAD_HEIGHT = 64;
-    public static final int LEVEL_PADDING = 20;
     public static final String COLOR_BORDER_HOVER = "skyblue";
     public static final String COLOR_BORDER = "#e0e0e0";
     private final long MS_PER_DAY = 24 * 60 * 60 * 1000L;
@@ -42,6 +45,7 @@ public class GanttDocument {
     @Setter
     boolean isDraggingLeftPanel = false;
     List<GanttItem> selectedItems = new ArrayList<>();
+    Map<String, HTMLImageElement> avatars = new HashMap<>();
     @Getter
     private List<DevProjectTaskEntity> rootTasks;
     private long startTimeMillis = System.currentTimeMillis();   // 视图起始时间戳
@@ -52,6 +56,33 @@ public class GanttDocument {
         flatItems = new ArrayList<>();
         rootItems = new ArrayList<>();
         items = new HashMap<>();
+    }
+
+    public void populateCharge(GanttItem item) {
+        String url = AppResource.INSTANCE.noData().getSafeUri().asString();
+        if (!StringUtil.isBlank(item.getEntity().getChargeAvatar())) {
+            url = item.getEntity().getChargeAvatar();
+        }
+        if (StringUtil.isBlank(url)) {
+            url = AppResource.INSTANCE.emptyAvatar().getSafeUri().asString();
+        }
+
+        // 简单的缓存判断
+        if (item.getAvatar() != null && url.equals(item.getAvatar().src)) {
+            return;
+        }
+        HTMLImageElement img = avatars.get(url);
+        if (img == null) {
+            img = (HTMLImageElement) DomGlobal.document.createElement("img");
+            avatars.put(url, img);
+            img.src = url;
+            img.onload = (e) -> {
+                chart.redraw();
+                return null;
+            };
+        }
+        item.setAvatar(img);
+
     }
 
     // 将日期转换为相对于时间轴起始点的像素偏移
@@ -136,6 +167,7 @@ public class GanttDocument {
             }
             items.put(task.getId(), item);
             flatItems.add(item);
+            populateCharge(item);
             recursiveBuild(item, task.getChildren());
         }
     }
@@ -304,7 +336,6 @@ public class GanttDocument {
     }
 
 
-
     public void clearSelection() {
         for (GanttItem item : selectedItems) {
             item.setSelected(false);
@@ -350,7 +381,8 @@ public class GanttDocument {
 
     /**
      * 封装选择方法，确保状态同步
-     * @param item 要选中的项
+     *
+     * @param item        要选中的项
      * @param clearOthers 是否清除之前的选择
      */
     public void appendSelect(GanttItem item, boolean clearOthers) {

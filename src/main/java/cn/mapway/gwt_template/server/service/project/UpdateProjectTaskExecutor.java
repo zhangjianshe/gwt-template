@@ -133,6 +133,7 @@ public class UpdateProjectTaskExecutor extends AbstractBizExecutor<UpdateProject
         // 4. 返回最新数据
         DevProjectTaskEntity finalTask = dao.fetch(DevProjectTaskEntity.class, task.getId());
         UpdateProjectTaskResponse response = new UpdateProjectTaskResponse();
+        projectService.fillTaskExtraInfo(finalTask);
         response.setProjectTask(finalTask);
         return BizResult.success(response);
 

@@ -1,0 +1,23 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+    <ui:style>
+        .icon {
+            width: 100px;
+        }
+
+        .box {
+            display: flex;
+            align-items: center;
+            flex-flow: column;
+        }
+
+        .name {
+            line-height: 30px;
+            font-style: italic;
+        }</ui:style>
+    <g:HTMLPanel addStyleNames="{style.box}">
+        <g:Image ui:field="icon" addStyleNames="{style.icon}">
+        </g:Image>
+        <g:Label ui:field="lbName" addStyleNames="{style.name}"/>
+    </g:HTMLPanel>
+</ui:UiBinder>

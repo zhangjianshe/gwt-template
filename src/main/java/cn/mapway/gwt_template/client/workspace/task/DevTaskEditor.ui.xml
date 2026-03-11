@@ -1,0 +1,46 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:dialog="urn:import:cn.mapway.ui.client.widget.dialog"
+             xmlns:widget="urn:import:cn.mapway.ui.client.widget"
+             xmlns:task="urn:import:cn.mapway.gwt_template.client.workspace.task">
+    <ui:style>
+        .box {
+            display: grid;
+            grid-template-columns: 100px 1fr;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .charger {
+            padding: 10px;
+            border: solid 1px #e0e0e0;
+            border-radius: 8px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 130px;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 10px 20px;
+        }</ui:style>
+    <g:DockLayoutPanel>
+        <g:south size="68">
+            <dialog:SaveBar ui:field="saveBar"/>
+        </g:south>
+        <g:center>
+            <g:ScrollPanel>
+                <g:HTMLPanel addStyleNames="{style.grid}">
+                    <g:HTMLPanel addStyleNames="{style.box}">
+                        <widget:Header>任务名称</widget:Header>
+                        <widget:AiTextBox ui:field="txtName"/>
+                    </g:HTMLPanel>
+                    <g:VerticalPanel width="100%" horizontalAlignment="center" spacing="8">
+                        <widget:Header>负责人</widget:Header>
+                        <task:ProjectMemberWidget ui:field="member" addStyleNames="{style.charger}"/>
+                    </g:VerticalPanel>
+                </g:HTMLPanel>
+            </g:ScrollPanel>
+        </g:center>
+    </g:DockLayoutPanel>
+</ui:UiBinder>
