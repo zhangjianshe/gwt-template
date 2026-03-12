@@ -139,6 +139,15 @@
     margin: 6px 12px;
     overflow: hidden;
 }
+/* 禁用的菜单项 */
+.menuItemDisabled {
+    color: #999 !important;
+    cursor: not-allowed !important;
+    /* 核心：让元素不响应任何鼠标点击或悬停 */
+    pointer-events: none;
+    opacity: 0.6;
+    background-color: transparent !important;
+}
 
 .primaryText {
     color: #1890ff;       /* 品牌蓝 */

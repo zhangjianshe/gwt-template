@@ -47,4 +47,6 @@ public interface AppCss extends CssResource {
     String primaryText();
 
     String mainBackground();
+
+    String menuItemDisabled();
 }

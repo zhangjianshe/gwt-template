@@ -48,6 +48,9 @@ public class GanttMouseActionDefault implements IMouseHandler {
                     case AMK_IMPORT_TASK:
                         showImportDialog(result.getGanttItem());
                         break;
+                    case AMK_DELETE_TASK:
+                        confirmDeleteTask(result.getGanttItem());
+                        break;
                 }
                 if (ganttMenu.isShowing()) {
                     ganttMenu.hide();
@@ -65,13 +68,17 @@ public class GanttMouseActionDefault implements IMouseHandler {
         buildMenu();
     }
 
+    private void confirmDeleteTask(GanttItem ganttItem) {
+        chart.getDocument().deleteItem(ganttItem);
+    }
+
     private void showImportDialog(GanttItem ganttItem) {
         Dialog<DataEditorDialog> dialog = DataEditorDialog.getDialog(true);
         dialog.addCommonHandler(new CommonEventHandler() {
             @Override
             public void onCommonEvent(CommonEvent event) {
                 if (event.isOk()) {
-                    if (ganttItem.getEntity() == null) {
+                    if (ganttItem == null) {
                         doImportData(chart.getProjectId(), null, event.getValue());
                     } else {
                         doImportData(chart.getProjectId(), ganttItem.getEntity().getId(), event.getValue());
@@ -195,15 +202,6 @@ public class GanttMouseActionDefault implements IMouseHandler {
     }
 
 
-    private Timestamp nextDay(int days) {
-        // 使用 JsDate 处理日期加减，能自动处理跨月/跨年（例如 1月31日 + 1 = 2月1日）
-        elemental2.core.JsDate now = new elemental2.core.JsDate(System.currentTimeMillis());
-        now.setDate(now.getDate() + days);
-
-        // 关键修正：必须使用 getTime() 获取 1970 至今的毫秒数
-        return new Timestamp((long) now.getTime());
-    }
-
     private Timestamp nextDayAtMorning(int days) {
         elemental2.core.JsDate now = new elemental2.core.JsDate();
         now.setDate(now.getDate() + days);
@@ -221,10 +219,8 @@ public class GanttMouseActionDefault implements IMouseHandler {
         ganttMenu.addItem(createUnicodeIcon("✚", "创建任务"), ActionMenuKind.AMK_CREATE_TASK);
         ganttMenu.addItem(createUnicodeIcon("↳", "创建子任务"), ActionMenuKind.AMK_CREATE_SUB_TASK);
         ganttMenu.addItem(createUnicodeIcon("📥", "导入任务"), ActionMenuKind.AMK_IMPORT_TASK);
-
         // 可以加一个分割线符号
-        // ganttMenu.addItem("----------------", null);
-
+        ganttMenu.addSeparator();
         ganttMenu.addItem(createUnicodeIcon("🗑", "删除任务"), ActionMenuKind.AMK_DELETE_TASK);
         ganttMenu.addCommonHandler(menuHandler);
 
@@ -244,6 +240,9 @@ public class GanttMouseActionDefault implements IMouseHandler {
 
     @Override
     public void start(GanttHitResult hitResult, MouseDownEvent event) {
+        if (!chart.getDocument().isValid()) {
+            return;
+        }
         if (event.getNativeButton() == NativeEvent.BUTTON_RIGHT) {
             switch (result.hitTest) {
                 case HIT_GANTT_ITEM:

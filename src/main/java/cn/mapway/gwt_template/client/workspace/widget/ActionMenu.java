@@ -34,25 +34,37 @@ public class ActionMenu extends PopupPanel implements HasCommonHandlers, IData<T
         setWidget(container);
     }
 
-    /**
-     * 添加菜单项
-     *
-     * @param label 显示文字
-     */
-    public void addItem(String label, ActionMenuKind menuItemKind) {
-        AiLabel item = new AiLabel();
-        item.getElement().setInnerHTML(label);
-        item.setStyleName(AppResource.INSTANCE.styles().menuItem());
-        item.setData(menuItemKind);
-
-        item.addClickHandler(itemClicked);
-        container.add(item);
-    }
 
 
     @Override
     public HandlerRegistration addCommonHandler(CommonEventHandler handler) {
         return addHandler(handler, CommonEvent.TYPE);
+    }
+    public void addItem(String label, ActionMenuKind menuItemKind, boolean enabled) {
+        AiLabel item = new AiLabel();
+        item.getElement().setInnerHTML(label);
+        item.setData(menuItemKind);
+
+        if (enabled) {
+            item.setStyleName(AppResource.INSTANCE.styles().menuItem());
+            item.addClickHandler(itemClicked);
+        } else {
+            // 使用禁用样式
+            item.addStyleName(AppResource.INSTANCE.styles().menuItem());
+            item.addStyleName(AppResource.INSTANCE.styles().menuItemDisabled());
+
+            // 禁用状态下不添加 ClickHandler，或者在 ClickHandler 中判断
+            // 这里不添加 ClickHandler 是最彻底的逻辑禁止
+        }
+
+        container.add(item);
+    }
+
+    /**
+     * 重载原有的方法，默认启用
+     */
+    public void addItem(String label, ActionMenuKind menuItemKind) {
+        addItem(label, menuItemKind, true);
     }
 
     @Override

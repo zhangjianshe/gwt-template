@@ -5,10 +5,7 @@ import cn.mapway.gwt_template.client.resource.AppResource;
 import cn.mapway.gwt_template.client.rpc.AppProxy;
 import cn.mapway.gwt_template.client.workspace.events.GanttHitResult;
 import cn.mapway.gwt_template.shared.db.DevProjectTaskEntity;
-import cn.mapway.gwt_template.shared.rpc.project.QueryProjectTaskRequest;
-import cn.mapway.gwt_template.shared.rpc.project.QueryProjectTaskResponse;
-import cn.mapway.gwt_template.shared.rpc.project.UpdateProjectTaskRequest;
-import cn.mapway.gwt_template.shared.rpc.project.UpdateProjectTaskResponse;
+import cn.mapway.gwt_template.shared.rpc.project.*;
 import cn.mapway.ui.client.mvc.Size;
 import cn.mapway.ui.client.util.StringUtil;
 import cn.mapway.ui.shared.CommonEvent;
@@ -17,8 +14,10 @@ import com.google.gwt.animation.client.Animation;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import elemental2.dom.DomGlobal;
 import elemental2.dom.HTMLImageElement;
+import elemental2.promise.IThenable;
 import lombok.Getter;
 import lombok.Setter;
+import org.jspecify.annotations.Nullable;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -52,6 +51,9 @@ public class GanttDocument {
     int maxCodeLength = 3;
     @Getter
     String projectId;
+    @Getter
+    boolean valid = false;
+    String errorMessage = "没有有用的消息";
     @Getter
     private List<DevProjectTaskEntity> rootTasks;
     private long startTimeMillis = System.currentTimeMillis();   // 视图起始时间戳
@@ -118,20 +120,32 @@ public class GanttDocument {
         rootTasks.clear();
         chart.redraw();
 
+        if (StringUtil.isBlank(projectId)) {
+            valid = false;
+            errorMessage = "没有项目ID";
+            return;
+        }
+
         QueryProjectTaskRequest request = new QueryProjectTaskRequest();
         request.setProjectId(projectId);
         AppProxy.get().queryProjectTask(request, new AsyncCallback<RpcResult<QueryProjectTaskResponse>>() {
             @Override
             public void onFailure(Throwable caught) {
                 ClientContext.get().toast(0, 0, caught.getMessage());
+                valid = false;
+                errorMessage = caught.getMessage();
             }
 
             @Override
             public void onSuccess(RpcResult<QueryProjectTaskResponse> result) {
                 if (result.isSuccess()) {
+                    valid = true;
+                    errorMessage = "";
                     buildTree(result.getData());
                 } else {
                     ClientContext.get().toast(0, 0, result.getMessage());
+                    valid = false;
+                    errorMessage = result.getMessage();
                 }
             }
         });
@@ -557,7 +571,6 @@ public class GanttDocument {
         scrollToTimestamp(targetStartTime, scrollTop);
     }
 
-
     public void updateEntity(DevProjectTaskEntity taskEntity) {
         if (taskEntity == null) {
             return;
@@ -570,7 +583,6 @@ public class GanttDocument {
         item.setEntity(item.getEntity());
     }
 
-
     private void copyData(DevProjectTaskEntity updatedTask, DevProjectTaskEntity entity) {
         entity.setCharger(updatedTask.getCharger());
         entity.setName(updatedTask.getName());
@@ -582,4 +594,86 @@ public class GanttDocument {
     public void reload() {
         loadDocument(projectId);
     }
+
+    public String getMessage() {
+        return errorMessage;
+    }
+
+    public void deleteItem(GanttItem ganttItem) {
+        if (ganttItem == null) {
+            return;
+        }
+        if (!ganttItem.getEntity().getChildren().isEmpty()) {
+            ClientContext.get().confirm("不能删除有子任务的任务");
+            return;
+        }
+        String msg = "删除任务" + ganttItem.getEntity().getName() + "?";
+        ClientContext.get().confirmDelete(msg).then(new IThenable.ThenOnFulfilledCallbackFn<Void, Object>() {
+            @Override
+            public @Nullable IThenable<Object> onInvoke(Void p0) {
+                doDeleteItem(ganttItem);
+                return null;
+            }
+        });
+
+    }
+
+    private void doDeleteItem(GanttItem ganttItem) {
+
+        DeleteProjectTaskRequest request = new DeleteProjectTaskRequest();
+        request.setTaskId(ganttItem.getEntity().getId());
+        AppProxy.get().deleteProjectTask(request, new AsyncCallback<RpcResult<DeleteProjectTaskResponse>>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                ClientContext.get().toast(0, 0, caught.getMessage());
+            }
+
+            @Override
+            public void onSuccess(RpcResult<DeleteProjectTaskResponse> result) {
+                if (result.isSuccess()) {
+                    removeItem(ganttItem);
+                } else {
+                    ClientContext.get().toast(0, 0, result.getMessage());
+                }
+            }
+        });
+
+    }
+
+    private void removeItem(GanttItem ganttItem) {
+        if (ganttItem == null) {
+            return;
+        }
+        int index = flatItems.indexOf(ganttItem);
+        String id = ganttItem.getEntity().getId();
+
+        // 1. 从父节点或根节点列表中移除自己
+        if (ganttItem.getParent() == null) {
+            rootItems.remove(ganttItem);
+            // 同时同步 rootTasks 数据源，保持 Document 结构一致
+            rootTasks.remove(ganttItem.getEntity());
+        } else {
+            ganttItem.getParent().getChildren().remove(ganttItem);
+            // 如果 Entity 结构里也有 children 引用，也需要清理
+            ganttItem.getParent().getEntity().getChildren().remove(ganttItem.getEntity());
+        }
+
+        // 2. 从全局索引和扁平列表中移除
+        items.remove(id);
+        rebuildFlatList();
+
+        // 3. 处理选中状态：如果被删除的是当前选中项，需要清空选中
+        selectedItems.remove(ganttItem);
+
+        // 4. 关键：重新布局并重绘
+        reLayout();
+
+        // 自动选中下一项
+        if (!flatItems.isEmpty()) {
+            int nextIndex = Math.min(index, flatItems.size() - 1);
+            appendSelect(flatItems.get(nextIndex), true);
+        }
+
+    }
+
 }

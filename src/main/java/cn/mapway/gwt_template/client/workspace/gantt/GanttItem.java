@@ -123,6 +123,7 @@ public class GanttItem extends BaseNode {
 
         // 动态计算剩余宽度，防止文字挤到负责人那一列
         ctx.setFont("22px mapway-font");
+        ctx.textAlign = "left";
         ctx.fillText(kind.getUnicode(), nameX, y + h / 2);
 
         ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("#333");

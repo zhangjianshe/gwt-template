@@ -46,7 +46,6 @@ public class GanttChart extends CanvasWidget implements RequiresResize, IData<St
         installEvents();
     }
 
-
     private void installEvents() {
         addMouseDownHandler(event -> {
             mouseHandlerProxy.onMouseDown(event);
@@ -89,6 +88,14 @@ public class GanttChart extends CanvasWidget implements RequiresResize, IData<St
 
         ctx.setTransform(dpr, 0, 0, dpr, -0.5, -0.5);
         ctx.clearRect(0, 0, getOffsetWidth(), getOffsetHeight());
+
+        if (!document.isValid()) {
+            ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("#333");
+            ctx.setFont("18px  sans-serif");
+            ctx.textAlign = "center";
+            ctx.fillText(document.getMessage(), (double) getOffsetWidth() / 2, (double) getOffsetHeight() / 2);
+            return;
+        }
 
         withContext(ctx, () -> {
             // 1. 底层：背景网格
@@ -175,6 +182,13 @@ public class GanttChart extends CanvasWidget implements RequiresResize, IData<St
                 if (item.getRect().y + item.getRect().height > 0 && item.getRect().y < chartHeight) {
                     item.drawFixedInfo(document, ctx);
                 }
+            }
+            if (document.getFlatItems().isEmpty()) {
+                ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("#666");
+                ctx.font = "14px sans-serif";
+                ctx.textAlign = "center";
+                // 确保这里不是 0
+                ctx.fillText("右键创建或者导入任务", document.getLeftPanelWidth() / 2, 200);
             }
         });
         // 3. 绘制右侧边界线
@@ -278,7 +292,7 @@ public class GanttChart extends CanvasWidget implements RequiresResize, IData<St
                 // 绘制月份文字
                 if (monthWidth > 60) { // 宽度足够才显示文字
                     ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("#333");
-                    ctx.font = "bold 12px sans-serif";
+                    ctx.font = "bold 14px sans-serif";
                     ctx.textAlign = "left";
                     String label = lastYear + "年" + (lastMonth + 1) + "月";
 

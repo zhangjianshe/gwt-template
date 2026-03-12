@@ -14,4 +14,5 @@ import java.io.Serializable;
 @Data
 @Doc("DeleteProjectTaskRequest")
 public class DeleteProjectTaskRequest implements Serializable, IsSerializable {
+    String taskId;
 }
