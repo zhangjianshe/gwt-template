@@ -142,7 +142,7 @@ public class UpdateProjectTaskExecutor extends AbstractBizExecutor<UpdateProject
                     }
                 }
 
-                if (task.getKind() == null) {
+                if (task.getKind() != null) {
 
                     DevTaskKind newKind = DevTaskKind.fromCode(task.getKind());
                     if (newKind == DevTaskKind.DTK_MILESTONE || newKind == DevTaskKind.DTK_SUMMARY) {
