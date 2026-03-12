@@ -6,8 +6,12 @@ import cn.mapway.ui.client.mvc.Size;
 import cn.mapway.ui.client.tools.IData;
 import cn.mapway.ui.client.util.StringUtil;
 import cn.mapway.ui.client.widget.canvas.CanvasWidget;
+import cn.mapway.ui.shared.CommonEvent;
+import cn.mapway.ui.shared.CommonEventHandler;
+import cn.mapway.ui.shared.HasCommonHandlers;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Style;
+import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.ui.RequiresResize;
 import elemental2.dom.BaseRenderingContext2D;
 import elemental2.dom.CanvasRenderingContext2D;
@@ -19,7 +23,7 @@ import lombok.Getter;
 /**
  * 甘特图绘制
  */
-public class GanttChart extends CanvasWidget implements RequiresResize, IData<String> {
+public class GanttChart extends CanvasWidget implements RequiresResize, IData<String>, HasCommonHandlers {
 
     @Getter
     GanttDocument document;
@@ -87,26 +91,66 @@ public class GanttChart extends CanvasWidget implements RequiresResize, IData<St
         ctx.clearRect(0, 0, getOffsetWidth(), getOffsetHeight());
 
         withContext(ctx, () -> {
-
+            // 1. 底层：背景网格
             drawGrid(ctx, getOffsetWidth(), getOffsetHeight());
 
+            // 2. 中层：当前时间线 (放在 Item 之下，避免遮挡文字；或者放在 Item 之上，看你需求)
+            drawCurrentTimeLine(ctx);
 
+            // 3. 业务层：任务条
             for (GanttItem item : document.getFlatItems()) {
                 item.draw(document, ctx);
             }
 
+            // 4. 顶层：Header (防止时间线画过头到 Header 上)
             drawHeader(ctx, getOffsetWidth());
 
+            // 5. 顶层覆盖：左侧浮动面板 (裁剪掉溢出的时间线)
             drawFloatingLeftPanel(ctx);
 
-            //头部有一个底部的横线与内容区分
+            // 6. 分隔线
             ctx.beginPath();
             ctx.strokeStyle = BaseRenderingContext2D.StrokeStyleUnionType.of("#e0e0e0");
-            ctx.lineWidth = 2.;
+            ctx.lineWidth = 2.0;
             ctx.moveTo(0, GanttDocument.GANTT_HEAD_HEIGHT + 0.5);
             ctx.lineTo(getOffsetWidth(), GanttDocument.GANTT_HEAD_HEIGHT + 0.5);
             ctx.stroke();
+        });
+    }
 
+    private void drawCurrentTimeLine(CanvasRenderingContext2D ctx) {
+        double now = (double) new java.util.Date().getTime();
+        double x = document.getXByDate((long) now);
+
+        // 如果当前时间在屏幕可视范围外，则不绘制
+        if (x < document.getLeftPanelWidth() || x > getOffsetWidth()) {
+            return;
+        }
+
+        double headH = GanttDocument.GANTT_HEAD_HEIGHT;
+        double chartH = getOffsetHeight();
+
+        withContext(ctx, () -> {
+            // 设置样式：通常使用显眼的颜色，比如红色或主色调
+            ctx.strokeStyle = BaseRenderingContext2D.StrokeStyleUnionType.of("#ff4d4f");
+            ctx.lineWidth = 1.5;
+
+            // 1. 绘制虚线或实线
+            ctx.setLineDash(new double[]{4, 4}); // 虚线效果，如果喜欢实线可以去掉
+            ctx.beginPath();
+            ctx.moveTo(x, headH);
+            ctx.lineTo(x, chartH);
+            ctx.stroke();
+
+            // 2. 在 Header 下方绘制一个小三角形标识
+            ctx.setLineDash(new double[]{}); // 恢复实线
+            ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("#ff4d4f");
+            ctx.beginPath();
+            ctx.moveTo(x - 5, headH);
+            ctx.lineTo(x + 5, headH);
+            ctx.lineTo(x, headH + 8);
+            ctx.closePath();
+            ctx.fill();
         });
     }
 
@@ -332,5 +376,14 @@ public class GanttChart extends CanvasWidget implements RequiresResize, IData<St
 
     public void setEditorCursor() {
         setCursor("url(img/edit_cursor.png) 4 4, auto");
+    }
+
+    public void scrollToNow() {
+        getDocument().scrollToNow();
+    }
+
+    @Override
+    public HandlerRegistration addCommonHandler(CommonEventHandler handler) {
+        return addHandler(handler, CommonEvent.TYPE);
     }
 }

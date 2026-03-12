@@ -1,25 +1,34 @@
 package cn.mapway.gwt_template.client.workspace.task;
 
+import cn.mapway.gwt_template.client.ClientContext;
 import cn.mapway.gwt_template.client.rpc.AppProxy;
+import cn.mapway.gwt_template.client.workspace.widget.TaskKindDropdown;
 import cn.mapway.gwt_template.shared.db.DevProjectTaskEntity;
 import cn.mapway.gwt_template.shared.rpc.project.UpdateProjectTaskRequest;
 import cn.mapway.gwt_template.shared.rpc.project.UpdateProjectTaskResponse;
+import cn.mapway.gwt_template.shared.rpc.project.module.DevTaskKind;
+import cn.mapway.gwt_template.shared.rpc.project.module.DevTaskPriority;
 import cn.mapway.gwt_template.shared.rpc.project.module.ProjectMember;
 import cn.mapway.ui.client.mvc.Size;
 import cn.mapway.ui.client.tools.IData;
 import cn.mapway.ui.client.util.StringUtil;
-import cn.mapway.ui.client.widget.AiTextBox;
 import cn.mapway.ui.client.widget.CommonEventComposite;
+import cn.mapway.ui.client.widget.buttons.AiButton;
 import cn.mapway.ui.client.widget.dialog.Dialog;
-import cn.mapway.ui.client.widget.dialog.SaveBar;
 import cn.mapway.ui.shared.CommonEvent;
 import cn.mapway.ui.shared.rpc.RpcResult;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.DivElement;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
+import com.google.gwt.user.client.ui.HTMLPanel;
+import com.google.gwt.user.client.ui.TextBox;
 
 /**
  * 任务编辑器
@@ -28,15 +37,39 @@ public class DevTaskEditor extends CommonEventComposite implements IData<DevProj
     private static final DevTaskEditorUiBinder ourUiBinder = GWT.create(DevTaskEditorUiBinder.class);
     private static Dialog<DevTaskEditor> dialog;
     @UiField
-    SaveBar saveBar;
-    @UiField
-    AiTextBox txtName;
+    TextBox txtName;
     @UiField
     ProjectMemberWidget member;
+    @UiField
+    TaskKindDropdown ddlKind;
+    @UiField
+    DivElement back;
+    @UiField
+    HTMLPanel container;
+    @UiField
+    HTMLPanel editor;
+    @UiField
+    HTMLPanel tip;
+    @UiField
+    AiButton btnCreate;
+    @UiField
+    AiButton btnCreateSub;
+    @UiField
+    AiButton btnSave;
+    @UiField
+    AiButton btnClose;
     private DevProjectTaskEntity task;
 
     public DevTaskEditor() {
         initWidget(ourUiBinder.createAndBindUi(this));
+        btnCreate.setEnabled(false);
+        btnCreateSub.setEnabled(false);
+
+        ddlKind.addValueChangeHandler(event -> {
+            DevTaskKind kind = DevTaskKind.fromCode((Integer) event.getValue());
+            updatebackground(kind);
+            updateButtons(kind);
+        });
     }
 
     public static Dialog<DevTaskEditor> getDialog(boolean reuse) {
@@ -54,29 +87,15 @@ public class DevTaskEditor extends CommonEventComposite implements IData<DevProj
         return new Dialog<>(new DevTaskEditor(), "任务编辑");
     }
 
+    private void updatebackground(DevTaskKind kind) {
+        back.getStyle().setProperty("background", "linear-gradient(180deg, " + kind.getColor() + ", transparent)");
+    }
+
     @Override
     public Size requireDefaultSize() {
         return new Size(800, 450);
     }
 
-    @UiHandler("saveBar")
-    public void saveBarCommon(CommonEvent event) {
-        if (event.isOk()) {
-            DevProjectTaskEntity temp;
-            if (StringUtil.isBlank(task.getId())) {
-                temp = task;
-            } else {
-                temp = new DevProjectTaskEntity();
-                temp.setId(task.getId());
-            }
-            temp.setName(txtName.getText());
-            temp.setProjectId(task.getProjectId());
-            temp.setCharger(task.getCharger());
-            doSave(temp);
-        } else {
-            fireEvent(event);
-        }
-    }
 
     @UiHandler("member")
     public void memberCommon(CommonEvent event) {
@@ -86,21 +105,82 @@ public class DevTaskEditor extends CommonEventComposite implements IData<DevProj
         }
     }
 
+    @UiHandler("btnSave")
+    public void btnSaveClick(ClickEvent event) {
+        DevProjectTaskEntity temp;
+        if (StringUtil.isBlank(task.getId())) {
+            temp = task;
+        } else {
+            temp = new DevProjectTaskEntity();
+            temp.setId(task.getId());
+        }
+        temp.setName(txtName.getText());
+        temp.setProjectId(task.getProjectId());
+        temp.setCharger(task.getCharger());
+        temp.setKind((Integer) ddlKind.getValue());
+        doSave(temp);
+    }
+
+    @UiHandler("btnClose")
+    public void btnCloseClick(ClickEvent event) {
+        fireEvent(CommonEvent.closeEvent(null));
+    }
+
+    @UiHandler("btnCreate")
+    public void btnCreateClick(ClickEvent event) {
+        //创建同级下的新任务
+        DevProjectTaskEntity newTask = new DevProjectTaskEntity();
+        newTask.setName("新任务");
+        newTask.setCharger(task.getCharger());
+        newTask.setKind((Integer) ddlKind.getValue());
+        newTask.setParentId(task.getParentId());
+        newTask.setPriority(DevTaskPriority.MEDIUM.getCode());
+        newTask.setParentId(task.getParentId());
+        newTask.setProjectId(task.getProjectId());
+        setData(newTask);
+    }
+
+    @UiHandler("btnCreateSub")
+    public void btnCreateSubClick(ClickEvent event) {
+        DevProjectTaskEntity newTask = new DevProjectTaskEntity();
+        newTask.setName("新任务");
+        newTask.setCharger(task.getCharger());
+        newTask.setKind((Integer) ddlKind.getValue());
+        newTask.setParentId(task.getParentId());
+        newTask.setPriority(DevTaskPriority.MEDIUM.getCode());
+        newTask.setParentId(task.getId());
+        newTask.setProjectId(task.getProjectId());
+        setData(newTask);
+    }
+
+    @UiHandler("txtName")
+    public void txtNameKeyDown(KeyDownEvent event) {
+
+        if (btnSave.isEnabled() && event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
+            btnSave.click();
+        }
+    }
+
     private void doSave(DevProjectTaskEntity task) {
         UpdateProjectTaskRequest request = new UpdateProjectTaskRequest();
         request.setProjectTask(task);
         AppProxy.get().updateProjectTask(request, new AsyncCallback<RpcResult<UpdateProjectTaskResponse>>() {
             @Override
             public void onFailure(Throwable caught) {
-                saveBar.msg(caught.getMessage());
+                ClientContext.get().toast(0, 0, caught.getMessage());
             }
 
             @Override
             public void onSuccess(RpcResult<UpdateProjectTaskResponse> result) {
                 if (result.isSuccess()) {
-                    fireEvent(CommonEvent.updateEvent(result.getData().getProjectTask()));
+                    setData(result.getData().getProjectTask());
+                    if (StringUtil.isBlank(task.getId())) {
+                        fireEvent(CommonEvent.createEvent(result.getData().getProjectTask()));
+                    } else {
+                        fireEvent(CommonEvent.updateEvent(result.getData().getProjectTask()));
+                    }
                 } else {
-                    saveBar.msg(result.getMessage());
+                    ClientContext.get().toast(0, 0, result.getMessage());
                 }
             }
         });
@@ -118,8 +198,41 @@ public class DevTaskEditor extends CommonEventComposite implements IData<DevProj
     }
 
     private void toUI() {
+        if (task == null) {
+            btnSave.setEnabled(false);
+            btnCreate.setEnabled(false);
+            btnCreateSub.setEnabled(false);
+            tip.setVisible(true);
+            editor.setVisible(false);
+            return;
+        }
+        DevTaskKind kind
+                = DevTaskKind.fromCode(task.getKind());
+        updateButtons(kind);
         txtName.setText(task.getName());
         member.setData(task.getProjectId(), task.getCharger(), task.getChargeUserName(), task.getChargeAvatar());
+        ddlKind.setValue(task.getKind());
+        updatebackground(kind);
+    }
+
+    private void updateButtons(DevTaskKind kind) {
+
+        tip.setVisible(false);
+        editor.setVisible(true);
+
+        if (task.getId() == null) {
+            btnSave.setEnabled(true);
+            btnCreate.setEnabled(false);
+            btnCreateSub.setEnabled(false);
+        } else {
+            btnSave.setEnabled(true);
+            btnCreateSub.setEnabled(true);
+            btnCreate.setEnabled(true);
+        }
+
+        if (kind == DevTaskKind.DTK_SUMMARY || kind == DevTaskKind.DTK_MILESTONE) {
+            btnCreateSub.setEnabled(false);
+        }
     }
 
     interface DevTaskEditorUiBinder extends UiBinder<DockLayoutPanel, DevTaskEditor> {

@@ -15,6 +15,10 @@ import cn.mapway.gwt_template.shared.rpc.user.QueryUserInfoResponse;
 import cn.mapway.gwt_template.shared.rpc.user.UpdateUserInfoRequest;
 import cn.mapway.gwt_template.shared.rpc.user.UpdateUserInfoResponse;
 import cn.mapway.gwt_template.shared.rpc.webhook.*;
+import cn.mapway.gwt_template.shared.rpc.workspace.ExportDevProjectTaskRequest;
+import cn.mapway.gwt_template.shared.rpc.workspace.ExportDevProjectTaskResponse;
+import cn.mapway.gwt_template.shared.rpc.workspace.ImportDevProjectTaskRequest;
+import cn.mapway.gwt_template.shared.rpc.workspace.ImportDevProjectTaskResponse;
 import cn.mapway.rbac.shared.rpc.LoginRequest;
 import cn.mapway.rbac.shared.rpc.LoginResponse;
 import cn.mapway.ui.shared.rpc.RpcResult;
@@ -24,6 +28,10 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 @RemoteServiceRelativePath(AppConstant.DEFAULT_SERVER_PATH)
 public interface IAppServer extends RemoteService {
     ///CODE_GEN_INSERT_POINT///
+	RpcResult<ExportDevProjectTaskResponse> exportDevProjectTask(ExportDevProjectTaskRequest request);
+
+	RpcResult<ImportDevProjectTaskResponse> importDevProjectTask(ImportDevProjectTaskRequest request);
+
 	RpcResult<QueryUserInfoResponse> queryUserInfo(QueryUserInfoRequest request);
 
 	RpcResult<QueryDevWorkspaceMemberResponse> queryDevWorkspaceMember(QueryDevWorkspaceMemberRequest request);

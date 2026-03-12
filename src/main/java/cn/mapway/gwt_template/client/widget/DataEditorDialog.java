@@ -89,6 +89,10 @@ public class DataEditorDialog extends CommonEventComposite implements IData<Stri
     }
 
 
+    public void setTabIndent(boolean enable){
+        dataEditor.setUseSoftTabs(!enable);
+    }
+
     public void setLanguage(CodeLanguage codeLanguage) {
         if (codeLanguage == null) {
             dataEditor.setMode(AceEditorMode.TEXT);

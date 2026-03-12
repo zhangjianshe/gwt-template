@@ -1,44 +1,90 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
              xmlns:g='urn:import:com.google.gwt.user.client.ui'
-             xmlns:dialog="urn:import:cn.mapway.ui.client.widget.dialog"
-             xmlns:widget="urn:import:cn.mapway.ui.client.widget"
-             xmlns:task="urn:import:cn.mapway.gwt_template.client.workspace.task">
+             xmlns:task="urn:import:cn.mapway.gwt_template.client.workspace.task"
+             xmlns:widget2="urn:import:cn.mapway.gwt_template.client.workspace.widget"
+             xmlns:buttons="urn:import:cn.mapway.ui.client.widget.buttons">
     <ui:style>
-        .box {
-            display: grid;
-            grid-template-columns: 100px 1fr;
-            gap: 1rem;
-            align-items: center;
-        }
+
 
         .charger {
-            padding: 10px;
-            border: solid 1px #e0e0e0;
+            position: absolute;
+            left: 10px;
+            top: 30px;
+            width: 70px;
+            height: 140px;
             border-radius: 8px;
         }
 
-        .grid {
-            display: grid;
-            grid-template-columns: 1fr 130px;
-            align-items: flex-start;
-            gap: 1rem;
-            padding: 10px 20px;
+        .body {
+            background-color: white;
+        }
+
+        .top {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .name {
+            position: absolute;
+            left: 90px;
+            top: 60px;
+            right: 10px;
+            height: 36px;
+            width: auto !important;
+        }
+
+        .kind {
+            position: absolute;
+            left: 90px;
+            top: 20px;
+            right: 10px;
+            height: 36px;
+        }
+
+        .back {
+            position: absolute;
+            left: 0;
+            top: 0;
+            right: 0;
+            height: 125px;
+            background-color: brown;
+        }
+
+        .tip {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 300px;
+        }
+
+        .bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-top: solid 1px #f0f0f0;
         }</ui:style>
-    <g:DockLayoutPanel>
-        <g:south size="68">
-            <dialog:SaveBar ui:field="saveBar"/>
+    <g:DockLayoutPanel addStyleNames="{style.body}">
+        <g:south size="56">
+            <g:HTMLPanel addStyleNames="{style.bar}">
+                <buttons:AiButton ui:field="btnCreateSub">创建子任务</buttons:AiButton>
+                <buttons:AiButton ui:field="btnCreate">创建下一个</buttons:AiButton>
+                <buttons:AiButton ui:field="btnSave">保存</buttons:AiButton>
+                <buttons:AiButton ui:field="btnClose">关闭</buttons:AiButton>
+            </g:HTMLPanel>
         </g:south>
         <g:center>
             <g:ScrollPanel>
-                <g:HTMLPanel addStyleNames="{style.grid}">
-                    <g:HTMLPanel addStyleNames="{style.box}">
-                        <widget:Header>任务名称</widget:Header>
-                        <widget:AiTextBox ui:field="txtName"/>
+                <g:HTMLPanel ui:field="container">
+                    <g:HTMLPanel ui:field="tip" addStyleNames="{style.tip}">
+                        <g:Label>请选择任务编辑</g:Label>
                     </g:HTMLPanel>
-                    <g:VerticalPanel width="100%" horizontalAlignment="center" spacing="8">
-                        <widget:Header>负责人</widget:Header>
+                    <g:HTMLPanel ui:field="editor" addStyleNames="{style.top}">
+                        <div class="{style.back}" ui:field="back"/>
                         <task:ProjectMemberWidget ui:field="member" addStyleNames="{style.charger}"/>
-                    </g:VerticalPanel>
+                        <g:TextBox ui:field="txtName" addStyleNames="ai-input {style.name}"/>
+                        <widget2:TaskKindDropdown width="" ui:field="ddlKind" addStyleNames="{style.kind}"/>
+                    </g:HTMLPanel>
                 </g:HTMLPanel>
             </g:ScrollPanel>
         </g:center>

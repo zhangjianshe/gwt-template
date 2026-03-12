@@ -59,8 +59,7 @@ public class QueryProjectTaskExecutor extends AbstractBizExecutor<QueryProjectTa
         // 1. 查询该项目下的所有任务，按优先级和编号排序
         List<DevProjectTaskEntity> allTasks = dao.query(DevProjectTaskEntity.class,
                 Cnd.where(DevProjectTaskEntity.FLD_PROJECT_ID, "=", projectId)
-                        .asc(DevProjectTaskEntity.FLD_PRIORITY)
-                        .asc(DevProjectTaskEntity.FLD_ID));
+                        .asc(DevProjectTaskEntity.FLD_CODE));
 
         // 2. 内存组装树形结构
         Map<String, DevProjectTaskEntity> taskMap = new HashMap<>();

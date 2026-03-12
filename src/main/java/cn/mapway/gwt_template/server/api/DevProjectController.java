@@ -4,7 +4,13 @@ import cn.mapway.biz.core.BizRequest;
 import cn.mapway.biz.core.BizResult;
 import cn.mapway.document.annotation.Doc;
 import cn.mapway.gwt_template.server.service.project.*;
+import cn.mapway.gwt_template.server.service.workspace.ExportDevProjectTaskExecutor;
+import cn.mapway.gwt_template.server.service.workspace.ImportDevProjectTaskExecutor;
 import cn.mapway.gwt_template.shared.rpc.project.*;
+import cn.mapway.gwt_template.shared.rpc.workspace.ExportDevProjectTaskRequest;
+import cn.mapway.gwt_template.shared.rpc.workspace.ExportDevProjectTaskResponse;
+import cn.mapway.gwt_template.shared.rpc.workspace.ImportDevProjectTaskRequest;
+import cn.mapway.gwt_template.shared.rpc.workspace.ImportDevProjectTaskResponse;
 import cn.mapway.ui.shared.rpc.RpcResult;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -88,6 +94,37 @@ public class DevProjectController extends ApiBaseController {
     QueryProjectActionsExecutor queryProjectActionsExecutor;
     @Resource
     QueryDevWorkspaceMemberExecutor queryDevWorkspaceMemberExecutor;
+    @Resource
+    ImportDevProjectTaskExecutor importDevProjectTaskExecutor;
+    @Resource
+    ExportDevProjectTaskExecutor exportDevProjectTaskExecutor;
+
+    /**
+     * ImportDevProjectTask
+     *
+     * @param request request
+     * @return data
+     */
+    @Doc(value = "ImportDevProjectTask", retClazz = {ImportDevProjectTaskResponse.class})
+    @RequestMapping(value = "/importDevProjectTask", method = RequestMethod.POST)
+    public RpcResult<ImportDevProjectTaskResponse> importDevProjectTask(@RequestBody ImportDevProjectTaskRequest request) {
+        BizResult<ImportDevProjectTaskResponse> bizResult = importDevProjectTaskExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toApiResult(bizResult);
+    }
+
+    /**
+     * ExportDevProjectTask
+     *
+     * @param request request
+     * @return data
+     */
+    @Doc(value = "ExportDevProjectTask", retClazz = {ExportDevProjectTaskResponse.class})
+    @RequestMapping(value = "/exportDevProjectTask", method = RequestMethod.POST)
+    public RpcResult<ExportDevProjectTaskResponse> exportDevProjectTask(@RequestBody ExportDevProjectTaskRequest request) {
+        BizResult<ExportDevProjectTaskResponse> bizResult = exportDevProjectTaskExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toApiResult(bizResult);
+    }
+
 
     /**
      * QueryDevWorkspaceMember

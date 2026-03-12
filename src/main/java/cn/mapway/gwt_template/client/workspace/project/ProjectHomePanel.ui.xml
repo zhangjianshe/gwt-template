@@ -28,7 +28,7 @@
             <g:header>项目任务</g:header>
             <g:DockLayoutPanel>
                 <g:center>
-                    <gantt:GanttChart width="100%" height="100%" ui:field="ganttChart"/>
+                    <gantt:GanttWidget ui:field="gantt"/>
                 </g:center>
             </g:DockLayoutPanel>
         </g:tab>

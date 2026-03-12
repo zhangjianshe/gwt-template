@@ -21,6 +21,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.sql.Timestamp;
+import java.util.Calendar;
 
 /**
  * UpdateProjectTaskExecutor
@@ -64,11 +65,6 @@ public class UpdateProjectTaskExecutor extends AbstractBizExecutor<UpdateProject
             if (task.getStatus() == null) {
                 task.setStatus(DevTaskStatus.DTS_CREATED.getCode());
             }
-            // 如果是里程碑或分组，强制清理负责人(按需决定)
-            DevTaskKind kind = DevTaskKind.fromCode(task.getKind());
-            if (kind == DevTaskKind.DTK_FOLDER) {
-                task.setCharger(null);
-            }
         }
 
 
@@ -89,13 +85,41 @@ public class UpdateProjectTaskExecutor extends AbstractBizExecutor<UpdateProject
                 task.setCreateTime(new Timestamp(System.currentTimeMillis()));
                 task.setCreateUserId(currentUserId);
 
-                // 如果没有设置开始时间，默认为当前
-                if (task.getStartTime() == null) {
-                    task.setStartTime(task.getCreateTime());
-                }
-                // 如果没有预估时间，默认当前+3天
-                if (task.getEstimateTime() == null) {
-                    task.setEstimateTime(new Timestamp(System.currentTimeMillis() + 3 * 24 * 3600 * 1000L));
+                DevTaskKind kind = DevTaskKind.fromCode(task.getKind());
+                if (kind == DevTaskKind.DTK_MILESTONE) {
+                    // 获取一个日历实例
+                    Calendar cal = Calendar.getInstance();
+
+                    // 如果任务原本没有开始时间，则以当前时间为准
+                    if (task.getStartTime() == null) {
+                        cal.setTimeInMillis(System.currentTimeMillis());
+                    } else {
+                        cal.setTime(task.getStartTime());
+                    }
+
+                    // 1. 设置开始时间为当天的 00:00:00
+                    cal.set(Calendar.HOUR_OF_DAY, 0);
+                    cal.set(Calendar.MINUTE, 0);
+                    cal.set(Calendar.SECOND, 0);
+                    cal.set(Calendar.MILLISECOND, 0);
+                    task.setStartTime(new Timestamp(cal.getTimeInMillis()));
+
+                    // 2. 设置结束时间为当天的 23:59:59
+                    cal.set(Calendar.HOUR_OF_DAY, 23);
+                    cal.set(Calendar.MINUTE, 59);
+                    cal.set(Calendar.SECOND, 0);
+                    cal.set(Calendar.MILLISECOND, 0);
+                    task.setEstimateTime(new Timestamp(cal.getTimeInMillis()));
+
+                } else {
+                    // 如果没有设置开始时间，默认为当前
+                    if (task.getStartTime() == null) {
+                        task.setStartTime(task.getCreateTime());
+                    }
+                    // 如果没有预估时间，默认当前+3天
+                    if (task.getEstimateTime() == null) {
+                        task.setEstimateTime(new Timestamp(System.currentTimeMillis() + 3 * 24 * 3600 * 1000L));
+                    }
                 }
 
                 dao.insert(task);
@@ -116,6 +140,16 @@ public class UpdateProjectTaskExecutor extends AbstractBizExecutor<UpdateProject
                     if (dbTask.getEndTime() == null) {
                         task.setEndTime(new Timestamp(System.currentTimeMillis()));
                     }
+                }
+
+                DevTaskKind newKind = DevTaskKind.fromCode(task.getKind());
+                if (newKind == DevTaskKind.DTK_MILESTONE || newKind == DevTaskKind.DTK_SUMMARY) {
+                    //里程碑和 说明不能有子节点
+                    int count = projectService.getChildCountOfTask(task.getId());
+                    if (count > 0) {
+                        throw new RuntimeException("任务下有子任务 不能转变为里程碑或者说明类型");
+                    }
+
                 }
 
                 // 安全过滤：禁止修改关键归属字段

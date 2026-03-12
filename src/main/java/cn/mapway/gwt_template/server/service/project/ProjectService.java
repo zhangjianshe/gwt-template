@@ -474,4 +474,8 @@ public class ProjectService {
         finalTask.setChargeUserName(fetch.getUserName());
         finalTask.setChargeAvatar(fetch.getAvatar());
     }
+
+    public int getChildCountOfTask(String taskId) {
+        return dao.count(DevProjectTaskEntity.class,Cnd.where(DevProjectTaskEntity.FLD_PARENT_ID, "=", taskId));
+    }
 }

@@ -32,6 +32,8 @@ import cn.mapway.gwt_template.server.service.user.TokenService;
 import cn.mapway.gwt_template.server.service.user.UpdateUserInfoExecutor;
 import cn.mapway.gwt_template.server.service.user.login.LoginProvider;
 import cn.mapway.gwt_template.server.service.webhook.*;
+import cn.mapway.gwt_template.server.service.workspace.ExportDevProjectTaskExecutor;
+import cn.mapway.gwt_template.server.service.workspace.ImportDevProjectTaskExecutor;
 import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.rpc.config.*;
 import cn.mapway.gwt_template.shared.rpc.desktop.*;
@@ -48,6 +50,10 @@ import cn.mapway.gwt_template.shared.rpc.user.UpdateUserInfoRequest;
 import cn.mapway.gwt_template.shared.rpc.user.UpdateUserInfoResponse;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
 import cn.mapway.gwt_template.shared.rpc.webhook.*;
+import cn.mapway.gwt_template.shared.rpc.workspace.ExportDevProjectTaskRequest;
+import cn.mapway.gwt_template.shared.rpc.workspace.ExportDevProjectTaskResponse;
+import cn.mapway.gwt_template.shared.rpc.workspace.ImportDevProjectTaskRequest;
+import cn.mapway.gwt_template.shared.rpc.workspace.ImportDevProjectTaskResponse;
 import cn.mapway.rbac.shared.rpc.LoginRequest;
 import cn.mapway.rbac.shared.rpc.LoginResponse;
 import cn.mapway.ui.server.CheckUserServlet;
@@ -123,6 +129,26 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
     QueryConfigExecutor queryConfigExecutor;
 
     ///CODE_GEN_INSERT_POINT///
+	
+    @Resource
+    ExportDevProjectTaskExecutor exportDevProjectTaskExecutor;
+    @Override
+    public RpcResult<ExportDevProjectTaskResponse> exportDevProjectTask(ExportDevProjectTaskRequest request) {
+        BizResult<ExportDevProjectTaskResponse> bizResult = exportDevProjectTaskExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    ImportDevProjectTaskExecutor importDevProjectTaskExecutor;
+    @Override
+    public RpcResult<ImportDevProjectTaskResponse> importDevProjectTask(ImportDevProjectTaskRequest request) {
+        BizResult<ImportDevProjectTaskResponse> bizResult = importDevProjectTaskExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
 
     @Resource
     QueryUserInfoExecutor queryUserInfoExecutor;

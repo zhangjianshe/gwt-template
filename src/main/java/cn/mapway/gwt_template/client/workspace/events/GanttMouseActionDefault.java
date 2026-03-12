@@ -1,28 +1,31 @@
 package cn.mapway.gwt_template.client.workspace.events;
 
+import cn.mapway.gwt_template.client.rpc.AppProxy;
+import cn.mapway.gwt_template.client.widget.DataEditorDialog;
 import cn.mapway.gwt_template.client.workspace.gantt.GanttChart;
 import cn.mapway.gwt_template.client.workspace.gantt.GanttItem;
-import cn.mapway.gwt_template.client.workspace.task.DevTaskEditor;
 import cn.mapway.gwt_template.client.workspace.widget.ActionMenu;
 import cn.mapway.gwt_template.client.workspace.widget.ActionMenuKind;
 import cn.mapway.gwt_template.shared.db.DevProjectTaskEntity;
 import cn.mapway.gwt_template.shared.rpc.project.module.DevTaskKind;
 import cn.mapway.gwt_template.shared.rpc.project.module.DevTaskStatus;
+import cn.mapway.gwt_template.shared.rpc.workspace.ImportDevProjectTaskRequest;
+import cn.mapway.gwt_template.shared.rpc.workspace.ImportDevProjectTaskResponse;
 import cn.mapway.ui.client.mvc.Size;
 import cn.mapway.ui.client.widget.dialog.Dialog;
 import cn.mapway.ui.shared.CommonEvent;
 import cn.mapway.ui.shared.CommonEventHandler;
+import cn.mapway.ui.shared.rpc.RpcResult;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.*;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import java.sql.Timestamp;
 
 public class GanttMouseActionDefault implements IMouseHandler {
     final GanttChart chart;
-    Size origin = new Size(0, 0);
     Size current = new Size(0, 0);
-    boolean mouseDown = false;
     GanttHitResult result = new GanttHitResult();
     GanttItem lastHoverItem = null;
     private ActionMenu ganttMenu;
@@ -34,13 +37,16 @@ public class GanttMouseActionDefault implements IMouseHandler {
                 ActionMenuKind kind = event.getValue();
                 switch (kind) {
                     case AMK_EDIT_TASK:
-                        editTask(result.getGanttItem());
+                        chart.fireEvent(CommonEvent.editEvent(result.getGanttItem().getEntity()));
                         break;
                     case AMK_CREATE_TASK:
                         addTask(result.getGanttItem());
                         break;
                     case AMK_CREATE_SUB_TASK:
                         addSubTask(result.getGanttItem());
+                        break;
+                    case AMK_IMPORT_TASK:
+                        showImportDialog(result.getGanttItem());
                         break;
                 }
                 if (ganttMenu.isShowing()) {
@@ -57,6 +63,77 @@ public class GanttMouseActionDefault implements IMouseHandler {
         chart = ganttChart;
         result.reset();
         buildMenu();
+    }
+
+    private void showImportDialog(GanttItem ganttItem) {
+        Dialog<DataEditorDialog> dialog = DataEditorDialog.getDialog(true);
+        dialog.addCommonHandler(new CommonEventHandler() {
+            @Override
+            public void onCommonEvent(CommonEvent event) {
+                if (event.isOk()) {
+                    if (ganttItem.getEntity() == null) {
+                        doImportData(chart.getProjectId(), null, event.getValue());
+                    } else {
+                        doImportData(chart.getProjectId(), ganttItem.getEntity().getId(), event.getValue());
+                    }
+                }
+                if (event.isClose()) {
+                    dialog.hide();
+                }
+            }
+        });
+        dialog.getContent().setSaveText("导入");
+        dialog.getContent().setToolbarVisible(false);
+        String msg = "# 导入任务内容 每行一条记录 开始空格会创建子任务允许多个空格连续 以上一条任务为基准\r\n";
+        msg += "# 以#开头的行将会被忽略\r\n";
+        if (ganttItem == null) {
+            //导入根节点数据
+            msg += "# ------------------------------\r\n";
+            msg += "# 本次导入 将会导入到根目录中\r\n";
+        } else {
+            //导入到子节点中
+            msg += "# ------------------------------\r\n";
+            msg += "# 本次导入 将会作为任务 " + ganttItem.getEntity().getName() + " 的子任务导入\r\n";
+        }
+        dialog.center();
+        //注意先显示对话框 然后在设置数据
+        dialog.getContent().setTabIndent(true);
+        dialog.getContent().setData(msg);
+    }
+
+    /**
+     * Task1
+     * Task2
+     * Task3
+     * Task4
+     * Task5
+     *
+     * @param value
+     */
+    private void doImportData(String projectId, String parentTaskId, String value) {
+        ImportDevProjectTaskRequest request = new ImportDevProjectTaskRequest();
+        request.setProjectId(projectId);
+        request.setParentTaskId(parentTaskId);
+        request.setBody(value);
+        AppProxy.get().importDevProjectTask(request, new AsyncCallback<RpcResult<ImportDevProjectTaskResponse>>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                Dialog<DataEditorDialog> dialog = DataEditorDialog.getDialog(true);
+                dialog.getContent().setMessage(caught.getMessage());
+            }
+
+            @Override
+            public void onSuccess(RpcResult<ImportDevProjectTaskResponse> result) {
+                if (result.isSuccess()) {
+                    chart.getDocument().reload();
+                    Dialog<DataEditorDialog> dialog = DataEditorDialog.getDialog(true);
+                    dialog.hide();
+                } else {
+                    Dialog<DataEditorDialog> dialog = DataEditorDialog.getDialog(true);
+                    dialog.getContent().setMessage(result.getMessage());
+                }
+            }
+        });
     }
 
     /**
@@ -78,14 +155,13 @@ public class GanttMouseActionDefault implements IMouseHandler {
             taskEntity.setParentId(null);
         }
         if (taskEntity.getParentId() == null) {
-            taskEntity.setKind(DevTaskKind.DTK_FEATURE.getCode());
+            taskEntity.setKind(DevTaskKind.DTK_STORY.getCode());
         } else {
             taskEntity.setKind(DevTaskKind.DTK_TASK.getCode());
         }
-        taskEntity.setStatus(DevTaskStatus.DTS_CREATED.getCode());
         taskEntity.setChargeAvatar("");
         taskEntity.setChargeUserName("");
-        doAddEntity(taskEntity);
+        chart.fireEvent(CommonEvent.editEvent(taskEntity));
 
     }
 
@@ -108,33 +184,16 @@ public class GanttMouseActionDefault implements IMouseHandler {
             taskEntity.setParentId(null);
         }
         if (taskEntity.getParentId() == null) {
-            taskEntity.setKind(DevTaskKind.DTK_FEATURE.getCode());
+            taskEntity.setKind(DevTaskKind.DTK_STORY.getCode());
         } else {
             taskEntity.setKind(DevTaskKind.DTK_TASK.getCode());
         }
         taskEntity.setStatus(DevTaskStatus.DTS_CREATED.getCode());
         taskEntity.setChargeAvatar("");
         taskEntity.setChargeUserName("");
-        doAddEntity(taskEntity);
-
+        chart.fireEvent(CommonEvent.editEvent(taskEntity));
     }
 
-    private void doAddEntity(DevProjectTaskEntity taskEntity) {
-
-        Dialog<DevTaskEditor> dialog = DevTaskEditor.getDialog(true);
-        dialog.addCommonHandler(new CommonEventHandler() {
-            @Override
-            public void onCommonEvent(CommonEvent event) {
-                if (event.isUpdate()) {
-                    DevProjectTaskEntity entity = event.getValue();
-                    chart.getDocument().insertTask(entity);
-                }
-                dialog.hide();
-            }
-        });
-        dialog.getContent().setData(taskEntity);
-        dialog.center();
-    }
 
     private Timestamp nextDay(int days) {
         // 使用 JsDate 处理日期加减，能自动处理跨月/跨年（例如 1月31日 + 1 = 2月1日）
@@ -153,28 +212,6 @@ public class GanttMouseActionDefault implements IMouseHandler {
         return new Timestamp((long) now.getTime());
     }
 
-    private void editTask(GanttItem ganttItem) {
-        Dialog<DevTaskEditor> dialog = DevTaskEditor.getDialog(true);
-        dialog.addCommonHandler(event -> {
-            if (event.isUpdate()) {
-                DevProjectTaskEntity updatedTask = event.getValue();
-                copyData(updatedTask, ganttItem.getEntity());
-                chart.getDocument().populateCharge(ganttItem);
-                dialog.hide();
-            } else if (event.isClose()) {
-                dialog.hide();
-            }
-        });
-        dialog.getContent().setData(ganttItem.getEntity());
-        dialog.center();
-    }
-
-    private void copyData(DevProjectTaskEntity updatedTask, DevProjectTaskEntity entity) {
-        entity.setCharger(updatedTask.getCharger());
-        entity.setName(updatedTask.getName());
-        entity.setChargeUserName(updatedTask.getChargeUserName());
-        entity.setChargeAvatar(updatedTask.getChargeAvatar());
-    }
 
     private void buildMenu() {
         ganttMenu = new ActionMenu();
@@ -183,6 +220,7 @@ public class GanttMouseActionDefault implements IMouseHandler {
         ganttMenu.addItem(createUnicodeIcon("✎", "编辑任务"), ActionMenuKind.AMK_EDIT_TASK);
         ganttMenu.addItem(createUnicodeIcon("✚", "创建任务"), ActionMenuKind.AMK_CREATE_TASK);
         ganttMenu.addItem(createUnicodeIcon("↳", "创建子任务"), ActionMenuKind.AMK_CREATE_SUB_TASK);
+        ganttMenu.addItem(createUnicodeIcon("📥", "导入任务"), ActionMenuKind.AMK_IMPORT_TASK);
 
         // 可以加一个分割线符号
         // ganttMenu.addItem("----------------", null);
@@ -191,6 +229,7 @@ public class GanttMouseActionDefault implements IMouseHandler {
         ganttMenu.addCommonHandler(menuHandler);
 
         ganttControlMenu.addItem(createUnicodeIcon("✚", "创建任务"), ActionMenuKind.AMK_CREATE_TASK);
+        ganttControlMenu.addItem(createUnicodeIcon("📥", "导入任务"), ActionMenuKind.AMK_IMPORT_TASK);
         ganttControlMenu.addCommonHandler(menuHandler);
     }
 

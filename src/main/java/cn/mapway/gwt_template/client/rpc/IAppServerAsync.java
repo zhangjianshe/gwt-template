@@ -14,6 +14,10 @@ import cn.mapway.gwt_template.shared.rpc.user.QueryUserInfoResponse;
 import cn.mapway.gwt_template.shared.rpc.user.UpdateUserInfoRequest;
 import cn.mapway.gwt_template.shared.rpc.user.UpdateUserInfoResponse;
 import cn.mapway.gwt_template.shared.rpc.webhook.*;
+import cn.mapway.gwt_template.shared.rpc.workspace.ExportDevProjectTaskRequest;
+import cn.mapway.gwt_template.shared.rpc.workspace.ExportDevProjectTaskResponse;
+import cn.mapway.gwt_template.shared.rpc.workspace.ImportDevProjectTaskRequest;
+import cn.mapway.gwt_template.shared.rpc.workspace.ImportDevProjectTaskResponse;
 import cn.mapway.rbac.shared.rpc.LoginRequest;
 import cn.mapway.rbac.shared.rpc.LoginResponse;
 import cn.mapway.ui.shared.rpc.RpcResult;
@@ -22,6 +26,10 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public interface IAppServerAsync {
 
     ///CODE_GEN_INSERT_POINT///
+	void exportDevProjectTask(ExportDevProjectTaskRequest request, AsyncCallback<RpcResult<ExportDevProjectTaskResponse>> async);
+
+	void importDevProjectTask(ImportDevProjectTaskRequest request, AsyncCallback<RpcResult<ImportDevProjectTaskResponse>> async);
+
 	void queryUserInfo(QueryUserInfoRequest request, AsyncCallback<RpcResult<QueryUserInfoResponse>> async);
 
 	void queryDevWorkspaceMember(QueryDevWorkspaceMemberRequest request, AsyncCallback<RpcResult<QueryDevWorkspaceMemberResponse>> async);

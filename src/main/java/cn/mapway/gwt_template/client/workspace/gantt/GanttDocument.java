@@ -11,7 +11,9 @@ import cn.mapway.gwt_template.shared.rpc.project.UpdateProjectTaskRequest;
 import cn.mapway.gwt_template.shared.rpc.project.UpdateProjectTaskResponse;
 import cn.mapway.ui.client.mvc.Size;
 import cn.mapway.ui.client.util.StringUtil;
+import cn.mapway.ui.shared.CommonEvent;
 import cn.mapway.ui.shared.rpc.RpcResult;
+import com.google.gwt.animation.client.Animation;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import elemental2.dom.DomGlobal;
 import elemental2.dom.HTMLImageElement;
@@ -54,6 +56,7 @@ public class GanttDocument {
     private List<DevProjectTaskEntity> rootTasks;
     private long startTimeMillis = System.currentTimeMillis();   // 视图起始时间戳
     private double leftPanelSize = 400;
+    private Animation currentAnimation = null;
 
     public GanttDocument() {
         rootTasks = new ArrayList<DevProjectTaskEntity>();
@@ -346,13 +349,14 @@ public class GanttDocument {
                 if (result.isSuccess()) {
 
                 } else {
+                    oldEntity.setStartTime(new Timestamp((long) oldStart));
+                    oldEntity.setEstimateTime(new Timestamp((long) oldEstimate));
                     ClientContext.get().toast(0, 0, result.getMessage());
                 }
             }
         });
 
     }
-
 
     public void clearSelection() {
         for (GanttItem item : selectedItems) {
@@ -416,6 +420,7 @@ public class GanttDocument {
         if (selectedItems.size() == 1) {
             scrollToItem(selectedItems.get(0));
         }
+        chart.fireEvent(CommonEvent.selectEvent(item.getEntity()));
     }
 
     public String formatTaskCode(Integer code) {
@@ -475,23 +480,106 @@ public class GanttDocument {
         }
     }
 
+    /**
+     * 滚动到当前的时间线
+     */
+    public void scrollToTimestamp(double targetStartTime, double targetScrollTop) {
+        // 1. 如果有正在进行的动画，立即停止它
+        if (currentAnimation != null) {
+            currentAnimation.cancel();
+        }
+
+        // 3. 记录动画起始状态
+        final double startS = scrollTop;
+        final double deltaS = targetScrollTop - startS;
+        final double startT = startTimeMillis;
+        final double deltaT = targetStartTime - startT;
+
+        // 4. 创建并赋值给成员变量
+        currentAnimation = new Animation() {
+            @Override
+            protected void onUpdate(double progress) {
+                scrollTop = startS + (deltaS * progress);
+                startTimeMillis = (long) (startT + (deltaT * progress));
+
+                reLayout();
+                chart.redraw();
+            }
+
+            @Override
+            protected void onComplete() {
+                // 动画正常结束，清除引用
+                currentAnimation = null;
+
+                // 最终位置补偿
+                scrollTop = startS + deltaS;
+                startTimeMillis = (long) (startT + deltaT);
+                reLayout();
+                chart.redraw();
+            }
+
+            @Override
+            protected void onCancel() {
+                // 动画被取消时，也清除引用
+                currentAnimation = null;
+            }
+        };
+
+        // 启动新动画
+        currentAnimation.run(400); // 稍微加快到 400ms 增加响应感
+    }
+
     public void scrollToItem(GanttItem item) {
+        double targetScrollTop = scrollTop;
         double itemTop = item.getRect().y;
         double itemBottom = itemTop + item.getRect().height;
         double viewTop = GANTT_HEAD_HEIGHT;
         double viewBottom = chart.getOffsetHeight();
 
-        // 如果在上方看不见
         if (itemTop < viewTop) {
-            scrollTop -= (viewTop - itemTop);
+            targetScrollTop = scrollTop - (viewTop - itemTop);
+        } else if (itemBottom > viewBottom) {
+            targetScrollTop = scrollTop + (itemBottom - viewBottom);
         }
-        // 如果在下方看不见
-        else if (itemBottom > viewBottom) {
-            scrollTop += (itemBottom - viewBottom);
+
+        long targetStartTime = item.getEntity().getStartTime().getTime()
+                - 2 * MS_PER_DAY
+                - getTimeBySpan(getLeftPanelWidth());
+
+        scrollToTimestamp(targetStartTime, targetScrollTop);
+    }
+
+    public void scrollToNow() {
+        long targetStartTime = System.currentTimeMillis()
+                - getTimeBySpan((chart.getOffsetWidth() - getLeftPanelWidth()) / 2.)
+                - getTimeBySpan(getLeftPanelWidth());
+
+        scrollToTimestamp(targetStartTime, scrollTop);
+    }
+
+
+    public void updateEntity(DevProjectTaskEntity taskEntity) {
+        if (taskEntity == null) {
+            return;
         }
-        startTimeMillis = item.getEntity().getStartTime().getTime() - 2 * MS_PER_DAY - getTimeBySpan(getLeftPanelWidth());
-        // 应用 scrollTop 到 reLayout 的偏移中 (或者在绘制时应用)
-        reLayout();
-        chart.redraw();
+        GanttItem item = items.get(taskEntity.getId());
+        if (item == null) {
+            return;
+        }
+        copyData(taskEntity, item.getEntity());
+        item.setEntity(item.getEntity());
+    }
+
+
+    private void copyData(DevProjectTaskEntity updatedTask, DevProjectTaskEntity entity) {
+        entity.setCharger(updatedTask.getCharger());
+        entity.setName(updatedTask.getName());
+        entity.setChargeUserName(updatedTask.getChargeUserName());
+        entity.setChargeAvatar(updatedTask.getChargeAvatar());
+        entity.setKind(updatedTask.getKind());
+    }
+
+    public void reload() {
+        loadDocument(projectId);
     }
 }

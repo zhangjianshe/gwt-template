@@ -3,7 +3,7 @@ package cn.mapway.gwt_template.client.desktop;
 import cn.mapway.gwt_template.client.ClientContext;
 import cn.mapway.gwt_template.client.resource.AppResource;
 import cn.mapway.gwt_template.client.rpc.AppProxy;
-import cn.mapway.gwt_template.client.workspace.gantt.GanttChart;
+import cn.mapway.gwt_template.client.workspace.gantt.GanttWidget;
 import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.db.DesktopItemEntity;
 import cn.mapway.gwt_template.shared.db.MailboxEntity;
@@ -72,7 +72,7 @@ public class DesktopFrame extends BaseAbstractModule implements RequiresResize {
     @UiField
     HomeButton btnTest;
     Widget currentWidget = content;
-    GanttChart ganttChart;
+    GanttWidget gantt;
 
 
     public DesktopFrame() {
@@ -105,18 +105,16 @@ public class DesktopFrame extends BaseAbstractModule implements RequiresResize {
     }
 
     private void gotoTest() {
-        if (ganttChart == null) {
-            ganttChart = new GanttChart();
-            ganttChart.setWidth("100%");
-            ganttChart.setHeight("100%");
+        if (gantt == null) {
+            gantt = new GanttWidget();
         }
-        if (currentWidget != ganttChart) {
+        if (currentWidget != gantt) {
             root.remove(currentWidget);
-            root.add(ganttChart);
-            currentWidget = ganttChart;
+            root.add(gantt);
+            currentWidget = gantt;
             root.forceLayout();
         }
-        ganttChart.setData("a46e116a56534aa5a52b397d75ba58ed");
+        gantt.setData("a46e116a56534aa5a52b397d75ba58ed");
     }
 
     private void gotoHome() {
