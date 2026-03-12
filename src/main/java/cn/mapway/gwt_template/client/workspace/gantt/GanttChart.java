@@ -368,7 +368,6 @@ public class GanttChart extends CanvasWidget implements RequiresResize, IData<St
     public void resetToDefaultAction() {
         mouseHandlerProxy.reset();
         setCursor("default");
-        redraw();
     }
 
     public void setCursor(String cursorStyle) {

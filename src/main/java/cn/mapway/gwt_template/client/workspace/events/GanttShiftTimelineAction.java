@@ -49,7 +49,6 @@ public class GanttShiftTimelineAction implements IMouseHandler {
             double deltaY = event.getY() - origin.getY();
             origin.copyFrom(current);
             chart.offsetTimeline(deltaX,deltaY);
-            chart.redraw();
         }
     }
 }

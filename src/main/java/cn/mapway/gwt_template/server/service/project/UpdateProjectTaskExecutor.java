@@ -142,14 +142,17 @@ public class UpdateProjectTaskExecutor extends AbstractBizExecutor<UpdateProject
                     }
                 }
 
-                DevTaskKind newKind = DevTaskKind.fromCode(task.getKind());
-                if (newKind == DevTaskKind.DTK_MILESTONE || newKind == DevTaskKind.DTK_SUMMARY) {
-                    //里程碑和 说明不能有子节点
-                    int count = projectService.getChildCountOfTask(task.getId());
-                    if (count > 0) {
-                        throw new RuntimeException("任务下有子任务 不能转变为里程碑或者说明类型");
-                    }
+                if (task.getKind() == null) {
 
+                    DevTaskKind newKind = DevTaskKind.fromCode(task.getKind());
+                    if (newKind == DevTaskKind.DTK_MILESTONE || newKind == DevTaskKind.DTK_SUMMARY) {
+                        //里程碑和 说明不能有子节点
+                        int count = projectService.getChildCountOfTask(task.getId());
+                        if (count > 0) {
+                            throw new RuntimeException("任务下有子任务 不能转变为里程碑或者说明类型");
+                        }
+
+                    }
                 }
 
                 // 安全过滤：禁止修改关键归属字段
