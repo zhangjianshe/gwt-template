@@ -581,6 +581,7 @@ public class GanttDocument {
         }
         copyData(taskEntity, item.getEntity());
         item.setEntity(item.getEntity());
+        chart.redraw();
     }
 
     private void copyData(DevProjectTaskEntity updatedTask, DevProjectTaskEntity entity) {
