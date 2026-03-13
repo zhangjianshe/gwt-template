@@ -87,6 +87,7 @@ public class UpdateProjectTaskExecutor extends AbstractBizExecutor<UpdateProject
                 // --- 自动生成任务编号 ---
                 int nextCode = projectService.getNextTaskCode(task.getProjectId());
                 task.setCode(nextCode);
+                task.setRank(projectService.getNextRank(task.getProjectId()));
                 // ----------------------
                 task.setCreateTime(new Timestamp(System.currentTimeMillis()));
                 task.setCreateUserId(currentUserId);

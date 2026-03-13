@@ -40,6 +40,7 @@ public class DevProjectTaskEntity implements Serializable, IsSerializable {
     public static final String FLD_STATUS = "status";
     public static final String FLD_SUMMARY = "summary";
     public static final String FLD_CODE = "code";
+    public static final String FLD_RANK = "rank";
 
     @Name
     @Column(FLD_ID)
@@ -115,6 +116,13 @@ public class DevProjectTaskEntity implements Serializable, IsSerializable {
     @Comment("任务代码")
     @ColDefine(notNull = true)
     Integer code;
+
+    @Column(FLD_RANK)
+    @Comment("排序列")
+    @ColDefine(notNull = true)
+    @Default("0")
+    Double rank;
+
 
     String chargeUserName;
     String chargeAvatar;

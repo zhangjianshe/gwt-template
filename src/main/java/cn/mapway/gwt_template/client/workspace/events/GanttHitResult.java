@@ -71,4 +71,9 @@ public class GanttHitResult {
         hitTest = GanttHitTest.HIT_ITEM_EXPAND_TOGGLE;
         this.ganttItem = ganttItem;
     }
+
+    public void hitTestTaskCode(GanttItem ganttItem) {
+        hitTest = GanttHitTest.HIT_ITEM_CODE;
+        this.ganttItem = ganttItem;
+    }
 }

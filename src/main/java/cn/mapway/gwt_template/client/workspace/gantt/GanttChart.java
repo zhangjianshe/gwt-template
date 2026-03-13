@@ -2,6 +2,7 @@ package cn.mapway.gwt_template.client.workspace.gantt;
 
 import cn.mapway.gwt_template.client.workspace.events.GanttHitResult;
 import cn.mapway.gwt_template.client.workspace.events.GanttMouseEventProxy;
+import cn.mapway.ui.client.fonts.Fonts;
 import cn.mapway.ui.client.mvc.Size;
 import cn.mapway.ui.client.tools.IData;
 import cn.mapway.ui.client.util.StringUtil;
@@ -21,6 +22,9 @@ import lombok.Getter;
  * 甘特图绘制
  */
 public class GanttChart extends CanvasWidget implements RequiresResize, IData<String>, HasCommonHandlers {
+    private static final String INSERT_AFTER = new String(Character.toChars(Integer.parseInt(Fonts.INSERT_AFTER, 16)));
+    private static final String INSERT_BEFORE = new String(Character.toChars(Integer.parseInt(Fonts.INSERT_BEFORE, 16)));
+    private static final String INSERT_CHILD = new String(Character.toChars(Integer.parseInt(Fonts.INSERT_CHILD, 16)));
 
     @Getter
     GanttDocument document;
@@ -124,7 +128,111 @@ public class GanttChart extends CanvasWidget implements RequiresResize, IData<St
             ctx.moveTo(0, GanttDocument.GANTT_HEAD_HEIGHT + 0.5);
             ctx.lineTo(getOffsetWidth(), GanttDocument.GANTT_HEAD_HEIGHT + 0.5);
             ctx.stroke();
+
+            DropLocation dropLocation = document.getLastDropLocation();
+            if (dropLocation.isValid()) {
+                drawDropIndicator(ctx, dropLocation);
+                drawDraggingTooltip(ctx, dropLocation);
+            }
+
         });
+    }
+
+    // 在 GanttDocument 绘图循环最后
+    public void drawDropIndicator(CanvasRenderingContext2D ctx, DropLocation dropLocation) {
+
+
+        double y = 0;
+        double x = 0;
+        double width = document.getLeftPanelWidth();
+
+        if (dropLocation.position == GanttDropPosition.BEFORE) {
+            y = dropLocation.targetItem.getRect().y;
+        } else if (dropLocation.position == GanttDropPosition.AFTER) {
+            y = dropLocation.targetItem.getRect().y + dropLocation.targetItem.getRect().height;
+        } else if (dropLocation.position == GanttDropPosition.AS_CHILD) {
+            // 作为子项时，画一个矩形高亮框框住目标
+            ctx.setLineDash(new double[]{2, 2});
+            ctx.strokeStyle = BaseRenderingContext2D.StrokeStyleUnionType.of("rgba(30, 144, 255, 0.8)");
+            ctx.strokeRect(dropLocation.targetItem.getRect().x, dropLocation.targetItem.getRect().y, width, dropLocation.targetItem.getRect().height);
+            return;
+        }
+
+        // 绘制横向指示线
+        ctx.beginPath();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = BaseRenderingContext2D.StrokeStyleUnionType.of("#1E90FF");
+        ctx.moveTo(x, y);
+        ctx.lineTo(width, y);
+        ctx.stroke();
+
+        // 在开头画一个小圆点，增加精致感
+        ctx.beginPath();
+        ctx.arc(4, y, 3, 0, Math.PI * 2);
+        ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("#1E90FF");
+        ctx.fill();
+    }
+
+    public void drawDraggingTooltip(CanvasRenderingContext2D ctx, DropLocation dropLocation) {
+        if (!dropLocation.isValid()) return;
+
+        // draw ICON
+
+        ctx.setFont("28px mapway-font");
+        String icon = "";
+        String tooltip = "";
+        switch (dropLocation.position) {
+            case AFTER:
+                icon = INSERT_AFTER;
+                tooltip = "在" + dropLocation.targetItem.getEntity().getName() + "之后插入";
+                break;
+            case BEFORE:
+                icon = INSERT_BEFORE;
+                tooltip = "在" + dropLocation.targetItem.getEntity().getName() + "之前插入";
+                break;
+            case AS_CHILD:
+                icon = INSERT_CHILD;
+                tooltip = "作为" + dropLocation.targetItem.getEntity().getName() + "子任务";
+                break;
+        }
+
+
+        double textWidth = ctx.measureText(icon).width;
+        double rectWidth = textWidth + 40;
+        double rectHeight = 40;
+
+        ctx.font = "16px sans-serif";
+        rectWidth += ctx.measureText(tooltip).width;
+
+        // 让提示框稍微偏移鼠标坐标，避免遮挡鼠标箭头
+        double x = dropLocation.mousePosition.x + 15;
+        double y = dropLocation.mousePosition.y + 15;
+
+        // 绘制背景矩形（带阴影和半透明）
+        ctx.save();
+        ctx.shadowBlur = (8);
+        ctx.shadowColor = ("rgba(0,0,0,0.2)");
+        ctx.fillStyle = (BaseRenderingContext2D.FillStyleUnionType.of("rgba(255, 255, 255, 1.0)"));
+        ctx.beginPath();
+        // 简单的圆角矩形
+        ctx.rect(x, y, rectWidth, rectHeight);
+        ctx.fill();
+
+        // 绘制左侧的蓝色装饰条
+        ctx.fillStyle = (BaseRenderingContext2D.FillStyleUnionType.of("#1E90FF"));
+        ctx.fillRect(x, y, 4, rectHeight);
+
+        // 绘制文字
+        ctx.shadowBlur = (0); // 文字不需要阴影
+        ctx.fillStyle = (BaseRenderingContext2D.FillStyleUnionType.of("#333333"));
+        ctx.setTextBaseline("middle");
+        ctx.textAlign = "left";
+        ctx.setFont("28px mapway-font");
+        ctx.fillText(icon, x + 20, y + rectHeight / 2);
+
+        ctx.font = "16px sans-serif";
+        ctx.fillText(tooltip, x + 50, y + rectHeight / 2);
+        ctx.restore();
     }
 
     private void drawCurrentTimeLine(CanvasRenderingContext2D ctx) {

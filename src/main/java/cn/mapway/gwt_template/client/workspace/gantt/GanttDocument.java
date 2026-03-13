@@ -34,6 +34,7 @@ public class GanttDocument {
     private final long MS_PER_DAY = 24 * 60 * 60 * 1000L;
     @Getter
     private final List<GanttItem> flatItems;
+    @Getter
     private final List<GanttItem> rootItems;
     @Getter
     private final Map<String, GanttItem> items;
@@ -57,6 +58,8 @@ public class GanttDocument {
     @Getter
     boolean valid = false;
     String errorMessage = "没有有用的消息";
+    @Getter
+    DropLocation lastDropLocation = new DropLocation();//拖动任务排序时记录当前的位置
     @Getter
     private List<DevProjectTaskEntity> rootTasks;
     private long startTimeMillis = System.currentTimeMillis();   // 视图起始时间戳
@@ -164,6 +167,9 @@ public class GanttDocument {
         flatItems.clear();
         items.clear();
         maxCodeLength = 3;
+        // 1. 在构建树之前，先对每一层级的数据进行 rank 排序
+        sortEntitiesByRank(rootTasks);
+
         recursiveBuild(null, rootTasks);
         maxCodeLength = Math.max(maxCodeLength, (maxCode + "").length());
         // 重新计算起始时间：找到所有任务中的最早时间
@@ -180,6 +186,46 @@ public class GanttDocument {
         }
         reLayout();
         chart.redraw();
+    }
+
+    public void handleMove(GanttItem dragged, GanttItem targetBefore, GanttItem targetAfter) {
+        double newRank;
+        if (targetBefore == null) {
+            // 移到最顶端
+            newRank = targetAfter.getEntity().getRank() - 1.0;
+        } else if (targetAfter == null) {
+            // 移到最底端
+            newRank = targetBefore.getEntity().getRank() + 1.0;
+        } else {
+            // 取中间值
+            newRank = (targetBefore.getEntity().getRank() + targetAfter.getEntity().getRank()) / 2.0;
+        }
+
+        dragged.getEntity().setRank(newRank);
+
+        // 发送 RPC 请求更新后端 rank 字段
+        saveRankToServer(dragged.getEntity());
+    }
+
+    private void saveRankToServer(DevProjectTaskEntity entity) {
+        DevProjectTaskEntity temp = new DevProjectTaskEntity();
+        temp.setId(entity.getId());
+        temp.setRank(entity.getRank());
+        UpdateProjectTaskRequest request = new UpdateProjectTaskRequest();
+        request.setProjectTask(temp);
+        AppProxy.get().updateProjectTask(request, new AsyncCallback<RpcResult<UpdateProjectTaskResponse>>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                ClientContext.get().toast(0, 0, caught.getMessage());
+            }
+
+            @Override
+            public void onSuccess(RpcResult<UpdateProjectTaskResponse> result) {
+                if (!result.isSuccess()) {
+                    ClientContext.get().toast(0, 0, result.getMessage());
+                }
+            }
+        });
     }
 
     private void recursiveBuild(GanttItem parent, List<DevProjectTaskEntity> tasks) {
@@ -217,6 +263,7 @@ public class GanttDocument {
         double top = GANTT_HEAD_HEIGHT;
         double left = 0;
         for (GanttItem item : rootItems) {
+            item.setLevel(0); // 根节点级别为 0
             top += layoutItem(item, top, left);
         }
         totalHeight = top - GANTT_HEAD_HEIGHT;
@@ -225,18 +272,19 @@ public class GanttDocument {
     private double layoutItem(GanttItem item, double top, double left) {
         double h = item.getDesiredHeight();
 
-        // 计算当前节点的物理矩形
+        // 根据当前 level 自动计算缩进（如果你在绘图时使用了 level）
+        // item.setIndent(item.getLevel() * 16);
+
         item.getRect().set(left, top - scrollTop, chart.getOffsetWidth(), h);
 
         double th = h;
-        // 关键修正：只有当节点是展开状态时，才计算子布局高度
         if (item.isExpanded()) {
             for (GanttItem child : item.getChildren()) {
+                // 核心修正：子节点的 level 永远等于父节点 level + 1
+                child.setLevel(item.getLevel() + 1);
                 th += layoutItem(child, top + th, left);
             }
         } else {
-            // 如果节点被收缩，则其所有子孙节点的 Rect 应该重置或标记为不可见
-            // 防止残留的 hitTest 坐标影响点击
             resetChildrenRect(item);
         }
         return th;
@@ -258,6 +306,22 @@ public class GanttDocument {
 
     public boolean isEmpty() {
         return rootItems.isEmpty();
+    }
+
+    private void sortEntitiesByRank(List<DevProjectTaskEntity> tasks) {
+        if (tasks == null || tasks.isEmpty()) return;
+
+        // 按 rank 升序排列
+        tasks.sort((a, b) -> {
+            Double r1 = a.getRank() == null ? 0.0 : a.getRank();
+            Double r2 = b.getRank() == null ? 0.0 : b.getRank();
+            return Double.compare(r1, r2);
+        });
+
+        // 递归排序子项
+        for (DevProjectTaskEntity task : tasks) {
+            sortEntitiesByRank(task.getChildren());
+        }
     }
 
     public boolean hitTest(GanttHitResult result, Size logic) {
@@ -455,7 +519,7 @@ public class GanttDocument {
     }
 
     public String formatTaskCode(Integer code) {
-        return "#" + StringUtil.formatNumber(code, maxCodeLength);
+        return "#"+StringUtil.formatNumber(code, maxCodeLength);
     }
 
     /**
@@ -734,4 +798,112 @@ public class GanttDocument {
         }
     }
 
+    // 辅助方法
+    private boolean isDescendant(GanttItem draggedItem, String potentialParentId) {
+        if (potentialParentId == null || potentialParentId.isEmpty()) return false;
+        GanttItem current = items.get(potentialParentId);
+        while (current != null) {
+            if (current == draggedItem) return true;
+            current = current.getParent();
+        }
+        return false;
+    }
+
+    public void reorderItem(String taskId, String newParentId, double newRank) {
+        GanttItem item = items.get(taskId);
+        if (item == null) return;
+
+        // 在 reorderItem 中
+        if (isDescendant(item, newParentId)) {
+            ClientContext.get().toast(0, 0, "不能将任务移动到自己的子任务下");
+            return;
+        }
+
+        // 先记录旧状态，用于失败回滚（或者简单处理直接 reload）
+        // 先更改本地，提供即时反馈 (Optimistic UI)
+        applyLocalChange(item, newParentId, newRank);
+
+        UpdateProjectTaskRequest request = new UpdateProjectTaskRequest();
+        DevProjectTaskEntity task = new DevProjectTaskEntity();
+
+        task.setId(taskId);
+        task.setRank(newRank);
+        task.setParentId(newParentId);
+        // 关键修正：projectId 必须是任务所属的项目 ID，不能是任务自己的 ID
+        task.setProjectId(item.getEntity().getProjectId());
+
+        request.setProjectTask(task);
+        AppProxy.get().updateProjectTask(request, new AsyncCallback<RpcResult<UpdateProjectTaskResponse>>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                ClientContext.get().toast(0, 0, "保存排序失败: " + caught.getMessage());
+                reload(); // 失败后通过重新加载来回滚本地更改
+            }
+
+            @Override
+            public void onSuccess(RpcResult<UpdateProjectTaskResponse> result) {
+                if (!result.isSuccess()) {
+                    ClientContext.get().toast(0, 0, "保存排序失败: " + result.getMessage());
+                    reload();
+                }
+                // 成功时不需要操作，因为 applyLocalChange 已经处理了 UI
+            }
+        });
+    }
+
+    private void applyLocalChange(GanttItem item, String newParentId, double newRank) {
+        // 1. 更新实体数据
+        item.getEntity().setRank(newRank);
+        item.getEntity().setParentId(newParentId);
+
+        // 2. 解除旧的父子关系
+        if (item.getParent() != null) {
+            item.getParent().getChildren().remove(item);
+        } else {
+            getRootItems().remove(item);
+        }
+
+        // 3. 建立新的父子关系
+        if (newParentId == null || newParentId.isEmpty()) {
+            item.setParent(null);
+            getRootItems().add(item);
+        } else {
+            GanttItem newParent = items.get(newParentId);
+            if (newParent != null) {
+                item.setParent(newParent);
+                newParent.getChildren().add(item);
+            }
+        }
+
+        // 4. 核心：重新执行排序、平整化、布局
+        rebuildAndLayout();
+        chart.redraw();
+    }
+
+    public void rebuildAndLayout() {
+        // 1. 每一层级按新的 rank 排序
+        sortItems(rootItems);
+
+        // 2. 重新构建扁平列表（考虑展开/收缩状态）
+        rebuildFlatItems();
+
+        // 3. 重新计算所有 Item 的 y 轴坐标
+        reLayout();
+    }
+
+    private void sortItems(List<GanttItem> itemsList) {
+        if (itemsList == null || itemsList.isEmpty()) return;
+
+        itemsList.sort((a, b) -> {
+            Double r1 = a.getEntity().getRank() == null ? 0.0 : a.getEntity().getRank();
+            Double r2 = b.getEntity().getRank() == null ? 0.0 : b.getEntity().getRank();
+            return Double.compare(r1, r2);
+        });
+
+        for (GanttItem item : itemsList) {
+            if (!item.getChildren().isEmpty()) {
+                sortItems(item.getChildren());
+            }
+        }
+    }
 }

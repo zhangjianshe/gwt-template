@@ -16,6 +16,7 @@ public class GanttMouseEventProxy implements IMouseHandler {
     final GanttShiftTaskAction shiftTaskActionHandler;
     final GanttShiftTaskEstimateAction shiftTaskEstimateActionHandler;
     final GanttShiftTaskStartAction shiftTaskStartActionHandler;
+    final GanttReOrderTaskAction reorderTaskActionHandler;
     GanttMouseAction action = GanttMouseAction.ACTION_DEFAULT;
     IMouseHandler currentActionHandler = null;
     Size origin = new Size(0, 0);
@@ -30,6 +31,7 @@ public class GanttMouseEventProxy implements IMouseHandler {
         shiftTaskActionHandler = new GanttShiftTaskAction(chart);
         shiftTaskEstimateActionHandler = new GanttShiftTaskEstimateAction(chart);
         shiftTaskStartActionHandler = new GanttShiftTaskStartAction(chart);
+        reorderTaskActionHandler = new GanttReOrderTaskAction(chart);
         reset();
     }
 
@@ -77,6 +79,12 @@ public class GanttMouseEventProxy implements IMouseHandler {
                         currentActionHandler = shiftTaskEstimateActionHandler;
                         shiftTaskEstimateActionHandler.start(hitResult, event);
                         action = GanttMouseAction.ACTION_ADJUST_ESTIMATE_TIME;
+                        break;
+                    case HIT_ITEM_CODE:
+                        //准备拖动任务进行排序
+                        currentActionHandler = reorderTaskActionHandler;
+                        reorderTaskActionHandler.start(hitResult, event);
+                        action = GanttMouseAction.ACTION_TASK_REORDER;
                         break;
                     case HIT_GANTT_ITEM:
                     case HIT_NONE:

@@ -476,6 +476,17 @@ public class ProjectService {
     }
 
     public int getChildCountOfTask(String taskId) {
-        return dao.count(DevProjectTaskEntity.class,Cnd.where(DevProjectTaskEntity.FLD_PARENT_ID, "=", taskId));
+        return dao.count(DevProjectTaskEntity.class, Cnd.where(DevProjectTaskEntity.FLD_PARENT_ID, "=", taskId));
+    }
+
+    public Double getNextRank(String projectId) {
+        // 查询当前项目下最大的 rank 值
+        // SELECT max(code) FROM dev_project_task WHERE project_id = 'xxx'
+        Sql sql = Sqls.create("SELECT max(rank) FROM dev_project_task WHERE project_id = @pid");
+        sql.setParam("pid", projectId);
+        sql.setCallback(Sqls.callback.integer());
+        dao.execute(sql);
+        double maxRank = sql.getDouble(1.0);
+        return maxRank + 1.;
     }
 }

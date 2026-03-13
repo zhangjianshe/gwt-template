@@ -97,7 +97,8 @@ public class GanttItem extends BaseNode {
         double y = rect.y;
         double h = rect.height;
         double panelWidth = document.getLeftPanelWidth();
-        // 1. 绘制背景 (选中态优先级高于 Hover)
+
+        // 1. 绘制背景 (选中态或 Hover)
         if (selected) {
             ctx.fillStyle = FILL_SELECTED;
             ctx.fillRect(0, y, panelWidth, h);
@@ -106,53 +107,63 @@ public class GanttItem extends BaseNode {
             ctx.fillRect(0, y, panelWidth, h);
         }
 
-        // 2. 绘制头像 (圆形裁剪)
-        if (avatar != null && avatar.complete) {
-            withContext(ctx, () -> {
-                double avatarSize = h - 8; // 留出上下各 4px 间距
-                double avatarX = document.getLeftPanelWidth() - h; // 放在 Code 和 Name 之间或指定位置
-                double avatarY = y + 4;
-
-                // 创建圆形裁剪路径
-                ctx.beginPath();
-                ctx.arc(avatarX + avatarSize / 2, avatarY + avatarSize / 2, avatarSize / 2, 0, Math.PI * 2);
-                ctx.clip();
-
-                // 绘制头像
-                ctx.drawImage(avatar, avatarX, avatarY, avatarSize, avatarSize);
-            });
-        }
-
-        double arrowX = 10 + 20 * level; // 根据层级缩进
-        if (!children.isEmpty()) {
-            drawExpandArrow(ctx, arrowX, y + h / 2);
-        }
-
-        // 3. 绘制图标和文字 (注意坐标偏移，给箭头留出空间)
         ctx.textBaseline = "middle";
-        double iconX = arrowX + 15; // 箭头后面是图标
 
-        // 绘制类型图标
+        // --- 坐标分配逻辑 ---
+        // A. Code 放在最左侧，固定宽度（假设 50px）
+        double codeX = 10;
+        double codeWidth = 45;
+
+        // B. 展开箭头、图标、名称跟随 Level 缩进，起始点在 Code 之后
+        double treeBaseX = codeX + codeWidth + 10;
+        double currentIndent = treeBaseX + (level * 20); // 每个层级缩进 20px
+
+        // 2. 绘制 Code (最左侧)
+        ctx.textAlign = "left";
+        ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("#888"); // 编号用稍浅的颜色
+        ctx.setFont(NORMAL_FONT);
+        ctx.fillText(document.formatTaskCode(entity.getCode()), codeX, y + h / 2, codeWidth);
+
+        // 3. 绘制展开/折叠箭头
+        if (!children.isEmpty()) {
+            drawExpandArrow(ctx, currentIndent, y + h / 2);
+        }
+
+        // 4. 绘制任务类型图标
+        double iconX = currentIndent + 15; // 箭头右侧 15px
         ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of(kind.getColor());
         ctx.setFont("22px mapway-font");
         ctx.textAlign = "left";
         ctx.fillText(kind.getUnicode(), iconX, y + h / 2);
 
-        // 绘制 Code 和 Name
+        // 5. 绘制名称 (Name)
+        double nameX = iconX + 26; // 图标右侧 26px
         ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("#333");
         ctx.setFont(selected ? BOLD_NORMAL_FONT : NORMAL_FONT);
 
-        // 调整名称的 X 坐标，确保不覆盖图标
-        double nameX = iconX + 26;
-        fillTextWithEllipsis(ctx, entity.getName(), nameX, y + h / 2, panelWidth - nameX - 10);
-        ctx.textAlign = "right";
-        ctx.fillText(document.formatTaskCode(entity.getCode()), document.getLeftPanelWidth() - 46, y + h / 2, 60);
+        // 头像位置：可以放在名称之后，或者靠面板最右侧
+        double avatarSize = h - 10;
+        double avatarX = panelWidth - avatarSize - 10;
 
-        // 4. 底部线条 (建议在外面 drawFloatingLeftPanel 里统一画，或者保持在这里)
+        // 绘制名称，注意省略号截断位置要避开右侧头像
+        fillTextWithEllipsis(ctx, entity.getName(), nameX, y + h / 2, avatarX - nameX - 10);
+
+        // 6. 绘制头像 (最右侧)
+        if (avatar != null && avatar.complete) {
+            withContext(ctx, () -> {
+                double avatarY = y + 5;
+                ctx.beginPath();
+                ctx.arc(avatarX + avatarSize / 2, avatarY + avatarSize / 2, avatarSize / 2, 0, Math.PI * 2);
+                ctx.clip();
+                ctx.drawImage(avatar, avatarX, avatarY, avatarSize, avatarSize);
+            });
+        }
+
+        // 7. 底部线条
         ctx.strokeStyle = LINE_STYLE;
         ctx.lineWidth = 1.0;
         ctx.beginPath();
-        ctx.moveTo(0, y + h - 0.5); // -0.5 对齐像素
+        ctx.moveTo(0, y + h - 0.5);
         ctx.lineTo(panelWidth, y + h - 0.5);
         ctx.stroke();
     }
@@ -368,38 +379,60 @@ public class GanttItem extends BaseNode {
     }
 
     public boolean hitTest(GanttDocument document, GanttHitResult result, Size logic) {
-        // 首先判断 y 轴是否在这行内
+        // 基础判断：y 轴是否落在此行矩形内
         if (rect.contains(logic)) {
 
             // 1. 判断是否在左侧固定面板区 (控制区)
             if (logic.x < document.getLeftPanelWidth()) {
-                // 计算箭头的热区范围 (例如左边距到图标开始之前)
-                double arrowLeft = 10 + 20 * level - 10; // 向左扩展 10 像素
-                double arrowRight = 10 + 20 * level + 15; // 向右扩展到图标边缘
-                if (!children.isEmpty() && logic.x >= arrowLeft && logic.x <= arrowRight) {
+
+                // --- A. Code 判定 (现在在最左侧 0 到 55px 左右) ---
+                // 建议给 Code 留出约 55 像素的判定区，方便作为拖拽抓手
+                double codeLeft = 0;
+                double codeRight = 55;
+                if (logic.x >= codeLeft && logic.x <= codeRight) {
+                    result.hitTestTaskCode(this);
+                    return true;
+                }
+
+                // --- B. 展开箭头判定 (在 Code 之后，跟随 level 缩进) ---
+                // 参照 drawFixedInfo 中的 treeBaseX = 10 + 45 + 10 = 65
+                double treeBaseX = 65;
+                double arrowCenterX = treeBaseX + (level * 20);
+                double arrowHitWidth = 15; // 点击热区半径
+
+                if (!children.isEmpty() &&
+                        logic.x >= arrowCenterX - arrowHitWidth &&
+                        logic.x <= arrowCenterX + arrowHitWidth) {
                     result.hitTestExpandToggle(this);
                     return true;
                 }
+
+                // --- C. 负责人头像判定 (最右侧) ---
+                double avatarHitWidth = rect.height; // 头像区域宽度通常等于行高
+                if (logic.x > document.getLeftPanelWidth() - avatarHitWidth) {
+                    // 如果需要点击头像查看负责人资料，可以在此定义新的 Hit 类型
+                    // result.hitTestAvatar(this);
+                    // return true;
+                }
+
+                // --- D. 其他区域 (点击任务名称等) ---
                 result.hitTestGanttItem(this);
                 return true;
             }
 
-
-            // 2. 计算任务条在当前时间轴下的物理 X 范围
+            // 2. 右侧甘特图时间轴区判定 (保持不变)
             double startX = document.getXByDate(entity.getStartTime().getTime());
-            double endX = document.getXByDate(entity.getEstimateTime().getTime());
+            double endX =  document.getXByDate(entity.getEstimateTime().getTime());
 
-            // 这里的阈值 4.0 要和 draw 里的 Math.max(..., 4.0) 保持一致
             double barWidth = Math.max(endX - startX, 4.0);
             double actualEndX = startX + barWidth;
-
             double edgeThreshold = 5.0;
 
             if (kind == DevTaskKind.DTK_MILESTONE) {
-                double milestoneX = document.getXByDate(entity.getStartTime().getTime());
-                double hitWidth = 20.0; // 给 20 像素的热区
+                double milestoneX =  document.getXByDate(entity.getStartTime().getTime());
+                double hitWidth = 20.0;
                 if (logic.x >= milestoneX - hitWidth / 2 && logic.x <= milestoneX + hitWidth / 2) {
-                    result.hitTestGanttItemTask(this); // 里程碑只能移动，不能拉伸
+                    result.hitTestGanttItemTask(this);
                     return true;
                 }
             } else if (logic.x >= startX - edgeThreshold && logic.x <= startX + edgeThreshold) {

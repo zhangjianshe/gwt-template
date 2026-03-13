@@ -21,7 +21,6 @@ import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import elemental2.dom.DomGlobal;
 import elemental2.dom.WheelEvent;
 
 import java.sql.Timestamp;
@@ -258,7 +257,7 @@ public class GanttMouseActionDefault implements IMouseHandler {
             return;
         }
         switch (result.hitTest) {
-            case HIT_ITEM_EXPAND_TOGGLE: // 确保你的 GanttHitResult.HitType 中有这个定义
+            case HIT_ITEM_EXPAND_TOGGLE:
                 // 切换展开/收起状态
                 GanttItem item = result.getGanttItem();
                 if (item != null) {
@@ -326,8 +325,6 @@ public class GanttMouseActionDefault implements IMouseHandler {
         double deltaX = event.deltaX;
         double deltaY = event.deltaY;
 
-        DomGlobal.console.log("deltaX: " + deltaX);
-        DomGlobal.console.log("deltaY: " + deltaY);
 
         // 某些浏览器在没有左右滚轮时 deltaX 为 0
         // 习惯上：按住 Shift 键时，将垂直滚轮转为水平滚动
@@ -391,6 +388,7 @@ public class GanttMouseActionDefault implements IMouseHandler {
             lastHoverItem.setHoverPosition(position);
         }
     }
+
     @Override
     public void onMouseMove(MouseMoveEvent event) {
         current.set(event.getX(), event.getY());
@@ -421,6 +419,11 @@ public class GanttMouseActionDefault implements IMouseHandler {
             case HIT_ITEM_EXPAND_TOGGLE:
                 resetHover(result, GanttItemHoverPosition.GIHP_ITEM_EXPAND_BUTTON);
                 chart.setCursor("pointer"); // 设置为手型光标
+                break;
+            case HIT_ITEM_CODE:
+                //鼠标移动到任务代码列 可以进行多动
+                resetHover(result, GanttItemHoverPosition.GIHP_ITEM);
+                chart.setCursor("grab");
                 break;
             case HIT_DAY:
             case HIT_MONTH:
