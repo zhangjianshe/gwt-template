@@ -241,6 +241,9 @@ public class ClientContext implements IClientContext, HasCommonHandlers {
 
     @Override
     public void toast(int level, Integer code, String message) {
+        if (message.startsWith("0")) {
+            message = "啊哈,暂时不能链接服务器";
+        }
         Toaster.show("", message);
     }
 
