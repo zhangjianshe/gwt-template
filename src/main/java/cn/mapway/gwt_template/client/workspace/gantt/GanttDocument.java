@@ -519,7 +519,7 @@ public class GanttDocument {
     }
 
     public String formatTaskCode(Integer code) {
-        return "#"+StringUtil.formatNumber(code, maxCodeLength);
+        return "#" + StringUtil.formatNumber(code, maxCodeLength);
     }
 
     /**
@@ -671,6 +671,7 @@ public class GanttDocument {
         entity.setChargeUserName(updatedTask.getChargeUserName());
         entity.setChargeAvatar(updatedTask.getChargeAvatar());
         entity.setKind(updatedTask.getKind());
+        entity.setSummary(updatedTask.getSummary());
     }
 
     public void reload() {

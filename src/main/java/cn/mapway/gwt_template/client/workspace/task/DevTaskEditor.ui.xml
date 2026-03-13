@@ -2,7 +2,7 @@
              xmlns:g='urn:import:com.google.gwt.user.client.ui'
              xmlns:task="urn:import:cn.mapway.gwt_template.client.workspace.task"
              xmlns:widget2="urn:import:cn.mapway.gwt_template.client.workspace.widget"
-             xmlns:buttons="urn:import:cn.mapway.ui.client.widget.buttons">
+             xmlns:buttons="urn:import:cn.mapway.ui.client.widget.buttons" xmlns:ace="urn:import:cn.mapway.ace.client">
     <ui:style>
 
 
@@ -64,7 +64,7 @@
             justify-content: space-between;
             border-top: solid 1px #f0f0f0;
         }</ui:style>
-    <g:DockLayoutPanel addStyleNames="{style.body}">
+    <g:DockLayoutPanel addStyleNames="{style.body}" ui:field="root">
         <g:south size="56">
             <g:HTMLPanel addStyleNames="{style.bar}">
                 <buttons:AiButton ui:field="btnCreateSub">创建子任务</buttons:AiButton>
@@ -73,20 +73,30 @@
                 <buttons:AiButton ui:field="btnClose">关闭</buttons:AiButton>
             </g:HTMLPanel>
         </g:south>
-        <g:center>
-            <g:ScrollPanel>
-                <g:HTMLPanel ui:field="container">
-                    <g:HTMLPanel ui:field="tip" addStyleNames="{style.tip}">
-                        <g:Label>请选择任务编辑</g:Label>
-                    </g:HTMLPanel>
-                    <g:HTMLPanel ui:field="editor" addStyleNames="{style.top}">
-                        <div class="{style.back}" ui:field="back"/>
-                        <task:ProjectMemberWidget ui:field="member" addStyleNames="{style.charger}"/>
-                        <g:TextBox ui:field="txtName" addStyleNames="ai-input {style.name}"/>
-                        <widget2:TaskKindDropdown width="" ui:field="ddlKind" addStyleNames="{style.kind}"/>
-                    </g:HTMLPanel>
+        <g:north size="120">
+            <g:HTMLPanel ui:field="container">
+                <g:HTMLPanel ui:field="tip" addStyleNames="{style.tip}">
+                    <g:Label>请选择任务编辑</g:Label>
                 </g:HTMLPanel>
-            </g:ScrollPanel>
+                <g:HTMLPanel ui:field="editor" addStyleNames="{style.top}">
+                    <div class="{style.back}" ui:field="back"/>
+                    <task:ProjectMemberWidget ui:field="member" addStyleNames="{style.charger}"/>
+                    <g:TextBox ui:field="txtName" addStyleNames="ai-input {style.name}"/>
+                    <widget2:TaskKindDropdown width="" ui:field="ddlKind" addStyleNames="{style.kind}"/>
+                </g:HTMLPanel>
+            </g:HTMLPanel>
+        </g:north>
+        <g:center>
+            <g:TabLayoutPanel ui:field="editArea" barHeight="50">
+                <g:tab>
+                    <g:header>简介</g:header>
+                    <g:LayoutPanel>
+                        <g:layer>
+                            <ace:AceEditor ui:field="txtSummary"/>
+                        </g:layer>
+                    </g:LayoutPanel>
+                </g:tab>
+            </g:TabLayoutPanel>
         </g:center>
     </g:DockLayoutPanel>
 </ui:UiBinder>

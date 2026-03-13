@@ -1,5 +1,7 @@
 package cn.mapway.gwt_template.client.workspace.task;
 
+import cn.mapway.ace.client.AceCommandDescription;
+import cn.mapway.ace.client.AceEditor;
 import cn.mapway.gwt_template.client.ClientContext;
 import cn.mapway.gwt_template.client.rpc.AppProxy;
 import cn.mapway.gwt_template.client.workspace.widget.TaskKindDropdown;
@@ -26,14 +28,12 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.DockLayoutPanel;
-import com.google.gwt.user.client.ui.HTMLPanel;
-import com.google.gwt.user.client.ui.TextBox;
+import com.google.gwt.user.client.ui.*;
 
 /**
  * 任务编辑器
  */
-public class DevTaskEditor extends CommonEventComposite implements IData<DevProjectTaskEntity> {
+public class DevTaskEditor extends CommonEventComposite implements RequiresResize, IData<DevProjectTaskEntity> {
     private static final DevTaskEditorUiBinder ourUiBinder = GWT.create(DevTaskEditorUiBinder.class);
     private static Dialog<DevTaskEditor> dialog;
     @UiField
@@ -58,6 +58,13 @@ public class DevTaskEditor extends CommonEventComposite implements IData<DevProj
     AiButton btnSave;
     @UiField
     AiButton btnClose;
+    @UiField
+    AceEditor txtSummary;
+    @UiField
+    DockLayoutPanel root;
+    @UiField
+    TabLayoutPanel editArea;
+    boolean initialize = false;
     private DevProjectTaskEntity task;
 
     public DevTaskEditor() {
@@ -85,6 +92,40 @@ public class DevTaskEditor extends CommonEventComposite implements IData<DevProj
 
     private static Dialog<DevTaskEditor> createOne() {
         return new Dialog<>(new DevTaskEditor(), "任务编辑");
+    }
+
+    @Override
+    protected void onLoad() {
+        super.onLoad();
+        initEditor();
+    }
+
+    /**
+     * 初始化编辑器
+     */
+    private void initEditor() {
+        if (!initialize) {
+            txtSummary.startEditor();
+            txtSummary.setShowPrintMargin(false);
+            txtSummary.setFontSize(12);
+            txtSummary.setUseWorker(false);
+            txtSummary.setShowGutter(true);
+            txtSummary.setUseWrapMode(true);
+            txtSummary.redisplay();
+            txtSummary.setFontSize("1.2rem");
+            initialize = true;
+
+            AceCommandDescription ctrlSaveCommand = new AceCommandDescription("save", aceEditor -> {
+                if (btnSave.isEnabled()) {
+                    btnSaveClick(null);
+                }
+                return null;
+            });
+            ctrlSaveCommand.withBindKey("Ctrl-S", "Cmd-S");
+            txtSummary.addCommand(ctrlSaveCommand);
+
+        }
+        txtSummary.redisplay();
     }
 
     private void updatebackground(DevTaskKind kind) {
@@ -118,6 +159,7 @@ public class DevTaskEditor extends CommonEventComposite implements IData<DevProj
         temp.setProjectId(task.getProjectId());
         temp.setCharger(task.getCharger());
         temp.setKind((Integer) ddlKind.getValue());
+        temp.setSummary(txtSummary.getText());
         doSave(temp);
     }
 
@@ -204,14 +246,17 @@ public class DevTaskEditor extends CommonEventComposite implements IData<DevProj
             btnCreateSub.setEnabled(false);
             tip.setVisible(true);
             editor.setVisible(false);
+            editArea.setVisible(false);
             return;
         }
+        initEditor();
         DevTaskKind kind
                 = DevTaskKind.fromCode(task.getKind());
         updateButtons(kind);
         txtName.setText(task.getName());
         member.setData(task.getProjectId(), task.getCharger(), task.getChargeUserName(), task.getChargeAvatar());
         ddlKind.setValue(task.getKind());
+        txtSummary.setValue(task.getSummary());
         updatebackground(kind);
     }
 
@@ -219,6 +264,7 @@ public class DevTaskEditor extends CommonEventComposite implements IData<DevProj
 
         tip.setVisible(false);
         editor.setVisible(true);
+        editArea.setVisible(true);
 
         if (task.getId() == null) {
             btnSave.setEnabled(true);
@@ -233,6 +279,11 @@ public class DevTaskEditor extends CommonEventComposite implements IData<DevProj
         if (kind == DevTaskKind.DTK_SUMMARY || kind == DevTaskKind.DTK_MILESTONE) {
             btnCreateSub.setEnabled(false);
         }
+    }
+
+    @Override
+    public void onResize() {
+        root.onResize();
     }
 
     interface DevTaskEditorUiBinder extends UiBinder<DockLayoutPanel, DevTaskEditor> {
