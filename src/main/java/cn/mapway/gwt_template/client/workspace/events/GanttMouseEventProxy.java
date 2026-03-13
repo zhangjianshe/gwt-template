@@ -6,6 +6,7 @@ import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.dom.client.MouseDownEvent;
 import com.google.gwt.event.dom.client.MouseMoveEvent;
 import com.google.gwt.event.dom.client.MouseUpEvent;
+import elemental2.dom.WheelEvent;
 
 public class GanttMouseEventProxy implements IMouseHandler {
     final GanttChart chart;
@@ -118,5 +119,14 @@ public class GanttMouseEventProxy implements IMouseHandler {
         }
         action = GanttMouseAction.ACTION_DEFAULT;
         currentActionHandler = defaultActionHandler;
+    }
+
+    @Override
+    public void onMouseWheel(WheelEvent event) {
+        event.preventDefault();
+        event.stopPropagation();
+        if (currentActionHandler != null) {
+            currentActionHandler.onMouseWheel(event);
+        }
     }
 }

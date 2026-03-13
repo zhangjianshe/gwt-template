@@ -41,7 +41,10 @@ public class GanttDocument {
     private final double dayWidth = 40.0; // 默认一天 40 像素
     @Setter
     GanttChart chart;
+    @Getter
+    @Setter
     double scrollTop = 0;
+    @Getter
     double totalHeight = 0;
     @Setter
     boolean isDraggingLeftPanel = false;
@@ -221,12 +224,12 @@ public class GanttDocument {
     private double layoutItem(GanttItem item, double top, double left) {
         double h = item.getDesiredHeight();
 
-        // rect 存储在屏幕上的显示位置
-        item.getRect().set(left, top, chart.getOffsetWidth(), h);
+        // 关键修正：在计算 Rect 时减去 scrollTop
+        // 这样绘制时 item.getRect().y 就会随着滚动而变化
+        item.getRect().set(left, top - scrollTop, chart.getOffsetWidth(), h);
 
         double th = h;
         for (GanttItem child : item.getChildren()) {
-            // 子任务纵向累加，横向缩进
             th += layoutItem(child, top + th, left);
         }
         return th;

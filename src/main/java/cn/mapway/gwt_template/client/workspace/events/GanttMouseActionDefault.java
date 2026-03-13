@@ -3,6 +3,7 @@ package cn.mapway.gwt_template.client.workspace.events;
 import cn.mapway.gwt_template.client.rpc.AppProxy;
 import cn.mapway.gwt_template.client.widget.DataEditorDialog;
 import cn.mapway.gwt_template.client.workspace.gantt.GanttChart;
+import cn.mapway.gwt_template.client.workspace.gantt.GanttDocument;
 import cn.mapway.gwt_template.client.workspace.gantt.GanttItem;
 import cn.mapway.gwt_template.client.workspace.widget.ActionMenu;
 import cn.mapway.gwt_template.client.workspace.widget.ActionMenuKind;
@@ -20,6 +21,8 @@ import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import elemental2.dom.DomGlobal;
+import elemental2.dom.WheelEvent;
 
 import java.sql.Timestamp;
 
@@ -301,6 +304,62 @@ public class GanttMouseActionDefault implements IMouseHandler {
     @Override
     public void onMouseUp(MouseUpEvent event) {
 
+    }
+
+    @Override
+    public void onMouseWheel(WheelEvent event) {
+        double deltaX = event.deltaX;
+        double deltaY = event.deltaY;
+
+        DomGlobal.console.log("deltaX: " + deltaX);
+        DomGlobal.console.log("deltaY: " + deltaY);
+
+        // 某些浏览器在没有左右滚轮时 deltaX 为 0
+        // 习惯上：按住 Shift 键时，将垂直滚轮转为水平滚动
+        if (event.shiftKey && deltaX == 0) {
+            deltaX = deltaY;
+            deltaY = 0;
+        }
+
+        if (Math.abs(deltaY) > 0) {
+            // 1. 处理垂直滚动
+            scrollVertical(chart.getDocument(), deltaY);
+        }
+
+        if (Math.abs(deltaX) > 0) {
+            // 2. 处理水平滚动 (时间轴平移)
+            // 这里的方向可能需要根据习惯取反，deltaY > 0 通常是向下滚，对应时间轴向右移
+            chart.getDocument().offsetTimeline(-deltaX, 0);
+        }
+    }
+
+    /**
+     * 垂直滚动逻辑
+     */
+    private void scrollVertical(GanttDocument document, double deltaY) {
+        double contentHeight = document.getTotalHeight();
+        double viewHeight = chart.getOffsetHeight() - GanttDocument.GANTT_HEAD_HEIGHT;
+
+        // 如果内容高度小于视图高度，不需要滚动
+        if (contentHeight <= viewHeight) {
+            document.setScrollTop(0);
+            return;
+        }
+
+        double newScrollTop = document.getScrollTop() + deltaY;
+
+        // 边界检查
+        if (newScrollTop < 0) {
+            newScrollTop = 0;
+        }
+        if (newScrollTop > contentHeight - viewHeight) {
+            newScrollTop = contentHeight - viewHeight;
+        }
+
+        document.setScrollTop(newScrollTop);
+
+        // 滚动后需要重新计算 Item 的 Rect 坐标，因为 y 坐标依赖 scrollTop
+        document.reLayout();
     }
 
     private void resetHover(GanttHitResult result, GanttItemHoverPosition position) {

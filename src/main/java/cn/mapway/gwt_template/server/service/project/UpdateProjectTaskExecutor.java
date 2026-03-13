@@ -65,6 +65,9 @@ public class UpdateProjectTaskExecutor extends AbstractBizExecutor<UpdateProject
             if (task.getStatus() == null) {
                 task.setStatus(DevTaskStatus.DTS_CREATED.getCode());
             }
+        } else {
+            boolean nameValid = task.getName() != null && !task.getName().isEmpty();
+            assertTrue(nameValid, "名称不能为空");
         }
 
 

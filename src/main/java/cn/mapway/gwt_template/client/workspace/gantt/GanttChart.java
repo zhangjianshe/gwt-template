@@ -13,10 +13,7 @@ import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.ui.RequiresResize;
-import elemental2.dom.BaseRenderingContext2D;
-import elemental2.dom.CanvasRenderingContext2D;
-import elemental2.dom.DomGlobal;
-import elemental2.dom.Element;
+import elemental2.dom.*;
 import jsinterop.base.Js;
 import lombok.Getter;
 
@@ -58,6 +55,11 @@ public class GanttChart extends CanvasWidget implements RequiresResize, IData<St
         });
         addKeyDownHandler(event -> {
             mouseHandlerProxy.onKeyDown(event);
+        });
+        HTMLElement element = Js.uncheckedCast(getElement());
+        element.addEventListener("wheel", (e) -> {
+            elemental2.dom.WheelEvent we = (elemental2.dom.WheelEvent) e;
+            mouseHandlerProxy.onMouseWheel(we);
         });
     }
 
