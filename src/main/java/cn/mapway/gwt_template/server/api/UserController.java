@@ -18,7 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 
 @Doc(value = "用户相关",group = "用户")
-@RestController("/api/v1/user")
+@RestController
+@RequestMapping("/api/v1/user")
 public class UserController extends ApiBaseController{
 
     @Resource

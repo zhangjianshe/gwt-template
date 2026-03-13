@@ -489,4 +489,5 @@ public class ProjectService {
         double maxRank = sql.getDouble(1.0);
         return maxRank + 1.;
     }
+
 }

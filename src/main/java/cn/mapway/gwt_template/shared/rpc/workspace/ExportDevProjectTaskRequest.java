@@ -14,4 +14,6 @@ import java.io.Serializable;
 @Data
 @Doc("ExportDevProjectTaskRequest")
 public class ExportDevProjectTaskRequest implements Serializable, IsSerializable {
+    String projectId;
+    String type;
 }

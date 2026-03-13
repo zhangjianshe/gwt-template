@@ -15,7 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 
-@RestController("/api/v1/repository")
+@RestController
+@RequestMapping("/api/v1/repository")
 public class RepositoryController extends ApiBaseController {
 
     @Resource

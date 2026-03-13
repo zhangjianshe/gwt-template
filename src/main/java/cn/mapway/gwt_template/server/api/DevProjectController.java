@@ -4,23 +4,22 @@ import cn.mapway.biz.core.BizRequest;
 import cn.mapway.biz.core.BizResult;
 import cn.mapway.document.annotation.Doc;
 import cn.mapway.gwt_template.server.service.project.*;
-import cn.mapway.gwt_template.server.service.workspace.ExportDevProjectTaskExecutor;
-import cn.mapway.gwt_template.server.service.workspace.ImportDevProjectTaskExecutor;
 import cn.mapway.gwt_template.shared.rpc.project.*;
 import cn.mapway.gwt_template.shared.rpc.workspace.ExportDevProjectTaskRequest;
 import cn.mapway.gwt_template.shared.rpc.workspace.ExportDevProjectTaskResponse;
 import cn.mapway.gwt_template.shared.rpc.workspace.ImportDevProjectTaskRequest;
 import cn.mapway.gwt_template.shared.rpc.workspace.ImportDevProjectTaskResponse;
 import cn.mapway.ui.shared.rpc.RpcResult;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 @Doc(value = "项目管理", group = "系统")
-@RestController("/api/v1/project")
+@RestController
+@RequestMapping("/api/v1/project")
 public class DevProjectController extends ApiBaseController {
     @Resource
     UpdateDevWorkspaceExecutor updateDevWorkspaceExecutor;
@@ -98,6 +97,37 @@ public class DevProjectController extends ApiBaseController {
     ImportDevProjectTaskExecutor importDevProjectTaskExecutor;
     @Resource
     ExportDevProjectTaskExecutor exportDevProjectTaskExecutor;
+
+    @Doc(value = "导出项目任务", group = "系统")
+    @GetMapping("/export")
+    public void exportProject(@RequestParam String projectId, @RequestParam String type, HttpServletResponse response) throws IOException {
+        ExportDevProjectTaskRequest request = new ExportDevProjectTaskRequest();
+        request.setProjectId(projectId);
+        request.setType(type);
+        BizResult<ExportDevProjectTaskResponse> execute = exportDevProjectTaskExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+
+        if (execute.isSuccess()) {
+            ExportDevProjectTaskResponse data = execute.getData();
+            response.setContentType(data.getMimeType());
+            response.setCharacterEncoding("UTF-8");
+
+            if (!data.getMimeType().equals("text/html")) {
+                // 对文件名进行 URL 编码，防止中文文件名在某些浏览器下乱码
+                String encodedFileName = java.net.URLEncoder.encode(data.getFileName(), StandardCharsets.UTF_8).replaceAll("\\+", "%20");
+                response.setHeader("Content-Disposition", "attachment; filename=\"" + encodedFileName + "\"");
+            }
+            // 将 String 转换为 UTF-8 字节流写入
+            byte[] bytes = data.getBody().getBytes(java.nio.charset.StandardCharsets.UTF_8);
+            response.setContentLength(bytes.length);
+            response.getOutputStream().write(bytes);
+            response.getOutputStream().flush();
+        } else {
+            // 如果失败，返回 400 或错误提示，避免下载一个包含错误信息的文件
+            response.setStatus(400);
+            response.setContentType("text/plain;charset=UTF-8");
+            response.getWriter().println("导出失败: " + execute.getMessage());
+        }
+    }
 
     /**
      * ImportDevProjectTask

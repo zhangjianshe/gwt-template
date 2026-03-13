@@ -14,4 +14,7 @@ import java.io.Serializable;
 @Data
 @Doc("ExportDevProjectTaskResponse")
 public class ExportDevProjectTaskResponse implements Serializable, IsSerializable {
+    String body;
+    String fileName;
+    String mimeType;
 }

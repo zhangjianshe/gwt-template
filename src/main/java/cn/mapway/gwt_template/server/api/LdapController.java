@@ -14,7 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 
 @Doc(value = "LDAP", group = "帐号")
-@RestController("/api/v1/ldap")
+@RestController
+@RequestMapping("/api/v1/ldap")
 public class LdapController extends ApiBaseController {
 
 

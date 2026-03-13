@@ -17,10 +17,17 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 
 @Doc(value = "配置", group = "DNS")
-@RestController("/api/v1/dns")
+@RestController
+@RequestMapping("/api/v1/dns")
 public class DnsController extends ApiBaseController {
     @Resource
     QueryDnsExecutor queryDnsExecutor;
+    @Resource
+    UpdateDnsExecutor updateDnsExecutor;
+    @Resource
+    DeleteDnsExecutor deleteDnsExecutor;
+    @Resource
+    UpdateIpExecutor updateIpExecutor;
 
     /**
      * QueryDns
@@ -35,9 +42,6 @@ public class DnsController extends ApiBaseController {
         return toApiResult(bizResult);
     }
 
-
-    @Resource
-    UpdateDnsExecutor updateDnsExecutor;
     /**
      * UpdateDns
      *
@@ -50,8 +54,7 @@ public class DnsController extends ApiBaseController {
         BizResult<UpdateDnsResponse> bizResult = updateDnsExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toApiResult(bizResult);
     }
-    @Resource
-    DeleteDnsExecutor deleteDnsExecutor;
+
     /**
      * DeleteDns
      *
@@ -64,8 +67,7 @@ public class DnsController extends ApiBaseController {
         BizResult<DeleteDnsResponse> bizResult = deleteDnsExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toApiResult(bizResult);
     }
-    @Resource
-    UpdateIpExecutor updateIpExecutor;
+
     /**
      * UpdateIp
      *

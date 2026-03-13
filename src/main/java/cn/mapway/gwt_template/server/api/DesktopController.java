@@ -16,7 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 
 @Doc(value = "Desktop", group = "配置")
-@RestController("/api/v1/desktop")
+@RestController()
+@RequestMapping("/api/v1/desktop")
 public class DesktopController extends ApiBaseController {
 
     @Resource

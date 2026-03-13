@@ -17,8 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 
 @Doc(value = "配置", group = "消息")
-@RestController("/api/v1/message")
-
+@RestController()
+@RequestMapping("/api/v1/message")
 public class MessageController extends ApiBaseController {
     @Resource
     QueryMessageExecutor queryMessageExecutor;
