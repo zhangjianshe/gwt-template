@@ -1019,4 +1019,9 @@ public class GanttDocument {
             reLayout();
         }
     }
+
+    public GanttItem getFirstSelectItem() {
+        if (selectedItems.isEmpty()) return null;
+        return selectedItems.get(0);
+    }
 }

@@ -194,8 +194,8 @@ public class GanttMouseActionDefault implements IMouseHandler {
         taskEntity.setProjectId(chart.getDocument().getProjectId());
         taskEntity.setName("新的任务");
         taskEntity.setCharger(null);
-        taskEntity.setStartTime(nextDayAtMorning(1));
-        taskEntity.setEstimateTime(nextDayAtMorning(3));
+        taskEntity.setStartTime(nextDayAtMorningFrom(ganttItem.getEntity().getEstimateTime().getTime(), 1));
+        taskEntity.setEstimateTime(nextDayAtMorningFrom(ganttItem.getEntity().getEstimateTime().getTime(), 4));
         if (ganttItem != null) {
             taskEntity.setParentId(ganttItem.getEntity().getId());
         } else {
@@ -210,6 +210,15 @@ public class GanttMouseActionDefault implements IMouseHandler {
         taskEntity.setChargeAvatar("");
         taskEntity.setChargeUserName("");
         chart.fireEvent(CommonEvent.editEvent(taskEntity));
+    }
+
+
+    private Timestamp nextDayAtMorningFrom(double timestamp, int days) {
+        elemental2.core.JsDate now = new elemental2.core.JsDate(timestamp);
+        now.setDate(now.getDate() + days);
+        // 对齐到凌晨 0 点
+        now.setHours(0, 0, 0, 0);
+        return new Timestamp((long) now.getTime());
     }
 
 
@@ -341,6 +350,12 @@ public class GanttMouseActionDefault implements IMouseHandler {
                 break;
             case KeyCodes.KEY_ENTER:
                 // do create a sub node
+                event.stopPropagation();
+                event.preventDefault();
+                GanttItem selectItem = chart.getDocument().getFirstSelectItem();
+                if (selectItem != null) {
+                    addSubTask(selectItem);
+                }
                 break;
             case KeyCodes.KEY_LEFT:
                 chart.getDocument().shrinkFirstSelect();
