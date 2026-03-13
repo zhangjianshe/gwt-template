@@ -69,9 +69,11 @@ public class GanttWidget extends CommonEventComposite implements RequiresResize,
                 taskPanelVisible = false;
                 root.setWidgetRightWidth(taskPanel, 0, Style.Unit.PX, 0, Style.Unit.PX);
                 taskPanel.setData(null);
+                chart.setFocus(true);
             }
             root.animate(200);
         }
+
     }
 
     @UiHandler("chart")
@@ -81,12 +83,14 @@ public class GanttWidget extends CommonEventComposite implements RequiresResize,
             if (taskPanelVisible) {
                 taskPanel.setData(task);
             }
-        }
-        if (event.isEdit()) {
+        } else if (event.isEdit()) {
             DevProjectTaskEntity task = event.getValue();
             taskPanel.setData(task);
             showTaskPanel(true);
+        } else if (event.isAbort()) {
+            showTaskPanel(false);
         }
+
     }
 
     @UiHandler("taskPanel")
@@ -98,6 +102,8 @@ public class GanttWidget extends CommonEventComposite implements RequiresResize,
             DevProjectTaskEntity task = event.getValue();
             chart.getDocument().insertTask(task);
         } else if (event.isClose()) {
+            showTaskPanel(false);
+        } else if (event.isAbort()) {
             showTaskPanel(false);
         }
     }

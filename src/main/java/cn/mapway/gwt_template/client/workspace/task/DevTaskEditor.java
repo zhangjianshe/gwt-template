@@ -124,7 +124,17 @@ public class DevTaskEditor extends CommonEventComposite implements RequiresResiz
             ctrlSaveCommand.withBindKey("Ctrl-S", "Cmd-S");
             txtSummary.addCommand(ctrlSaveCommand);
 
+            AceCommandDescription esc = new AceCommandDescription("Esc", new AceCommandDescription.ExecAction() {
+                @Override
+                public Object exec(AceEditor editor) {
+                    DevTaskEditor.this.fireEvent(CommonEvent.abortEvent(null));
+                    return null;
+                }
+            });
+            esc.withBindKey("Escape");
+            txtSummary.addCommand(esc);
         }
+
         txtSummary.redisplay();
     }
 

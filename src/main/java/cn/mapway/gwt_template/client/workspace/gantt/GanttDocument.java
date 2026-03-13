@@ -908,4 +908,14 @@ public class GanttDocument {
         }
     }
 
+    public DevProjectTaskEntity getFirstSelected() {
+        if (!isValid()) {
+            return null;
+        }
+        if (selectedItems.isEmpty()) {
+            return null;
+        }
+        return selectedItems.get(0).getEntity();
+
+    }
 }

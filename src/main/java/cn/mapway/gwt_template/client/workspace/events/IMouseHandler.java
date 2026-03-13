@@ -18,4 +18,8 @@ public interface IMouseHandler {
     default void onMouseWheel(WheelEvent event) {
     }
 
+
+    default void onDoubleClick(DoubleClickEvent event) {
+    }
+
 }

@@ -2,10 +2,7 @@ package cn.mapway.gwt_template.client.workspace.events;
 
 import cn.mapway.gwt_template.client.workspace.gantt.GanttChart;
 import cn.mapway.ui.client.mvc.Size;
-import com.google.gwt.event.dom.client.KeyDownEvent;
-import com.google.gwt.event.dom.client.MouseDownEvent;
-import com.google.gwt.event.dom.client.MouseMoveEvent;
-import com.google.gwt.event.dom.client.MouseUpEvent;
+import com.google.gwt.event.dom.client.*;
 import elemental2.dom.WheelEvent;
 
 public class GanttMouseEventProxy implements IMouseHandler {
@@ -129,6 +126,13 @@ public class GanttMouseEventProxy implements IMouseHandler {
         }
         action = GanttMouseAction.ACTION_DEFAULT;
         currentActionHandler = defaultActionHandler;
+    }
+
+    @Override
+    public void onDoubleClick(DoubleClickEvent event) {
+        if (currentActionHandler != null) {
+            currentActionHandler.onDoubleClick(event);
+        }
     }
 
     @Override

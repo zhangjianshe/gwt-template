@@ -2,6 +2,7 @@ package cn.mapway.gwt_template.client.workspace.gantt;
 
 import cn.mapway.gwt_template.client.workspace.events.GanttHitResult;
 import cn.mapway.gwt_template.client.workspace.events.GanttMouseEventProxy;
+import cn.mapway.gwt_template.shared.db.DevProjectTaskEntity;
 import cn.mapway.ui.client.fonts.Fonts;
 import cn.mapway.ui.client.mvc.Size;
 import cn.mapway.ui.client.tools.IData;
@@ -59,6 +60,9 @@ public class GanttChart extends CanvasWidget implements RequiresResize, IData<St
         });
         addKeyDownHandler(event -> {
             mouseHandlerProxy.onKeyDown(event);
+        });
+        addDoubleClickHandler(event -> {
+            mouseHandlerProxy.onDoubleClick(event);
         });
         HTMLElement element = Js.uncheckedCast(getElement());
         element.addEventListener("wheel", (e) -> {
@@ -508,5 +512,19 @@ public class GanttChart extends CanvasWidget implements RequiresResize, IData<St
     @Override
     public HandlerRegistration addCommonHandler(CommonEventHandler handler) {
         return addHandler(handler, CommonEvent.TYPE);
+    }
+
+    public void abortEdit() {
+        fireEvent(CommonEvent.abortEvent(null));
+    }
+
+    /**
+     * 编辑当前选择的任务
+     */
+    public void editCurrentSelect() {
+        DevProjectTaskEntity taskEntity=document.getFirstSelected();
+        if(taskEntity!=null){
+            fireEvent(CommonEvent.editEvent(taskEntity));
+        }
     }
 }

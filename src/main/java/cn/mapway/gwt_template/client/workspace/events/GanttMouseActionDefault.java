@@ -318,8 +318,47 @@ public class GanttMouseActionDefault implements IMouseHandler {
             case KeyCodes.KEY_DOWN:
                 chart.getDocument().selectNext();
                 break;
+            case KeyCodes.KEY_ESCAPE:
+                chart.abortEdit();
+                break;
+            case KeyCodes.KEY_E:
+                event.stopPropagation();
+                event.preventDefault();
+                chart.editCurrentSelect();
+                break;
         }
         chart.redraw();
+    }
+
+    @Override
+    public void onDoubleClick(DoubleClickEvent event) {
+
+        // 1. 阻止默认行为和冒泡，防止触发浏览器的文本选中
+        event.stopPropagation();
+        event.preventDefault();
+
+        if (!chart.getDocument().isValid()) {
+            return;
+        }
+
+        // 2. 实时获取双击的具体坐标
+        int x = event.getX();
+        int y = event.getY();
+        Size clickPos = new Size(x, y);
+
+        // 3. 执行点击测试
+        GanttHitResult doubleClickResult = new GanttHitResult();
+        chart.hitTest(doubleClickResult, clickPos);
+
+        // 4. 根据命中结果执行逻辑
+        switch (doubleClickResult.hitTest) {
+            case HIT_GANTT_ITEM:
+            case HIT_GANTT_ITEM_TASK: // 增加对任务条主体的支持
+                if (doubleClickResult.getGanttItem() != null) {
+                    chart.fireEvent(CommonEvent.editEvent(doubleClickResult.getGanttItem().getEntity()));
+                }
+                break;
+        }
     }
 
     @Override
