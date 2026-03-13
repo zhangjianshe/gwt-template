@@ -6,4 +6,5 @@ public enum GanttItemHoverPosition {
     GIHP_END_EDGE,
     GIHP_ITEM_BODY,
     GIHP_ITEM,
+    GIHP_ITEM_EXPAND_BUTTON,
 }

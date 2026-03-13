@@ -25,8 +25,11 @@ public class GanttItem extends BaseNode {
     private static final String NORMAL_FONT = "16px mapway-font,sans-serif";
     private static final String BOLD_NORMAL_FONT = "bold 16px mapway-font,sans-serif";
     private static final BaseRenderingContext2D.FillStyleUnionType FILL_SELECTED = BaseRenderingContext2D.FillStyleUnionType.of("skyblue");
-    private static String ICON_DOWN = new String(Character.toChars(Integer.parseInt(Fonts.A_SHUZHUANGJIEGOUZHEDIE, 16)));
-    private static String ICON_RIGHT = new String(Character.toChars(Integer.parseInt(Fonts.A_SHUZHUANGJIEGOUZHANKAI, 16)));
+    private static String ICON_FILL_DOWN = new String(Character.toChars(Integer.parseInt(Fonts.EXPAND_FILL, 16)));
+    private static String ICON_FILL_RIGHT = new String(Character.toChars(Integer.parseInt(Fonts.SHRINK_FILL, 16)));
+    private static String ICON_OUTLINE_DOWN = new String(Character.toChars(Integer.parseInt(Fonts.EXPAND_OUTLINE, 16)));
+    private static String ICON_OUTLINE_RIGHT = new String(Character.toChars(Integer.parseInt(Fonts.SHRINK_OUTLINE, 16)));
+
     DevProjectTaskEntity entity;
     Rect rect;
     GanttItem parent;
@@ -159,14 +162,19 @@ public class GanttItem extends BaseNode {
      */
     private void drawExpandArrow(CanvasRenderingContext2D ctx, double x, double y) {
         withContext(ctx, () -> {
+            // 根据状态选择字符
+            String icon = "";
             // 设置颜色和字体大小
-            ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("#666");
+            if (hoverPosition == GanttItemHoverPosition.GIHP_ITEM_EXPAND_BUTTON) {
+                ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("brown");
+                icon = (expanded ? ICON_FILL_DOWN : ICON_FILL_RIGHT);
+            } else {
+                ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("#666");
+                icon = (expanded ? ICON_OUTLINE_DOWN : ICON_OUTLINE_RIGHT);
+            }
             ctx.font = "14px mapway-font"; // 确保这里使用了包含 Fonts.RIGHT 的字体族
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
-
-            // 根据状态选择字符
-            String icon = (expanded ? ICON_DOWN : ICON_RIGHT);
 
             ctx.fillText(icon, x, y);
         });
@@ -188,8 +196,7 @@ public class GanttItem extends BaseNode {
             // 1. 选中背景（整行高亮）
             if (selected) {
                 ctx.setFont(BOLD_NORMAL_FONT);
-                ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("rgba(135, 206, 235, 0.2)");
-
+                ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("rgba(135, 206, 235, 0.1)");
                 ctx.fillRect(0, rect.y, doc.chart.getOffsetWidth(), rect.height);
             } else {
                 ctx.setFont(NORMAL_FONT);
@@ -197,39 +204,55 @@ public class GanttItem extends BaseNode {
 
             // 2. 准备绘制任务条
             String baseColor = kind.getColor();
-            ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of(baseColor);
-            // 判断是否为容器任务
-            boolean isContainer = (kind == DevTaskKind.DTK_TASK && !getChildren().isEmpty());
-            if (isContainer) {
-                // 使用之前设计的 Container 样式
-                drawContainerBar(ctx, startX, y, barWidth, barH);
-            } else if (kind == DevTaskKind.DTK_MILESTONE) {
+            boolean isContainer = (kind.isContainer() && !getChildren().isEmpty());
+
+            if (kind == DevTaskKind.DTK_MILESTONE) {
                 drawMilestone(doc, ctx);
+            } else if (isContainer) {
+                drawContainerBar(ctx, startX, y, barWidth, barH);
             } else {
+                // --- 自动加深边框逻辑实现 ---
+
+                // A. 填充主背景色
+                ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of(baseColor);
                 drawRoundedRect(ctx, startX, y, barWidth, barH, 4);
                 ctx.fill();
 
-                // 如果有进度，绘制进度层（使用稍深的颜色）
+                // B. 绘制进度层 (使用自动加深蒙层)
                 if (kind.hasProgress() && entity.getStatus() != null) {
-                    // 假设 status 存储进度 0-100
                     double progress = entity.getStatus() / 100.0;
+                    // 叠加一层 15% 透明度的黑色，自动形成该色系下的深色进度条
                     ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("rgba(0,0,0,0.15)");
                     drawRoundedRect(ctx, startX, y, barWidth * progress, barH, 4);
                     ctx.fill();
                 }
+
+                // C. 绘制自动生成的深色边框 (Darken Border)
+                // 通过叠加 20% 透明度的黑色边框，使其看起来比背景色深一个色阶
+                ctx.strokeStyle = BaseRenderingContext2D.StrokeStyleUnionType.of("rgba(0,0,0,0.2)");
+                ctx.lineWidth = 1;
+                drawRoundedRect(ctx, startX, y, barWidth, barH, 4);
+                ctx.stroke();
             }
 
-            // 3. 交互反馈：Hover 边框
+            // 3. 交互反馈：Hover 状态下增加“光泽感”
             if (hoverPosition == GanttItemHoverPosition.GIHP_ITEM_BODY && kind != DevTaskKind.DTK_MILESTONE) {
-                ctx.beginPath();
-                ctx.strokeStyle = BaseRenderingContext2D.StrokeStyleUnionType.of("#000");
-                ctx.lineWidth = 1;
-                ctx.shadowColor = "rgba(0, 0, 0, 0.4)"; // 阴影颜色
-                ctx.shadowBlur = 6;                     // 模糊程度
-                ctx.shadowOffsetX = 0;
-                ctx.shadowOffsetY = 2;                  // 向下偏移一点点
+                // 在任务条上面蒙一层淡淡的白色，模拟高亮效果
+                ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("rgba(255, 255, 255, 0.15)");
                 drawRoundedRect(ctx, startX, y, barWidth, barH, 4);
-                ctx.stroke(); // 内部描白边增强对比度
+                ctx.fill();
+
+                // 强化边框和阴影
+                ctx.strokeStyle = BaseRenderingContext2D.StrokeStyleUnionType.of("rgba(0,0,0,0.4)");
+                ctx.shadowColor = "rgba(0, 0, 0, 0.3)";
+                ctx.shadowBlur = 6;
+                ctx.shadowOffsetY = 2;
+                drawRoundedRect(ctx, startX, y, barWidth, barH, 4);
+                ctx.stroke();
+
+                // 重置投影，防止影响后续文字绘制
+                ctx.shadowBlur = 0;
+                ctx.shadowOffsetY = 0;
             }
 
             // 4. 边缘拖拽手柄（Handle）
@@ -351,9 +374,9 @@ public class GanttItem extends BaseNode {
             // 1. 判断是否在左侧固定面板区 (控制区)
             if (logic.x < document.getLeftPanelWidth()) {
                 // 计算箭头的热区范围 (例如左边距到图标开始之前)
-                double arrowHotZone = 10 + 20 * level + 15;
-                if (!children.isEmpty() && logic.x < arrowHotZone) {
-                    // 触发折叠/展开逻辑
+                double arrowLeft = 10 + 20 * level - 10; // 向左扩展 10 像素
+                double arrowRight = 10 + 20 * level + 15; // 向右扩展到图标边缘
+                if (!children.isEmpty() && logic.x >= arrowLeft && logic.x <= arrowRight) {
                     result.hitTestExpandToggle(this);
                     return true;
                 }
@@ -392,17 +415,6 @@ public class GanttItem extends BaseNode {
         return false;
     }
 
-    private void drawKindIcon(CanvasRenderingContext2D ctx, DevTaskKind kind, double x, double y) {
-        withContext(ctx, () -> {
-            // 直接从枚举中获取颜色
-            ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of(kind.getColor());
-
-            // 绘制图标
-            ctx.font = "14px mapway-font, sans-serif";
-            ctx.textAlign = "center";
-            ctx.fillText(kind.getUnicode(), x, y);
-        });
-    }
 
     public void offsetTaskTime(GanttDocument document, double deltaX, double deltaY) {
         long timeBySpan = document.getTimeBySpan(deltaX);

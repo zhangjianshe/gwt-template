@@ -420,8 +420,8 @@ public class GanttMouseActionDefault implements IMouseHandler {
                 chart.setCursor(Style.Cursor.COL_RESIZE.getCssName());
                 break;
             case HIT_ITEM_EXPAND_TOGGLE:
+                result.getGanttItem().setHoverPosition(GanttItemHoverPosition.GIHP_ITEM_EXPAND_BUTTON);
                 chart.setCursor("pointer"); // 设置为手型光标
-                // 可以不调用 resetHover，或者专门为箭头设计一个 Hover 状态
                 break;
             case HIT_DAY:
             case HIT_MONTH:
