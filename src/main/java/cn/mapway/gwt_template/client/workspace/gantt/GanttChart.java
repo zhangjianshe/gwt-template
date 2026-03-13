@@ -334,11 +334,11 @@ public class GanttChart extends CanvasWidget implements RequiresResize, IData<St
             int dayOfWeek = date.getDay(); // 0 是周日, 6 是周六
             // 如果是周末，画一个浅色背景
             if (dayOfWeek == 0 || dayOfWeek == 6) {
-                ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("#f9f9f9");
+                ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("#f2f2f2");
                 ctx.fillRect(x, GanttDocument.GANTT_HEAD_HEIGHT, dayWidth, height);
             }
 
-            ctx.strokeStyle = BaseRenderingContext2D.StrokeStyleUnionType.of("#f0f0f0");
+            ctx.strokeStyle = BaseRenderingContext2D.StrokeStyleUnionType.of("#e0e0e0");
             ctx.beginPath();
             ctx.moveTo(x, GanttDocument.GANTT_HEAD_HEIGHT);
             ctx.lineTo(x, height);
