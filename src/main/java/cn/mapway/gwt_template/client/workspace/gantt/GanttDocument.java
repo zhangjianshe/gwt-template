@@ -918,4 +918,68 @@ public class GanttDocument {
         return selectedItems.get(0).getEntity();
 
     }
+
+    public void moveFirstSelectLevelDown() {
+        if (selectedItems.isEmpty()) return;
+        GanttItem item = selectedItems.get(0);
+
+        // 1. 获取当前同级列表
+        List<GanttItem> siblings = (item.getParent() == null) ? rootItems : item.getParent().getChildren();
+        int index = siblings.indexOf(item);
+
+        // 2. 只有不是第一个兄弟时才能缩进
+        if (index > 0) {
+            GanttItem prevSibling = siblings.get(index - 1);
+
+            // 计算新的 rank：排在 prevSibling 的所有子任务之后
+            double newRank = 1.0;
+            if (!prevSibling.getChildren().isEmpty()) {
+                GanttItem lastChild = prevSibling.getChildren().get(prevSibling.getChildren().size() - 1);
+                newRank = lastChild.getEntity().getRank() + 1.0;
+            }
+
+            // 3. 执行持久化并更新 UI
+            reorderItem(item.getEntity().getId(), prevSibling.getEntity().getId(), newRank);
+
+            // 4. 自动展开父节点，确保能看到移动后的自己
+            if (!prevSibling.isExpanded()) {
+                toggleExpand(prevSibling);
+            }
+        } else {
+            ClientContext.get().toast(0, 0, "已经是该层级的第一个任务，无法缩进");
+        }
+    }
+
+    public void moveFirstSelectLevelUp() {
+        if (selectedItems.isEmpty()) return;
+        GanttItem item = selectedItems.get(0);
+        GanttItem parent = item.getParent();
+
+        // 1. 如果没有父节点，说明已经在最顶层
+        if (parent == null) {
+            ClientContext.get().toast(0, 0, "已经在最顶层");
+            return;
+        }
+
+        // 2. 找到爷爷节点（如果爷爷为空，则提升到根列表）
+        GanttItem grandParent = parent.getParent();
+        String newParentId = (grandParent == null) ? null : grandParent.getEntity().getId();
+
+        // 3. 计算新的 rank：排在原父节点之后
+        // 假设原父节点 rank 是 10, 我们给它 10.1, 10.2...
+        // 为了简单，我们取 parent 之后那个兄弟的中点，或者直接 +1
+        List<GanttItem> grandSiblings = (grandParent == null) ? rootItems : grandParent.getChildren();
+        int parentIndex = grandSiblings.indexOf(parent);
+
+        double newRank;
+        if (parentIndex < grandSiblings.size() - 1) {
+            // 取中间值
+            newRank = (parent.getEntity().getRank() + grandSiblings.get(parentIndex + 1).getEntity().getRank()) / 2.0;
+        } else {
+            newRank = parent.getEntity().getRank() + 1.0;
+        }
+
+        // 4. 执行持久化并更新 UI
+        reorderItem(item.getEntity().getId(), newParentId, newRank);
+    }
 }

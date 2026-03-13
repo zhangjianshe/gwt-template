@@ -111,14 +111,26 @@ public class GanttItem extends BaseNode {
 
         ctx.textBaseline = "middle";
 
-        // --- 坐标分配逻辑 ---
-        // A. Code 放在最左侧，固定宽度（假设 50px）
+        // --- 坐标分配逻辑 (建议值) ---
         double codeX = 10;
-        double codeWidth = 45;
+        double codeWidth = 40;  // 稍微收窄一点
 
-        // B. 展开箭头、图标、名称跟随 Level 缩进，起始点在 Code 之后
-        double treeBaseX = codeX + codeWidth + 10;
-        double currentIndent = treeBaseX + (level * 20); // 每个层级缩进 20px
+        // treeBaseX 代表“树形结构起始线”，也就是 Level 0 图标开始的地方
+        double treeBaseX = 60;  // 10(padding) + 40(code) + 10(gap)
+        double indentStep = 20; // 每级缩进宽度
+        double currentIndent = treeBaseX + (level * indentStep);
+
+        // 1. 绘制 Code (保持不变)
+        ctx.fillText(document.formatTaskCode(entity.getCode()), codeX, y + h / 2, codeWidth);
+
+        // 2. 绘制展开箭头 (将 currentIndent 作为箭头的中心或左侧固定位置)
+        if (!children.isEmpty()) {
+            // 这里传入 currentIndent
+            drawExpandArrow(ctx, currentIndent, y + h / 2);
+        }
+
+        // 3. 绘制任务类型图标 (它的起始位置必须也是 currentIndent + 固定偏移)
+        double iconX = currentIndent + 18; // 这里的 20 是给箭头留出的固定槽位宽度
 
         // 2. 绘制 Code (最左侧)
         ctx.textAlign = "left";
@@ -132,7 +144,6 @@ public class GanttItem extends BaseNode {
         }
 
         // 4. 绘制任务类型图标
-        double iconX = currentIndent + 15; // 箭头右侧 15px
         ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of(kind.getColor());
         ctx.setFont("22px mapway-font");
         ctx.textAlign = "left";
@@ -175,9 +186,7 @@ public class GanttItem extends BaseNode {
      */
     private void drawExpandArrow(CanvasRenderingContext2D ctx, double x, double y) {
         withContext(ctx, () -> {
-            // 根据状态选择字符
             String icon = "";
-            // 设置颜色和字体大小
             if (hoverPosition == GanttItemHoverPosition.GIHP_ITEM_EXPAND_BUTTON) {
                 ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("#666");
                 icon = (expanded ? ICON_FILL_RIGHT : ICON_FILL_DOWN);
@@ -185,10 +194,13 @@ public class GanttItem extends BaseNode {
                 ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("#444");
                 icon = (expanded ? ICON_OUTLINE_RIGHT : ICON_OUTLINE_DOWN);
             }
-            ctx.font = "18px mapway-font"; // 确保这里使用了包含 Fonts.RIGHT 的字体族
-            ctx.textAlign = "center";
+            ctx.font = "18px mapway-font";
+
+            // 关键修正：统一对齐方式
+            ctx.textAlign = "left"; // 如果用 center，则 x 是槽位中心
             ctx.textBaseline = "middle";
 
+            // 而是计算一个确定的左边距，确保不同宽度的字符左侧对齐
             ctx.fillText(icon, x, y);
         });
 
@@ -402,11 +414,9 @@ public class GanttItem extends BaseNode {
                     return true;
                 }
 
-                // --- B. 展开箭头判定 (在 Code 之后，跟随 level 缩进) ---
-                // 参照 drawFixedInfo 中的 treeBaseX = 10 + 45 + 10 = 65
-                double treeBaseX = 65;
+                double treeBaseX = 60; // 必须和上面 drawFixedInfo 中的值完全一致
                 double arrowCenterX = treeBaseX + (level * 20);
-                double arrowHitWidth = 15; // 点击热区半径
+                double arrowHitWidth = 12; // 点击热区
 
                 if (!children.isEmpty() &&
                         logic.x >= arrowCenterX - arrowHitWidth &&

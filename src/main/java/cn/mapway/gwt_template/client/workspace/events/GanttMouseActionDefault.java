@@ -326,6 +326,17 @@ public class GanttMouseActionDefault implements IMouseHandler {
                 event.preventDefault();
                 chart.editCurrentSelect();
                 break;
+            case KeyCodes.KEY_TAB:
+                // 阻止浏览器默认的焦点切换行为（比如切到地址栏或其它按钮）
+                event.preventDefault();
+                event.stopPropagation();
+
+                if (event.isShiftKeyDown()) {
+                    chart.getDocument().moveFirstSelectLevelUp();
+                } else {
+                    chart.getDocument().moveFirstSelectLevelDown();
+                }
+                break;
         }
         chart.redraw();
     }
