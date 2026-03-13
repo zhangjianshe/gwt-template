@@ -333,8 +333,10 @@ public class GanttMouseActionDefault implements IMouseHandler {
 
                 if (event.isShiftKeyDown()) {
                     chart.getDocument().moveFirstSelectLevelUp();
-                } else {
+                } else if(event.isControlKeyDown()){
                     chart.getDocument().moveFirstSelectLevelDown();
+                } else{
+                    chart.getDocument().toggleFirstSelect();
                 }
                 break;
         }

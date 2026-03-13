@@ -982,4 +982,13 @@ public class GanttDocument {
         // 4. 执行持久化并更新 UI
         reorderItem(item.getEntity().getId(), newParentId, newRank);
     }
+
+    public void toggleFirstSelect() {
+        if (selectedItems.isEmpty()) return;
+        if (selectedItems.get(0).getChildren().isEmpty()) {
+            return;
+        }
+        GanttItem item = selectedItems.get(0);
+        toggleExpand(item);
+    }
 }
