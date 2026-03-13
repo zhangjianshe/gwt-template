@@ -391,7 +391,6 @@ public class GanttMouseActionDefault implements IMouseHandler {
             lastHoverItem.setHoverPosition(position);
         }
     }
-
     @Override
     public void onMouseMove(MouseMoveEvent event) {
         current.set(event.getX(), event.getY());
@@ -420,7 +419,7 @@ public class GanttMouseActionDefault implements IMouseHandler {
                 chart.setCursor(Style.Cursor.COL_RESIZE.getCssName());
                 break;
             case HIT_ITEM_EXPAND_TOGGLE:
-                result.getGanttItem().setHoverPosition(GanttItemHoverPosition.GIHP_ITEM_EXPAND_BUTTON);
+                resetHover(result, GanttItemHoverPosition.GIHP_ITEM_EXPAND_BUTTON);
                 chart.setCursor("pointer"); // 设置为手型光标
                 break;
             case HIT_DAY:

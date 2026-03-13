@@ -77,6 +77,9 @@ public class DesktopFrame extends BaseAbstractModule implements RequiresResize {
 
     public DesktopFrame() {
         initWidget(ourUiBinder.createAndBindUi(this));
+        btnHome.setIcon(Fonts.HOME);
+        btnMessage.setIcon(Fonts.POPUP);
+        btnTest.setIcon(Fonts.WORKSPACE);
         btnAdd.addDomHandler(e -> {
             edit(null);
         }, ClickEvent.getType());
@@ -134,9 +137,7 @@ public class DesktopFrame extends BaseAbstractModule implements RequiresResize {
     @Override
     public boolean initialize(IModule parentModule, ModuleParameter parameter) {
         boolean b = super.initialize(parentModule, parameter);
-        btnHome.setIcon(Fonts.HOME);
-        btnMessage.setIcon(Fonts.POPUP);
-        btnTest.setIcon(Fonts.WORKSPACE);
+
         load();
         mailboxPanel.load();
         return b;

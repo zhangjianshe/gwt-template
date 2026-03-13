@@ -17,6 +17,7 @@ public class HomeButton extends CommonEventComposite implements IData<Object> {
     public HomeButton() {
         initWidget(ourUiBinder.createAndBindUi(this));
         icon.setPushButton(true);
+
     }
 
     @Override

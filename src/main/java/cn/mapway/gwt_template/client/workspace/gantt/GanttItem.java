@@ -166,13 +166,13 @@ public class GanttItem extends BaseNode {
             String icon = "";
             // 设置颜色和字体大小
             if (hoverPosition == GanttItemHoverPosition.GIHP_ITEM_EXPAND_BUTTON) {
-                ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("brown");
-                icon = (expanded ? ICON_FILL_DOWN : ICON_FILL_RIGHT);
-            } else {
                 ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("#666");
-                icon = (expanded ? ICON_OUTLINE_DOWN : ICON_OUTLINE_RIGHT);
+                icon = (expanded ? ICON_FILL_RIGHT : ICON_FILL_DOWN);
+            } else {
+                ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("#444");
+                icon = (expanded ? ICON_OUTLINE_RIGHT : ICON_OUTLINE_DOWN);
             }
-            ctx.font = "14px mapway-font"; // 确保这里使用了包含 Fonts.RIGHT 的字体族
+            ctx.font = "18px mapway-font"; // 确保这里使用了包含 Fonts.RIGHT 的字体族
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
 
@@ -383,6 +383,7 @@ public class GanttItem extends BaseNode {
                 result.hitTestGanttItem(this);
                 return true;
             }
+
 
             // 2. 计算任务条在当前时间轴下的物理 X 范围
             double startX = document.getXByDate(entity.getStartTime().getTime());

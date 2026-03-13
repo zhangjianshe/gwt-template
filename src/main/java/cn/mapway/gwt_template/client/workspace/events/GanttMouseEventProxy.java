@@ -89,6 +89,7 @@ public class GanttMouseEventProxy implements IMouseHandler {
                 }
             default:
         }
+        chart.redraw();
     }
 
     @Override
@@ -98,6 +99,7 @@ public class GanttMouseEventProxy implements IMouseHandler {
         if (currentActionHandler != null) {
             currentActionHandler.onMouseMove(event);
         }
+
     }
 
     @Override
