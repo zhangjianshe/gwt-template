@@ -39,7 +39,7 @@ public class GanttDocument {
     @Getter
     private final Map<String, GanttItem> items;
     @Getter
-    private final double dayWidth = 40.0; // 默认一天 40 像素
+    private double dayWidth = 40.0; // 默认一天 40 像素
     @Setter
     GanttChart chart;
     @Getter
@@ -61,8 +61,11 @@ public class GanttDocument {
     @Getter
     DropLocation lastDropLocation = new DropLocation();//拖动任务排序时记录当前的位置
     @Getter
+    @Setter
+    TimelineMode timelineMode = TimelineMode.DAY;
+    @Getter
     private List<DevProjectTaskEntity> rootTasks;
-    private long startTimeMillis = System.currentTimeMillis();   // 视图起始时间戳
+    private double startTimeMillis = (double) System.currentTimeMillis();   // 视图起始时间戳
     private double leftPanelSize = 400;
     private Animation currentAnimation = null;
 
@@ -100,23 +103,22 @@ public class GanttDocument {
 
     }
 
-    // 将日期转换为相对于时间轴起始点的像素偏移
-    public double getXByDate(Long dateMillis) {
-        if (dateMillis == null) return 0;
-        double diffDays = (dateMillis - startTimeMillis) / (24.0 * 60 * 60 * 1000L);
-        return diffDays * dayWidth;
+    // 将日期转换为相对于左侧面板边缘的像素偏移
+    public double getXByDate(double dateMillis) {
+        return (dateMillis - startTimeMillis) / (double)MS_PER_DAY * dayWidth;
     }
 
-    // 将 Canvas 上的 X 坐标转换为日期时间戳
-    public long getTimeByX(double x) {
-        double days = x / dayWidth;
-        return (long) (startTimeMillis + (days * 24.0 * 60 * 60 * 1000L));
+    // 对应的逆运算：将屏幕 X 坐标转回时间戳
+    public double getTimeByX(double x) {
+        double days = (x - leftPanelSize) / dayWidth;
+        return startTimeMillis + (days * (double) MS_PER_DAY);
     }
 
-    public long getTimeBySpan(double span) {
-        double days = span / dayWidth;
-        return (long) ((days * 24.0 * 60 * 60 * 1000L));
+    // 获取不带左侧偏移的纯跨度像素转时间
+    public double getTimeBySpan(double span) {
+        return (span / dayWidth) * (double) MS_PER_DAY;
     }
+
 
     public void loadDocument(String projectId) {
         this.projectId = projectId;
@@ -364,20 +366,25 @@ public class GanttDocument {
     }
 
     public void offsetTimeline(double deltaX, double deltaY) {
-        // 将位移像素转为毫秒
-        long deltaMillis = getTimeBySpan(deltaX);
-        // 左右平移视图起始时间
-        startTimeMillis -= deltaMillis;
-        chart.redraw();
-    }
+        // 1. 处理垂直滚动
+       /* this.scrollTop += deltaY;
 
-    /**
-     * 核心：计算当前起始时间距离“对齐日期”的像素偏移
-     */
-    public double getPixelOffset() {
-        long aligned = getAlignedStartTime();
-        // 计算当前显示起点距离对齐起点的时间差，转为像素
-        return ((double) (startTimeMillis - aligned) / MS_PER_DAY) * dayWidth;
+        // 边界检查：不要滚出任务列表底部
+        double maxScroll = Math.max(0, totalHeight - (chart.getOffsetHeight() - GANTT_HEAD_HEIGHT));
+        if (this.scrollTop < 0) this.scrollTop = 0;
+        if (this.scrollTop > maxScroll) this.scrollTop = maxScroll;
+*/
+        // 2. 处理水平滚动 (时间轴平移)
+        // 关键：deltaX 是像素，通过 double 运算转为时间偏移
+        double msPerPixel = (double) MS_PER_DAY / dayWidth;
+        double deltaMillis = deltaX * msPerPixel;
+
+        // 更新起始时间 (double 类型)
+        this.startTimeMillis -= deltaMillis;
+
+        // 3. 触发重绘
+        reLayout(); // 重新计算所有 Item 的 Y 坐标（受 scrollTop 影响）
+        chart.redraw();
     }
 
     /**
@@ -386,21 +393,13 @@ public class GanttDocument {
      */
     public long getAlignedStartTime() {
         // 显式转为 double，确保 GWT 不会传入一个模拟的 long 对象
-        double timestamp = (double) this.startTimeMillis;
+        double timestamp = this.startTimeMillis;
         elemental2.core.JsDate date = new elemental2.core.JsDate(timestamp);
         date.setHours(0, 0, 0, 0);
         return (long) date.getTime();
     }
 
-    public long getViewStartTime() {
-        // 确保有一个合理的默认值
-        if (startTimeMillis <= 0) {
-            elemental2.core.JsDate now = new elemental2.core.JsDate();
-            now.setHours(0, 0, 0, 0);
-            startTimeMillis = (long) now.getTime();
-        }
-        return startTimeMillis;
-    }
+
 
     public void offsetLeftPanel(double deltaX, double deltaY) {
         leftPanelSize += deltaX;
@@ -637,7 +636,7 @@ public class GanttDocument {
             targetScrollTop = scrollTop + (itemBottom - viewBottom);
         }
 
-        long targetStartTime = item.getEntity().getStartTime().getTime()
+        double targetStartTime = item.getEntity().getStartTime().getTime()
                 - 2 * MS_PER_DAY
                 - getTimeBySpan(getLeftPanelWidth());
 
@@ -645,7 +644,7 @@ public class GanttDocument {
     }
 
     public void scrollToNow() {
-        long targetStartTime = System.currentTimeMillis()
+        double targetStartTime = System.currentTimeMillis()
                 - getTimeBySpan((chart.getOffsetWidth() - getLeftPanelWidth()) / 2.)
                 - getTimeBySpan(getLeftPanelWidth());
 
@@ -1023,5 +1022,52 @@ public class GanttDocument {
     public GanttItem getFirstSelectItem() {
         if (selectedItems.isEmpty()) return null;
         return selectedItems.get(0);
+    }
+
+    /**
+     * 以鼠标位置为中心进行缩放
+     *
+     * @param deltaY 滚轮增量
+     * @param mouseX 鼠标相对于 Canvas 的 X 坐标
+     */
+    public void handleZoom(double deltaY, double mouseX) {
+        // 1. 锁定当前鼠标指向的时间点（缩放中心）
+        double mouseTime = getTimeByX(mouseX);
+
+        // 2. 计算新的 dayWidth (使用更细腻的缩放率)
+        double zoomSpeed = Math.min(Math.abs(deltaY) / 600.0, 0.2);
+        double zoomFactor = (deltaY < 0) ? (1 + zoomSpeed) : (1 - zoomSpeed);
+        double newDayWidth = dayWidth * zoomFactor;
+
+        // 3. 限制范围
+        if (newDayWidth < 0.3) newDayWidth = 0.3; // 极小缩放，甚至可以看十年
+        if (newDayWidth > 2000.0) newDayWidth = 2000.0; // 极大放大，可以看小时
+
+        if (newDayWidth == dayWidth) return;
+        this.dayWidth = newDayWidth;
+
+        // --- 新增：自动模式切换逻辑 ---
+        updateTimelineModeByWidth();
+
+        // 4. 调整起始时间，保持鼠标指向的时间点在屏幕上的 X 坐标不动
+        double pixelOffset = mouseX - leftPanelSize;
+        double msVisible = (pixelOffset / dayWidth) * (double) MS_PER_DAY;
+        this.startTimeMillis = mouseTime - msVisible;
+
+        // 5. 刷新
+        reLayout();
+        chart.redraw();
+    }
+    /**
+     * 根据当前的 dayWidth 决定显示模式
+     */
+    private void updateTimelineModeByWidth() {
+        if (this.dayWidth < 3.0) {
+            this.timelineMode = TimelineMode.MONTH;
+        } else if (this.dayWidth < 18.0) {
+            this.timelineMode = TimelineMode.WEEK;
+        } else {
+            this.timelineMode = TimelineMode.DAY;
+        }
     }
 }

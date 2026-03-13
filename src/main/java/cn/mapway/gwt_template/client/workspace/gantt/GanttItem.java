@@ -469,28 +469,28 @@ public class GanttItem extends BaseNode {
 
 
     public void offsetTaskTime(GanttDocument document, double deltaX, double deltaY) {
-        long timeBySpan = document.getTimeBySpan(deltaX);
-        entity.getStartTime().setTime(entity.getStartTime().getTime() + timeBySpan);
-        entity.getEstimateTime().setTime(entity.getEstimateTime().getTime() + timeBySpan);
+        double timeBySpan = document.getTimeBySpan(deltaX);
+        entity.getStartTime().setTime((long) (entity.getStartTime().getTime() + timeBySpan));
+        entity.getEstimateTime().setTime((long) (entity.getEstimateTime().getTime() + timeBySpan));
     }
 
     // 调整开始时间（左边缘拖拽）
     public void offsetStartTime(GanttDocument document, double deltaX) {
-        long timeDiff = document.getTimeBySpan(deltaX);
-        long newStart = entity.getStartTime().getTime() + timeDiff;
+        double timeDiff = document.getTimeBySpan(deltaX);
+        double newStart = entity.getStartTime().getTime() + timeDiff;
         // 保护：开始时间不能晚于结束时间
         if (newStart < entity.getEstimateTime().getTime() - 1000) {
-            entity.getStartTime().setTime(newStart);
+            entity.getStartTime().setTime((long) newStart);
         }
     }
 
     // 调整结束时间（右边缘拖拽）
     public void offsetEstimateTime(GanttDocument document, double deltaX) {
-        long timeDiff = document.getTimeBySpan(deltaX);
-        long newEnd = entity.getEstimateTime().getTime() + timeDiff;
+        double timeDiff = document.getTimeBySpan(deltaX);
+        double newEnd = entity.getEstimateTime().getTime() + timeDiff;
         // 保护：结束时间不能早于开始时间
         if (newEnd > entity.getStartTime().getTime() + 1000) {
-            entity.getEstimateTime().setTime(newEnd);
+            entity.getEstimateTime().setTime((long) newEnd);
         }
     }
 }

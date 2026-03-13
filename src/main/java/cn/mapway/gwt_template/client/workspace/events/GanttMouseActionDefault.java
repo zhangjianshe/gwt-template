@@ -410,26 +410,30 @@ public class GanttMouseActionDefault implements IMouseHandler {
 
     @Override
     public void onMouseWheel(WheelEvent event) {
-        double deltaX = event.deltaX;
-        double deltaY = event.deltaY;
+        // 阻止浏览器默认行为（防止滚动甘特图时，外层网页也在动）
+        event.preventDefault();
 
+        double dx = event.deltaX;
+        double dy = event.deltaY;
 
-        // 某些浏览器在没有左右滚轮时 deltaX 为 0
-        // 习惯上：按住 Shift 键时，将垂直滚轮转为水平滚动
-        if (event.shiftKey && deltaX == 0) {
-            deltaX = deltaY;
-            deltaY = 0;
+        // 1. 处理 Shift 键逻辑：将垂直滚轮转为水平滚动
+        if (event.shiftKey && dx == 0) {
+            dx = dy;
+            dy = 0;
         }
 
-        if (Math.abs(deltaY) > 0) {
-            // 1. 处理垂直滚动
-            scrollVertical(chart.getDocument(), deltaY);
+        // 2. 缩放逻辑 (选填)：如果按住 Ctrl/Meta 键，通常是缩放时间轴
+        if (event.ctrlKey || event.metaKey) {
+            chart.getDocument().handleZoom(event.deltaY, event.clientX); // 需要实现缩放函数
+            return;
         }
 
-        if (Math.abs(deltaX) > 0) {
-            // 2. 处理水平滚动 (时间轴平移)
-            // 这里的方向可能需要根据习惯取反，deltaY > 0 通常是向下滚，对应时间轴向右移
-            chart.getDocument().offsetTimeline(-deltaX, 0);
+        // 3. 执行滚动
+        // 注意：这里不再进行任何 (long) 转换，直接透传 double
+        if (Math.abs(dy) > 0 || Math.abs(dx) > 0) {
+            // 水平滚动 delta 取反：滚轮向下(dy>0) -> 页面内容向左跑 -> 时间向未来走
+            // 传入的 delta 会直接在 GanttDocument.offsetTimeline 中使用
+            chart.offsetTimeline(-dx, dy);
         }
     }
 
