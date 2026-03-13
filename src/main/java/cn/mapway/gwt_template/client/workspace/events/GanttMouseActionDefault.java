@@ -333,11 +333,20 @@ public class GanttMouseActionDefault implements IMouseHandler {
 
                 if (event.isShiftKeyDown()) {
                     chart.getDocument().moveFirstSelectLevelUp();
-                } else if(event.isControlKeyDown()){
+                } else if (event.isControlKeyDown()) {
                     chart.getDocument().moveFirstSelectLevelDown();
-                } else{
+                } else {
                     chart.getDocument().toggleFirstSelect();
                 }
+                break;
+            case KeyCodes.KEY_ENTER:
+                // do create a sub node
+                break;
+            case KeyCodes.KEY_LEFT:
+                chart.getDocument().shrinkFirstSelect();
+                break;
+            case KeyCodes.KEY_RIGHT:
+                chart.getDocument().expandFirstSelect();
                 break;
         }
         chart.redraw();

@@ -991,4 +991,32 @@ public class GanttDocument {
         GanttItem item = selectedItems.get(0);
         toggleExpand(item);
     }
+
+    public void shrinkFirstSelect() {
+        if (selectedItems.isEmpty()) return;
+        if (selectedItems.get(0).getChildren().isEmpty()) {
+            return;
+        }
+        GanttItem item = selectedItems.get(0);
+        if (item.isExpanded()) {
+            item.setExpanded(false);
+            rebuildFlatItems();
+            reLayout();
+        }
+
+    }
+
+    public void expandFirstSelect() {
+
+        if (selectedItems.isEmpty()) return;
+        if (selectedItems.get(0).getChildren().isEmpty()) {
+            return;
+        }
+        GanttItem item = selectedItems.get(0);
+        if (!item.isExpanded()) {
+            item.setExpanded(true);
+            rebuildFlatItems();
+            reLayout();
+        }
+    }
 }
