@@ -139,6 +139,8 @@ public class GanttItem extends BaseNode {
         // 调整名称的 X 坐标，确保不覆盖图标
         double nameX = iconX + 26;
         fillTextWithEllipsis(ctx, entity.getName(), nameX, y + h / 2, panelWidth - nameX - 10);
+        ctx.textAlign = "right";
+        ctx.fillText(document.formatTaskCode(entity.getCode()), document.getLeftPanelWidth() - 46, y + h / 2, 60);
 
         // 4. 底部线条 (建议在外面 drawFloatingLeftPanel 里统一画，或者保持在这里)
         ctx.strokeStyle = LINE_STYLE;
