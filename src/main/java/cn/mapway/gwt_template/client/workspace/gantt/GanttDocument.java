@@ -189,6 +189,7 @@ public class GanttDocument {
         for (DevProjectTaskEntity task : tasks) {
             GanttItem item = new GanttItem();
             item.setEntity(task);
+            item.setExpanded(true);
             if (task.getCode() != null && task.getCode() > maxCode) {
                 maxCode = task.getCode();
             }
@@ -224,15 +225,28 @@ public class GanttDocument {
     private double layoutItem(GanttItem item, double top, double left) {
         double h = item.getDesiredHeight();
 
-        // 关键修正：在计算 Rect 时减去 scrollTop
-        // 这样绘制时 item.getRect().y 就会随着滚动而变化
+        // 计算当前节点的物理矩形
         item.getRect().set(left, top - scrollTop, chart.getOffsetWidth(), h);
 
         double th = h;
-        for (GanttItem child : item.getChildren()) {
-            th += layoutItem(child, top + th, left);
+        // 关键修正：只有当节点是展开状态时，才计算子布局高度
+        if (item.isExpanded()) {
+            for (GanttItem child : item.getChildren()) {
+                th += layoutItem(child, top + th, left);
+            }
+        } else {
+            // 如果节点被收缩，则其所有子孙节点的 Rect 应该重置或标记为不可见
+            // 防止残留的 hitTest 坐标影响点击
+            resetChildrenRect(item);
         }
         return th;
+    }
+
+    private void resetChildrenRect(GanttItem parent) {
+        for (GanttItem child : parent.getChildren()) {
+            child.getRect().set(0, -1000, 0, 0); // 将隐藏节点移出屏幕
+            resetChildrenRect(child);
+        }
     }
 
     public void clear() {
@@ -677,7 +691,47 @@ public class GanttDocument {
             int nextIndex = Math.min(index, flatItems.size() - 1);
             appendSelect(flatItems.get(nextIndex), true);
         }
+    }
 
+    // 在 GanttDocument.java 中
+    public void toggleExpand(GanttItem item) {
+        if (item == null || item.getChildren().isEmpty()) {
+            return;
+        }
+
+        // 切换状态
+        item.setExpanded(!item.isExpanded());
+
+        // 关键：重新构建扁平列表
+        // 只有展开的任务及其子任务才会进入 flatItems
+        rebuildFlatItems();
+
+        // 重新计算坐标（Y轴会发生变化）
+        reLayout();
+
+        // 触发重绘
+        if (chart != null) {
+            chart.redraw();
+        }
+    }
+
+    // 在 GanttDocument.java 中
+    public void rebuildFlatItems() {
+        flatItems.clear();
+        for (GanttItem root : rootItems) {
+            collectVisibleItems(root);
+        }
+    }
+
+    private void collectVisibleItems(GanttItem item) {
+        flatItems.add(item);
+
+        // 如果当前节点已展开，则继续递归收集子节点
+        if (item.isExpanded()) {
+            for (GanttItem child : item.getChildren()) {
+                collectVisibleItems(child);
+            }
+        }
     }
 
 }

@@ -5,6 +5,7 @@ import cn.mapway.gwt_template.client.workspace.events.GanttItemHoverPosition;
 import cn.mapway.gwt_template.client.workspace.team.BaseNode;
 import cn.mapway.gwt_template.shared.db.DevProjectTaskEntity;
 import cn.mapway.gwt_template.shared.rpc.project.module.DevTaskKind;
+import cn.mapway.ui.client.fonts.Fonts;
 import cn.mapway.ui.client.mvc.Rect;
 import cn.mapway.ui.client.mvc.Size;
 import elemental2.dom.BaseRenderingContext2D;
@@ -24,6 +25,8 @@ public class GanttItem extends BaseNode {
     private static final String NORMAL_FONT = "16px mapway-font,sans-serif";
     private static final String BOLD_NORMAL_FONT = "bold 16px mapway-font,sans-serif";
     private static final BaseRenderingContext2D.FillStyleUnionType FILL_SELECTED = BaseRenderingContext2D.FillStyleUnionType.of("skyblue");
+    private static String ICON_DOWN = new String(Character.toChars(Integer.parseInt(Fonts.A_SHUZHUANGJIEGOUZHEDIE, 16)));
+    private static String ICON_RIGHT = new String(Character.toChars(Integer.parseInt(Fonts.A_SHUZHUANGJIEGOUZHANKAI, 16)));
     DevProjectTaskEntity entity;
     Rect rect;
     GanttItem parent;
@@ -156,22 +159,18 @@ public class GanttItem extends BaseNode {
      */
     private void drawExpandArrow(CanvasRenderingContext2D ctx, double x, double y) {
         withContext(ctx, () -> {
-            ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("#999");
-            ctx.translate(x, y);
+            // 设置颜色和字体大小
+            ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("#666");
+            ctx.font = "14px mapway-font"; // 确保这里使用了包含 Fonts.RIGHT 的字体族
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
 
-            // 如果收起状态，旋转 -90 度或直接绘制不同字符
-            if (!expanded) {
-                ctx.rotate(-Math.PI / 2);
-            }
+            // 根据状态选择字符
+            String icon = (expanded ? ICON_DOWN : ICON_RIGHT);
 
-            // 绘制一个小三角形
-            ctx.beginPath();
-            ctx.moveTo(-4, -4);
-            ctx.lineTo(4, 0);
-            ctx.lineTo(-4, 4);
-            ctx.closePath();
-            ctx.fill();
+            ctx.fillText(icon, x, y);
         });
+
     }
 
     // 2. 绘制右侧任务条 (Timeline Bar)

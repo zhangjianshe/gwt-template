@@ -258,10 +258,25 @@ public class GanttMouseActionDefault implements IMouseHandler {
             return;
         }
         switch (result.hitTest) {
+            case HIT_ITEM_EXPAND_TOGGLE: // 确保你的 GanttHitResult.HitType 中有这个定义
+                // 切换展开/收起状态
+                GanttItem item = result.getGanttItem();
+                if (item != null) {
+                    // 这里的逻辑已经在上一条回复中建议实现在 Document 里
+                    chart.getDocument().toggleExpand(item);
+                }
+                break;
+
             case HIT_GANTT_ITEM:
-                //点击选中
+                // 原有的点击选中逻辑
                 chart.getDocument().appendSelect(result.getGanttItem(), true);
                 break;
+
+            case HIT_GANTT_ITEM_TASK:
+                // 如果点击的是任务条主体，也可以触发选中
+                chart.getDocument().appendSelect(result.getGanttItem(), true);
+                break;
+
         }
         chart.redraw();
     }
@@ -403,6 +418,10 @@ public class GanttMouseActionDefault implements IMouseHandler {
             case HIT_RESIZE_TASK_ESTIMATE_TIME:
                 resetHover(result, GanttItemHoverPosition.GIHP_END_EDGE);
                 chart.setCursor(Style.Cursor.COL_RESIZE.getCssName());
+                break;
+            case HIT_ITEM_EXPAND_TOGGLE:
+                chart.setCursor("pointer"); // 设置为手型光标
+                // 可以不调用 resetHover，或者专门为箭头设计一个 Hover 状态
                 break;
             case HIT_DAY:
             case HIT_MONTH:
