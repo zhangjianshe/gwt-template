@@ -33,6 +33,7 @@ public class GanttItem extends BaseNode {
     GanttItemHoverPosition hoverPosition = GanttItemHoverPosition.GHIP_NONE;
     boolean selected = false;
     DevTaskKind kind;
+    private boolean expanded = true;
 
     public GanttItem() {
         rect = new Rect();
@@ -116,21 +117,28 @@ public class GanttItem extends BaseNode {
             });
         }
 
-        // 3. 绘制文字
-        ctx.textBaseline = "middle";
-        ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of(kind.getColor());
-        double nameX = 80 + 20 * level;
+        double arrowX = 10 + 20 * level; // 根据层级缩进
+        if (!children.isEmpty()) {
+            drawExpandArrow(ctx, arrowX, y + h / 2);
+        }
 
-        // 动态计算剩余宽度，防止文字挤到负责人那一列
+        // 3. 绘制图标和文字 (注意坐标偏移，给箭头留出空间)
+        ctx.textBaseline = "middle";
+        double iconX = arrowX + 15; // 箭头后面是图标
+
+        // 绘制类型图标
+        ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of(kind.getColor());
         ctx.setFont("22px mapway-font");
         ctx.textAlign = "left";
-        ctx.fillText(kind.getUnicode(), nameX, y + h / 2);
+        ctx.fillText(kind.getUnicode(), iconX, y + h / 2);
 
+        // 绘制 Code 和 Name
         ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("#333");
-        ctx.setFont(selected ? BOLD_NORMAL_FONT : NORMAL_FONT); // 选中时可以加粗
-        String code = document.formatTaskCode(entity.getCode());
-        fillTextWithEllipsis(ctx, code, 10, y + h / 2, 60);
-        fillTextWithEllipsis(ctx, entity.getName(), nameX + 26, y + h / 2, 240 - nameX);
+        ctx.setFont(selected ? BOLD_NORMAL_FONT : NORMAL_FONT);
+
+        // 调整名称的 X 坐标，确保不覆盖图标
+        double nameX = iconX + 26;
+        fillTextWithEllipsis(ctx, entity.getName(), nameX, y + h / 2, panelWidth - nameX - 10);
 
         // 4. 底部线条 (建议在外面 drawFloatingLeftPanel 里统一画，或者保持在这里)
         ctx.strokeStyle = LINE_STYLE;
@@ -139,6 +147,29 @@ public class GanttItem extends BaseNode {
         ctx.moveTo(0, y + h - 0.5); // -0.5 对齐像素
         ctx.lineTo(panelWidth, y + h - 0.5);
         ctx.stroke();
+    }
+
+    /**
+     * 绘制展开收起的小箭头
+     */
+    private void drawExpandArrow(CanvasRenderingContext2D ctx, double x, double y) {
+        withContext(ctx, () -> {
+            ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("#999");
+            ctx.translate(x, y);
+
+            // 如果收起状态，旋转 -90 度或直接绘制不同字符
+            if (!expanded) {
+                ctx.rotate(-Math.PI / 2);
+            }
+
+            // 绘制一个小三角形
+            ctx.beginPath();
+            ctx.moveTo(-4, -4);
+            ctx.lineTo(4, 0);
+            ctx.lineTo(-4, 4);
+            ctx.closePath();
+            ctx.fill();
+        });
     }
 
     // 2. 绘制右侧任务条 (Timeline Bar)
@@ -188,7 +219,7 @@ public class GanttItem extends BaseNode {
             }
 
             // 3. 交互反馈：Hover 边框
-            if (hoverPosition == GanttItemHoverPosition.GIHP_ITEM_BODY) {
+            if (hoverPosition == GanttItemHoverPosition.GIHP_ITEM_BODY && kind != DevTaskKind.DTK_MILESTONE) {
                 ctx.beginPath();
                 ctx.strokeStyle = BaseRenderingContext2D.StrokeStyleUnionType.of("#000");
                 ctx.lineWidth = 1;
@@ -231,24 +262,29 @@ public class GanttItem extends BaseNode {
     }
 
     private void drawMilestone(GanttDocument doc, CanvasRenderingContext2D ctx) {
+        // 1. 计算里程碑在时间轴上的物理中心 X 坐标
         double x = doc.getXByDate(entity.getStartTime().getTime());
-        double barH = rect.height - 16;
-        double y = rect.y + rect.height / 2;
-        double size = 12.0; // 菱形的大小
+        double centerY = rect.y + rect.height / 2;
+        double size = 12.0; // 菱形边长
 
+        // --- 第一步：仅旋转绘制菱形 ---
         withContext(ctx, () -> {
-            ctx.translate(x, y);
-            ctx.rotate(Math.PI / 4); // 旋转45度变成菱形
+            ctx.translate(x, centerY);
+            ctx.rotate(Math.PI / 4); // 旋转 45 度
 
-            ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("#FF9800");
+            // 填充颜色
+            ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("#FF5722");
             ctx.fillRect(-size / 2, -size / 2, size, size);
 
-            if (hoverPosition != GanttItemHoverPosition.GHIP_NONE) {
-                ctx.strokeStyle = BaseRenderingContext2D.StrokeStyleUnionType.of("white");
+            // Hover 或 选中 效果：加粗边框
+            if (selected || hoverPosition != GanttItemHoverPosition.GHIP_NONE) {
+                ctx.strokeStyle = BaseRenderingContext2D.StrokeStyleUnionType.of("#333");
                 ctx.lineWidth = 2.0;
                 ctx.strokeRect(-size / 2, -size / 2, size, size);
             }
         });
+
+
     }
 
     private void drawResizeHandle(CanvasRenderingContext2D ctx, double x, double y, double h) {
@@ -313,6 +349,13 @@ public class GanttItem extends BaseNode {
 
             // 1. 判断是否在左侧固定面板区 (控制区)
             if (logic.x < document.getLeftPanelWidth()) {
+                // 计算箭头的热区范围 (例如左边距到图标开始之前)
+                double arrowHotZone = 10 + 20 * level + 15;
+                if (!children.isEmpty() && logic.x < arrowHotZone) {
+                    // 触发折叠/展开逻辑
+                    result.hitTestExpandToggle(this);
+                    return true;
+                }
                 result.hitTestGanttItem(this);
                 return true;
             }
@@ -327,7 +370,14 @@ public class GanttItem extends BaseNode {
 
             double edgeThreshold = 5.0;
 
-            if (logic.x >= startX - edgeThreshold && logic.x <= startX + edgeThreshold) {
+            if (kind == DevTaskKind.DTK_MILESTONE) {
+                double milestoneX = document.getXByDate(entity.getStartTime().getTime());
+                double hitWidth = 20.0; // 给 20 像素的热区
+                if (logic.x >= milestoneX - hitWidth / 2 && logic.x <= milestoneX + hitWidth / 2) {
+                    result.hitTestGanttItemTask(this); // 里程碑只能移动，不能拉伸
+                    return true;
+                }
+            } else if (logic.x >= startX - edgeThreshold && logic.x <= startX + edgeThreshold) {
                 result.hitTestAdjustTaskStartEdge(this);
             } else if (logic.x >= actualEndX - edgeThreshold && logic.x <= actualEndX + edgeThreshold) {
                 result.hitTestAdjustTaskEndEdge(this);

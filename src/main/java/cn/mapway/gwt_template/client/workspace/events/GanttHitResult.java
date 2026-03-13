@@ -66,4 +66,9 @@ public class GanttHitResult {
         hitTest = GanttHitTest.HIT_RESIZE_TASK_ESTIMATE_TIME;
         this.ganttItem = ganttItem;
     }
+
+    public void hitTestExpandToggle(GanttItem ganttItem) {
+        hitTest = GanttHitTest.HIT_ITEM_EXPAND_TOGGLE;
+        this.ganttItem = ganttItem;
+    }
 }
