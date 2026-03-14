@@ -152,6 +152,60 @@ public class GanttChart extends CanvasWidget implements RequiresResize, IData<St
         });
     }
 
+    /**
+     * 绘制树状引导线
+     *
+     * @param ctx    画布上下文
+     * @param item   当前项
+     * @param indent 每一层级的缩进像素，例如 16
+     */
+    private void drawTreeLines(CanvasRenderingContext2D ctx, GanttItem item, double indent, boolean harfForLastVerticalLine) {
+        if (item.getLevel() < 0) return; // 根节点不画引导线
+
+        ctx.save();
+        ctx.strokeStyle = BaseRenderingContext2D.StrokeStyleUnionType.of(("#e0e0e0")); // 建议使用浅灰色，不要干扰文字
+        ctx.setLineWidth(1.0);
+        ctx.beginPath();
+
+        int padding = 68; // 68 是微调偏置，对应展开图标的位置
+        // 当前行的 Y 轴中点坐标
+        double midY = item.getRect().y + item.getRect().height / 2.0;
+        // 引导线的 X 起始位置：基于父级的层级
+        double lineStartX = (item.getLevel() - 1) * indent + padding;
+        // 引导线的 X 结束位置：指向当前项图标的左侧
+        double lineEndX;
+        if (!item.getChildren().isEmpty()) {
+            lineEndX = item.getLevel() * indent + padding - 6;
+        } else {
+            lineEndX = item.getLevel() * indent + padding + 10;
+        }
+        if (item.getLevel() > 0) {
+            // 1. 绘制水平“L”型连接线
+            ctx.moveTo(lineStartX, midY);
+            ctx.lineTo(lineEndX, midY);
+        }
+        if (item.isExpanded() && !item.getChildren().isEmpty()) {
+            double x = item.getLevel() * indent + padding;
+            ctx.moveTo(x, midY + 8);
+            ctx.lineTo(x, item.getRect().y + item.getRect().height);
+        }
+
+
+        for (int i = 1; i <= item.getLevel(); i++) {
+            double x = (i - 1) * indent + padding;
+            ctx.moveTo(x, item.getRect().y);
+
+            if (harfForLastVerticalLine && i == item.getLevel()) {
+                ctx.lineTo(x, midY);
+            } else {
+                ctx.lineTo(x, item.getRect().y + item.getRect().height);
+            }
+        }
+
+        ctx.stroke();
+        ctx.restore();
+    }
+
     // 在 GanttDocument 绘图循环最后
     public void drawDropIndicator(CanvasRenderingContext2D ctx, DropLocation dropLocation) {
 
@@ -301,12 +355,24 @@ public class GanttChart extends CanvasWidget implements RequiresResize, IData<St
             ctx.fillRect(0, GanttDocument.GANTT_HEAD_HEIGHT, sidebarWidth, chartHeight);
 
             // 2. 遍历 Item 绘制
-            for (GanttItem item : document.getFlatItems()) {
-                // 只绘制可见区域的 Item (简单的性能优化)
+            int size = document.getFlatItems().size();
+            for (int i = 0; i < size; i++) {
+                GanttItem item = document.getFlatItems().get(i);
                 if (item.getRect().y + item.getRect().height > 0 && item.getRect().y < chartHeight) {
+                    boolean levelLastItem = false;
+                    if (i < size - 1) {
+                        GanttItem nextItem = document.getFlatItems().get(i + 1);
+                        if (nextItem.getLevel() < item.getLevel()) {
+                            levelLastItem = true;
+                        }
+                    } else {
+                        levelLastItem = true;
+                    }
                     item.drawFixedInfo(document, ctx);
+                    drawTreeLines(ctx, item, 20, levelLastItem);
                 }
             }
+
             if (document.getFlatItems().isEmpty()) {
                 ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("#666");
                 ctx.font = "14px sans-serif";
@@ -331,11 +397,11 @@ public class GanttChart extends CanvasWidget implements RequiresResize, IData<St
      */
     private double getBestStepMs(double dayWidth) {
         if (dayWidth >= 1000) return MS_PER_HOUR;
-        if (dayWidth >= 300)  return MS_PER_HOUR * 6;      // 增加 6 小时档位
-        if (dayWidth >= 150)  return MS_PER_HOUR * 12;     // 增加 12 小时档位
-        if (dayWidth >= 40)   return MS_PER_DAY;           // 每天
-        if (dayWidth >= 10)  return MS_PER_WEEK;           // 中：每周一格
-        if (dayWidth >= 2)   return MS_PER_MONTH;          // 小：每月一格
+        if (dayWidth >= 300) return MS_PER_HOUR * 6;      // 增加 6 小时档位
+        if (dayWidth >= 150) return MS_PER_HOUR * 12;     // 增加 12 小时档位
+        if (dayWidth >= 40) return MS_PER_DAY;           // 每天
+        if (dayWidth >= 10) return MS_PER_WEEK;           // 中：每周一格
+        if (dayWidth >= 2) return MS_PER_MONTH;          // 小：每月一格
         if (dayWidth >= 0.5) return MS_PER_QUARTER;        // 极小：每季度一格
         if (dayWidth >= 0.1) return MS_PER_YEAR;           // 极细：每年一格
         return MS_PER_YEAR * 10;                           // 宏观：十年一格
@@ -372,9 +438,9 @@ public class GanttChart extends CanvasWidget implements RequiresResize, IData<St
                 // 逻辑：判断该单元格是奇数还是偶数（例如月或季度的索引）
                 boolean isOdd;
                 if (stepMs >= MS_PER_QUARTER * 0.9) {
-                    isOdd = ((int)Math.floor(date.getMonth() / 3) % 2 == 0);
+                    isOdd = ((int) Math.floor(date.getMonth() / 3) % 2 == 0);
                 } else {
-                    isOdd = ((int)date.getDate() % 2 == 0);
+                    isOdd = (date.getDate() % 2 == 0);
                 }
 
                 if (isOdd) {
@@ -409,7 +475,6 @@ public class GanttChart extends CanvasWidget implements RequiresResize, IData<St
         }
         ctx.restore();
     }
-
 
 
     public void drawHeader(CanvasRenderingContext2D ctx, double width) {
@@ -454,7 +519,6 @@ public class GanttChart extends CanvasWidget implements RequiresResize, IData<St
         // ... 前面的小时、天判断 ...
 
 
-
         if (stepMs <= MS_PER_DAY * 7) {
             return stepMs; // 小时、天、周是固定的
         } else if (stepMs <= MS_PER_MONTH * 1.5) {
@@ -463,7 +527,7 @@ public class GanttChart extends CanvasWidget implements RequiresResize, IData<St
             tempDateCalc2.setMonth(tempDateCalc1.getMonth() + 3); // 步进一季
         } else if (stepMs <= MS_PER_YEAR * 1.5) {
             tempDateCalc2.setFullYear(tempDateCalc1.getFullYear() + 1);
-        } else  {
+        } else {
             tempDateCalc2.setFullYear(tempDateCalc1.getFullYear() + 10); // 步进十年
         }
         return tempDateCalc2.getTime() - tempDateCalc1.getTime();
@@ -536,13 +600,14 @@ public class GanttChart extends CanvasWidget implements RequiresResize, IData<St
         }
         ctx.restore();
     }
+
     private String getTopLabelByStep(elemental2.core.JsDate date, double topStepMs, double periodW) {
-        int year = (int) date.getFullYear();
-        int month = (int) date.getMonth() + 1;
+        int year = date.getFullYear();
+        int month = date.getMonth() + 1;
 
         if (topStepMs <= MS_PER_DAY) { // 顶层是天（底层是小时）
             if (periodW > 120) return year + "年" + month + "月" + date.getDate() + "日";
-            return month + "月" + (int)date.getDate() + "日";
+            return month + "月" + date.getDate() + "日";
         }
 
         if (topStepMs <= MS_PER_MONTH * 1.5) { // 顶层是月（底层是天）
@@ -601,6 +666,7 @@ public class GanttChart extends CanvasWidget implements RequiresResize, IData<St
             }
         }
     }
+
     /**
      * 判断是否为视觉上的重要节点
      */
@@ -610,10 +676,11 @@ public class GanttChart extends CanvasWidget implements RequiresResize, IData<St
         if (stepMs < MS_PER_DAY) return date.getHours() == 0 || date.getHours() == 12; // 零点或正午
         return false;
     }
+
     private String[] getLabelCandidates(elemental2.core.JsDate date, double stepMs) {
-        int month = (int) date.getMonth() + 1;
-        int day = (int) date.getDate();
-        int hours = (int) date.getHours();
+        int month = date.getMonth() + 1;
+        int day = date.getDate();
+        int hours = date.getHours();
 
         if (stepMs < MS_PER_DAY) { // 小时级别
             String timeStr = (hours < 10 ? "0" + hours : hours) + ":00";
@@ -648,12 +715,12 @@ public class GanttChart extends CanvasWidget implements RequiresResize, IData<St
         }
 
         if (stepMs <= MS_PER_YEAR * 1.5) { // 年级别
-            int year = (int) date.getFullYear();
+            int year = date.getFullYear();
             return new String[]{year + "年度", year + "年", String.valueOf(year).substring(2)};
         }
 
         // 十年级别
-        int year = (int) date.getFullYear();
+        int year = date.getFullYear();
         return new String[]{year + "年", String.valueOf(year).substring(2)};
     }
 
@@ -662,20 +729,18 @@ public class GanttChart extends CanvasWidget implements RequiresResize, IData<St
         d.setHours(0, 0, 0, 0); // 必须重置时分秒
 
         if (stepMs >= MS_PER_YEAR * 0.9) { // 年或十年
-            d.setMonth(0); d.setDate(1);
-        }
-        else if (stepMs >= MS_PER_QUARTER * 0.9) { // 季度
+            d.setMonth(0);
+            d.setDate(1);
+        } else if (stepMs >= MS_PER_QUARTER * 0.9) { // 季度
             // 关键：将月份对齐到 0, 3, 6, 9 (即 Q1, Q2, Q3, Q4 的起始月)
-            int currentMonth = (int) d.getMonth();
+            int currentMonth = d.getMonth();
             int quarterStartMonth = (currentMonth / 3) * 3;
             d.setMonth(quarterStartMonth);
             d.setDate(1);
-        }
-        else if (stepMs >= MS_PER_MONTH * 0.9) { // 月
+        } else if (stepMs >= MS_PER_MONTH * 0.9) { // 月
             d.setDate(1);
-        }
-        else if (stepMs >= MS_PER_WEEK * 0.9) { // 周
-            int day = (int) d.getDay();
+        } else if (stepMs >= MS_PER_WEEK * 0.9) { // 周
+            int day = d.getDay();
             int diff = (day == 0 ? 6 : day - 1);
             d.setDate(d.getDate() - diff);
         }
