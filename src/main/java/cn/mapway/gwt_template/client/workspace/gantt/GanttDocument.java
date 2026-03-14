@@ -655,7 +655,7 @@ public class GanttDocument {
             ClientContext.get().confirm("不能删除有子任务的任务");
             return;
         }
-        String msg = "删除任务" + ganttItem.getEntity().getName() + "?";
+        String msg = "<b>删除任务?</b><p style='line-height:30px;width: 300px;padding: 10px 0;color: red;'>" + ganttItem.getEntity().getName() + "</p>";
         ClientContext.get().confirmDelete(msg).then(new IThenable.ThenOnFulfilledCallbackFn<Void, Object>() {
             @Override
             public @Nullable IThenable<Object> onInvoke(Void p0) {

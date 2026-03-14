@@ -2,6 +2,7 @@ package cn.mapway.gwt_template.client.workspace.gantt;
 
 import cn.mapway.gwt_template.client.workspace.events.GanttHitResult;
 import cn.mapway.gwt_template.client.workspace.events.GanttMouseEventProxy;
+import cn.mapway.gwt_template.client.workspace.widget.ShortcutHelper;
 import cn.mapway.gwt_template.shared.db.DevProjectTaskEntity;
 import cn.mapway.ui.client.fonts.Fonts;
 import cn.mapway.ui.client.mvc.Size;
@@ -380,6 +381,7 @@ public class GanttChart extends CanvasWidget implements RequiresResize, IData<St
                 ctx.textAlign = "center";
                 // 确保这里不是 0
                 ctx.fillText("右键创建或者导入任务", document.getLeftPanelWidth() / 2, 200);
+                ctx.fillText(" / 键查看帮助", document.getLeftPanelWidth() / 2, 250);
             }
         });
         // 3. 绘制右侧边界线
@@ -886,5 +888,9 @@ public class GanttChart extends CanvasWidget implements RequiresResize, IData<St
         if (taskEntity != null) {
             fireEvent(CommonEvent.editEvent(taskEntity));
         }
+    }
+
+    public void showHelp() {
+        ShortcutHelper.getPopup().center();
     }
 }

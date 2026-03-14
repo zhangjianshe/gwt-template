@@ -438,6 +438,16 @@ public class GanttMouseActionDefault implements IMouseHandler {
             case KeyCodes.KEY_RIGHT:
                 chart.getDocument().expandFirstSelect();
                 break;
+            case 191:
+                chart.showHelp();
+                break;
+            case KeyCodes.KEY_DELETE:
+                GanttItem selectItem1 = chart.getDocument().getFirstSelectItem();
+                if (selectItem1 != null) {
+                    chart.getDocument().deleteItem(selectItem1);
+                }
+                break;
+            default:
         }
         chart.redraw();
     }

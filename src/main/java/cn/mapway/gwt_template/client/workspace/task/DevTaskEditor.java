@@ -141,6 +141,9 @@ public class DevTaskEditor extends CommonEventComposite implements RequiresResiz
     }
 
     private void updateUI() {
+        if (task == null) {
+            return;
+        }
         Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
             @Override
             public void execute() {
