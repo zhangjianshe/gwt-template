@@ -108,6 +108,7 @@ public class GanttItem extends BaseNode {
             ctx.fillStyle = FILL_HOVER;
             ctx.fillRect(0, y, panelWidth, h);
         }
+        ctx.setFont(selected ? BOLD_NORMAL_FONT : NORMAL_FONT);
 
         ctx.textBaseline = "middle";
 

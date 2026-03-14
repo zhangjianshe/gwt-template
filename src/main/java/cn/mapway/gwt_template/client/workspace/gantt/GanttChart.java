@@ -15,6 +15,7 @@ import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.ui.RequiresResize;
+import elemental2.core.JsDate;
 import elemental2.dom.*;
 import jsinterop.base.Js;
 import lombok.Getter;
@@ -424,9 +425,14 @@ public class GanttChart extends CanvasWidget implements RequiresResize, IData<St
             ctx.restore();
             return;
         }
-
+        // 在循环外定义
+        long currentTime = (long) date.getTime();
+        // 1. 定义一个固定的原点（例如文档的起始时间，或者 Unix 元年）
+        JsDate tempDate = new JsDate();
+        double originTime = tempDate.getTime();
         for (int i = 0; i < 500; i++) {
-            double x = document.getXByDate((long) date.getTime());
+
+            double x = document.getXByDate(currentTime);
             if (x > width) break;
 
             // 计算步进像素宽度
@@ -435,17 +441,21 @@ public class GanttChart extends CanvasWidget implements RequiresResize, IData<St
             double cellWidth = nextX - x;
 
             if (nextX >= 0) {
-                // 逻辑：判断该单元格是奇数还是偶数（例如月或季度的索引）
-                boolean isOdd;
-                if (stepMs >= MS_PER_QUARTER * 0.9) {
-                    isOdd = ((int) Math.floor(date.getMonth() / 3) % 2 == 0);
-                } else {
-                    isOdd = (date.getDate() % 2 == 0);
+                // 2. 核心逻辑：计算当前时间点相对于原点走了多少个步长
+                // 使用绝对时间差除以步长，得到一个固定的序号
+                long absoluteStepIndex = Math.round((currentTime - originTime) / stepMs);
+                boolean isOdd = (absoluteStepIndex % 2 == 0);
+
+                if (isOdd) {
+                    ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("#f8f8f8");
+                    ctx.fillRect(Math.floor(x), GanttDocument.GANTT_HEAD_HEIGHT, Math.ceil(cellWidth), height);
                 }
 
                 if (isOdd) {
-                    ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("rgba(0,0,0,0.015)");
-                    ctx.fillRect(x, GanttDocument.GANTT_HEAD_HEIGHT, cellWidth, height);
+                    // 将透明度从 0.015 提升到 0.03 - 0.05，或者使用具体的浅灰色
+                    ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("#f8f8f8");
+                    // 确保宽度和位置覆盖精确，避免出现 1px 的白缝
+                    ctx.fillRect(Math.floor(x), GanttDocument.GANTT_HEAD_HEIGHT, Math.ceil(cellWidth), height);
                 }
 
                 // 逻辑：如果是天模式以下，判断当前是否为 0 点（新的一天）
@@ -471,7 +481,8 @@ public class GanttChart extends CanvasWidget implements RequiresResize, IData<St
 
             }
             // 步进
-            date = new elemental2.core.JsDate(date.getTime() + currentStepMs);
+            currentTime += currentStepMs;
+            date.setTime(currentTime); // 复用同一个 Date 对象
         }
         ctx.restore();
     }
