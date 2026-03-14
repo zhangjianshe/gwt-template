@@ -41,6 +41,7 @@ public class DevProjectTaskEntity implements Serializable, IsSerializable {
     public static final String FLD_SUMMARY = "summary";
     public static final String FLD_CODE = "code";
     public static final String FLD_RANK = "rank";
+    public static final String FLD_INIT_EXPAND = "init_expand";
 
     @Name
     @Column(FLD_ID)
@@ -122,6 +123,12 @@ public class DevProjectTaskEntity implements Serializable, IsSerializable {
     @ColDefine(notNull = true)
     @Default("0")
     Double rank;
+
+    @Column(FLD_INIT_EXPAND)
+    @Comment("初始化展开")
+    @ColDefine(notNull = true)
+    @Default("true")
+    Boolean initExpand;
 
 
     String chargeUserName;
