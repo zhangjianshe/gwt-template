@@ -38,8 +38,6 @@ public class GanttDocument {
     private final List<GanttItem> rootItems;
     @Getter
     private final Map<String, GanttItem> items;
-    @Getter
-    private double dayWidth = 40.0; // 默认一天 40 像素
     @Setter
     GanttChart chart;
     @Getter
@@ -61,8 +59,7 @@ public class GanttDocument {
     @Getter
     DropLocation lastDropLocation = new DropLocation();//拖动任务排序时记录当前的位置
     @Getter
-    @Setter
-    TimelineMode timelineMode = TimelineMode.DAY;
+    private double dayWidth = 40.0; // 默认一天 40 像素
     @Getter
     private List<DevProjectTaskEntity> rootTasks;
     private double startTimeMillis = (double) System.currentTimeMillis();   // 视图起始时间戳
@@ -105,7 +102,7 @@ public class GanttDocument {
 
     // 将日期转换为相对于左侧面板边缘的像素偏移
     public double getXByDate(double dateMillis) {
-        return (dateMillis - startTimeMillis) / (double)MS_PER_DAY * dayWidth;
+        return (dateMillis - startTimeMillis) / (double) MS_PER_DAY * dayWidth;
     }
 
     // 对应的逆运算：将屏幕 X 坐标转回时间戳
@@ -400,7 +397,6 @@ public class GanttDocument {
     }
 
 
-
     public void offsetLeftPanel(double deltaX, double deltaY) {
         leftPanelSize += deltaX;
         if (leftPanelSize < 100) {
@@ -547,6 +543,7 @@ public class GanttDocument {
             GanttItem parentItem = items.get(entity.getParentId());
             if (parentItem != null) {
                 parentItem.addChild(newItem);
+                parentItem.setExpanded(true);
             }
         }
 
@@ -661,7 +658,7 @@ public class GanttDocument {
         }
         copyData(taskEntity, item.getEntity());
         item.setEntity(item.getEntity());
-        chart.redraw();
+        populateCharge(item);
     }
 
     private void copyData(DevProjectTaskEntity updatedTask, DevProjectTaskEntity entity) {
@@ -1046,8 +1043,6 @@ public class GanttDocument {
         if (newDayWidth == dayWidth) return;
         this.dayWidth = newDayWidth;
 
-        // --- 新增：自动模式切换逻辑 ---
-        updateTimelineModeByWidth();
 
         // 4. 调整起始时间，保持鼠标指向的时间点在屏幕上的 X 坐标不动
         double pixelOffset = mouseX - leftPanelSize;
@@ -1058,16 +1053,16 @@ public class GanttDocument {
         reLayout();
         chart.redraw();
     }
-    /**
-     * 根据当前的 dayWidth 决定显示模式
-     */
-    private void updateTimelineModeByWidth() {
-        if (this.dayWidth < 3.0) {
-            this.timelineMode = TimelineMode.MONTH;
-        } else if (this.dayWidth < 18.0) {
-            this.timelineMode = TimelineMode.WEEK;
-        } else {
-            this.timelineMode = TimelineMode.DAY;
-        }
+
+    public List<GanttItem> getSiblings(GanttItem ganttItem) {
+        if (ganttItem == null) return new ArrayList<>();
+
+        // 直接返回内存中的引用，无需计算
+        List<GanttItem> list = (ganttItem.getParent() == null)
+                ? rootItems
+                : ganttItem.getParent().getChildren();
+
+        // 确保这个 list 是有序的（你的 recursiveBuild 和 sortItems 应该已经保证了这一点）
+        return list;
     }
 }

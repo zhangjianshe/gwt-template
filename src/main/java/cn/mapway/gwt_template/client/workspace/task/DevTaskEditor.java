@@ -20,6 +20,7 @@ import cn.mapway.ui.client.widget.dialog.Dialog;
 import cn.mapway.ui.shared.CommonEvent;
 import cn.mapway.ui.shared.rpc.RpcResult;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.DivElement;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.KeyCodes;
@@ -136,6 +137,22 @@ public class DevTaskEditor extends CommonEventComposite implements RequiresResiz
         }
 
         txtSummary.redisplay();
+        updateUI();
+    }
+
+    private void updateUI() {
+        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+            @Override
+            public void execute() {
+                if (StringUtil.isBlank(task.getId())) {
+                    //新的任务
+                    txtName.setFocus(true);
+                    txtName.setSelectionRange(0, task.getName().length());
+                } else {
+                    txtSummary.focus();
+                }
+            }
+        });
     }
 
     private void updatebackground(DevTaskKind kind) {
@@ -268,6 +285,8 @@ public class DevTaskEditor extends CommonEventComposite implements RequiresResiz
         ddlKind.setValue(task.getKind());
         txtSummary.setValue(task.getSummary());
         updatebackground(kind);
+        updateUI();
+
     }
 
     private void updateButtons(DevTaskKind kind) {

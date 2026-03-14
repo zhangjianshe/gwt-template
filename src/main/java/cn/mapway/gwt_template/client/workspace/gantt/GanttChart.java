@@ -26,7 +26,17 @@ public class GanttChart extends CanvasWidget implements RequiresResize, IData<St
     private static final String INSERT_AFTER = new String(Character.toChars(Integer.parseInt(Fonts.INSERT_AFTER, 16)));
     private static final String INSERT_BEFORE = new String(Character.toChars(Integer.parseInt(Fonts.INSERT_BEFORE, 16)));
     private static final String INSERT_CHILD = new String(Character.toChars(Integer.parseInt(Fonts.INSERT_CHILD, 16)));
+    // 毫秒常量定义
+    private static final double MS_PER_HOUR = 3600 * 1000.0;
+    private static final double MS_PER_DAY = 24 * MS_PER_HOUR;
+    private static final double MS_PER_WEEK = 7 * MS_PER_DAY;
+    private static final double MS_PER_MONTH = 30 * MS_PER_DAY; // 约数，计算用
+    private static final double MS_PER_QUARTER = 91 * MS_PER_DAY;
+    private static final double MS_PER_YEAR = 365 * MS_PER_DAY;
 
+    // 预创建两个对象用于计算
+    private final elemental2.core.JsDate tempDateCalc1 = new elemental2.core.JsDate();
+    private final elemental2.core.JsDate tempDateCalc2 = new elemental2.core.JsDate();
     @Getter
     GanttDocument document;
     @Getter
@@ -316,18 +326,35 @@ public class GanttChart extends CanvasWidget implements RequiresResize, IData<St
 
     }
 
-    // 绘制背景网格：垂直线代表天，横线代表行
+    /**
+     * 根据当前像素密度，自动计算最佳的时间步进
+     */
+    private double getBestStepMs(double dayWidth) {
+        if (dayWidth >= 1000) return MS_PER_HOUR;
+        if (dayWidth >= 300)  return MS_PER_HOUR * 6;      // 增加 6 小时档位
+        if (dayWidth >= 150)  return MS_PER_HOUR * 12;     // 增加 12 小时档位
+        if (dayWidth >= 40)   return MS_PER_DAY;           // 每天
+        if (dayWidth >= 10)  return MS_PER_WEEK;           // 中：每周一格
+        if (dayWidth >= 2)   return MS_PER_MONTH;          // 小：每月一格
+        if (dayWidth >= 0.5) return MS_PER_QUARTER;        // 极小：每季度一格
+        if (dayWidth >= 0.1) return MS_PER_YEAR;           // 极细：每年一格
+        return MS_PER_YEAR * 10;                           // 宏观：十年一格
+    }
+
+    // 绘制背景网格：垂直线代表时间步进，横线通常由外部循环或 Item 处理
     public void drawGrid(CanvasRenderingContext2D ctx, double width, double height) {
-        TimelineMode mode = document.getTimelineMode();
         double dayWidth = document.getDayWidth();
-        // 1. 获取对齐后的起点
-        // 关键修复 1：使用与 Header 完全一致的对齐算法
-        elemental2.core.JsDate date = getAlignedStartDate(document.getAlignedStartTime(), mode);
+        // 1. 获取当前密度下的最佳步进
+        double stepMs = getBestStepMs(dayWidth);
+
+        // 2. 动态对齐起点 (保持与 Header 绝对同步)
+        elemental2.core.JsDate date = getDynamicAlignedStart(document.getAlignedStartTime(), stepMs);
 
         ctx.save();
         ctx.lineWidth = 1.0;
-        // 安全阀：如果是 DAY 模式且宽度太小，就不画细线
-        if (mode == TimelineMode.DAY && dayWidth < 3) {
+
+        // 如果是天模式且太细，为了性能和视觉清晰度，不画细线
+        if (stepMs == MS_PER_DAY && dayWidth < 3) {
             ctx.restore();
             return;
         }
@@ -336,144 +363,331 @@ public class GanttChart extends CanvasWidget implements RequiresResize, IData<St
             double x = document.getXByDate((long) date.getTime());
             if (x > width) break;
 
-            // 计算当前单元格步进天数
-            int stepDays = (mode == TimelineMode.MONTH) ? getDaysInMonth(date) : getStepDays(mode);
-            double cellWidth = stepDays * dayWidth;
+            // 计算步进像素宽度
+            double currentStepMs = calculateActualStepMsFast(date.getTime(), stepMs);
+            double nextX = document.getXByDate((long) (date.getTime() + currentStepMs));
+            double cellWidth = nextX - x;
 
-            // 只有在屏幕可视范围内才绘制
-            if (x + cellWidth >= 0) {
-
-                // 1. 绘制周末背景（仅在 DAY 模式下有意义）
-                if (mode == TimelineMode.DAY) {
-                    int dayOfWeek = date.getDay();
-                    if (dayOfWeek == 0 || dayOfWeek == 6) {
-                        ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("#f9f9f9");
-                        ctx.fillRect(x, GanttDocument.GANTT_HEAD_HEIGHT, dayWidth, height);
-                    }
+            if (nextX >= 0) {
+                // 逻辑：判断该单元格是奇数还是偶数（例如月或季度的索引）
+                boolean isOdd;
+                if (stepMs >= MS_PER_QUARTER * 0.9) {
+                    isOdd = ((int)Math.floor(date.getMonth() / 3) % 2 == 0);
+                } else {
+                    isOdd = ((int)date.getDate() % 2 == 0);
                 }
 
-                // 2. 绘制垂直网格线 (必须加 0.5 偏移以消除模糊)
+                if (isOdd) {
+                    ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("rgba(0,0,0,0.015)");
+                    ctx.fillRect(x, GanttDocument.GANTT_HEAD_HEIGHT, cellWidth, height);
+                }
+
+                // 逻辑：如果是天模式以下，判断当前是否为 0 点（新的一天）
+                boolean isDayBoundary = (stepMs < MS_PER_DAY) && (date.getHours() == 0);
+                boolean isImportantHour = (stepMs < MS_PER_DAY) && (date.getHours() == 12);
+
+                if (isDayBoundary) {
+                    ctx.strokeStyle = BaseRenderingContext2D.StrokeStyleUnionType.of("#dddddd"); // 明显的深灰色
+                    ctx.lineWidth = 1.5;
+                } else if (isImportantHour) {
+                    ctx.strokeStyle = BaseRenderingContext2D.StrokeStyleUnionType.of("#dddddd"); // 较淡
+                    ctx.lineWidth = 1.0;
+                } else {
+                    // 普通小时线：使用极淡的颜色或 globalAlpha
+                    ctx.strokeStyle = BaseRenderingContext2D.StrokeStyleUnionType.of("#eeeeee");
+                    ctx.lineWidth = 1.0;
+                }
+
                 ctx.beginPath();
-                ctx.strokeStyle = BaseRenderingContext2D.StrokeStyleUnionType.of("#e8e8e8");
                 ctx.moveTo(x + 0.5, GanttDocument.GANTT_HEAD_HEIGHT);
                 ctx.lineTo(x + 0.5, height);
                 ctx.stroke();
-            }
 
-            // 关键修复 2：使用与 Header 一致的步进函数
-            stepDate(date, mode);
+            }
+            // 步进
+            date = new elemental2.core.JsDate(date.getTime() + currentStepMs);
         }
         ctx.restore();
     }
 
-    /**
-     * 辅助函数：获取当前月的天数（处理 MONTH 模式下的步进宽度）
-     */
-    private int getDaysInMonth(elemental2.core.JsDate date) {
-        elemental2.core.JsDate temp = new elemental2.core.JsDate(date.getFullYear(), date.getMonth() + 1, 0);
-        return temp.getDate();
-    }
 
-    /**
-     * 根据模式对齐时间起点
-     */
-    private elemental2.core.JsDate getAlignedStartDate(long time, TimelineMode mode) {
-        elemental2.core.JsDate d = new elemental2.core.JsDate((double) time);
-        d.setHours(0, 0, 0, 0); // 确保时间对齐到当天 0 点
-
-        if (mode == TimelineMode.WEEK) {
-            // 关键：对齐到本周的第一天（例如周一）
-            int day = d.getDay(); // 0 是周日，1 是周一
-            int diff = (day == 0 ? 6 : day - 1); // 计算距离本周一差几天
-            d.setDate(d.getDate() - diff);
-        } else if (mode == TimelineMode.MONTH) {
-            // 关键：对齐到本月 1 号
-            d.setDate(1);
-        }
-        // DAY 模式不需要额外处理，因为它本来就是按天对齐的
-        return d;
-    }
 
     public void drawHeader(CanvasRenderingContext2D ctx, double width) {
         double headH = GanttDocument.GANTT_HEAD_HEIGHT;
         double rowH = headH / 2;
-        TimelineMode mode = document.getTimelineMode();
+        double dayWidth = document.getDayWidth();
 
-        ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("#ffffff");
-        ctx.fillRect(0, 0, width, headH);
+        // 1. 自动决定步进单位
+        double stepMs = getBestStepMs(dayWidth);
 
-        elemental2.core.JsDate date = getAlignedStartDate(document.getAlignedStartTime(), mode);
+        // 2. 动态计算对齐起点 (不再依赖 mode 枚举)
+        elemental2.core.JsDate date = getDynamicAlignedStart(document.getAlignedStartTime(), stepMs);
+
         ctx.save();
-
         for (int i = 0; i < 500; i++) {
             double x = document.getXByDate((long) date.getTime());
             if (x > width) break;
 
-            // 计算下一个节点的 X 坐标，用于确定文字居中位置
-            elemental2.core.JsDate nextDate = new elemental2.core.JsDate(date.getTime());
-            stepDate(nextDate, mode);
-            double nextX = document.getXByDate((long) nextDate.getTime());
+            // 计算当前这一个步进的具体毫秒数（考虑月、年天数不同）
+            double currentStepMs = calculateActualStepMsFast(date.getTime(), stepMs);
+            double nextX = document.getXByDate((long) (date.getTime() + currentStepMs));
             double cellWidth = nextX - x;
 
             if (nextX >= 0) {
-                // 画分割线
-                ctx.strokeStyle = BaseRenderingContext2D.StrokeStyleUnionType.of("#e0e0e0");
-                ctx.beginPath();
-                ctx.moveTo(x + 0.5, rowH);
-                ctx.lineTo(x + 0.5, headH);
-                ctx.stroke();
-
-                // 绘制文字内容
-                String label = getHeaderLabel(date, mode, cellWidth);
-                ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("#666");
-                ctx.font = "11px sans-serif";
-                ctx.textAlign = "center";
-                ctx.fillText(label, x + cellWidth / 2, rowH + rowH / 2 + 4);
+                // 绘制下层刻度
+                drawDynamicBottomScale(ctx, date, x, cellWidth, rowH, headH);
             }
-            date = nextDate;
+
+            // 步进
+            date = new elemental2.core.JsDate(date.getTime() + currentStepMs);
         }
 
-        drawTopMonthYearHeader(ctx, width, rowH);
+        // 3. 上层逻辑也同样动态化
+        drawDynamicTopHeader(ctx, width, rowH);
         ctx.restore();
     }
 
-    // 根据模式步进日期
-    private void stepDate(elemental2.core.JsDate date, TimelineMode mode) {
-        if (mode == TimelineMode.DAY) {
-            date.setDate(date.getDate() + 1);
-        } else if (mode == TimelineMode.WEEK) {
-            date.setDate(date.getDate() + 7);
-        } else if (mode == TimelineMode.MONTH) {
-            date.setMonth(date.getMonth() + 1);
+    private double calculateActualStepMsFast(double currentTimeMs, double stepMs) {
+        tempDateCalc1.setTime(currentTimeMs);
+        tempDateCalc2.setTime(currentTimeMs);
+
+        // ... 前面的小时、天判断 ...
+
+
+
+        if (stepMs <= MS_PER_DAY * 7) {
+            return stepMs; // 小时、天、周是固定的
+        } else if (stepMs <= MS_PER_MONTH * 1.5) {
+            tempDateCalc2.setMonth(tempDateCalc1.getMonth() + 1);
+        } else if (stepMs <= MS_PER_QUARTER * 1.5) {
+            tempDateCalc2.setMonth(tempDateCalc1.getMonth() + 3); // 步进一季
+        } else if (stepMs <= MS_PER_YEAR * 1.5) {
+            tempDateCalc2.setFullYear(tempDateCalc1.getFullYear() + 1);
+        } else  {
+            tempDateCalc2.setFullYear(tempDateCalc1.getFullYear() + 10); // 步进十年
         }
+        return tempDateCalc2.getTime() - tempDateCalc1.getTime();
     }
 
-    // 获取步进天数（用于计算背景宽度等）
-    private int getStepDays(TimelineMode mode) {
-        return (mode == TimelineMode.WEEK) ? 7 : 1;
+    /**
+     * 根据 dayWidth 动态决定上层标题的粒度
+     */
+    private double getTopStepMs(double bottomStepMs) {
+        if (bottomStepMs <= MS_PER_HOUR * 4) return MS_PER_DAY;     // 底层是小时 -> 顶层是天
+        if (bottomStepMs <= MS_PER_DAY) return MS_PER_MONTH;       // 底层是天 -> 顶层是月
+        if (bottomStepMs <= MS_PER_WEEK) return MS_PER_YEAR;      // 底层是周 -> 顶层是年
+        if (bottomStepMs <= MS_PER_MONTH * 1.5) return MS_PER_YEAR;// 底层是月 -> 顶层是年
+        if (bottomStepMs <= MS_PER_QUARTER * 1.5) return MS_PER_YEAR; // 底层是季度 -> 顶层是年
+        return MS_PER_YEAR * 10;                                  // 底层是年 -> 顶层是十年
     }
 
-    private String getHeaderLabel(elemental2.core.JsDate date, TimelineMode mode, double stepWidth) {
-        if (mode == TimelineMode.DAY) {
-            return String.valueOf(date.getDate());
-        } else if (mode == TimelineMode.WEEK) {
-            if (stepWidth > 30) {
-                // 显示 月-日，让用户知道这一周是从哪天开始的
-                return (date.getMonth() + 1) + "/" + date.getDate();
-            } else {
-                return getWeekOfYear(date) + "";
+    private void drawDynamicTopHeader(CanvasRenderingContext2D ctx, double width, double rowH) {
+        double dayWidth = document.getDayWidth();
+        double bottomStepMs = getBestStepMs(dayWidth);
+        double topStepMs = getTopStepMs(bottomStepMs);
+
+        // 1. 获取顶层对齐起点
+        elemental2.core.JsDate date = getDynamicAlignedStart(document.getAlignedStartTime(), topStepMs);
+
+        ctx.save();
+        // 涂白背景，防止底层网格线透出来
+        ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("#ffffff");
+        ctx.fillRect(0, 0, width, rowH);
+
+        // 设置基本样式
+        ctx.strokeStyle = BaseRenderingContext2D.StrokeStyleUnionType.of("#e0e0e0");
+        ctx.lineWidth = 1.0;
+        ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("#333");
+        ctx.font = "bold 14px sans-serif";
+        ctx.textBaseline = "middle";
+        ctx.textAlign = "left";
+
+        for (int i = 0; i < 100; i++) { // 100次循环足够覆盖屏幕
+            double x = document.getXByDate((long) date.getTime());
+            if (x > width) break;
+
+            // 计算这一格的物理长度
+            double actualMs = calculateActualStepMsFast(date.getTime(), topStepMs);
+            double nextX = document.getXByDate((long) (date.getTime() + actualMs));
+            double periodW = nextX - x;
+
+            if (nextX >= 0) {
+                // 2. 绘制单元格边框
+                ctx.strokeRect(x + 0.5, 0.5, periodW, rowH);
+
+                // 3. 动态获取标签（同样使用降级策略）
+                String label = getTopLabelByStep(date, topStepMs, periodW);
+
+                if (label != null && !label.isEmpty()) {
+                    double labelWidth = ctx.measureText(label).width;
+
+                    // 4. 关键：文字粘滞逻辑 (Sticky Text)
+                    // 文字起始点在 [格子左边界 + 10px] 和 [屏幕左边界 + 10px] 之间取最大值
+                    double textX = Math.max(x, 0) + 10;
+
+                    // 5. 防撞检查：确保文字不会超出当前格子的右边界
+                    if (textX + labelWidth + 5 < nextX) {
+                        ctx.fillText(label, textX, rowH / 2);
+                    }
+                }
             }
+            // 步进到下一个大单位
+            date.setTime(date.getTime() + actualMs);
+        }
+        ctx.restore();
+    }
+    private String getTopLabelByStep(elemental2.core.JsDate date, double topStepMs, double periodW) {
+        int year = (int) date.getFullYear();
+        int month = (int) date.getMonth() + 1;
 
+        if (topStepMs <= MS_PER_DAY) { // 顶层是天（底层是小时）
+            if (periodW > 120) return year + "年" + month + "月" + date.getDate() + "日";
+            return month + "月" + (int)date.getDate() + "日";
+        }
+
+        if (topStepMs <= MS_PER_MONTH * 1.5) { // 顶层是月（底层是天）
+            if (periodW > 80) return year + "年" + month + "月";
+            return month + "月";
+        }
+
+        if (topStepMs <= MS_PER_YEAR * 1.5) { // 顶层是年（底层是周/月/季）
+            if (periodW > 60) return year + "年";
+            return String.valueOf(year);
+        }
+
+        // 顶层是十年（底层是年）
+        int decadeStart = (year / 10) * 10;
+        return decadeStart + " - " + (decadeStart + 10);
+    }
+
+
+    private void drawDynamicBottomScale(CanvasRenderingContext2D ctx, elemental2.core.JsDate date,
+                                        double x, double cellWidth, double rowH, double headH) {
+        double stepMs = getBestStepMs(document.getDayWidth());
+        double centerY = rowH + (headH - rowH) / 2 + 4;
+        double centerX = x + cellWidth / 2;
+
+        // --- 1. 绘制垂直刻度线 (Tick Marks) ---
+        ctx.strokeStyle = BaseRenderingContext2D.StrokeStyleUnionType.of("#e0e0e0");
+        ctx.beginPath();
+
+        // 逻辑：如果是重要的节点（如周一、月初、12点），刻度线可以稍微画高一点
+        double tickStart = rowH;
+        if (isImportantNode(date, stepMs)) {
+            tickStart = rowH - 4; // 向上突出一点，进入 TopHeader 区域一点点，或者加粗
+            ctx.lineWidth = 1.5;
         } else {
-            if (stepWidth > 30) {
-                return (date.getMonth() + 1) + "月";
-            } else if(stepWidth>15){
-                return "" + (date.getMonth() + 1);
-            }  else {
-                return "";
+            ctx.lineWidth = 1.0;
+        }
+
+        ctx.moveTo(x + 0.5, tickStart);
+        ctx.lineTo(x + 0.5, headH);
+        ctx.stroke();
+
+        // --- 2. 绘制标签 (Labels) ---
+        String[] candidates = getLabelCandidates(date, stepMs);
+        ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("#666");
+        ctx.font = "11px sans-serif"; // 下层表头通常建议使用略小的字体
+        ctx.textAlign = "center";
+
+        for (String label : candidates) {
+            if (label == null || label.isEmpty()) continue;
+
+            double textWidth = ctx.measureText(label).width;
+            // 如果 cellWidth 足够大，或者这个节点非常重要（必须显示）
+            if (textWidth < cellWidth - 6) {
+                ctx.fillText(label, centerX, centerY);
+                break;
             }
         }
     }
+    /**
+     * 判断是否为视觉上的重要节点
+     */
+    private boolean isImportantNode(elemental2.core.JsDate date, double stepMs) {
+        if (stepMs == MS_PER_DAY) return date.getDay() == 1; // 周一
+        if (stepMs == MS_PER_WEEK) return date.getDate() <= 7; // 每月第一周
+        if (stepMs < MS_PER_DAY) return date.getHours() == 0 || date.getHours() == 12; // 零点或正午
+        return false;
+    }
+    private String[] getLabelCandidates(elemental2.core.JsDate date, double stepMs) {
+        int month = (int) date.getMonth() + 1;
+        int day = (int) date.getDate();
+        int hours = (int) date.getHours();
+
+        if (stepMs < MS_PER_DAY) { // 小时级别
+            String timeStr = (hours < 10 ? "0" + hours : hours) + ":00";
+            String period = hours < 12 ? "上午" : "下午";
+            return new String[]{timeStr, String.valueOf(hours), String.valueOf(hours).substring(0, 1)};
+        }
+
+        if (stepMs <= MS_PER_DAY) { // 天级别
+            return new String[]{
+                    month + "月" + day + "日",
+                    String.valueOf(day),
+                    "" // 实在太窄就不显示
+            };
+        }
+
+        if (stepMs <= MS_PER_DAY * 7) { // 周级别
+            int weekNum = getWeekOfYear(date);
+            return new String[]{
+                    "第" + weekNum + "周",
+                    "W" + weekNum,
+                    String.valueOf(weekNum)
+            };
+        }
+
+        if (stepMs <= MS_PER_MONTH * 1.5) { // 月级别
+            return new String[]{month + "月份", month + "月", String.valueOf(month)};
+        }
+
+        if (stepMs <= MS_PER_MONTH * 4) { // 季度级别
+            int Q = (int) Math.floor((month - 1) / 3) + 1;
+            return new String[]{"第" + Q + "季度", Q + "季度", "Q" + Q, String.valueOf(Q)};
+        }
+
+        if (stepMs <= MS_PER_YEAR * 1.5) { // 年级别
+            int year = (int) date.getFullYear();
+            return new String[]{year + "年度", year + "年", String.valueOf(year).substring(2)};
+        }
+
+        // 十年级别
+        int year = (int) date.getFullYear();
+        return new String[]{year + "年", String.valueOf(year).substring(2)};
+    }
+
+    private elemental2.core.JsDate getDynamicAlignedStart(long time, double stepMs) {
+        elemental2.core.JsDate d = new elemental2.core.JsDate((double) time);
+        d.setHours(0, 0, 0, 0); // 必须重置时分秒
+
+        if (stepMs >= MS_PER_YEAR * 0.9) { // 年或十年
+            d.setMonth(0); d.setDate(1);
+        }
+        else if (stepMs >= MS_PER_QUARTER * 0.9) { // 季度
+            // 关键：将月份对齐到 0, 3, 6, 9 (即 Q1, Q2, Q3, Q4 的起始月)
+            int currentMonth = (int) d.getMonth();
+            int quarterStartMonth = (currentMonth / 3) * 3;
+            d.setMonth(quarterStartMonth);
+            d.setDate(1);
+        }
+        else if (stepMs >= MS_PER_MONTH * 0.9) { // 月
+            d.setDate(1);
+        }
+        else if (stepMs >= MS_PER_WEEK * 0.9) { // 周
+            int day = (int) d.getDay();
+            int diff = (day == 0 ? 6 : day - 1);
+            d.setDate(d.getDate() - diff);
+        }
+
+        // 为了防止拖动时左侧露出空白，我们将对齐点再向左预推一个步进
+        // 这样在任何时刻，屏幕左边缘外都有一个完整的格子作为缓冲
+        double bufferMs = calculateActualStepMsFast(d.getTime(), -stepMs); // 注意这里需要支持负向计算
+        d.setTime(d.getTime() + bufferMs);
+
+        return d;
+    }
+
 
     /**
      * 获取给定日期是当年的第几周
@@ -498,77 +712,6 @@ public class GanttChart extends CanvasWidget implements RequiresResize, IData<St
         return (int) Math.ceil((diffInDays + startDayOfWeek) / 7);
     }
 
-    private void drawTopMonthYearHeader(CanvasRenderingContext2D ctx, double width, double rowH) {
-        TimelineMode mode = document.getTimelineMode();
-
-        // 1. 关键修复：根据当前视图的起点，动态计算对齐后的“大单位”起点
-        // 如果是 DAY/WEEK 模式，大单位是 MONTH
-        // 如果是 MONTH 模式，大单位是 YEAR
-        TimelineMode parentMode = (mode == TimelineMode.MONTH) ? null : TimelineMode.MONTH;
-
-        elemental2.core.JsDate date = getTopHeaderStartDate(document.getAlignedStartTime(), mode);
-
-        ctx.save();
-        // 强制清理上层背景，防止文字重叠
-        ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("#ffffff");
-        ctx.fillRect(0, 0, width, rowH);
-
-        for (int i = 0; i < 50; i++) { // 增加循环次数，确保覆盖整个屏幕宽度
-            double x = document.getXByDate((long) date.getTime());
-            if (x > width) break;
-
-            // 计算下一个大单位的起点
-            elemental2.core.JsDate nextPeriod = new elemental2.core.JsDate(date.getTime());
-            String label = "";
-
-            if (mode == TimelineMode.MONTH) {
-                label = date.getFullYear() + "年";
-                nextPeriod.setFullYear(nextPeriod.getFullYear() + 1);
-            } else {
-                label = date.getFullYear() + "年" + (date.getMonth() + 1) + "月";
-                nextPeriod.setMonth(nextPeriod.getMonth() + 1);
-            }
-
-            double nextX = document.getXByDate((long) nextPeriod.getTime());
-            double periodW = nextX - x;
-
-            // 只有当这个单元格在可视范围内（或部分在）才画
-            if (nextX >= 0) {
-                ctx.strokeStyle = BaseRenderingContext2D.StrokeStyleUnionType.of("#e0e0e0");
-                ctx.strokeRect(x, 0, periodW, rowH);
-
-                if (periodW > 40) {
-                    ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("#333");
-                    ctx.font = "bold 14px sans-serif";
-                    ctx.textAlign = "left";
-
-                    // 粘滞逻辑：让文字停留在可视区域的左侧，但不能超出单元格右边界
-                    // 这里加了 0.5 解决左边线被文字贴死的问题
-                    double textX = Math.max(x, 0) + 10;
-                    if (textX + 60 < nextX) {
-                        ctx.fillText(label, textX, rowH / 2 + 5);
-                    }
-                }
-            }
-            date = nextPeriod;
-        }
-        ctx.restore();
-    }
-
-    /**
-     * 专门为顶层 Header 准备的对齐逻辑
-     */
-    private elemental2.core.JsDate getTopHeaderStartDate(long time, TimelineMode currentMode) {
-        elemental2.core.JsDate d = new elemental2.core.JsDate((double) time);
-        d.setHours(0, 0, 0, 0);
-        d.setDate(1); // 无论是周还是天模式，上层至少要对齐到月 1 号
-
-        if (currentMode == cn.mapway.gwt_template.client.workspace.gantt.TimelineMode.MONTH) {
-            // 如果当前是月模式，上层是年，对齐到 1 月 1 号
-            d.setMonth(0);
-        }
-        return d;
-    }
 
     public void withContext(CanvasRenderingContext2D ctx, Runnable action) {
         ctx.save(); // 保存当前画笔状态

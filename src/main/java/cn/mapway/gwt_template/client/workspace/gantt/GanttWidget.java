@@ -101,6 +101,7 @@ public class GanttWidget extends CommonEventComposite implements RequiresResize,
         } else if (event.isCreate()) {
             DevProjectTaskEntity task = event.getValue();
             chart.getDocument().insertTask(task);
+            fireEvent(CommonEvent.abortEvent(null));
         } else if (event.isClose()) {
             showTaskPanel(false);
         } else if (event.isAbort()) {

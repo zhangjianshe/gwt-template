@@ -26,6 +26,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import elemental2.dom.WheelEvent;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 public class GanttMouseActionDefault implements IMouseHandler {
     final GanttChart chart;
@@ -165,13 +166,46 @@ public class GanttMouseActionDefault implements IMouseHandler {
         taskEntity.setProjectId(chart.getDocument().getProjectId());
         taskEntity.setName("新的任务");
         taskEntity.setCharger(null);
-        taskEntity.setStartTime(nextDayAtMorning(1));
-        taskEntity.setEstimateTime(nextDayAtMorning(3));
+        long baseTime = (ganttItem != null)
+                ? ganttItem.getEntity().getEstimateTime().getTime()
+                : System.currentTimeMillis();
+
+        taskEntity.setStartTime(nextDayAtMorningFrom(baseTime, 1));
+        taskEntity.setEstimateTime(nextDayAtMorningFrom(baseTime, 4));
+
+        // 假设 rank 采用 Double 类型，便于在两个节点间插入
+        double rank = 0;
+
         if (ganttItem != null) {
+            // 逻辑：作为当前点击项的“兄弟节点”插入到其后
             taskEntity.setParentId(ganttItem.getEntity().getParentId());
+
+            // 获取当前层级的所有兄弟节点
+            List<GanttItem> siblings = chart.getDocument().getSiblings(ganttItem);
+            int index = siblings.indexOf(ganttItem);
+
+            if (index < siblings.size() - 1) {
+                // 插入在当前项和下一项之间：取平均值 (防止 rank 冲突)
+                double nextRank = siblings.get(index + 1).getEntity().getRank();
+                rank = (ganttItem.getEntity().getRank() + nextRank) / 2.0;
+            } else {
+                // 如果是最后一个兄弟，直接 + 1000 (留出未来插入空间)
+                rank = ganttItem.getEntity().getRank() + 1000.0;
+            }
         } else {
+            // 逻辑：作为一个全新的根节点，通常放在列表的最末尾
             taskEntity.setParentId(null);
+
+            List<GanttItem> roots = chart.getDocument().getRootItems();
+            if (roots != null && !roots.isEmpty()) {
+                // 找到当前最大的根节点 rank
+                double maxRank = roots.get(roots.size() - 1).getEntity().getRank();
+                rank = maxRank + 1000.0;
+            } else {
+                rank = 1000.0; // 第一个任务的初始值
+            }
         }
+        taskEntity.setRank(rank);
         if (taskEntity.getParentId() == null) {
             taskEntity.setKind(DevTaskKind.DTK_STORY.getCode());
         } else {
@@ -194,8 +228,13 @@ public class GanttMouseActionDefault implements IMouseHandler {
         taskEntity.setProjectId(chart.getDocument().getProjectId());
         taskEntity.setName("新的任务");
         taskEntity.setCharger(null);
-        taskEntity.setStartTime(nextDayAtMorningFrom(ganttItem.getEntity().getEstimateTime().getTime(), 1));
-        taskEntity.setEstimateTime(nextDayAtMorningFrom(ganttItem.getEntity().getEstimateTime().getTime(), 4));
+        long baseTime = (ganttItem != null)
+                ? ganttItem.getEntity().getEstimateTime().getTime()
+                : System.currentTimeMillis();
+
+        taskEntity.setStartTime(nextDayAtMorningFrom(baseTime, 1));
+        taskEntity.setEstimateTime(nextDayAtMorningFrom(baseTime, 4));
+
         if (ganttItem != null) {
             taskEntity.setParentId(ganttItem.getEntity().getId());
         } else {
@@ -206,6 +245,31 @@ public class GanttMouseActionDefault implements IMouseHandler {
         } else {
             taskEntity.setKind(DevTaskKind.DTK_TASK.getCode());
         }
+        double rank = 1000.0; // 默认初始值
+
+        if (ganttItem != null) {
+            // 逻辑：作为当前节点的【子任务】插入
+            taskEntity.setParentId(ganttItem.getEntity().getId());
+
+            // 获取当前节点已有的子任务列表
+            List<GanttItem> children = ganttItem.getChildren();
+            if (children != null && !children.isEmpty()) {
+                // 找到当前子任务中 rank 最大的一个
+                double maxRank = children.get(children.size() - 1).getEntity().getRank();
+                rank = maxRank + 1000.0;
+            }
+        } else {
+            // 逻辑：作为【根任务】插入
+            taskEntity.setParentId(null);
+
+            List<GanttItem> roots = chart.getDocument().getRootItems();
+            if (roots != null && !roots.isEmpty()) {
+                // 找到根节点中 rank 最大的一个
+                double maxRank = roots.get(roots.size() - 1).getEntity().getRank();
+                rank = maxRank + 1000.0;
+            }
+        }
+        taskEntity.setRank(rank);
         taskEntity.setStatus(DevTaskStatus.DTS_CREATED.getCode());
         taskEntity.setChargeAvatar("");
         taskEntity.setChargeUserName("");
@@ -352,9 +416,14 @@ public class GanttMouseActionDefault implements IMouseHandler {
                 // do create a sub node
                 event.stopPropagation();
                 event.preventDefault();
+
                 GanttItem selectItem = chart.getDocument().getFirstSelectItem();
                 if (selectItem != null) {
-                    addSubTask(selectItem);
+                    if (event.isShiftKeyDown()) {
+                        addTask(selectItem);
+                    } else {
+                        addSubTask(selectItem);
+                    }
                 }
                 break;
             case KeyCodes.KEY_LEFT:
