@@ -9,6 +9,7 @@ import cn.mapway.ui.client.mvc.Size;
 import cn.mapway.ui.client.tools.IData;
 import cn.mapway.ui.client.util.StringUtil;
 import cn.mapway.ui.client.widget.canvas.CanvasWidget;
+import cn.mapway.ui.client.widget.dialog.Popup;
 import cn.mapway.ui.shared.CommonEvent;
 import cn.mapway.ui.shared.CommonEventHandler;
 import cn.mapway.ui.shared.HasCommonHandlers;
@@ -448,14 +449,10 @@ public class GanttChart extends CanvasWidget implements RequiresResize, IData<St
                 long absoluteStepIndex = Math.round((currentTime - originTime) / stepMs);
                 boolean isOdd = (absoluteStepIndex % 2 == 0);
 
-                if (isOdd) {
-                    ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("#f8f8f8");
-                    ctx.fillRect(Math.floor(x), GanttDocument.GANTT_HEAD_HEIGHT, Math.ceil(cellWidth), height);
-                }
 
                 if (isOdd) {
                     // 将透明度从 0.015 提升到 0.03 - 0.05，或者使用具体的浅灰色
-                    ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("#f8f8f8");
+                    ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("#f8f8f890");
                     // 确保宽度和位置覆盖精确，避免出现 1px 的白缝
                     ctx.fillRect(Math.floor(x), GanttDocument.GANTT_HEAD_HEIGHT, Math.ceil(cellWidth), height);
                 }
@@ -891,6 +888,13 @@ public class GanttChart extends CanvasWidget implements RequiresResize, IData<St
     }
 
     public void showHelp() {
-        ShortcutHelper.getPopup().center();
+        Popup<ShortcutHelper> popup = ShortcutHelper.getPopup();
+        if (popup.isShowing()) {
+            // 如果已经显示，直接隐藏。这样用户连按 / 就是 开-关-开-关
+            popup.hide();
+        } else {
+            // 如果没显示，则显示并居中
+            popup.center();
+        }
     }
 }

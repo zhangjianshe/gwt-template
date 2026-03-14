@@ -4,22 +4,77 @@
     <ui:style>
         .box {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap:  0.5rem 2rem;
-            margin: 20px;
+            /* 改为固定宽度的两栏，并在容器中居中 */
+            grid-template-columns: repeat(2, 320px);
+            justify-content: center; /* 让这两栏在窗口里居中 */
+            gap: 8px 60px; /* 增加列间距到 60px 左右比较合适 */
+            margin: 20px 20px;
         }
-    </ui:style>
-    <g:ScrollPanel>
-        <g:HTMLPanel addStyleNames="{style.box}">
-            <widget:KeyItem key="e" desc="编辑当前选择任务"/>
-            <widget:KeyItem key="Escape" desc="退出当前编辑"/>
-            <widget:KeyItem key="Enter(回车)" desc="创建子任务"/>
-            <widget:KeyItem key="Shift+Enter(回车)" desc="创建同级的任务"/>
-            <widget:KeyItem key="Tab" desc="展开/收缩当前任务"/>
-            <widget:KeyItem key="Up(向上箭头)" desc="选择上一个任务"/>
-            <widget:KeyItem key="Down(向下箭头)" desc="选择下一个任务"/>
-            <widget:KeyItem key="Delete(删除)" desc="删除当前选择任务"/>
-            <widget:KeyItem key="/" desc="显示本窗口"/>
-        </g:HTMLPanel>
-    </g:ScrollPanel>
+
+        .header {
+            padding: 20px 20px 10px 20px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .content {
+            padding: 10px 20px;
+        }
+
+        .footer {
+            /* 使用极浅的灰色，或者带一点点蓝调的灰（#f8f9fa） */
+            background-color: #f9f9f9;
+            /* 边框颜色调淡，使用 rgba 可以让它在不同背景下都显得自然 */
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .footer_text {
+            /* 文字颜色稍微调淡一点，拉开和正文的差距 */
+            color: #888;
+            font-size: 12px;
+            letter-spacing: 0.02em; /* 稍微增加字间距，更有现代感 */
+        }
+
+        .popup {
+            border-radius: 8px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15); /* 更深邃的投影 */
+            background: white;
+        }</ui:style>
+    <g:DockLayoutPanel addStyleNames="{style.popup}">
+        <g:north size="50">
+            <g:HTMLPanel>
+                <g:Label addStyleNames="{style.header}">快捷键帮助</g:Label>
+            </g:HTMLPanel>
+        </g:north>
+        <g:center>
+            <g:ScrollPanel>
+                <g:HTMLPanel addStyleNames="{style.content}">
+                    <g:HTMLPanel addStyleNames="{style.box}">
+                        <widget:KeyItem key="e" desc="编辑当前选择任务"/>
+                        <widget:KeyItem key="Escape" desc="退出当前编辑"/>
+                        <widget:KeyItem key="Enter(回车)" desc="创建子任务"/>
+                        <widget:KeyItem key="Shift+Enter(回车)" desc="创建同级的任务"/>
+                        <widget:KeyItem key="Tab" desc="展开/收缩当前任务"/>
+                        <widget:KeyItem key="Up(向上箭头)" desc="选择上一个任务"/>
+                        <widget:KeyItem key="Down(向下箭头)" desc="选择下一个任务"/>
+                        <widget:KeyItem key="Delete(删除)" desc="删除当前选择任务"/>
+                        <widget:KeyItem key="/" desc="显示本窗口"/>
+                    </g:HTMLPanel>
+                </g:HTMLPanel>
+            </g:ScrollPanel>
+        </g:center>
+        <g:south size="60">
+            <g:HTMLPanel addStyleNames="{style.footer}">
+                <div class="{style.footer_text}">
+                    按下 <span class="ai-code">Esc</span> 或点击外部关闭窗口
+                </div>
+            </g:HTMLPanel>
+        </g:south>
+    </g:DockLayoutPanel>
+
 </ui:UiBinder>

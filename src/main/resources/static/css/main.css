@@ -370,17 +370,16 @@ body {
 
 
 .ai-code {
-    font-size: 1rem;
-    font-weight: normal;
-    border-radius: 4px;
-    border: solid 1px #e0e0e0;
-    background-color: #f0f0f0;
-    padding: 4px 12px;
-    display: inline-block;
-    margin: 8px 0;
-    user-select: text !important;
-    font-family: Iosevka;
-    overflow-wrap: anywhere;
+    border: 1px solid #d1d5da;
+    background-color: #fafbfc;
+    color: #444d56;
+    font-size: 12px; /* 稍微调小一点，显得更精致 */
+    line-height: 20px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    box-shadow: inset 0 -1px 0 #c6cbd1; /* 模拟底部厚度 */
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    font-weight: bold;
 }
 
 .ai-content {
@@ -1925,8 +1924,6 @@ img[tip]:hover::before {
 .resource-row:HOVER {
     background-color: #f0f0f0;
 }
-
-
 
 
 .gwt-DatePicker {
