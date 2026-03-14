@@ -258,6 +258,10 @@ public class GanttMouseActionDefault implements IMouseHandler {
                 double maxRank = children.get(children.size() - 1).getEntity().getRank();
                 rank = maxRank + 1000.0;
             }
+            // 3. 交互优化：既然添加了子任务，强制父节点在 UI 上展开
+            if (!ganttItem.isExpanded()) {
+                ganttItem.setExpanded(true);
+            }
         } else {
             // 逻辑：作为【根任务】插入
             taskEntity.setParentId(null);
@@ -269,10 +273,12 @@ public class GanttMouseActionDefault implements IMouseHandler {
                 rank = maxRank + 1000.0;
             }
         }
+
         taskEntity.setRank(rank);
         taskEntity.setStatus(DevTaskStatus.DTS_CREATED.getCode());
         taskEntity.setChargeAvatar("");
         taskEntity.setChargeUserName("");
+        taskEntity.setInitExpand(true); // 新任务默认设置为展开
         chart.fireEvent(CommonEvent.editEvent(taskEntity));
     }
 

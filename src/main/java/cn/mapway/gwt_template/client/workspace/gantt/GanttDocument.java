@@ -3,6 +3,7 @@ package cn.mapway.gwt_template.client.workspace.gantt;
 import cn.mapway.gwt_template.client.ClientContext;
 import cn.mapway.gwt_template.client.resource.AppResource;
 import cn.mapway.gwt_template.client.rpc.AppProxy;
+import cn.mapway.gwt_template.client.rpc.AsyncAdaptor;
 import cn.mapway.gwt_template.client.workspace.events.GanttHitResult;
 import cn.mapway.gwt_template.shared.db.DevProjectTaskEntity;
 import cn.mapway.gwt_template.shared.rpc.project.*;
@@ -170,6 +171,8 @@ public class GanttDocument {
         sortEntitiesByRank(rootTasks);
 
         recursiveBuild(null, rootTasks);
+        // 关键：根据刚才 recursiveBuild 设置的 expanded 状态，重新生成可见任务列表
+        rebuildFlatItems();
         maxCodeLength = Math.max(maxCodeLength, (maxCode + "").length());
         // 重新计算起始时间：找到所有任务中的最早时间
         if (!flatItems.isEmpty()) {
@@ -187,45 +190,6 @@ public class GanttDocument {
         chart.redraw();
     }
 
-    public void handleMove(GanttItem dragged, GanttItem targetBefore, GanttItem targetAfter) {
-        double newRank;
-        if (targetBefore == null) {
-            // 移到最顶端
-            newRank = targetAfter.getEntity().getRank() - 1.0;
-        } else if (targetAfter == null) {
-            // 移到最底端
-            newRank = targetBefore.getEntity().getRank() + 1.0;
-        } else {
-            // 取中间值
-            newRank = (targetBefore.getEntity().getRank() + targetAfter.getEntity().getRank()) / 2.0;
-        }
-
-        dragged.getEntity().setRank(newRank);
-
-        // 发送 RPC 请求更新后端 rank 字段
-        saveRankToServer(dragged.getEntity());
-    }
-
-    private void saveRankToServer(DevProjectTaskEntity entity) {
-        DevProjectTaskEntity temp = new DevProjectTaskEntity();
-        temp.setId(entity.getId());
-        temp.setRank(entity.getRank());
-        UpdateProjectTaskRequest request = new UpdateProjectTaskRequest();
-        request.setProjectTask(temp);
-        AppProxy.get().updateProjectTask(request, new AsyncCallback<RpcResult<UpdateProjectTaskResponse>>() {
-            @Override
-            public void onFailure(Throwable caught) {
-                ClientContext.get().toast(0, 0, caught.getMessage());
-            }
-
-            @Override
-            public void onSuccess(RpcResult<UpdateProjectTaskResponse> result) {
-                if (!result.isSuccess()) {
-                    ClientContext.get().toast(0, 0, result.getMessage());
-                }
-            }
-        });
-    }
 
     private void recursiveBuild(GanttItem parent, List<DevProjectTaskEntity> tasks) {
         if (tasks == null || tasks.isEmpty()) {
@@ -234,7 +198,9 @@ public class GanttDocument {
         for (DevProjectTaskEntity task : tasks) {
             GanttItem item = new GanttItem();
             item.setEntity(task);
-            item.setExpanded(true);
+            // 使用数据库中的字段初始化展开状态，如果字段为 null 则默认为 true
+            boolean shouldExpand = task.getInitExpand() == null || task.getInitExpand();
+            item.setExpanded(shouldExpand);
             if (task.getCode() != null && task.getCode() > maxCode) {
                 maxCode = task.getCode();
             }
@@ -248,7 +214,10 @@ public class GanttDocument {
                 rootItems.add(item);
             }
             items.put(task.getId(), item);
-            flatItems.add(item);
+            // 注意：这里不要直接 add 到 flatItems，
+            // 因为如果父节点是折叠的，子节点不应该出现在扁平列表中。
+            // 我们统一在 buildTree 的最后通过 rebuildFlatItems 处理。
+            //flatItems.add(item);
             populateCharge(item);
             recursiveBuild(item, task.getChildren());
         }
@@ -762,6 +731,7 @@ public class GanttDocument {
 
         // 切换状态
         item.setExpanded(!item.isExpanded());
+        item.getEntity().setInitExpand(item.isExpanded());
 
         // 关键：重新构建扁平列表
         // 只有展开的任务及其子任务才会进入 flatItems
@@ -770,10 +740,23 @@ public class GanttDocument {
         // 重新计算坐标（Y轴会发生变化）
         reLayout();
 
-        // 触发重绘
-        if (chart != null) {
-            chart.redraw();
-        }
+        // sync to database
+        syncExpandToDb(item.getEntity());
+    }
+
+    private void syncExpandToDb(DevProjectTaskEntity entity) {
+        DevProjectTaskEntity temp = new DevProjectTaskEntity();
+        temp.setId(entity.getId());
+        temp.setProjectId(entity.getProjectId());
+        temp.setInitExpand(entity.getInitExpand());
+        UpdateProjectTaskRequest request = new UpdateProjectTaskRequest();
+        request.setProjectTask(temp);
+        AppProxy.get().updateProjectTask(request, new AsyncAdaptor<RpcResult<UpdateProjectTaskResponse>>() {
+            @Override
+            public void onData(RpcResult<UpdateProjectTaskResponse> result) {
+                //不重要的更新 忽略
+            }
+        });
     }
 
     // 在 GanttDocument.java 中
