@@ -12,6 +12,7 @@ import cn.mapway.ui.client.widget.ImageUploader;
 import cn.mapway.ui.client.widget.dialog.Dialog;
 import cn.mapway.ui.client.widget.dialog.SaveBar;
 import cn.mapway.ui.shared.CommonEvent;
+import cn.mapway.ui.shared.UploadReturn;
 import cn.mapway.ui.shared.rpc.RpcResult;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -75,6 +76,14 @@ public class DevProjectEditor extends CommonEventComposite implements IData<DevP
     public void setData(DevProjectEntity obj) {
         project = obj;
         toUI();
+    }
+
+    @UiHandler("uploader")
+    public void uploaderCommon(CommonEvent event) {
+        if (event.isOk()) {
+            UploadReturn uploadReturn = event.getValue();
+            project.setIcon(uploadReturn.relPath);
+        }
     }
 
     private void toUI() {

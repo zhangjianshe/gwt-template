@@ -13,8 +13,11 @@ import cn.mapway.ui.client.mvc.BaseAbstractModule;
 import cn.mapway.ui.client.mvc.IModule;
 import cn.mapway.ui.client.mvc.ModuleMarker;
 import cn.mapway.ui.client.mvc.ModuleParameter;
+import cn.mapway.ui.client.util.StringUtil;
 import cn.mapway.ui.client.widget.ImageUploader;
 import cn.mapway.ui.shared.CommonConstant;
+import cn.mapway.ui.shared.CommonEvent;
+import cn.mapway.ui.shared.UploadReturn;
 import cn.mapway.ui.shared.rpc.RpcResult;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -45,6 +48,7 @@ public class UserEditorPreference extends BaseAbstractModule {
     Label lbName;
     @UiField
     Button btnSave;
+    String relUrl = "";
 
     public UserEditorPreference() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -72,18 +76,28 @@ public class UserEditorPreference extends BaseAbstractModule {
 
     @UiHandler("btnSave")
     public void btnSaveClick(ClickEvent event) {
-        IUserInfo userInfo = ClientContext.get().getUserInfo();
-        UpdateUserInfoRequest request = new UpdateUserInfoRequest();
-        RbacUserEntity user = new RbacUserEntity();
-        user.setUserId(Long.parseLong(userInfo.getId()));
-        user.setAvatar(uploader.getUrl());
-        request.setUser(user);
-        AppProxy.get().updateUserInfo(request, new AsyncAdaptor<RpcResult<UpdateUserInfoResponse>>() {
-            @Override
-            public void onData(RpcResult<UpdateUserInfoResponse> result) {
-                fireMessage(MessageObject.info(0, "已保存"));
-            }
-        });
+        if (StringUtil.isNotBlank(relUrl)) {
+            IUserInfo userInfo = ClientContext.get().getUserInfo();
+            UpdateUserInfoRequest request = new UpdateUserInfoRequest();
+            RbacUserEntity user = new RbacUserEntity();
+            user.setUserId(Long.parseLong(userInfo.getId()));
+            user.setAvatar(relUrl);
+            request.setUser(user);
+            AppProxy.get().updateUserInfo(request, new AsyncAdaptor<RpcResult<UpdateUserInfoResponse>>() {
+                @Override
+                public void onData(RpcResult<UpdateUserInfoResponse> result) {
+                    fireMessage(MessageObject.info(0, "已保存"));
+                }
+            });
+        }
+    }
+
+    @UiHandler("uploader")
+    public void uploaderCommon(CommonEvent event) {
+        if (event.isOk()) {
+            UploadReturn uploadReturn = event.getValue();
+            relUrl = uploadReturn.relPath;
+        }
     }
 
     interface UserEditorPreferenceUiBinder extends UiBinder<DockLayoutPanel, UserEditorPreference> {

@@ -14,6 +14,7 @@ import cn.mapway.ui.client.widget.buttons.AiCheckBox;
 import cn.mapway.ui.client.widget.dialog.Dialog;
 import cn.mapway.ui.client.widget.dialog.SaveBar;
 import cn.mapway.ui.shared.CommonEvent;
+import cn.mapway.ui.shared.UploadReturn;
 import cn.mapway.ui.shared.rpc.RpcResult;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -103,6 +104,14 @@ public class DesktopEditor extends CommonEventComposite implements IData<Desktop
             doSave();
         } else {
             fireEvent(event);
+        }
+    }
+
+    @UiHandler("uploader")
+    public void uploaderCommon(CommonEvent event) {
+        if (event.isOk()) {
+            UploadReturn uploadReturn = event.getValue();
+            data.setIcon(uploadReturn.relPath);
         }
     }
 
