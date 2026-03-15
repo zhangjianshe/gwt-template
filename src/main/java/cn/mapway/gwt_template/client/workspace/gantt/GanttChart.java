@@ -492,6 +492,11 @@ public class GanttChart extends CanvasWidget implements RequiresResize, IData<St
         double rowH = headH / 2;
         double dayWidth = document.getDayWidth();
 
+
+        // 涂白背景，防止底层网格线透出来
+        ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("#ffffff");
+        ctx.fillRect(0, 0, width, headH);
+
         // 1. 自动决定步进单位
         double stepMs = getBestStepMs(dayWidth);
 
@@ -564,9 +569,6 @@ public class GanttChart extends CanvasWidget implements RequiresResize, IData<St
         elemental2.core.JsDate date = getDynamicAlignedStart(document.getAlignedStartTime(), topStepMs);
 
         ctx.save();
-        // 涂白背景，防止底层网格线透出来
-        ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("#ffffff");
-        ctx.fillRect(0, 0, width, rowH);
 
         // 设置基本样式
         ctx.strokeStyle = BaseRenderingContext2D.StrokeStyleUnionType.of("#e0e0e0");

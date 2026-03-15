@@ -2,7 +2,7 @@
              xmlns:g='urn:import:com.google.gwt.user.client.ui'>
     <ui:style>
         .icon {
-            width: 100%;
+            width: 100px;
             border-radius: 50%;
         }
 

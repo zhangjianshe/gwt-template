@@ -18,14 +18,5 @@
         <g:layer>
             <gantt:GanttChart width="100%" height="100%" ui:field="chart"/>
         </g:layer>
-        <g:layer right="0" top="0" height="30" width="220">
-            <g:HTMLPanel addStyleNames="{style.tools}">
-                <g:Button ui:field="btnToday" addStyleNames="ai-small">今天</g:Button>
-                <g:Button ui:field="btnTask" addStyleNames="ai-small">详情</g:Button>
-            </g:HTMLPanel>
-        </g:layer>
-        <g:layer right="0" top="66" bottom="0" width="0">
-            <task:DevTaskEditor ui:field="taskPanel" addStyleNames="{style.right}"/>
-        </g:layer>
     </g:LayoutPanel>
 </ui:UiBinder>

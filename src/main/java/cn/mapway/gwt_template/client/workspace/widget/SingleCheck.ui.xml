@@ -1,0 +1,37 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+    <ui:style type="cn.mapway.gwt_template.client.workspace.widget.SingleCheck.SStyle">
+
+        /* 容器：平铺排列选择项 */
+        .option_group {
+            display: flex;
+            background: #f0f0f0;
+            padding: 2px;
+            border-radius: 6px;
+            gap: 2px;
+        }
+
+        /* 单个选项样式 */
+        .option_item {
+            flex: 1;
+            text-align: center;
+            padding: 4px 8px;
+            font-size: 12px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+            color: #666;
+            background: transparent;
+            border: none;
+        }
+
+        .option_item[select="true"] {
+            background: white;
+            color: #2b579a;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            font-weight: bold;
+        }
+    </ui:style>
+    <g:HTMLPanel addStyleNames="{style.option_group}" ui:field="root">
+    </g:HTMLPanel>
+</ui:UiBinder>

@@ -19,8 +19,7 @@ public class GanttShiftTimelineAction implements IMouseHandler {
         result.reset();
     }
 
-    public void start(GanttHitResult hitResult, MouseDownEvent event)
-    {
+    public void start(GanttHitResult hitResult, MouseDownEvent event) {
         origin.set(event.getX(), event.getY());
         result.copyFrom(hitResult);
         mouseDown = true;
@@ -31,12 +30,12 @@ public class GanttShiftTimelineAction implements IMouseHandler {
 
     @Override
     public void onMouseDown(MouseDownEvent event) {
-        
+
     }
 
     @Override
     public void onMouseUp(MouseUpEvent event) {
-        mouseDown=false;
+        mouseDown = false;
         DOM.releaseCapture(chart.getElement());
         chart.resetToDefaultAction();
     }
@@ -48,7 +47,8 @@ public class GanttShiftTimelineAction implements IMouseHandler {
             double deltaX = event.getX() - origin.getX();
             double deltaY = event.getY() - origin.getY();
             origin.copyFrom(current);
-            chart.offsetTimeline(deltaX,deltaY);
+            //拖动之进行 左右操作
+            chart.offsetTimeline(deltaX, 0);
         }
     }
 }

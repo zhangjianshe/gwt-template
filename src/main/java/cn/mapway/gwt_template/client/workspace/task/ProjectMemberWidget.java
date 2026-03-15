@@ -12,6 +12,7 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
+import lombok.Getter;
 
 /**
  * 项目成员选择
@@ -20,6 +21,7 @@ public class ProjectMemberWidget extends CommonEventComposite {
     private static final ProjectMemberWidgetUiBinder ourUiBinder = GWT.create(ProjectMemberWidgetUiBinder.class);
     @UiField
     Label lbName;
+    @Getter
     @UiField
     Image icon;
     Long userId;
@@ -31,6 +33,10 @@ public class ProjectMemberWidget extends CommonEventComposite {
         icon.addClickHandler(event -> {
             showSelectorDialog(projectId);
         });
+    }
+
+    public void setImageWidth(int width) {
+        icon.setWidth(width + "px");
     }
 
     private void showSelectorDialog(String projectId) {

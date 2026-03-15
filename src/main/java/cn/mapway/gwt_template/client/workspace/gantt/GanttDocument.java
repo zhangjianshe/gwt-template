@@ -333,13 +333,13 @@ public class GanttDocument {
 
     public void offsetTimeline(double deltaX, double deltaY) {
         // 1. 处理垂直滚动
-       /* this.scrollTop += deltaY;
+       this.scrollTop += deltaY;
 
         // 边界检查：不要滚出任务列表底部
         double maxScroll = Math.max(0, totalHeight - (chart.getOffsetHeight() - GANTT_HEAD_HEIGHT));
         if (this.scrollTop < 0) this.scrollTop = 0;
         if (this.scrollTop > maxScroll) this.scrollTop = maxScroll;
-*/
+
         // 2. 处理水平滚动 (时间轴平移)
         // 关键：deltaX 是像素，通过 double 运算转为时间偏移
         double msPerPixel = (double) MS_PER_DAY / dayWidth;

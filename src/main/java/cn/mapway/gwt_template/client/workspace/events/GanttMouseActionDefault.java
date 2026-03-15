@@ -447,6 +447,10 @@ public class GanttMouseActionDefault implements IMouseHandler {
                     chart.getDocument().deleteItem(selectItem1);
                 }
                 break;
+            case KeyCodes.KEY_H:
+            case KeyCodes.KEY_HOME:
+                chart.scrollToNow();
+                break;
             default:
         }
         chart.redraw();
@@ -514,7 +518,6 @@ public class GanttMouseActionDefault implements IMouseHandler {
         }
 
         // 3. 执行滚动
-        // 注意：这里不再进行任何 (long) 转换，直接透传 double
         if (Math.abs(dy) > 0 || Math.abs(dx) > 0) {
             // 水平滚动 delta 取反：滚轮向下(dy>0) -> 页面内容向左跑 -> 时间向未来走
             // 传入的 delta 会直接在 GanttDocument.offsetTimeline 中使用
