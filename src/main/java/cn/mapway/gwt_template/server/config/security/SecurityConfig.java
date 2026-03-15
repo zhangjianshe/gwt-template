@@ -1,7 +1,6 @@
 package cn.mapway.gwt_template.server.config.security;
 
 import cn.mapway.gwt_template.server.service.user.handler.AuthenticationEntryPointImpl;
-import cn.mapway.gwt_template.server.service.user.login.LoginProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -58,6 +57,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/code/**").permitAll()
                 .antMatchers("/terminal/**").permitAll()
                 .antMatchers("/fileUpload").permitAll()
+                .antMatchers("/api/v1/user/registerUser").permitAll()
                 .antMatchers("/upload/**").permitAll()
                 .antMatchers("/rbac").permitAll()
                 .antMatchers("/app").permitAll();

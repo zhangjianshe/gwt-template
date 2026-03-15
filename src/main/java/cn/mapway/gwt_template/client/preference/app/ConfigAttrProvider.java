@@ -5,6 +5,7 @@ import cn.mapway.gwt_template.shared.rpc.config.QueryConfigResponse;
 import cn.mapway.ui.client.mvc.attribute.AbstractAttributesProvider;
 import cn.mapway.ui.client.mvc.attribute.DataCastor;
 import cn.mapway.ui.client.mvc.attribute.IAttribute;
+import cn.mapway.ui.client.mvc.attribute.atts.CheckBoxAttribute;
 import cn.mapway.ui.client.mvc.attribute.atts.ImageUploadBoxAttribute;
 import cn.mapway.ui.client.mvc.attribute.atts.TextBoxAttribute;
 import cn.mapway.ui.client.mvc.attribute.editor.ParameterKeys;
@@ -82,6 +83,22 @@ public class ConfigAttrProvider extends AbstractAttributesProvider {
             @Override
             public void setValue(Object value) {
                 configResponse.getAppData().setSshServer(DataCastor.castToString(value));
+            }
+        });
+        attributes.add(new CheckBoxAttribute("enableRegister", "允许用户自注册") {
+            @Override
+            public Object getValue() {
+                return configResponse.getAppData().getEnableRegister();
+            }
+
+            @Override
+            public String getGroup() {
+                return ConfigEnums.CONFIG_APP.getValue();
+            }
+
+            @Override
+            public void setValue(Object value) {
+                configResponse.getAppData().setEnableRegister(DataCastor.castToBoolean(value));
             }
         });
 

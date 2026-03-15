@@ -6,7 +6,7 @@
             padding: 30px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 300px;
+            width: 380px;
             position: absolute;
             right: 15%;
         }
@@ -98,7 +98,13 @@
             font-size: 0.9rem;
             font-family: Iosevka;
         }
-    </ui:style>
+
+        .line {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 10px;
+        }</ui:style>
     <g:LayoutPanel ui:field="root">
         <g:layer>
             <g:Image ui:field="background" addStyleNames="{style.background}"/>
@@ -116,7 +122,10 @@
                             <label for="password">密码</label>
                             <widget:AiTextBox name="password" ui:field="txtPassword"/>
                         </div>
-                        <g:Button addStyleNames="{style.login-button}" ui:field="btnLogin">登录</g:Button>
+                        <g:HTMLPanel addStyleNames="{style.line}">
+                            <g:Button addStyleNames="{style.login-button}" ui:field="btnLogin">登录</g:Button>
+                            <g:Button addStyleNames="{style.login-button}" ui:field="btnRegister">注册</g:Button>
+                        </g:HTMLPanel>
                     </form>
                 </div>
 

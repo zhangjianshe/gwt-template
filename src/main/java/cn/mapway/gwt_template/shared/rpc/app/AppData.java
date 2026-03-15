@@ -7,8 +7,12 @@ import java.io.Serializable;
 
 @Data
 public class AppData implements Serializable, IsSerializable {
-    String  logo;
-    String  loginBackground;
+    String logo;
+    String loginBackground;
     Integer sshPort;
-    String  sshServer;
+    String sshServer;
+    /**
+     * 是否允许用户注册
+     */
+    Boolean enableRegister = false;
 }

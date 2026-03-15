@@ -28,12 +28,11 @@ import cn.mapway.gwt_template.server.service.soft.DeleteSoftwareExecutor;
 import cn.mapway.gwt_template.server.service.soft.QuerySoftwareExecutor;
 import cn.mapway.gwt_template.server.service.soft.QuerySoftwareFilesExecutor;
 import cn.mapway.gwt_template.server.service.user.QueryUserInfoExecutor;
+import cn.mapway.gwt_template.server.service.user.RegisterUserExecutor;
 import cn.mapway.gwt_template.server.service.user.TokenService;
 import cn.mapway.gwt_template.server.service.user.UpdateUserInfoExecutor;
 import cn.mapway.gwt_template.server.service.user.login.LoginProvider;
 import cn.mapway.gwt_template.server.service.webhook.*;
-import cn.mapway.gwt_template.server.service.project.ExportDevProjectTaskExecutor;
-import cn.mapway.gwt_template.server.service.project.ImportDevProjectTaskExecutor;
 import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.rpc.config.*;
 import cn.mapway.gwt_template.shared.rpc.desktop.*;
@@ -44,10 +43,7 @@ import cn.mapway.gwt_template.shared.rpc.message.*;
 import cn.mapway.gwt_template.shared.rpc.project.*;
 import cn.mapway.gwt_template.shared.rpc.repository.*;
 import cn.mapway.gwt_template.shared.rpc.soft.*;
-import cn.mapway.gwt_template.shared.rpc.user.QueryUserInfoRequest;
-import cn.mapway.gwt_template.shared.rpc.user.QueryUserInfoResponse;
-import cn.mapway.gwt_template.shared.rpc.user.UpdateUserInfoRequest;
-import cn.mapway.gwt_template.shared.rpc.user.UpdateUserInfoResponse;
+import cn.mapway.gwt_template.shared.rpc.user.*;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
 import cn.mapway.gwt_template.shared.rpc.webhook.*;
 import cn.mapway.gwt_template.shared.rpc.workspace.ExportDevProjectTaskRequest;
@@ -130,36 +126,15 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
 
     ///CODE_GEN_INSERT_POINT///
 	
+
+    @Resource
+    RegisterUserExecutor registerUserExecutor;
     @Resource
     QueryTemplateProjectExecutor queryTemplateProjectExecutor;
-    @Override
-    public RpcResult<QueryTemplateProjectResponse> queryTemplateProject(QueryTemplateProjectRequest request) {
-        BizResult<QueryTemplateProjectResponse> bizResult = queryTemplateProjectExecutor.execute(getBizContext(), BizRequest.wrap("", request));
-        return toRpcResult(bizResult);
-    }
-
-
-	
     @Resource
     ExportDevProjectTaskExecutor exportDevProjectTaskExecutor;
-    @Override
-    public RpcResult<ExportDevProjectTaskResponse> exportDevProjectTask(ExportDevProjectTaskRequest request) {
-        BizResult<ExportDevProjectTaskResponse> bizResult = exportDevProjectTaskExecutor.execute(getBizContext(), BizRequest.wrap("", request));
-        return toRpcResult(bizResult);
-    }
-
-
-	
     @Resource
     ImportDevProjectTaskExecutor importDevProjectTaskExecutor;
-    @Override
-    public RpcResult<ImportDevProjectTaskResponse> importDevProjectTask(ImportDevProjectTaskRequest request) {
-        BizResult<ImportDevProjectTaskResponse> bizResult = importDevProjectTaskExecutor.execute(getBizContext(), BizRequest.wrap("", request));
-        return toRpcResult(bizResult);
-    }
-
-
-
     @Resource
     QueryUserInfoExecutor queryUserInfoExecutor;
     @Resource
@@ -310,6 +285,30 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
     DeleteDevGroupExecutor deleteDevGroupExecutor;
     @Resource
     UpdateDevGroupExecutor updateDevGroupExecutor;
+
+    @Override
+    public RpcResult<RegisterUserResponse> registerUser(RegisterUserRequest request) {
+        BizResult<RegisterUserResponse> bizResult = registerUserExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<QueryTemplateProjectResponse> queryTemplateProject(QueryTemplateProjectRequest request) {
+        BizResult<QueryTemplateProjectResponse> bizResult = queryTemplateProjectExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<ExportDevProjectTaskResponse> exportDevProjectTask(ExportDevProjectTaskRequest request) {
+        BizResult<ExportDevProjectTaskResponse> bizResult = exportDevProjectTaskExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<ImportDevProjectTaskResponse> importDevProjectTask(ImportDevProjectTaskRequest request) {
+        BizResult<ImportDevProjectTaskResponse> bizResult = importDevProjectTaskExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
 
     @Override
     public RpcResult<QueryUserInfoResponse> queryUserInfo(QueryUserInfoRequest request) {
@@ -958,6 +957,7 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
 
         methodList.add("queryConfig");
         methodList.add("login");
+        methodList.add("registerUser");
 
     }
 }

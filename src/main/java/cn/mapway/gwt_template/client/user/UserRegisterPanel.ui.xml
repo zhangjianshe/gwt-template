@@ -1,0 +1,41 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui' xmlns:widget="urn:import:cn.mapway.ui.client.widget"
+             xmlns:dialog="urn:import:cn.mapway.ui.client.widget.dialog">
+    <ui:style>
+        .title {
+            font-size: 1.4rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 100px 1fr;
+            gap: 1rem;
+            margin: 20px;
+            padding: 20px;
+        }
+    </ui:style>
+    <g:DockLayoutPanel>
+        <g:north size="40">
+            <g:HTMLPanel addStyleNames="ai-flex-panel">
+                <widget:Header addStyleNames="{style.title}">用户注册</widget:Header>
+            </g:HTMLPanel>
+        </g:north>
+        <g:south size="60">
+            <dialog:SaveBar ui:field="saveBar" saveText="注册"/>
+        </g:south>
+        <g:center>
+            <g:HTMLPanel>
+                <g:HTMLPanel addStyleNames="{style.grid}">
+                    <widget:Header>用户名</widget:Header>
+                    <widget:AiTextBox ui:field="txtUserName"/>
+                    <widget:Header>邮箱</widget:Header>
+                    <widget:AiTextBox ui:field="txtEmail"/>
+                    <widget:Header>密码</widget:Header>
+                    <widget:AiTextBox ui:field="txtPWD"/>
+                    <widget:Header>重复密码</widget:Header>
+                    <widget:AiTextBox ui:field="txtPWD2"/>
+                </g:HTMLPanel>
+            </g:HTMLPanel>
+        </g:center>
+    </g:DockLayoutPanel>
+</ui:UiBinder>

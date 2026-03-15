@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.repo.Base64;
+import org.springframework.ldap.NameAlreadyBoundException;
 import org.springframework.ldap.core.ContextMapper;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.LdapTemplate;
@@ -25,6 +26,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -335,6 +337,9 @@ public class LdapService implements IReset {
             return BizResult.success(getEntryDetails(fullDn));
 
         } catch (Exception e) {
+            if (e instanceof NameAlreadyBoundException) {
+                return BizResult.error(500, "用户已存在不能注册");
+            }
             log.error("[LDAP] Error adding entry to {}", nodeData.getDn(), e);
             return BizResult.error(500, "Create failed: " + e.getMessage());
         }
@@ -377,7 +382,7 @@ public class LdapService implements IReset {
                                     String strVal = String.valueOf(val);
                                     if (needsBase64(strVal)) {
                                         // Use :: for Chinese or special characters
-                                        String b64 = Base64.encodeToString(strVal.getBytes("UTF-8"), false);
+                                        String b64 = Base64.encodeToString(strVal.getBytes(StandardCharsets.UTF_8), false);
                                         sb.append(id).append(":: ").append(b64).append("\n");
                                     } else {
                                         // Standard single colon
@@ -408,9 +413,6 @@ public class LdapService implements IReset {
             }
         }
         // Check for leading restricted characters
-        if (str.startsWith(":") || str.startsWith(" ") || str.startsWith("<")) {
-            return true;
-        }
-        return false;
+        return str.startsWith(":") || str.startsWith(" ") || str.startsWith("<");
     }
 }

@@ -9,6 +9,7 @@ import cn.mapway.ui.client.mvc.BaseAbstractModule;
 import cn.mapway.ui.client.mvc.ModuleMarker;
 import cn.mapway.ui.client.util.StringUtil;
 import cn.mapway.ui.client.widget.AiTextBox;
+import cn.mapway.ui.client.widget.dialog.Popup;
 import cn.mapway.ui.shared.CommonEvent;
 import cn.mapway.ui.shared.rpc.RpcResult;
 import com.google.gwt.core.client.GWT;
@@ -52,6 +53,8 @@ public class AppLoginFrame extends BaseAbstractModule implements RequiresResize 
     Image background;
     @UiField
     Label lbVersion;
+    @UiField
+    Button btnRegister;
 
     public AppLoginFrame() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -72,6 +75,7 @@ public class AppLoginFrame extends BaseAbstractModule implements RequiresResize 
                 }
             }
         });
+        btnRegister.setVisible(ClientContext.get().getAppData().getEnableRegister() != null && ClientContext.get().getAppData().getEnableRegister());
     }
 
     @Override
@@ -96,6 +100,22 @@ public class AppLoginFrame extends BaseAbstractModule implements RequiresResize 
     @UiHandler("btnLogin")
     public void btnLoginClick(ClickEvent event) {
         doLogin();
+
+    }
+
+    @UiHandler("btnRegister")
+    public void btnRegisterClick(ClickEvent event) {
+        Popup<UserRegisterPanel> popup = UserRegisterPanel.getPopup(true);
+        popup.addCommonHandler(event1 -> {
+            if (event1.isOk()) {
+                popup.hide();
+                ClientContext.get().alert("注册成功");
+            } else if (event1.isClose()) {
+                popup.hide();
+            }
+        });
+        popup.getContent().init();
+        popup.center();
 
     }
 
