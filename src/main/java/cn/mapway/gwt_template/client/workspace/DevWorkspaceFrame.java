@@ -173,7 +173,12 @@ public class DevWorkspaceFrame extends BaseAbstractModule implements RequiresRes
     @Override
     public boolean initialize(IModule parentModule, ModuleParameter parameter) {
         boolean b = super.initialize(parentModule, parameter);
-        btnHome.select();
+        Object object = parameter.get("workspace");
+        if (object instanceof DevWorkspaceEntity) {
+            gotoWorkspace((DevWorkspaceEntity) object);
+        } else {
+            btnHome.select();
+        }
         return b;
     }
 

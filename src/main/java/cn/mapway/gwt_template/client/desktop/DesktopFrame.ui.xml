@@ -1,7 +1,7 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
              xmlns:g='urn:import:com.google.gwt.user.client.ui'
              xmlns:desktop="urn:import:cn.mapway.gwt_template.client.desktop"
-             xmlns:widget="urn:import:cn.mapway.ui.client.widget">
+>
     <ui:style>
         .box {
             gap: 1rem;
@@ -9,50 +9,43 @@
             grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
             grid-gap: 26px 30px;
             justify-items: center;
-            padding: 100px;
+            padding: 30px;
+        }
+        .box3 {
+            gap: 1rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            grid-gap: 26px 30px;
+            justify-items: center;
+            padding: 30px;
+        }
+        .title {
+            margin: 25px;
         }
 
-
-        .top {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 15px;
+        .box1 {
+            padding: 0 50px;
         }
 
-        .left {
-
+        .header {
+            font-size: 1.1rem;
+            font-weight: bold;
         }
-
     </ui:style>
     <g:DockLayoutPanel ui:field="root">
-        <g:west size="70">
-            <g:ScrollPanel addStyleNames="ai-border-right">
-                <g:VerticalPanel width="100%">
-                    <desktop:HomeButton ui:field="btnHome"/>
-                    <desktop:HomeButton ui:field="btnMessage"/>
-                    <desktop:HomeButton ui:field="btnTest"/>
-                </g:VerticalPanel>
-            </g:ScrollPanel>
-        </g:west>
-        <g:west size="400">
-            <g:DockLayoutPanel ui:field="msgPanel" addStyleNames="ai-border-right {style.left}">
-                <g:north size="60">
-                    <g:HTMLPanel addStyleNames="{style.top} ai-border-bottom">
-                        <widget:Header ui:field="lbTitle"/>
-                        <g:Anchor ui:field="btnReturn" visible="false">返回</g:Anchor>
-                        <g:Anchor ui:field="btnSelectUser">选择用户</g:Anchor>
-                    </g:HTMLPanel>
-                </g:north>
-                <g:center>
-                    <desktop:UserMailboxPanel ui:field="mailboxPanel"/>
-                </g:center>
-            </g:DockLayoutPanel>
-        </g:west>
         <g:center>
             <g:ScrollPanel ui:field="content">
-                <g:HTMLPanel ui:field="panel" addStyleNames="{style.box}">
-                     <desktop:DesktopItem ui:field="btnAdd"/>
+                <g:HTMLPanel addStyleNames="{style.box1}">
+                    <g:HTMLPanel addStyleNames="{style.title}">
+                        <g:Label addStyleNames="{style.header}">快捷方式</g:Label>
+                    </g:HTMLPanel>
+                    <g:HTMLPanel ui:field="panel" addStyleNames="{style.box}">
+                        <desktop:DesktopItem ui:field="btnAdd"/>
+                    </g:HTMLPanel>
+                    <g:HTMLPanel addStyleNames="{style.title}">
+                        <g:Label addStyleNames="{style.header}">我的项目空间</g:Label>
+                    </g:HTMLPanel>
+                    <g:HTMLPanel ui:field="panelWorkspace" addStyleNames="{style.box3}"/>
                 </g:HTMLPanel>
             </g:ScrollPanel>
         </g:center>

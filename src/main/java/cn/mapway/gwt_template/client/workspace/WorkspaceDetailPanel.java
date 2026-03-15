@@ -106,6 +106,7 @@ public class WorkspaceDetailPanel extends CommonEventComposite implements ITools
 
         folders.clear();
         projectsMaper.clear();
+        workspaceFolder.setFolders(response.getFolders());
 
         List<DevWorkspaceFolderEntity> responseFolders = response.getFolders();
         DevWorkspaceFolderEntity temp = new DevWorkspaceFolderEntity();

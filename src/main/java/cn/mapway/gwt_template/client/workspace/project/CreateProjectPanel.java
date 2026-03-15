@@ -17,12 +17,10 @@ import cn.mapway.ui.shared.rpc.RpcResult;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
-import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.datepicker.client.DateBox;
@@ -89,26 +87,7 @@ public class CreateProjectPanel extends CommonEventComposite {
 
     private static Popup<CreateProjectPanel> createOne() {
         CreateProjectPanel panel = new CreateProjectPanel();
-        return new Popup<>(panel) {
-            @Override
-            protected void onPreviewNativeEvent(Event.NativePreviewEvent event) {
-                super.onPreviewNativeEvent(event);
-                if (event.getTypeInt() == Event.ONKEYDOWN) {
-                    int keyCode = event.getNativeEvent().getKeyCode();
-                    if (this.isShowing()) {
-                        if (keyCode == KeyCodes.KEY_ESCAPE) {
-                            // 1. 阻止浏览器默认行为
-                            event.getNativeEvent().preventDefault();
-                            // 2. 停止事件传播（防止传给外部的 GanttMouseActionDefault）
-                            event.getNativeEvent().stopPropagation();
-                            // 3. 取消预览事件
-                            event.cancel();
-                            this.hide();
-                        }
-                    }
-                }
-            }
-        };
+        return new Popup<>(panel);
     }
 
     public void setCreateParameter(String workspaceId, String folderId) {

@@ -17,7 +17,7 @@ import com.google.gwt.user.client.ui.RequiresResize;
         summary = "App Main Frame",
         order = 0
 )
-public class MainFrame extends BaseAbstractModule implements RequiresResize {
+public class MainFrame extends BaseAbstractModule implements RequiresResize, IModuleCallback {
     public static final String MODULE_CODE = "app_main_frame";
     private static final MainFrameUiBinder ourUiBinder = GWT.create(MainFrameUiBinder.class);
     @UiField
@@ -50,7 +50,7 @@ public class MainFrame extends BaseAbstractModule implements RequiresResize {
         return b;
     }
 
-    private void changeModule(SwitchModuleData switchModuleData) {
+    public void changeModule(SwitchModuleData switchModuleData) {
         String moduleCode = switchModuleData.getModuleCode();
         ModuleInfo moduleInfo = BaseAbstractModule.getModuleFactory().findModuleInfo(moduleCode);
         if (moduleInfo == null) {
@@ -71,6 +71,7 @@ public class MainFrame extends BaseAbstractModule implements RequiresResize {
             ClientContext.get().alert("创建模块错误:" + switchModuleData.getModuleCode());
             return;
         }
+        module.addModuleCallback(this);
         currentModule = module;
         root.add(currentModule.getRootWidget());
         currentModule.initialize(null, switchModuleData.getParameters());
@@ -80,6 +81,14 @@ public class MainFrame extends BaseAbstractModule implements RequiresResize {
     @Override
     public void onResize() {
         root.onResize();
+    }
+
+    @Override
+    public Integer callback(IModule module, CommonEvent event) {
+        if (event.isSwitch()) {
+            changeModule(event.getValue());
+        }
+        return 1;
     }
 
     interface MainFrameUiBinder extends UiBinder<DockLayoutPanel, MainFrame> {

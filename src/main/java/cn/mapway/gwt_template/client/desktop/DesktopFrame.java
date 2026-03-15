@@ -1,24 +1,18 @@
 package cn.mapway.gwt_template.client.desktop;
 
 import cn.mapway.gwt_template.client.ClientContext;
-import cn.mapway.gwt_template.client.resource.AppResource;
 import cn.mapway.gwt_template.client.rpc.AppProxy;
-import cn.mapway.gwt_template.client.workspace.gantt.GanttWidget;
-import cn.mapway.gwt_template.shared.AppConstant;
+import cn.mapway.gwt_template.client.workspace.DevWorkspaceFrame;
+import cn.mapway.gwt_template.client.workspace.home.WorkspaceCard;
 import cn.mapway.gwt_template.shared.db.DesktopItemEntity;
-import cn.mapway.gwt_template.shared.db.MailboxEntity;
+import cn.mapway.gwt_template.shared.db.DevWorkspaceEntity;
 import cn.mapway.gwt_template.shared.rpc.desktop.DeleteDesktopRequest;
 import cn.mapway.gwt_template.shared.rpc.desktop.DeleteDesktopResponse;
 import cn.mapway.gwt_template.shared.rpc.desktop.QueryDesktopRequest;
 import cn.mapway.gwt_template.shared.rpc.desktop.QueryDesktopResponse;
-import cn.mapway.ui.client.IUserInfo;
 import cn.mapway.ui.client.fonts.Fonts;
-import cn.mapway.ui.client.mvc.BaseAbstractModule;
-import cn.mapway.ui.client.mvc.IModule;
-import cn.mapway.ui.client.mvc.ModuleMarker;
-import cn.mapway.ui.client.mvc.ModuleParameter;
+import cn.mapway.ui.client.mvc.*;
 import cn.mapway.ui.client.util.StringUtil;
-import cn.mapway.ui.client.widget.Header;
 import cn.mapway.ui.client.widget.dialog.Dialog;
 import cn.mapway.ui.shared.CommonEvent;
 import cn.mapway.ui.shared.CommonEventHandler;
@@ -27,11 +21,9 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
-import elemental2.core.JsArray;
 import elemental2.promise.IThenable;
 import org.jspecify.annotations.Nullable;
 
@@ -52,82 +44,24 @@ public class DesktopFrame extends BaseAbstractModule implements RequiresResize {
     @UiField
     DesktopItem btnAdd;
     @UiField
-    UserMailboxPanel mailboxPanel;
-    @UiField
-    Anchor btnReturn;
-    @UiField
-    Anchor btnSelectUser;
-    @UiField
-    Header lbTitle;
-    @UiField
-    HomeButton btnHome;
-    @UiField
-    HomeButton btnMessage;
-    @UiField
     DockLayoutPanel root;
-    @UiField
-    DockLayoutPanel msgPanel;
     @UiField
     ScrollPanel content;
     @UiField
-    HomeButton btnTest;
+    HTMLPanel panelWorkspace;
     Widget currentWidget = content;
-    GanttWidget gantt;
 
 
     public DesktopFrame() {
         initWidget(ourUiBinder.createAndBindUi(this));
-        btnHome.setIcon(Fonts.HOME);
-        btnMessage.setIcon(Fonts.POPUP);
-        btnTest.setIcon(Fonts.WORKSPACE);
         btnAdd.addDomHandler(e -> {
             edit(null);
         }, ClickEvent.getType());
         btnAdd.setValue("img/plus.svg", "添加快捷方式");
 
-        btnMessage.addDomHandler(e -> {
-            if (btnMessage.isSelected()) {
-                btnMessage.setSelect(false);
-                root.setWidgetSize(msgPanel, 0);
-            } else {
-                btnMessage.setSelect(true);
-                root.setWidgetSize(msgPanel, 400);
-            }
-            root.forceLayout();
-        }, ClickEvent.getType());
-        btnMessage.setSelect(true);
-        content.setStyleName(AppResource.INSTANCE.styles().mainBackground());
-
-        btnHome.addDomHandler(e -> {
-            gotoHome();
-        }, ClickEvent.getType());
-        btnTest.addDomHandler(e -> {
-            gotoTest();
-        }, ClickEvent.getType());
         currentWidget = content;
     }
 
-    private void gotoTest() {
-        if (gantt == null) {
-            gantt = new GanttWidget();
-        }
-        if (currentWidget != gantt) {
-            root.remove(currentWidget);
-            root.add(gantt);
-            currentWidget = gantt;
-            root.forceLayout();
-        }
-        gantt.setData("a46e116a56534aa5a52b397d75ba58ed");
-    }
-
-    private void gotoHome() {
-        if (currentWidget != content) {
-            root.remove(currentWidget);
-            currentWidget = content;
-            root.add(currentWidget);
-            root.forceLayout();
-        }
-    }
 
     @Override
     public String getModuleCode() {
@@ -137,9 +71,7 @@ public class DesktopFrame extends BaseAbstractModule implements RequiresResize {
     @Override
     public boolean initialize(IModule parentModule, ModuleParameter parameter) {
         boolean b = super.initialize(parentModule, parameter);
-
         load();
-        mailboxPanel.load();
         return b;
     }
 
@@ -175,8 +107,6 @@ public class DesktopFrame extends BaseAbstractModule implements RequiresResize {
     }
 
     private void load() {
-        btnReturn.setVisible(false);
-        btnSelectUser.setVisible(true);
         AppProxy.get().queryDesktop(new QueryDesktopRequest(), new AsyncCallback<RpcResult<QueryDesktopResponse>>() {
             @Override
             public void onFailure(Throwable caught) {
@@ -204,72 +134,27 @@ public class DesktopFrame extends BaseAbstractModule implements RequiresResize {
             panel.add(item);
         }
         panel.add(btnAdd);
-        lbTitle.setText("联系人(" + data.getItems().size() + ")");
 
-
-    }
-
-
-    @UiHandler("mailboxPanel")
-    public void mailboxPanelCommon(CommonEvent event) {
-        if (event.isSelect()) {
-            MailboxEntity mailboxEntity = event.getValue();
-            if (ClientContext.get().isCurrentUser(mailboxEntity.getToUser())) {
-                lbTitle.setText(mailboxEntity.getFromUserName());
-                mailboxPanel.loadMessage(mailboxEntity);
-            } else {
-                lbTitle.setText(mailboxEntity.getToUserName());
-                mailboxPanel.loadMessage(mailboxEntity);
-            }
-
-            btnReturn.setVisible(true);
-            btnSelectUser.setVisible(false);
+        panelWorkspace.clear();
+        for (DevWorkspaceEntity entity : data.getWorkspaces()) {
+            WorkspaceCard card = new WorkspaceCard();
+            card.setEnabledEdit(false);
+            card.setData(entity);
+            panelWorkspace.add(card);
+            card.addCommonHandler(event -> {
+                if (event.isSelect()) {
+                    switchTo(event.getValue());
+                }
+            });
         }
     }
 
-    @UiHandler("btnReturn")
-    public void btnReturnClick(ClickEvent event) {
-        mailboxPanel.showMailbox();
-        btnReturn.setVisible(false);
-        btnSelectUser.setVisible(true);
-        lbTitle.setText("我的联系人");
+    private void switchTo(DevWorkspaceEntity entity) {
+        SwitchModuleData switchModuleData = new SwitchModuleData(DevWorkspaceFrame.MODULE_CODE, "");
+        switchModuleData.getParameters().put("workspace", entity);
+        fireModuleEvent(this, CommonEvent.switchEvent(switchModuleData));
     }
 
-    @UiHandler("btnSelectUser")
-    public void btnSelectUserClick(ClickEvent event) {
-        ClientContext.get().chooseUser().then(new IThenable.ThenOnFulfilledCallbackFn<JsArray<IUserInfo>, Object>() {
-            @Override
-            public @Nullable IThenable<Object> onInvoke(JsArray<IUserInfo> p0) {
-                if (p0.length > 0) {
-                    IUserInfo userInfo = p0.at(0);
-                    MailboxEntity temp = new MailboxEntity();
-                    temp.setToUser(Long.valueOf(userInfo.getId()));
-                    temp.setToUserName(userInfo.getUserName());
-                    temp.setToUserAvatar(userInfo.getAvatar());
-                    IUserInfo localUser = ClientContext.get().getUserInfo();
-                    temp.setFromUser(Long.valueOf(localUser.getId()));
-                    temp.setFromUserName(localUser.getUserName());
-                    temp.setFromUserAvatar(localUser.getAvatar());
-                    if (AppConstant.USER_IS_PUBLIC_ACCOUNT.equals(userInfo.getRelId())) {
-                        //这是一个公共账户
-                        temp.setIsPublic(true);
-                        temp.setId("-1-" + userInfo.getId());
-                    } else {
-                        temp.setIsPublic(false);
-                        temp.setId(temp.getToUser() < temp.getFromUser() ?
-                                (temp.getToUser() + "-" + temp.getFromUser()) :
-                                (temp.getFromUser() + "-" + temp.getToUser()));
-                    }
-                    mailboxPanel.loadMessage(temp);
-
-                    lbTitle.setText(userInfo.getUserName());
-                    btnSelectUser.setVisible(false);
-                    btnReturn.setVisible(true);
-                }
-                return null;
-            }
-        });
-    }
 
     private void edit(DesktopItemEntity item) {
         Dialog<DesktopEditor> dialog = DesktopEditor.getDialog(true);

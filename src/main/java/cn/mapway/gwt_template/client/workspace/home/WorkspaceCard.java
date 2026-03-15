@@ -17,6 +17,8 @@ import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.InlineLabel;
 import com.google.gwt.user.client.ui.Label;
+import lombok.Getter;
+import lombok.Setter;
 
 public class WorkspaceCard extends CommonEventComposite implements IData<DevWorkspaceEntity> {
     private static final WorkspaceCardUiBinder ourUiBinder = GWT.create(WorkspaceCardUiBinder.class);
@@ -36,6 +38,9 @@ public class WorkspaceCard extends CommonEventComposite implements IData<DevWork
     Label lbUserName;
     @UiField
     InlineLabel lbProjectCount;
+    @Getter
+    @Setter
+    boolean enabledEdit = true;
     private DevWorkspaceEntity data;
 
     public WorkspaceCard() {
@@ -84,7 +89,12 @@ public class WorkspaceCard extends CommonEventComposite implements IData<DevWork
         lbProjectCount.setText(String.valueOf(count));
 
         // 4. 编辑权限
-        lbEdit.setVisible(ClientContext.get().isCurrentUser(data.getUserId()));
+
+        if (!enabledEdit || !ClientContext.get().isCurrentUser(data.getUserId())) {
+            lbEdit.setVisible(false);
+        } else if (ClientContext.get().isCurrentUser(data.getUserId())) {
+            lbEdit.setVisible(true);
+        }
 
         // 5. 设置主色调（可选，可以用 color 字段改变 lbName 的颜色或边框色）
         if (StringUtil.isNotBlank(data.getColor())) {

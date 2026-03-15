@@ -3,7 +3,7 @@
     <ui:style>
         .box {
             display: grid;
-            grid-template-columns: 280px 1fr 160px 40px;
+            grid-template-columns: 280px 1fr 160px 34px 34px 34px;
             align-items: center;
             justify-content: space-between;
             gap: 1rem;
@@ -56,7 +56,9 @@
         <g:Image ui:field="logo" addStyleNames="{style.logo}"/>
         <g:HTMLPanel addStyleNames="{style.buttons}" ui:field="buttons">
         </g:HTMLPanel>
-        <g:HTML ui:field="lbExit" addStyleNames="{style.exit}"/>
-        <widget:FontIcon color="white" addStyleNames="{style.btn}" ui:field="btnPreference"/>
+        <g:HTML ui:field="lbUserInfo"/>
+        <widget:FontIcon color="skyblue" fontSize="32" addStyleNames="{style.btn}" ui:field="btnIm"/>
+        <widget:FontIcon color="skyblue" fontSize="32" addStyleNames="{style.btn}" ui:field="btnPreference"/>
+        <widget:FontIcon color="#e0e0e0" fontSize="32" addStyleNames="{style.btn}" ui:field="btnExit"/>
     </g:HTMLPanel>
 </ui:UiBinder>

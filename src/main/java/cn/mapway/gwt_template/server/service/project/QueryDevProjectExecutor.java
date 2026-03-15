@@ -10,15 +10,20 @@ import cn.mapway.gwt_template.shared.db.DevWorkspaceFolderEntity;
 import cn.mapway.gwt_template.shared.rpc.project.QueryDevProjectRequest;
 import cn.mapway.gwt_template.shared.rpc.project.QueryDevProjectResponse;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
+import com.google.gwt.i18n.client.DateTimeFormat;
 import lombok.extern.slf4j.Slf4j;
 import org.nutz.dao.Dao;
 import org.nutz.dao.Sqls;
 import org.nutz.dao.sql.Sql;
+import org.nutz.img.Colors;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
+import org.nutz.lang.random.R;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -33,6 +38,16 @@ public class QueryDevProjectExecutor extends AbstractBizExecutor<QueryDevProject
     Dao dao;
     @Resource
     ProjectService projectService;
+
+    public static String getYearQuarter(Date date) {
+        if (date == null) date = new Date();
+        // 获取年份
+        int year = Integer.parseInt(DateTimeFormat.getFormat("yyyy").format(date));
+        // 获取月份 (1-12)
+        int month = Integer.parseInt(DateTimeFormat.getFormat("MM").format(date));
+        int quarter = (month - 1) / 3 + 1;
+        return year + "年第" + quarter + "季度工作项目";
+    }
 
     @Override
     protected BizResult<QueryDevProjectResponse> process(BizContext context, BizRequest<QueryDevProjectRequest> bizParam) {
@@ -95,6 +110,18 @@ public class QueryDevProjectExecutor extends AbstractBizExecutor<QueryDevProject
             // 2. 注入核心补充逻辑：获取工作空间的目录结构
             // 只有在列表模式下，我们才返回完整的目录树
             List<DevWorkspaceFolderEntity> folders = projectService.queryWorkspaceFolder(workspaceId);
+            if (folders.isEmpty()) {
+                //创建一个缺省的目录
+                DevWorkspaceFolderEntity defaultFolder = new DevWorkspaceFolderEntity();
+                defaultFolder.setWorkspaceId(workspaceId);
+                defaultFolder.setId(R.UU16());
+                defaultFolder.setParentId(null);
+                defaultFolder.setName(getYearQuarter(new Date()));
+                defaultFolder.setColor(Colors.randomColor().toString());
+                defaultFolder.setCreateTime(new Timestamp(System.currentTimeMillis()));
+                dao.insert(defaultFolder);
+                folders.add(defaultFolder);
+            }
             response.setFolders(folders);
         }
 

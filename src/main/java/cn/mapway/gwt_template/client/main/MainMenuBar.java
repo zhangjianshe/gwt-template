@@ -2,6 +2,7 @@ package cn.mapway.gwt_template.client.main;
 
 import cn.mapway.gwt_template.client.ClientContext;
 import cn.mapway.gwt_template.client.desktop.DesktopFrame;
+import cn.mapway.gwt_template.client.desktop.ImWindow;
 import cn.mapway.gwt_template.client.preference.PreferenceFrame;
 import cn.mapway.rbac.client.RbacServerProxy;
 import cn.mapway.rbac.shared.ResourceKind;
@@ -17,6 +18,7 @@ import cn.mapway.ui.client.mvc.SwitchModuleData;
 import cn.mapway.ui.client.widget.CommonEventComposite;
 import cn.mapway.ui.client.widget.FontIcon;
 import cn.mapway.ui.client.widget.dialog.Dialog;
+import cn.mapway.ui.client.widget.dialog.Popup;
 import cn.mapway.ui.shared.CommonEvent;
 import cn.mapway.ui.shared.rpc.RpcResult;
 import com.google.gwt.core.client.GWT;
@@ -45,11 +47,15 @@ public class MainMenuBar extends CommonEventComposite {
     @UiField
     FontIcon btnPreference;
     @UiField
-    HTML lbExit;
+    HTML lbUserInfo;
     @UiField
     Image logo;
     @UiField
     HTMLPanel buttons;
+    @UiField
+    FontIcon btnIm;
+    @UiField
+    FontIcon btnExit;
     MenuButton selected = null;
     ClickHandler itemClicked = event -> {
         MenuButton source = (MenuButton) event.getSource();
@@ -59,6 +65,8 @@ public class MainMenuBar extends CommonEventComposite {
     public MainMenuBar() {
         initWidget(ourUiBinder.createAndBindUi(this));
         btnPreference.setIconUnicode(Fonts.SETTING);
+        btnIm.setIconUnicode(Fonts.POPUP);
+        btnExit.setIconUnicode(Fonts.EXIT);
 
     }
 
@@ -100,8 +108,20 @@ public class MainMenuBar extends CommonEventComposite {
         dialog.center();
     }
 
-    @UiHandler("lbExit")
+    @UiHandler("lbUserInfo")
     public void lbExitClick(ClickEvent event) {
+
+    }
+
+    @UiHandler("btnIm")
+    public void btnImClick(ClickEvent event) {
+        Popup<ImWindow> popup = ImWindow.getPopup(true);
+        popup.getContent().load();
+        popup.showRelativeTo(btnIm);
+    }
+
+    @UiHandler("btnExit")
+    public void btnExitClick(ClickEvent event) {
         RbacServerProxy.get().logout(new LogoutRequest(), new AsyncCallback<RpcResult<LogoutResponse>>() {
             @Override
             public void onFailure(Throwable caught) {
@@ -115,11 +135,16 @@ public class MainMenuBar extends CommonEventComposite {
         });
     }
 
+    @UiHandler("logo")
+    public void logoClick(ClickEvent event) {
+        fireEvent(CommonEvent.switchEvent(new SwitchModuleData(DesktopFrame.MODULE_CODE, "")));
+    }
+
     public void reload() {
         buttons.clear();
         IUserInfo userInfo = ClientContext.get().getUserInfo();
         String user = "<img style='width:50px;height:50px;border-radius:50%' src=" + userInfo.getAvatar() + "/>" + userInfo.getNickName();
-        lbExit.setHTML(user);
+        lbUserInfo.setHTML(user);
         if (ClientContext.get().getAppData().getLogo() != null) {
             logo.setUrl(ClientContext.get().getAppData().getLogo());
         }

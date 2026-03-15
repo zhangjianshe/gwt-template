@@ -1,10 +1,13 @@
 package cn.mapway.gwt_template.client.workspace.project;
 
 import cn.mapway.gwt_template.client.rpc.AppProxy;
+import cn.mapway.gwt_template.client.workspace.WorkspaceFolderDropdown;
 import cn.mapway.gwt_template.shared.db.DevProjectEntity;
+import cn.mapway.gwt_template.shared.db.DevWorkspaceFolderEntity;
 import cn.mapway.gwt_template.shared.rpc.project.UpdateDevProjectRequest;
 import cn.mapway.gwt_template.shared.rpc.project.UpdateDevProjectResponse;
 import cn.mapway.ui.client.mvc.Size;
+import cn.mapway.ui.client.mvc.attribute.DataCastor;
 import cn.mapway.ui.client.tools.IData;
 import cn.mapway.ui.client.widget.AiTextBox;
 import cn.mapway.ui.client.widget.CommonEventComposite;
@@ -23,6 +26,8 @@ import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.TextArea;
 
+import java.util.List;
+
 public class DevProjectEditor extends CommonEventComposite implements IData<DevProjectEntity> {
     private static final DevProjectEditorUiBinder ourUiBinder = GWT.create(DevProjectEditorUiBinder.class);
     private static Dialog<DevProjectEditor> dialog;
@@ -39,6 +44,8 @@ public class DevProjectEditor extends CommonEventComposite implements IData<DevP
     ImageUploader uploader;
     @UiField
     CheckBox checkTemplate;
+    @UiField
+    WorkspaceFolderDropdown ddlFolder;
 
     public DevProjectEditor() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -78,6 +85,10 @@ public class DevProjectEditor extends CommonEventComposite implements IData<DevP
         toUI();
     }
 
+    public void initFolder(List<DevWorkspaceFolderEntity> folders) {
+        ddlFolder.init(folders);
+    }
+
     @UiHandler("uploader")
     public void uploaderCommon(CommonEvent event) {
         if (event.isOk()) {
@@ -92,7 +103,7 @@ public class DevProjectEditor extends CommonEventComposite implements IData<DevP
         txtSummary.setValue(project.getSummary());
         uploader.setUrl(project.getIcon());
         checkTemplate.setValue(project.getIsTemplate());
-
+        ddlFolder.setValue(project.getFolderId());
     }
 
     private void fromUI() {
@@ -105,6 +116,7 @@ public class DevProjectEditor extends CommonEventComposite implements IData<DevP
         } else {
             project.setIcon(null);
         }
+        project.setFolderId(DataCastor.castToString(ddlFolder.getValue()));
     }
 
     @UiHandler("saveBar")

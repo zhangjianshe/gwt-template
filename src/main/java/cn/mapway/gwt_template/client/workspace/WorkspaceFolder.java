@@ -29,6 +29,10 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.ui.*;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.util.List;
 
 public class WorkspaceFolder extends CommonEventComposite implements IData<DevWorkspaceFolderEntity> {
 
@@ -40,6 +44,9 @@ public class WorkspaceFolder extends CommonEventComposite implements IData<DevWo
     @UiField
     FlexTable table;
     boolean empty = true;
+    @Getter
+    @Setter
+    List<DevWorkspaceFolderEntity> folders;
     private DevWorkspaceFolderEntity folder;
 
     public WorkspaceFolder() {
@@ -263,6 +270,7 @@ public class WorkspaceFolder extends CommonEventComposite implements IData<DevWo
                 dialog.hide();
             }
         });
+        dialog.getContent().initFolder(folders);
         dialog.getContent().setData(project);
         dialog.center();
     }

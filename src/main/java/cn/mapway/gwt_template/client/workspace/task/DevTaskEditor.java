@@ -100,16 +100,7 @@ public class DevTaskEditor extends CommonEventComposite implements RequiresResiz
                     // 如果窗口正在显示，我们拦截 Escape 和 /
                     if (this.isShowing()) {
 
-                        if (keyCode == KeyCodes.KEY_ESCAPE || keyCode == 191) {
-                            // 1. 阻止浏览器默认行为
-                            event.getNativeEvent().preventDefault();
-                            // 2. 停止事件传播（防止传给外部的 GanttMouseActionDefault）
-                            event.getNativeEvent().stopPropagation();
-                            // 3. 取消预览事件
-                            event.cancel();
-
-                            this.hide();
-                        } else if (keyCode == KeyCodes.KEY_S && event.getNativeEvent().getCtrlKey()) {
+                     if (keyCode == KeyCodes.KEY_S && event.getNativeEvent().getCtrlKey()) {
                             this.getContent().saveAndExit(new Callback<Void, Void>() {
                                 @Override
                                 public void onFailure(Void reason) {
