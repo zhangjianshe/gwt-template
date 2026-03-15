@@ -116,6 +116,7 @@ public class ProjectService {
         if (userId == null || Strings.isBlank(projectId)) {
             return false;
         }
+
         // 查询该用户是否关联了属于该项目的小组
         String sqlStr = "SELECT count(1) FROM dev_project_team_member T1 " +
                 "INNER JOIN dev_project_team T2 ON T1.team_id = T2.id " +

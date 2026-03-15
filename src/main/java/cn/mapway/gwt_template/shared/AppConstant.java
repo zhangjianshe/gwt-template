@@ -26,4 +26,5 @@ public class AppConstant {
     public static final String ROLE_SYS_MESSAGE_MANAGER = "ROLE_SYS_MESSAGE_MANAGER"; //系统消息管理角色
     public static final String ROLE_SYS_LDAP_MANAGER = "ROLE_SYS_LDAP_MANAGER"; //系统LDAP管理角色
     public static final String USER_IS_PUBLIC_ACCOUNT = "USER_IS_PUBLIC_ACCOUNT"; //用户是一个公共账户
+    public static final String TEMP_WORKSPACE_FOLDER_ID = "TEMP_FOLDER";
 }

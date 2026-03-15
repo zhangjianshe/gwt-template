@@ -24,4 +24,7 @@ public interface AppResource extends ClientBundle {
 
     @Source("./images/noData.png")
     ImageResource noData();
+
+    @Source("./images/noFindProject.png")
+    ImageResource noFindProject();
 }

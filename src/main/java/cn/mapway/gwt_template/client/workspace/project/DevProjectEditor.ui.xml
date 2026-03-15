@@ -19,6 +19,8 @@
                 <g:HTMLPanel addStyleNames="{style.table}">
                     <widget:Header>项目名称</widget:Header>
                     <widget:AiTextBox ui:field="txtName"/>
+                    <widget:Header>是否是模板</widget:Header>
+                    <g:CheckBox ui:field="checkTemplate"/>
                     <widget:Header>项目颜色</widget:Header>
                     <widget:AiTextBox ui:field="txtColor"/>
                     <widget:Header>介绍</widget:Header>

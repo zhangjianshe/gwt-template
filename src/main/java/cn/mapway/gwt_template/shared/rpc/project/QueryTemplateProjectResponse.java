@@ -6,20 +6,15 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
- * UpdateDevProjectRequest
+ * QueryTemplateProjectResponse
  *
  * @author zhangjianshe@gmail.com
  */
 @Data
-@Doc("UpdateDevProjectRequest")
-public class UpdateDevProjectRequest implements Serializable, IsSerializable {
-    DevProjectEntity project;
-    /**
-     * 当创建新项目的时候 此值可以附上一个模板项目ID
-     */
-    String templateId;
-
-    Long targetStartTime;
+@Doc("QueryTemplateProjectResponse")
+public class QueryTemplateProjectResponse implements Serializable, IsSerializable {
+    List<DevProjectEntity> projects;
 }

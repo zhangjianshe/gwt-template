@@ -4,13 +4,13 @@ import cn.mapway.gwt_template.client.ClientContext;
 import cn.mapway.gwt_template.client.resource.AppCss;
 import cn.mapway.gwt_template.client.resource.AppResource;
 import cn.mapway.gwt_template.client.user.UserIcon;
+import cn.mapway.gwt_template.client.workspace.project.CreateProjectPanel;
 import cn.mapway.gwt_template.client.workspace.project.DevProjectEditor;
+import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.db.DevProjectEntity;
 import cn.mapway.gwt_template.shared.db.DevWorkspaceFolderEntity;
 import cn.mapway.gwt_template.shared.rpc.user.ResourcePoint;
-import cn.mapway.ui.client.fonts.Fonts;
 import cn.mapway.ui.client.tools.IData;
-import cn.mapway.ui.client.util.Colors;
 import cn.mapway.ui.client.util.StringUtil;
 import cn.mapway.ui.client.widget.AiAnchor;
 import cn.mapway.ui.client.widget.AiLabel;
@@ -18,6 +18,7 @@ import cn.mapway.ui.client.widget.CommonEventComposite;
 import cn.mapway.ui.client.widget.buttons.AiButton;
 import cn.mapway.ui.client.widget.buttons.EditButton;
 import cn.mapway.ui.client.widget.dialog.Dialog;
+import cn.mapway.ui.client.widget.dialog.Popup;
 import cn.mapway.ui.shared.CommonEvent;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -98,8 +99,6 @@ public class WorkspaceFolder extends CommonEventComposite implements IData<DevWo
         // 简单判断：如果不是非常浅的颜色，通常白色更好看
         lbFolderName.getElement().getStyle().setColor("#ffffff");
 
-        // 如果你有控制 AiButton 颜色的能力，也可以顺便改了
-        // btnCreateProject.getElement().getStyle().setProperty("filter", "brightness(1.2)");
     }
 
     @Override
@@ -172,12 +171,32 @@ public class WorkspaceFolder extends CommonEventComposite implements IData<DevWo
         int col = 0;
         AppCss css = AppResource.INSTANCE.styles();
 
-        // 1. 项目名称：加粗并设置主色调颜色
+        // 1. 项目名称区域
+        HorizontalPanel hpName = new HorizontalPanel();
+        hpName.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
+        hpName.setSpacing(4);
+
         AiLabel lbName = new AiLabel(project.getName());
-        lbName.addStyleName(css.primaryText()); // 假设你有这个样式
+        lbName.addStyleName(css.primaryText());
         lbName.setData(project);
         lbName.addClickHandler(event -> fireEvent(CommonEvent.selectEvent(project)));
-        table.setWidget(row, col++, lbName);
+        hpName.add(lbName);
+        table.setWidget(row, col++, hpName);
+
+        // 如果是模板，添加一个漂亮的标签
+        if (project.getIsTemplate() != null && project.getIsTemplate()) {
+            Label tag = new Label("模板");
+            // 设置样式：背景浅蓝，文字深蓝，圆角小字体
+            com.google.gwt.dom.client.Style tagStyle = tag.getElement().getStyle();
+            tagStyle.setBackgroundColor("#e6f7ff");
+            tagStyle.setColor("#1890ff");
+            tagStyle.setProperty("border", "1px solid #91d5ff");
+            tagStyle.setProperty("borderRadius", "2px");
+            tagStyle.setProperty("padding", "0 6px");
+            tagStyle.setProperty("fontSize", "11px");
+            tagStyle.setProperty("lineHeight", "18px");
+            hpName.add(tag);
+        }
 
         // 2. 创建时间：使用更淡的颜色
         Label lbTime = new Label(StringUtil.formatDate(project.getCreateTime(), "yyyy-MM-dd"));
@@ -185,8 +204,12 @@ public class WorkspaceFolder extends CommonEventComposite implements IData<DevWo
         table.setWidget(row, col++, lbTime);
 
         // 3. 项目进度：可视化
-        HTML progressHtml = new HTML(renderProgressBar(project.getProgress()));
-        table.setWidget(row, col++, progressHtml);
+        if (project.getIsTemplate() != null && project.getIsTemplate()) {
+            table.setText(row, col++, "-"); // 模板不显示进度
+        } else {
+            HTML progressHtml = new HTML(renderProgressBar(project.getProgress()));
+            table.setWidget(row, col++, progressHtml);
+        }
 
         // 4. 成员数量
         table.setText(row, col++, project.getMemberCount() + " 人");
@@ -203,6 +226,7 @@ public class WorkspaceFolder extends CommonEventComposite implements IData<DevWo
             public void onClick(ClickEvent event) {
                 editProject(project);
             }
+
         });
         table.setWidget(row, col++, editButton);
 
@@ -226,33 +250,41 @@ public class WorkspaceFolder extends CommonEventComposite implements IData<DevWo
 
     @UiHandler("btnCreateProject")
     public void btnCreateProjectClick(ClickEvent event) {
-
-        DevProjectEntity project = new DevProjectEntity();
-        project.setName("项目名称");
-        project.setSummary(project.getName());
-        project.setWorkspaceId(folder.getWorkspaceId());
-        project.setUnicode(Fonts.PROJECT);
-        project.setColor(Colors.randomColor());
-        project.setFolderId(folder.getId());
-
-        editProject(project);
+        createProject();
     }
 
     private void editProject(DevProjectEntity project) {
         Dialog<DevProjectEditor> dialog = DevProjectEditor.getDialog(true);
         dialog.addCommonHandler(event -> {
             if (event.isUpdate()) {
-                if (StringUtil.isBlank(project.getId())) {
-                    addProject(event.getValue());
-                } else {
-                    updateProject(event.getValue());
-                }
+                updateProject(event.getValue());
                 dialog.hide();
             } else if (event.isClose()) {
                 dialog.hide();
             }
         });
         dialog.getContent().setData(project);
+        dialog.center();
+    }
+
+    private void createProject() {
+        Popup<CreateProjectPanel> dialog = CreateProjectPanel.getDialog(true);
+        dialog.addCommonHandler(event -> {
+            if (event.isReload()) {
+                //addProject(event.getValue());
+                //重新加载吧
+                fireEvent(CommonEvent.reloadEvent(null));
+                dialog.hide();
+            } else if (event.isClose()) {
+                dialog.hide();
+            }
+        });
+        dialog.getContent().loadTemplates();
+        String folderId = folder.getId();
+        if (AppConstant.TEMP_WORKSPACE_FOLDER_ID.equals(folderId)) {
+            folderId = null;
+        }
+        dialog.getContent().setCreateParameter(folder.getWorkspaceId(), folderId);
         dialog.center();
     }
 

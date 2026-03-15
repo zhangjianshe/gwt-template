@@ -34,6 +34,8 @@ public class DevProjectEntity implements Serializable, IsSerializable {
     public static final String FLD_ICON = "icon";
     public static final String FLD_SUMMARY = "summary";
     public static final String FLD_UPDATE_TIME = "update_time";
+    public static final String FLD_IS_TEMPLATE = "is_template";
+    public static final String FLD_TAG = "tag";
 
     @Name
     @Comment("项目ID")
@@ -85,9 +87,19 @@ public class DevProjectEntity implements Serializable, IsSerializable {
     @ColDefine(width = 1024, notNull = true)
     String summary;
 
+    @Comment("项目标签")
+    @Column(FLD_TAG)
+    @ColDefine(width = 1024)
+    String tag;
+
     @Comment("更新时间")
     @Column(FLD_UPDATE_TIME)
     Timestamp updateTime;
+
+    @Comment("是否是模板项目")
+    @Column(FLD_IS_TEMPLATE)
+    @Default("false")
+    Boolean isTemplate;
 
     String createUserName;
     String createUserAvatar;

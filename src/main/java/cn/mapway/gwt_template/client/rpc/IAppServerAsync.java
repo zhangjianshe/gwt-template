@@ -26,6 +26,8 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public interface IAppServerAsync {
 
     ///CODE_GEN_INSERT_POINT///
+	void queryTemplateProject(QueryTemplateProjectRequest request, AsyncCallback<RpcResult<QueryTemplateProjectResponse>> async);
+
 	void exportDevProjectTask(ExportDevProjectTaskRequest request, AsyncCallback<RpcResult<ExportDevProjectTaskResponse>> async);
 
 	void importDevProjectTask(ImportDevProjectTaskRequest request, AsyncCallback<RpcResult<ImportDevProjectTaskResponse>> async);

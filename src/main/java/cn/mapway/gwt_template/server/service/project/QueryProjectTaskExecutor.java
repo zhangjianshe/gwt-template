@@ -54,7 +54,7 @@ public class QueryProjectTaskExecutor extends AbstractBizExecutor<QueryProjectTa
         // 校验：当前用户是否为项目成员
         boolean isMember = projectService.isMemberOfProject(currentUserId, projectId);
         // 如果不是成员，且项目不是公开的（假设有一个 isPublic 字段），则拒绝
-        assertTrue(isMember, "您不是该项目的成员，无权查看任务");
+        assertTrue(user.getUser().getUserId().equals(project.getUserId()) || isMember, "您不是该项目的成员，无权查看任务");
 
         // 1. 查询该项目下的所有任务，按优先级和编号排序
         List<DevProjectTaskEntity> allTasks = dao.query(DevProjectTaskEntity.class,

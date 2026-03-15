@@ -2,6 +2,7 @@ package cn.mapway.gwt_template.client.workspace;
 
 import cn.mapway.gwt_template.client.ClientContext;
 import cn.mapway.gwt_template.client.rpc.AppProxy;
+import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.db.DevProjectEntity;
 import cn.mapway.gwt_template.shared.db.DevWorkspaceEntity;
 import cn.mapway.gwt_template.shared.db.DevWorkspaceFolderEntity;
@@ -13,6 +14,7 @@ import cn.mapway.ui.client.fonts.Fonts;
 import cn.mapway.ui.client.mvc.IToolsProvider;
 import cn.mapway.ui.client.tools.IData;
 import cn.mapway.ui.client.util.Colors;
+import cn.mapway.ui.client.util.IEachElement;
 import cn.mapway.ui.client.util.StringUtil;
 import cn.mapway.ui.client.widget.CommonEventComposite;
 import cn.mapway.ui.client.widget.buttons.AiButton;
@@ -22,7 +24,6 @@ import cn.mapway.ui.client.widget.dialog.Dialog;
 import cn.mapway.ui.client.widget.list.CommonList;
 import cn.mapway.ui.client.widget.list.CommonListItem;
 import cn.mapway.ui.shared.CommonEvent;
-import cn.mapway.ui.shared.CommonEventHandler;
 import cn.mapway.ui.shared.rpc.RpcResult;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
@@ -48,7 +49,6 @@ import java.util.*;
  */
 public class WorkspaceDetailPanel extends CommonEventComposite implements IToolsProvider, RequiresResize, IData<DevWorkspaceEntity> {
     private static final WorkspaceDetailPanelUiBinder ourUiBinder = GWT.create(WorkspaceDetailPanelUiBinder.class);
-    private static final String DEFAULT_DIR_ID = "TEMP_FOLDER";
     @UiField
     DockLayoutPanel root;
     @UiField
@@ -58,20 +58,8 @@ public class WorkspaceDetailPanel extends CommonEventComposite implements ITools
     @UiField
     WorkspaceFolder workspaceFolder;
     Map<String, List<DevProjectEntity>> projectsMaper = new HashMap<>();
+    String initShowFolder = "";
     private DevWorkspaceEntity workspace;
-    private final CommonEventHandler folderHandler = new CommonEventHandler() {
-        @Override
-        public void onCommonEvent(CommonEvent event) {
-            if (event.isReload()) {
-                //重新加载
-                setData(workspace);
-            }
-            if (event.isSelect()) {
-                DevProjectEntity project = event.getValue();
-                fireEvent(CommonEvent.selectEvent(project));
-            }
-        }
-    };
 
     public WorkspaceDetailPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -125,14 +113,14 @@ public class WorkspaceDetailPanel extends CommonEventComposite implements ITools
         temp.setWorkspaceId(workspace.getId());
         temp.setChildren(new ArrayList<>());
         temp.setColor("");
-        temp.setId(DEFAULT_DIR_ID);
+        temp.setId(AppConstant.TEMP_WORKSPACE_FOLDER_ID);
         temp.setCreateTime(new Timestamp(System.currentTimeMillis()));
         responseFolders.add(0, temp);
 
 
         for (DevWorkspaceFolderEntity folder : responseFolders) {
             CommonListItem commonListItem = folders.addItem(Fonts.FOLDER, folder.getName(), folder);
-            if (!StringUtil.isBlank(folder.getId()) && !folder.getId().equals(DEFAULT_DIR_ID)) {
+            if (!StringUtil.isBlank(folder.getId()) && !folder.getId().equals(AppConstant.TEMP_WORKSPACE_FOLDER_ID)) {
                 DeleteButton deleteButton = new DeleteButton();
                 deleteButton.setData(folder);
                 deleteButton.addClickHandler(new ClickHandler() {
@@ -161,14 +149,27 @@ public class WorkspaceDetailPanel extends CommonEventComposite implements ITools
 
 
         for (DevProjectEntity project : response.getProjects()) {
-            if (StringUtil.isBlank(project.getFolderId()) || project.getFolderId().equals(DEFAULT_DIR_ID)) {
-                project.setFolderId(DEFAULT_DIR_ID);
+            if (StringUtil.isBlank(project.getFolderId()) || project.getFolderId().equals(AppConstant.TEMP_WORKSPACE_FOLDER_ID)) {
+                project.setFolderId(AppConstant.TEMP_WORKSPACE_FOLDER_ID);
             }
             List<DevProjectEntity> container = projectsMaper.computeIfAbsent(project.getFolderId(), k -> new ArrayList<>());
             container.add(project);
         }
-
-        folders.selectFirst();
+        if (StringUtil.isNotBlank(initShowFolder)) {
+            folders.eachItem(new IEachElement<CommonListItem>() {
+                @Override
+                public boolean each(CommonListItem e) {
+                    DevWorkspaceFolderEntity folder = (DevWorkspaceFolderEntity) e.getData();
+                    if (folder.getId().equals(initShowFolder)) {
+                        folders.selectItem(e, true);
+                        return false;
+                    }
+                    return true;
+                }
+            });
+        } else {
+            folders.selectFirst();
+        }
     }
 
     private void confirmDelete(DevWorkspaceFolderEntity folder) {
@@ -264,6 +265,9 @@ public class WorkspaceDetailPanel extends CommonEventComposite implements ITools
         if (event.isSelect()) {
             DevProjectEntity project = event.getValue();
             fireEvent(CommonEvent.selectEvent(project));
+        } else if (event.isReload()) {
+            initShowFolder = workspaceFolder.getData().getId();
+            setData(workspace);
         }
     }
 

@@ -18,6 +18,7 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.TextArea;
 
@@ -35,6 +36,8 @@ public class DevProjectEditor extends CommonEventComposite implements IData<DevP
     TextArea txtSummary;
     @UiField
     ImageUploader uploader;
+    @UiField
+    CheckBox checkTemplate;
 
     public DevProjectEditor() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -60,7 +63,7 @@ public class DevProjectEditor extends CommonEventComposite implements IData<DevP
 
     @Override
     public Size requireDefaultSize() {
-        return new Size(600, 600);
+        return new Size(600, 650);
     }
 
     @Override
@@ -79,6 +82,7 @@ public class DevProjectEditor extends CommonEventComposite implements IData<DevP
         txtName.setValue(project.getName());
         txtSummary.setValue(project.getSummary());
         uploader.setUrl(project.getIcon());
+        checkTemplate.setValue(project.getIsTemplate());
 
     }
 
@@ -86,6 +90,7 @@ public class DevProjectEditor extends CommonEventComposite implements IData<DevP
         project.setColor(txtColor.getValue());
         project.setName(txtName.getValue());
         project.setSummary(txtSummary.getValue());
+        project.setIsTemplate(checkTemplate.getValue());
         if (uploader.getUrl() != null && !uploader.getUrl().startsWith("data")) {
             project.setIcon(uploader.getUrl());
         } else {

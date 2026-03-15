@@ -98,6 +98,21 @@ public class DevProjectController extends ApiBaseController {
     @Resource
     ExportDevProjectTaskExecutor exportDevProjectTaskExecutor;
 
+    @Resource
+    QueryTemplateProjectExecutor queryTemplateProjectExecutor;
+    /**
+     * QueryTemplateProject
+     *
+     * @param request request
+     * @return data
+     */
+    @Doc(value = "QueryTemplateProject", retClazz = {QueryTemplateProjectResponse.class})
+    @RequestMapping(value = "/queryTemplateProject", method = RequestMethod.POST)
+    public RpcResult<QueryTemplateProjectResponse> queryTemplateProject(@RequestBody QueryTemplateProjectRequest request) {
+        BizResult<QueryTemplateProjectResponse> bizResult = queryTemplateProjectExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toApiResult(bizResult);
+    }
+
     @Doc(value = "导出项目任务", group = "系统")
     @GetMapping("/export")
     public void exportProject(@RequestParam String projectId, @RequestParam String type, HttpServletResponse response) throws IOException {

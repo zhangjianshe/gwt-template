@@ -131,6 +131,16 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
     ///CODE_GEN_INSERT_POINT///
 	
     @Resource
+    QueryTemplateProjectExecutor queryTemplateProjectExecutor;
+    @Override
+    public RpcResult<QueryTemplateProjectResponse> queryTemplateProject(QueryTemplateProjectRequest request) {
+        BizResult<QueryTemplateProjectResponse> bizResult = queryTemplateProjectExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
     ExportDevProjectTaskExecutor exportDevProjectTaskExecutor;
     @Override
     public RpcResult<ExportDevProjectTaskResponse> exportDevProjectTask(ExportDevProjectTaskRequest request) {

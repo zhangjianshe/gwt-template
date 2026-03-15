@@ -1,0 +1,52 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+    <ui:style>
+        .box {
+            position: relative;
+            border: solid 1px #f0f0f0;
+            border-radius: 6px;
+        }
+
+        .box:HOVER {
+            background-color: #f9f9f9;
+        }
+
+        .box[select="true"] {
+            border: solid 1px green;
+        }
+
+        .icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 90%;
+        }
+
+        .name {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 40px;
+            text-overflow: ellipsis;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
+        .top {
+            position: absolute;
+            inset: 10px 10px 40px 10px;
+            object-fit: scale-down;
+            overflow: hidden;
+        }</ui:style>
+    <g:HTMLPanel addStyleNames="{style.box}">
+        <g:HTMLPanel addStyleNames="{style.top}">
+            <g:Image ui:field="icon" addStyleNames="{style.icon}"/>
+        </g:HTMLPanel>
+        <g:Label ui:field="lbName" addStyleNames="{style.name}"/>
+    </g:HTMLPanel>
+</ui:UiBinder>

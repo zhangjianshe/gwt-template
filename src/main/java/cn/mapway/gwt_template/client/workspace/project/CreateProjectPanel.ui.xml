@@ -1,0 +1,105 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui' xmlns:widget="urn:import:cn.mapway.ui.client.widget"
+             xmlns:datepicker="urn:import:com.google.gwt.user.datepicker.client">
+    <ui:style>
+        .container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #f0f0f0;
+            padding: 0 10px;
+        }
+
+        .header {
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        .footer {
+            padding: 10px;
+            border-top: 1px solid #eee;
+            text-align: right;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            flex-wrap: nowrap;
+        }
+
+        .content {
+            padding: 15px;
+        }
+
+        .template-list {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 1rem;
+            padding: 1rem;
+        }
+
+        .top {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 0 10px;
+        }
+
+        .grid {
+            display: grid;
+            padding: 20px 80px;
+            grid-template-columns: 130px 1fr;
+            gap: 1rem;
+        }
+
+        .infoPanel {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 50px 0;
+        }
+
+        .msg {
+            white-space: wrap;
+            overflow: auto;
+            flex-shrink: 2;
+        }
+    </ui:style>
+    <g:DockLayoutPanel>
+        <g:north size="60">
+            <g:HTMLPanel addStyleNames="{style.top}">
+                <g:Label ui:field="lbTitle" addStyleNames="{style.header}" text="第一步：选择项目模板"/>
+            </g:HTMLPanel>
+        </g:north>
+        <g:south size="60">
+            <g:HTMLPanel addStyleNames="{style.container}">
+                <g:Label ui:field="lbMessage" addStyleNames="{style.msg}"/>
+                <g:HTMLPanel addStyleNames="{style.footer}">
+                    <g:Button ui:field="btnBack" text="上一步" visible="false"/>
+                    <g:Button ui:field="btnNext" text="下一步"/>
+                    <g:Button ui:field="btnCreate" text="立即创建" visible="false"/>
+                </g:HTMLPanel>
+            </g:HTMLPanel>
+        </g:south>
+        <g:center>
+            <g:DeckLayoutPanel ui:field="deck" addStyleNames="{style.content}">
+                <g:ScrollPanel>
+                    <g:HTMLPanel ui:field="pnlTemplates" addStyleNames="{style.template-list}"/>
+                </g:ScrollPanel>
+                <g:HTMLPanel>
+                    <g:HTMLPanel addStyleNames="{style.infoPanel}">
+                        <g:Label ui:field="tip" addStyleNames="ai-code"/>
+                    </g:HTMLPanel>
+                    <g:HTMLPanel addStyleNames="{style.grid}">
+                        <widget:Header text="项目名称:"/>
+                        <widget:AiTextBox ui:field="txtName" width="100%"/>
+                        <widget:Header text="项目备注:"/>
+                        <g:TextArea addStyleNames="ai-input" ui:field="txtSummary" width="100%" height="100px"/>
+                        <widget:Header text="预计开工时间:"/>
+                        <datepicker:DateBox addStyleNames="ai-input" ui:field="txtStartDate"/>
+                    </g:HTMLPanel>
+                </g:HTMLPanel>
+            </g:DeckLayoutPanel>
+        </g:center>
+    </g:DockLayoutPanel>
+
+</ui:UiBinder>
