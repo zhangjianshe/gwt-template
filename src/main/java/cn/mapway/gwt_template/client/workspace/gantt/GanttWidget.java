@@ -38,6 +38,7 @@ public class GanttWidget extends CommonEventComposite implements RequiresResize,
     public void setData(String projectId) {
         this.projectId = projectId;
         chart.setData(projectId);
+        chart.setFocus(true);
     }
 
     @UiHandler("chart")
@@ -74,6 +75,10 @@ public class GanttWidget extends CommonEventComposite implements RequiresResize,
     @Override
     public void onResize() {
         root.onResize();
+    }
+
+    public void setFocus(boolean b) {
+        chart.setFocus(b);
     }
 
     interface GanttWidgetUiBinder extends UiBinder<LayoutPanel, GanttWidget> {

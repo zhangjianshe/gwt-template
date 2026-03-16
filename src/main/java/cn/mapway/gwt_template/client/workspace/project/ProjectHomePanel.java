@@ -18,9 +18,9 @@ public class ProjectHomePanel extends CommonEventComposite implements IToolsProv
     // 定义 Tab 索引常量，提高可读性
     // 重新定义常量，确保与 XML 中的 Tab 顺序严格对应
     public static final int TAB_OVERVIEW = 0;
-    public static final int TAB_ACTIVITY = 1;
-    public static final int TAB_ISSUE = 2;
-    public static final int TAB_TASK = 3;
+    public static final int TAB_TASK = 1;
+    public static final int TAB_ACTIVITY = 2;
+    public static final int TAB_ISSUE = 3;
     public static final int TAB_RESOURCE = 4;
     public static final int TAB_REPO = 5;
     public static final int TAB_TEAM = 6;
@@ -49,6 +49,7 @@ public class ProjectHomePanel extends CommonEventComposite implements IToolsProv
                 loadTeamData();
             } else if (index == TAB_TASK) {
                 gantt.setData(project.getId());
+                gantt.setFocus(true);
             }
         });
     }

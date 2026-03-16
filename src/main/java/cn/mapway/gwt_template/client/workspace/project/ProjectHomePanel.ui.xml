@@ -17,14 +17,6 @@
             </g:HTMLPanel>
         </g:tab>
         <g:tab>
-            <g:header>项目活动</g:header>
-            <g:HTMLPanel/>
-        </g:tab>
-        <g:tab>
-            <g:header>项目问题</g:header>
-            <g:HTMLPanel/>
-        </g:tab>
-        <g:tab>
             <g:header>项目任务</g:header>
             <g:DockLayoutPanel>
                 <g:center>
@@ -32,6 +24,15 @@
                 </g:center>
             </g:DockLayoutPanel>
         </g:tab>
+        <g:tab>
+            <g:header>项目活动</g:header>
+            <g:HTMLPanel/>
+        </g:tab>
+        <g:tab>
+            <g:header>项目问题</g:header>
+            <g:HTMLPanel/>
+        </g:tab>
+
         <g:tab>
             <g:header>项目资源</g:header>
             <g:HTMLPanel/>

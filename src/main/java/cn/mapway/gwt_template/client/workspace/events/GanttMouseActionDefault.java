@@ -430,6 +430,9 @@ public class GanttMouseActionDefault implements IMouseHandler {
                     } else {
                         addSubTask(selectItem);
                     }
+                } else {
+                    //创建一个根任务
+                    addTask(null);
                 }
                 break;
             case KeyCodes.KEY_LEFT:
