@@ -324,6 +324,9 @@ public class ProjectService {
         if (Strings.isBlank(workspace.getSummary())) {
             workspace.setSummary(workspace.getName());
         }
+        if (Strings.isBlank(workspace.getIcon())) {
+            workspace.setIcon("img/default_workspace.png");
+        }
 
         dao.insert(workspace);
 
