@@ -9,7 +9,7 @@ import cn.mapway.gwt_template.shared.db.DevProjectTeamEntity;
 import cn.mapway.gwt_template.shared.db.DevProjectTeamMemberEntity;
 import cn.mapway.gwt_template.shared.rpc.project.UpdateProjectMemberRequest;
 import cn.mapway.gwt_template.shared.rpc.project.UpdateProjectMemberResponse;
-import cn.mapway.gwt_template.shared.rpc.user.CommonPermission;
+import cn.mapway.gwt_template.shared.rpc.project.module.ProjectPermission;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
 import cn.mapway.rbac.shared.db.postgis.RbacUserEntity;
 import lombok.extern.slf4j.Slf4j;
@@ -174,7 +174,7 @@ public class UpdateProjectMemberExecutor extends AbstractBizExecutor<UpdateProje
             member.setSummary("");
             member.setUserId(userId);
             member.setCreateTime(new Timestamp(System.currentTimeMillis()));
-            member.setPermission(CommonPermission.fromPermission(0).getPermission());
+            member.setPermission(ProjectPermission.from(null).setRead(true).toString());
             dao.insert(member);
         }
         return BizResult.success(true);

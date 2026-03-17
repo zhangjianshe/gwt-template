@@ -187,6 +187,9 @@ public class ServerStartedOnce extends ApplicationObjectSupport implements IServ
         if (Strings.isNotBlank(appConfig.getCertRoot())) {
             Files.createDirIfNoExists(appConfig.getCertRoot());
         }
+        if (Strings.isNotBlank(appConfig.getProjectResRoot())) {
+            Files.createDirIfNoExists(appConfig.getProjectResRoot());
+        }
         //创建一些必要的账户
         //公共信箱帐号
         String userName = AppConstant.USER_BROADCAST_NAME;

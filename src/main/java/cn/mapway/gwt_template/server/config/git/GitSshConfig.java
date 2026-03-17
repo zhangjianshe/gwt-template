@@ -139,7 +139,7 @@ public class GitSshConfig {
 
                 if ((isPush && !perm.canWrite()) || (!isPush && !perm.canRead())) {
                     String reason = "User " + userPublicKey.getUserName() + " (ID: " + userPublicKey.getUserId() +
-                            ") has no " + (isPush ? "WRITE" : "READ") + " access to " + owner + "/" + project;
+                            ") has no " + (isPush ? "UPDATE" : "READ") + " access to " + owner + "/" + project;
                     return createErrorCommand("[ACCESS DENIED] " + reason, 1);
                 }
 

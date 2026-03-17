@@ -1,0 +1,35 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+    <ui:style>
+        .box {
+            display: grid;
+            grid-template-columns: 26px 1fr 80px;
+            line-height: 30px;
+            align-items: center;
+            padding: 0 4px;
+        }
+
+        .box:HOVER {
+            background-color: skyblue;
+        }
+
+        .icon {
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .size {
+            justify-self: flex-end;
+            font-size: 12px;
+            color: #666;
+        }</ui:style>
+    <g:HTMLPanel ui:field="root" addStyleNames="{style.box}">
+        <g:Label ui:field="lbIcon" addStyleNames="{style.icon}"/>
+        <g:Label ui:field="lbName"/>
+        <g:HTMLPanel ui:field="right">
+            <g:Label ui:field="lbSize" addStyleNames="{style.size}"/>
+        </g:HTMLPanel>
+    </g:HTMLPanel>
+</ui:UiBinder>

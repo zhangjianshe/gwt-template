@@ -53,8 +53,8 @@ public class DevProjectTeamMemberEntity implements Serializable, IsSerializable 
 
     @Column(FLD_PERMISSION)
     @Comment("成员在组内的权限级别")
-    @Default("0")
-    Integer permission;
+    @Default("0000000000")
+    String permission;
 
     @Column(FLD_CREATE_TIME)
     @Comment("加入时间")

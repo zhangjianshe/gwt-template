@@ -4,7 +4,12 @@ import cn.mapway.biz.core.BizRequest;
 import cn.mapway.biz.core.BizResult;
 import cn.mapway.document.annotation.Doc;
 import cn.mapway.gwt_template.server.service.project.*;
+import cn.mapway.gwt_template.server.service.project.UploadProjectFilesExecutor;
+import cn.mapway.gwt_template.server.service.project.res.*;
 import cn.mapway.gwt_template.shared.rpc.project.*;
+import cn.mapway.gwt_template.shared.rpc.project.UploadProjectFilesRequest;
+import cn.mapway.gwt_template.shared.rpc.project.UploadProjectFilesResponse;
+import cn.mapway.gwt_template.shared.rpc.project.res.*;
 import cn.mapway.gwt_template.shared.rpc.workspace.ExportDevProjectTaskRequest;
 import cn.mapway.gwt_template.shared.rpc.workspace.ExportDevProjectTaskResponse;
 import cn.mapway.gwt_template.shared.rpc.workspace.ImportDevProjectTaskRequest;
@@ -97,9 +102,148 @@ public class DevProjectController extends ApiBaseController {
     ImportDevProjectTaskExecutor importDevProjectTaskExecutor;
     @Resource
     ExportDevProjectTaskExecutor exportDevProjectTaskExecutor;
-
     @Resource
     QueryTemplateProjectExecutor queryTemplateProjectExecutor;
+
+    @Resource
+    UpdateProjectResourceExecutor updateProjectResourceExecutor;
+    @Resource
+    DeleteProjectResourceExecutor deleteProjectResourceExecutor;
+    @Resource
+    CreateProjectDirFileExecutor createProjectDirFileExecutor;
+    @Resource
+    DeleteProjectDirFileExecutor deleteProjectDirFileExecutor;
+    @Resource
+    QueryProjectDirExecutor queryProjectDirExecutor;
+    @Resource
+    ViewProjectFileExecutor viewProjectFileExecutor;
+
+    @Resource
+    QueryResourceMemberExecutor queryResourceMemberExecutor;
+
+    @Resource
+    AddResourceMemberExecutor addResourceMemberExecutor;
+    /**
+     * AddResourceMember
+     *
+     * @param request request
+     * @return data
+     */
+    @Doc(value = "AddResourceMember", retClazz = {AddResourceMemberResponse.class})
+    @RequestMapping(value = "/addResourceMember", method = RequestMethod.POST)
+    public RpcResult<AddResourceMemberResponse> addResourceMember(@RequestBody AddResourceMemberRequest request) {
+        BizResult<AddResourceMemberResponse> bizResult = addResourceMemberExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toApiResult(bizResult);
+    }
+    @Resource
+    DeleteResourceMemberExecutor deleteResourceMemberExecutor;
+    /**
+     * DeleteResourceMember
+     *
+     * @param request request
+     * @return data
+     */
+    @Doc(value = "DeleteResourceMember", retClazz = {DeleteResourceMemberResponse.class})
+    @RequestMapping(value = "/deleteResourceMember", method = RequestMethod.POST)
+    public RpcResult<DeleteResourceMemberResponse> deleteResourceMember(@RequestBody DeleteResourceMemberRequest request) {
+        BizResult<DeleteResourceMemberResponse> bizResult = deleteResourceMemberExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toApiResult(bizResult);
+    }
+
+
+    /**
+     * QueryResourceMember
+     *
+     * @param request request
+     * @return data
+     */
+    @Doc(value = "QueryResourceMember", retClazz = {QueryResourceMemberResponse.class})
+    @RequestMapping(value = "/queryResourceMember", method = RequestMethod.POST)
+    public RpcResult<QueryResourceMemberResponse> queryResourceMember(@RequestBody QueryResourceMemberRequest request) {
+        BizResult<QueryResourceMemberResponse> bizResult = queryResourceMemberExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toApiResult(bizResult);
+    }
+
+
+    /**
+     * UpdateProjectResource
+     *
+     * @param request request
+     * @return data
+     */
+    @Doc(value = "UpdateProjectResource", retClazz = {UpdateProjectResourceResponse.class})
+    @RequestMapping(value = "/updateProjectResource", method = RequestMethod.POST)
+    public RpcResult<UpdateProjectResourceResponse> updateProjectResource(@RequestBody UpdateProjectResourceRequest request) {
+        BizResult<UpdateProjectResourceResponse> bizResult = updateProjectResourceExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toApiResult(bizResult);
+    }
+
+    /**
+     * DeleteProjectResource
+     *
+     * @param request request
+     * @return data
+     */
+    @Doc(value = "DeleteProjectResource", retClazz = {DeleteProjectResourceResponse.class})
+    @RequestMapping(value = "/deleteProjectResource", method = RequestMethod.POST)
+    public RpcResult<DeleteProjectResourceResponse> deleteProjectResource(@RequestBody DeleteProjectResourceRequest request) {
+        BizResult<DeleteProjectResourceResponse> bizResult = deleteProjectResourceExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toApiResult(bizResult);
+    }
+
+    /**
+     * CreateProjectDirFile
+     *
+     * @param request request
+     * @return data
+     */
+    @Doc(value = "CreateProjectDirFile", retClazz = {CreateProjectDirFileResponse.class})
+    @RequestMapping(value = "/createProjectDirFile", method = RequestMethod.POST)
+    public RpcResult<CreateProjectDirFileResponse> createProjectDirFile(@RequestBody CreateProjectDirFileRequest request) {
+        BizResult<CreateProjectDirFileResponse> bizResult = createProjectDirFileExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toApiResult(bizResult);
+    }
+
+    /**
+     * DeleteProjectDirFile
+     *
+     * @param request request
+     * @return data
+     */
+    @Doc(value = "DeleteProjectDirFile", retClazz = {DeleteProjectDirFileResponse.class})
+    @RequestMapping(value = "/deleteProjectDirFile", method = RequestMethod.POST)
+    public RpcResult<DeleteProjectDirFileResponse> deleteProjectDirFile(@RequestBody DeleteProjectDirFileRequest request) {
+        BizResult<DeleteProjectDirFileResponse> bizResult = deleteProjectDirFileExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toApiResult(bizResult);
+    }
+
+
+    /**
+     * QueryProjectDir
+     *
+     * @param request request
+     * @return data
+     */
+    @Doc(value = "QueryProjectDir", retClazz = {QueryProjectDirResponse.class})
+    @RequestMapping(value = "/queryProjectDir", method = RequestMethod.POST)
+    public RpcResult<QueryProjectDirResponse> queryProjectDir(@RequestBody QueryProjectDirRequest request) {
+        BizResult<QueryProjectDirResponse> bizResult = queryProjectDirExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toApiResult(bizResult);
+    }
+
+    /**
+     * ViewProjectFile
+     *
+     * @param request request
+     * @return data
+     */
+    @Doc(value = "ViewProjectFile", retClazz = {ViewProjectFileResponse.class})
+    @RequestMapping(value = "/viewProjectFile", method = RequestMethod.POST)
+    public RpcResult<ViewProjectFileResponse> viewProjectFile(@RequestBody ViewProjectFileRequest request) {
+        BizResult<ViewProjectFileResponse> bizResult = viewProjectFileExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toApiResult(bizResult);
+    }
+
     /**
      * QueryTemplateProject
      *

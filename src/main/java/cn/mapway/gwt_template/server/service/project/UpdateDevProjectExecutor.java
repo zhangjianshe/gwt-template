@@ -11,7 +11,7 @@ import cn.mapway.gwt_template.shared.db.DevProjectTeamEntity;
 import cn.mapway.gwt_template.shared.db.DevWorkspaceFolderEntity;
 import cn.mapway.gwt_template.shared.rpc.project.UpdateDevProjectRequest;
 import cn.mapway.gwt_template.shared.rpc.project.UpdateDevProjectResponse;
-import cn.mapway.gwt_template.shared.rpc.user.CommonPermission;
+import cn.mapway.gwt_template.shared.rpc.project.module.ProjectPermission;
 import cn.mapway.gwt_template.shared.rpc.user.ResourcePoint;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
 import cn.mapway.rbac.server.service.RbacUserService;
@@ -144,7 +144,7 @@ public class UpdateDevProjectExecutor extends AbstractBizExecutor<UpdateDevProje
                         dao.insert(newTeams);
                         String adminTeamId = newTeams.get(0).getId();
                         dao.update(DevProjectTeamEntity.class, Chain.make(DevProjectTeamEntity.FLD_CHARGER, currentUserId), Cnd.where(DevProjectTeamEntity.FLD_ID, "=", adminTeamId));
-                        projectService.addUserToTeam(project.getId(), adminTeamId, currentUserId, CommonPermission.fromPermission(0).setAll().getPermission(), "创建者");
+                        projectService.addUserToTeam(project.getId(), adminTeamId, currentUserId, ProjectPermission.owner().toString(), "创建者");
 
                     } else {
                         // 初始化小组树
@@ -152,7 +152,7 @@ public class UpdateDevProjectExecutor extends AbstractBizExecutor<UpdateDevProje
 
                         // 设置负责人并加入成员
                         dao.update(DevProjectTeamEntity.class, Chain.make(DevProjectTeamEntity.FLD_CHARGER, currentUserId), Cnd.where(DevProjectTeamEntity.FLD_ID, "=", adminTeamId));
-                        projectService.addUserToTeam(project.getId(), adminTeamId, currentUserId, CommonPermission.fromPermission(0).setAll().getPermission(), "创建者");
+                        projectService.addUserToTeam(project.getId(), adminTeamId, currentUserId, ProjectPermission.owner().toString(), "创建者");
 
                     }
 
@@ -162,7 +162,7 @@ public class UpdateDevProjectExecutor extends AbstractBizExecutor<UpdateDevProje
 
                     // 设置负责人并加入成员
                     dao.update(DevProjectTeamEntity.class, Chain.make(DevProjectTeamEntity.FLD_CHARGER, currentUserId), Cnd.where(DevProjectTeamEntity.FLD_ID, "=", adminTeamId));
-                    projectService.addUserToTeam(project.getId(), adminTeamId, currentUserId, CommonPermission.fromPermission(0).setAll().getPermission(), "创建者");
+                    projectService.addUserToTeam(project.getId(), adminTeamId, currentUserId, ProjectPermission.owner().toString(), "创建者");
 
                     // 创建子小组
                     projectService.createProjectTeam(project.getId(), adminTeamId, "产品组", 0x0008, "#1890FF", "需求与原型");

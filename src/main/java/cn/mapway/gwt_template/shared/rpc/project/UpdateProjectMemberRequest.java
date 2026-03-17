@@ -25,6 +25,6 @@ public class UpdateProjectMemberRequest implements Serializable, IsSerializable 
     Long userId;
     String targetTeamId;
     
-    Integer permission;
+    String permission;
     String summary;
 }

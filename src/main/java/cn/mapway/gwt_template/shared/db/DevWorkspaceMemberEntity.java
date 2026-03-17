@@ -54,6 +54,6 @@ public class DevWorkspaceMemberEntity implements Serializable, IsSerializable {
     @Column(FLD_PERMISSION)
     @Comment("权限等级")
     @ColDefine(notNull = true)
-    @Default("0")
-    Integer permission;
+    @Default("00000000000")
+    String permission;
 }

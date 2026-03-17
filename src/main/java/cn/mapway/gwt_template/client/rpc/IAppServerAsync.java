@@ -7,6 +7,9 @@ import cn.mapway.gwt_template.shared.rpc.dns.*;
 import cn.mapway.gwt_template.shared.rpc.ldap.*;
 import cn.mapway.gwt_template.shared.rpc.message.*;
 import cn.mapway.gwt_template.shared.rpc.project.*;
+import cn.mapway.gwt_template.shared.rpc.project.UploadProjectFilesRequest;
+import cn.mapway.gwt_template.shared.rpc.project.UploadProjectFilesResponse;
+import cn.mapway.gwt_template.shared.rpc.project.res.*;
 import cn.mapway.gwt_template.shared.rpc.repository.*;
 import cn.mapway.gwt_template.shared.rpc.soft.*;
 import cn.mapway.gwt_template.shared.rpc.user.*;
@@ -23,6 +26,27 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public interface IAppServerAsync {
 
     ///CODE_GEN_INSERT_POINT///
+	void deleteResourceMember(DeleteResourceMemberRequest request, AsyncCallback<RpcResult<DeleteResourceMemberResponse>> async);
+
+	void addResourceMember(AddResourceMemberRequest request, AsyncCallback<RpcResult<AddResourceMemberResponse>> async);
+
+	void queryResourceMember(QueryResourceMemberRequest request, AsyncCallback<RpcResult<QueryResourceMemberResponse>> async);
+
+	void viewProjectFile(ViewProjectFileRequest request, AsyncCallback<RpcResult<ViewProjectFileResponse>> async);
+
+	void queryProjectDir(QueryProjectDirRequest request, AsyncCallback<RpcResult<QueryProjectDirResponse>> async);
+
+
+	void deleteProjectDirFile(DeleteProjectDirFileRequest request, AsyncCallback<RpcResult<DeleteProjectDirFileResponse>> async);
+
+	void createProjectDirFile(CreateProjectDirFileRequest request, AsyncCallback<RpcResult<CreateProjectDirFileResponse>> async);
+
+	void deleteProjectResource(DeleteProjectResourceRequest request, AsyncCallback<RpcResult<DeleteProjectResourceResponse>> async);
+
+	void updateProjectResource(UpdateProjectResourceRequest request, AsyncCallback<RpcResult<UpdateProjectResourceResponse>> async);
+
+	void queryProjectResource(QueryProjectResourceRequest request, AsyncCallback<RpcResult<QueryProjectResourceResponse>> async);
+
 
 	void registerUser(RegisterUserRequest request, AsyncCallback<RpcResult<RegisterUserResponse>> async);
 

@@ -49,4 +49,14 @@ public interface AppCss extends CssResource {
     String mainBackground();
 
     String menuItemDisabled();
+
+    String boldLink();
+
+    String normalLink();
+
+    @ClassName("popup-header")
+    String popupHeader();
+
+    @ClassName("popup-top-panel")
+    String popupHeaderPanel();
 }

@@ -8,6 +8,9 @@ import cn.mapway.gwt_template.shared.rpc.dns.*;
 import cn.mapway.gwt_template.shared.rpc.ldap.*;
 import cn.mapway.gwt_template.shared.rpc.message.*;
 import cn.mapway.gwt_template.shared.rpc.project.*;
+import cn.mapway.gwt_template.shared.rpc.project.UploadProjectFilesRequest;
+import cn.mapway.gwt_template.shared.rpc.project.UploadProjectFilesResponse;
+import cn.mapway.gwt_template.shared.rpc.project.res.*;
 import cn.mapway.gwt_template.shared.rpc.repository.*;
 import cn.mapway.gwt_template.shared.rpc.soft.*;
 import cn.mapway.gwt_template.shared.rpc.user.*;
@@ -25,6 +28,26 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 @RemoteServiceRelativePath(AppConstant.DEFAULT_SERVER_PATH)
 public interface IAppServer extends RemoteService {
     ///CODE_GEN_INSERT_POINT///
+	RpcResult<DeleteResourceMemberResponse> deleteResourceMember(DeleteResourceMemberRequest request);
+
+	RpcResult<AddResourceMemberResponse> addResourceMember(AddResourceMemberRequest request);
+
+	RpcResult<QueryResourceMemberResponse> queryResourceMember(QueryResourceMemberRequest request);
+
+	RpcResult<ViewProjectFileResponse> viewProjectFile(ViewProjectFileRequest request);
+
+	RpcResult<QueryProjectDirResponse> queryProjectDir(QueryProjectDirRequest request);
+
+	RpcResult<DeleteProjectDirFileResponse> deleteProjectDirFile(DeleteProjectDirFileRequest request);
+
+	RpcResult<CreateProjectDirFileResponse> createProjectDirFile(CreateProjectDirFileRequest request);
+
+	RpcResult<DeleteProjectResourceResponse> deleteProjectResource(DeleteProjectResourceRequest request);
+
+	RpcResult<UpdateProjectResourceResponse> updateProjectResource(UpdateProjectResourceRequest request);
+
+	RpcResult<QueryProjectResourceResponse> queryProjectResource(QueryProjectResourceRequest request);
+
     RpcResult<RegisterUserResponse> registerUser(RegisterUserRequest request);
 
     RpcResult<QueryTemplateProjectResponse> queryTemplateProject(QueryTemplateProjectRequest request);

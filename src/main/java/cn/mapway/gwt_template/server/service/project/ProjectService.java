@@ -1,7 +1,10 @@
 package cn.mapway.gwt_template.server.service.project;
 
 import cn.mapway.biz.core.BizResult;
+import cn.mapway.gwt_template.server.service.config.SystemConfigService;
+import cn.mapway.gwt_template.server.service.file.FileCustomUtils;
 import cn.mapway.gwt_template.shared.db.*;
+import cn.mapway.gwt_template.shared.rpc.project.module.ProjectPermission;
 import cn.mapway.gwt_template.shared.rpc.user.CommonPermission;
 import cn.mapway.rbac.shared.db.postgis.RbacUserEntity;
 import cn.mapway.ui.client.IUserInfo;
@@ -34,6 +37,8 @@ import java.util.Map;
 public class ProjectService {
     @Resource
     Dao dao;
+    @Resource
+    SystemConfigService systemConfigService;
 
     public BizResult<Boolean> checkWorkspaceAdmin(Long userId, String workspaceId) {
         DevWorkspaceMemberEntity member = dao.fetch(DevWorkspaceMemberEntity.class, Cnd.where(DevWorkspaceMemberEntity.FLD_WORKSPACE_ID, "=", workspaceId)
@@ -162,7 +167,7 @@ public class ProjectService {
      * @param userId     用户ID
      * @param permission 角色描述 (例如 "OWNER", "LEADER", "MEMBER")
      */
-    public void addUserToTeam(String projectId, String teamId, Long userId, Integer permission, String summary) {
+    public void addUserToTeam(String projectId, String teamId, Long userId, String permission, String summary) {
         if (Strings.isBlank(teamId) || userId == null) {
             return;
         }
@@ -336,8 +341,16 @@ public class ProjectService {
         member.setWorkspaceId(workspace.getId());
         member.setCreateTime(workspace.getCreateTime());
         member.setIsOwner(true);
-        member.setPermission(CommonPermission.fromPermission(0).setAll().getPermission());
+        member.setPermission(ProjectPermission.from("").setOwner().toString());
         dao.insert(member);
+    }
+
+    public BizResult<String> getResourceAbsolutePath(DevProjectResourceEntity resource) {
+        if (resource == null || Strings.isBlank(resource.getId()) || resource.getId().length() < 6) {
+            return BizResult.error(500, "没有提供合适的资源信息");
+        }
+        String s = FileCustomUtils.concatPath(systemConfigService.getProjectResourceRootPath(), resource.getId().substring(0, 2), resource.getId().substring(2));
+        return BizResult.success(s);
     }
 
     /**
@@ -553,5 +566,46 @@ public class ProjectService {
                 ws.setUserName("未知用户");
             }
         }
+    }
+
+    /**
+     * 检查 currentUserId 是否在任务链上
+     *
+     * @param currentUserId
+     * @param parentTaskId
+     * @return
+     */
+    public BizResult<Boolean> isTaskManager(String projectId, Long currentUserId, String parentTaskId) {
+        return BizResult.success(true);
+    }
+
+    public ProjectPermission findUserPermissionInProject(Long userId, String projectId) {
+        ProjectPermission permission = ProjectPermission.empty();
+        // 必须指定 userId，否则会查出项目中所有人的权限汇总
+        Cnd where = Cnd.where(DevProjectTeamMemberEntity.FLD_USER_ID, "=", userId)
+                .and(DevProjectTeamMemberEntity.FLD_PROJECT_ID, "=", projectId);
+
+        List<DevProjectTeamMemberEntity> members = dao.query(DevProjectTeamMemberEntity.class, where);
+        for (DevProjectTeamMemberEntity m : members) {
+            permission.merge(m.getPermission());
+        }
+        return permission;
+    }
+
+    public ProjectPermission findUserPermissionInProjectResource(Long userId, String resourceId) {
+        Cnd where = Cnd.where(DevProjectResourceMemberEntity.FLD_USER_ID, "=", userId)
+                .and(DevProjectResourceMemberEntity.FLD_RESOURCE_ID, "=", resourceId);
+        DevProjectResourceMemberEntity resourceMember = dao.fetch(DevProjectResourceMemberEntity.class, where);
+        if (resourceMember == null) {
+            return ProjectPermission.empty();
+        } else {
+            return ProjectPermission.from(resourceMember.getPermission());
+        }
+    }
+
+    public DevProjectEntity findProject(String projectId) {
+        DevProjectEntity project= dao.fetch(DevProjectEntity.class, Cnd.where(DevProjectEntity.FLD_ID, "=", projectId));
+        fillProjectExtraInformation(project);
+        return project;
     }
 }

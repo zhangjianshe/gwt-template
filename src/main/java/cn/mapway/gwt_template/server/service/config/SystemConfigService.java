@@ -146,4 +146,13 @@ public class SystemConfigService implements EnvironmentAware {
     public AppData getAppData() {
         return getConfigFromKeyAsObject(ConfigEnums.CONFIG_APP.getCode(), AppData.class);
     }
+
+    /**
+     * 项目资源的根路径
+     *
+     * @return
+     */
+    public String getProjectResourceRootPath() {
+        return appConfig.getProjectResRoot();
+    }
 }

@@ -1,0 +1,17 @@
+package cn.mapway.gwt_template.shared.rpc.project.res;
+
+import cn.mapway.document.annotation.Doc;
+import com.google.gwt.user.client.rpc.IsSerializable;
+import lombok.Data;
+
+import java.io.Serializable;
+
+/**
+ * AddResourceMemberResponse
+ *
+ * @author zhangjianshe@gmail.com
+ */
+@Data
+@Doc("AddResourceMemberResponse")
+public class AddResourceMemberResponse implements Serializable, IsSerializable {
+}

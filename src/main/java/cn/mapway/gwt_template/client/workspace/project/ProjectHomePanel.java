@@ -2,6 +2,7 @@ package cn.mapway.gwt_template.client.workspace.project;
 
 import cn.mapway.gwt_template.client.resource.AppResource;
 import cn.mapway.gwt_template.client.workspace.gantt.GanttWidget;
+import cn.mapway.gwt_template.client.workspace.res.ProjectResourcePanel;
 import cn.mapway.gwt_template.shared.db.DevProjectEntity;
 import cn.mapway.ui.client.mvc.IToolsProvider;
 import cn.mapway.ui.client.tools.IData;
@@ -33,6 +34,8 @@ public class ProjectHomePanel extends CommonEventComposite implements IToolsProv
     ProjectCard projectCard;
     @UiField
     GanttWidget gantt;
+    @UiField
+    ProjectResourcePanel projectResource;
     private DevProjectEntity project;
     private boolean teamDataLoaded = false; // 懒加载标志位
 
@@ -50,6 +53,8 @@ public class ProjectHomePanel extends CommonEventComposite implements IToolsProv
             } else if (index == TAB_TASK) {
                 gantt.setData(project.getId());
                 gantt.setFocus(true);
+            } else if (index == TAB_RESOURCE) {
+                projectResource.setData(project.getId());
             }
         });
     }

@@ -1,3 +1,5 @@
+@external popup-header, popup-top-panel;
+
 /* 表格基础样式：消除单元格间隙并设置折叠边框 */
 .table {
     width: 100%;
@@ -139,6 +141,7 @@
     margin: 6px 12px;
     overflow: hidden;
 }
+
 /* 禁用的菜单项 */
 .menuItemDisabled {
     color: #999 !important;
@@ -150,15 +153,15 @@
 }
 
 .primaryText {
-    color: #1890ff;       /* 品牌蓝 */
-    font-weight: 600;      /* 加粗 */
-    cursor: pointer;       /* 提示可点击 */
+    color: #1890ff; /* 品牌蓝 */
+    font-weight: 600; /* 加粗 */
+    cursor: pointer; /* 提示可点击 */
     font-size: 14px;
     transition: color 0.2s ease;
 }
 
 .primaryText:hover {
-    color: #40a9ff;       /* 悬停时变浅 */
+    color: #40a9ff; /* 悬停时变浅 */
     text-decoration: underline; /* 增加下划线暗示链接属性 */
 }
 
@@ -167,7 +170,8 @@
     color: #8c8c8c;
     font-size: 12px;
 }
-.mainBackground{
+
+.mainBackground {
     background-image: url("/img/desktop.png");
     background-size: cover;
     background-position: center;
@@ -177,4 +181,36 @@
     /* 增加一个极淡的蓝色渐变叠加，提升科技感 */
     background-blend-mode: overlay;
     background-color: rgba(230, 235, 245, 0.6);
+}
+
+.boldLink {
+    font-weight: bold;
+    border-radius: 4px;
+    padding: 6px;
+}
+
+.boldLink:HOVER {
+    background-color: skyblue;
+
+}
+
+.normalLink {
+    border-radius: 4px;
+    padding: 6px;
+}
+
+.normalLink:HOVER {
+    background-color: skyblue;
+}
+
+.popup-header {
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.popup-top-panel {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 0 10px;
 }

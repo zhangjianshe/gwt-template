@@ -15,4 +15,5 @@ public class AppConfig {
     private String repoRoot;
     private Integer sshPort;
     private String uploadRoot;
+    private String projectResRoot;
 }

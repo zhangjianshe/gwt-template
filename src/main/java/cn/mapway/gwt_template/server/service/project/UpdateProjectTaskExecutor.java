@@ -66,8 +66,7 @@ public class UpdateProjectTaskExecutor extends AbstractBizExecutor<UpdateProject
                 task.setStatus(DevTaskStatus.DTS_CREATED.getCode());
             }
         } else {
-            if(Strings.isBlank(task.getName()))
-            {
+            if (Strings.isBlank(task.getName())) {
                 //不能修改名称为空
                 task.setName(null);
             }
@@ -79,6 +78,15 @@ public class UpdateProjectTaskExecutor extends AbstractBizExecutor<UpdateProject
         if (task.getCharger() != null) {
             assertTrue(projectService.isMemberOfProject(task.getCharger(), task.getProjectId()), "指定的负责人不是该项目的成员");
         }
+
+        if (isNew) {
+            //创建合法性 1.如果是根节点只允许 项目创建人操作 否则 父任务是否是自己负责的 只有自己负责的才可以创建子任务
+            BizResult<Boolean> result = projectService.isTaskManager(project.getId(), currentUserId, task.getParentId());
+            if (!result.isSuccess() || !result.getData()) {
+                return result.asBizResult();
+            }
+        }
+
 
         // 3. 执行核心事务
         Trans.exec(() -> {
