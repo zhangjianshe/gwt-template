@@ -1,0 +1,25 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+    <ui:style>
+        .container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .image {
+            padding: 5px;
+            border-bottom: solid 1px #e0e0e0;
+            max-height: 80%;
+        }
+    </ui:style>
+    <g:LayoutPanel>
+        <g:layer>
+            <g:HTMLPanel addStyleNames="{style.container}">
+                <g:Image ui:field="image" addStyleNames="{style.image}">
+
+                </g:Image>
+            </g:HTMLPanel>
+        </g:layer>
+    </g:LayoutPanel>
+</ui:UiBinder>

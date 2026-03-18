@@ -17,4 +17,5 @@ import java.util.List;
 @Doc("QueryResourceMemberResponse")
 public class QueryResourceMemberResponse implements Serializable, IsSerializable {
     List<ResourceMember> members;
+    String currentPermission;
 }

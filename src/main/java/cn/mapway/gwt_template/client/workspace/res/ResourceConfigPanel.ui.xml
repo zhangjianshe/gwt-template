@@ -2,9 +2,9 @@
              xmlns:g='urn:import:com.google.gwt.user.client.ui' xmlns:widget="urn:import:cn.mapway.ui.client.widget">
     <ui:style>
         .box {
-            display: grid;
-            grid-template-columns: 100px 1fr 160px 90px;
+            display: flex;
             align-items: center;
+            justify-content: space-between;
             gap: 0.5rem;
             padding: 0 20px;
             height: 100%;
@@ -18,9 +18,12 @@
         </g:north>
         <g:north size="70">
             <g:HTMLPanel addStyleNames="{style.box}">
-                <widget:Header>资源目录名称</widget:Header>
+                <widget:Header>分类名称</widget:Header>
                 <widget:AiTextBox ui:field="txtName"/>
-                <widget:AiTextBox ui:field="txtColor"/>
+                <widget:Header>颜色</widget:Header>
+                <widget:AiTextBox ui:field="txtColor" width="120px"/>
+                <widget:Header>排序</widget:Header>
+                <widget:AiTextBox ui:field="txtRank" width="50px"/>
                 <g:Button ui:field="btnSave">保存</g:Button>
             </g:HTMLPanel>
         </g:north>

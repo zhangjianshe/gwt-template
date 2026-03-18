@@ -1,0 +1,166 @@
+package cn.mapway.gwt_template.client.workspace.view;
+
+import cn.mapway.gwt_template.client.rpc.AppProxy;
+import cn.mapway.gwt_template.client.workspace.res.FileEditorMode;
+import cn.mapway.gwt_template.client.workspace.res.viewer.ImageViewer;
+import cn.mapway.gwt_template.client.workspace.res.viewer.InfoViewer;
+import cn.mapway.gwt_template.client.workspace.res.viewer.TextEditViewer;
+import cn.mapway.gwt_template.shared.rpc.file.ImageFileSuffix;
+import cn.mapway.gwt_template.shared.rpc.file.OfficeFileSuffix;
+import cn.mapway.gwt_template.shared.rpc.project.res.ViewProjectFileRequest;
+import cn.mapway.gwt_template.shared.rpc.project.res.ViewProjectFileResponse;
+import cn.mapway.ui.client.util.StringUtil;
+import cn.mapway.ui.client.widget.CommonEventComposite;
+import cn.mapway.ui.client.widget.Header;
+import cn.mapway.ui.shared.rpc.RpcResult;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.Style;
+import com.google.gwt.uibinder.client.UiBinder;
+import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.*;
+
+import java.util.Objects;
+
+/**
+ * 文件预览操作
+ */
+public class FilePreview extends CommonEventComposite {
+    private static final FilePreviewUiBinder ourUiBinder = GWT.create(FilePreviewUiBinder.class);
+
+
+    @UiField
+    HorizontalPanel toolBar;
+    @UiField
+    Header lbName;
+    @UiField
+    LayoutPanel contentPanel;
+    Widget currentWidget = null;
+    InfoViewer infoViewer;
+    TextEditViewer textEditViewer;
+    boolean enableSave = false;
+    ImageViewer imageViewer;
+    Frame frameViewer;
+
+    public FilePreview() {
+        initWidget(ourUiBinder.createAndBindUi(this));
+    }
+
+    public void enableSave(boolean enable) {
+        this.enableSave = enable;
+    }
+
+    public void preview(String resourceId, String fileName) {
+        ViewProjectFileRequest request = new ViewProjectFileRequest();
+        request.setResourceId(resourceId);
+        request.setRelPathName(fileName);
+        lbName.setText(StringUtil.extractName(fileName));
+        AppProxy.get().viewProjectFile(request, new AsyncCallback<RpcResult<ViewProjectFileResponse>>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                switchMessage(caught.getMessage());
+            }
+
+            @Override
+            public void onSuccess(RpcResult<ViewProjectFileResponse> result) {
+                if (result.isSuccess()) {
+                    toolBar.clear();
+                    switchView(result.getData());
+                } else {
+                    switchMessage(result.getMessage());
+                }
+            }
+        });
+    }
+
+    private void switchEditor(ViewProjectFileResponse response, FileEditorMode mode) {
+        if (textEditViewer == null) {
+            textEditViewer = new TextEditViewer();
+        }
+        if (!Objects.equals(currentWidget, textEditViewer)) {
+            contentPanel.clear();
+            currentWidget = textEditViewer;
+            contentPanel.add(textEditViewer);
+        }
+        toolBar.add(textEditViewer.getTools());
+        textEditViewer.enableSave(enableSave);
+        textEditViewer.setEditorData(response, mode);
+    }
+
+    private void switchView(ViewProjectFileResponse data) {
+        lbName.setText(StringUtil.extractName(data.getFileName()));
+        String suffix = StringUtil.suffix(data.getFileName()).toLowerCase();
+        FileEditorMode fileEditorMode = FileEditorMode.fromSuffix(suffix);
+        if (fileEditorMode != FileEditorMode.NONE) {
+            switchEditor(data, fileEditorMode);
+        } else if (ImageFileSuffix.fromSuffix(suffix) != ImageFileSuffix.NONE) {
+            switchImageView(data);
+        } else if (OfficeFileSuffix.fromSuffix(suffix) != OfficeFileSuffix.NONE) {
+            switchFrameViewer(data);
+        } else {
+            switchMessage("不支持" + data.getMimeType());
+        }
+    }
+
+    private void switchFrameViewer(ViewProjectFileResponse data) {
+        if (frameViewer == null) {
+            frameViewer = new Frame();
+            frameViewer.setWidth("100%");
+            frameViewer.setHeight("100%");
+        }
+
+        // Always clear and re-add or ensure constraints are set
+        // to force LayoutPanel to treat it as a full-size child
+        if (!Objects.equals(currentWidget, frameViewer)) {
+            contentPanel.clear();
+            currentWidget = frameViewer;
+            contentPanel.add(frameViewer);
+            // These MUST be set for the widget to expand in a LayoutPanel
+            contentPanel.setWidgetTopBottom(frameViewer, 0, Style.Unit.PX, 0, Style.Unit.PX);
+            contentPanel.setWidgetLeftRight(frameViewer, 0, Style.Unit.PX, 0, Style.Unit.PX);
+            // This forces the LayoutPanel to recalculate child sizes immediately
+            contentPanel.forceLayout();
+
+        }
+
+
+        frameViewer.setWidth("100%");
+        frameViewer.setHeight("100%");
+
+        // Set the URL after the layout is triggered
+        frameViewer.setUrl(data.getBody());
+    }
+
+    private void switchImageView(ViewProjectFileResponse data) {
+        if (imageViewer == null) {
+            imageViewer = new ImageViewer();
+        }
+        if (!Objects.equals(currentWidget, imageViewer)) {
+            contentPanel.clear();
+            currentWidget = imageViewer;
+            contentPanel.add(imageViewer);
+        }
+        imageViewer.setData(data);
+    }
+
+    private void switchMessage(String message) {
+        toolBar.clear();
+        switchMessage("提示", message);
+    }
+
+    private void switchMessage(String header, String message) {
+        if (infoViewer == null) {
+            infoViewer = new InfoViewer();
+        }
+
+        if (!Objects.equals(currentWidget, infoViewer)) {
+            contentPanel.clear();
+            contentPanel.add(infoViewer);
+            currentWidget = infoViewer;
+        }
+        infoViewer.setMessage(header, message);
+    }
+
+    interface FilePreviewUiBinder extends UiBinder<DockLayoutPanel, FilePreview> {
+    }
+}

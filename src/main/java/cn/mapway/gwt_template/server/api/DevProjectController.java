@@ -1,26 +1,38 @@
 package cn.mapway.gwt_template.server.api;
 
+import cn.mapway.biz.api.ApiResult;
 import cn.mapway.biz.core.BizRequest;
 import cn.mapway.biz.core.BizResult;
 import cn.mapway.document.annotation.Doc;
+import cn.mapway.gwt_template.server.service.file.CommonFileUploadExecutor;
+import cn.mapway.gwt_template.server.service.file.FileCustomUtils;
 import cn.mapway.gwt_template.server.service.project.*;
-import cn.mapway.gwt_template.server.service.project.UploadProjectFilesExecutor;
 import cn.mapway.gwt_template.server.service.project.res.*;
+import cn.mapway.gwt_template.shared.AppConstant;
+import cn.mapway.gwt_template.shared.rpc.file.CommonFileUploadRequest;
+import cn.mapway.gwt_template.shared.rpc.file.CommonFileUploadResponse;
 import cn.mapway.gwt_template.shared.rpc.project.*;
-import cn.mapway.gwt_template.shared.rpc.project.UploadProjectFilesRequest;
-import cn.mapway.gwt_template.shared.rpc.project.UploadProjectFilesResponse;
+import cn.mapway.gwt_template.shared.rpc.project.module.ProjectPermission;
 import cn.mapway.gwt_template.shared.rpc.project.res.*;
+import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
 import cn.mapway.gwt_template.shared.rpc.workspace.ExportDevProjectTaskRequest;
 import cn.mapway.gwt_template.shared.rpc.workspace.ExportDevProjectTaskResponse;
 import cn.mapway.gwt_template.shared.rpc.workspace.ImportDevProjectTaskRequest;
 import cn.mapway.gwt_template.shared.rpc.workspace.ImportDevProjectTaskResponse;
 import cn.mapway.ui.shared.rpc.RpcResult;
+import org.nutz.lang.Streams;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.HandlerMapping;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 
 @Doc(value = "项目管理", group = "系统")
 @RestController
@@ -91,9 +103,7 @@ public class DevProjectController extends ApiBaseController {
     @Resource
     QueryProjectFilesExecutor queryProjectFilesExecutor;
     @Resource
-    UploadProjectFilesExecutor uploadProjectFilesExecutor;
-    @Resource
-    DeleteProjectFilesExecutor deleteProjectFilesExecutor;
+    UpdateProjectFileExecutor updateProjectFileExecutor;
     @Resource
     QueryProjectActionsExecutor queryProjectActionsExecutor;
     @Resource
@@ -123,6 +133,69 @@ public class DevProjectController extends ApiBaseController {
 
     @Resource
     AddResourceMemberExecutor addResourceMemberExecutor;
+    @Resource
+    CommonFileUploadExecutor commonFileUploadExecutor;
+    @Resource
+    ProjectService projectService;
+    // "/api/v1/projects/file/", request.getResourceId(), request.getRelPathName());
+    @Resource
+    DeleteResourceMemberExecutor deleteResourceMemberExecutor;
+
+    /**
+     * Read Content from resource file
+     *
+     * @return data
+     */
+    @Doc(value = "读取资源数据")
+    @RequestMapping(value = "file/{resourceId}/**", method = RequestMethod.GET)
+    public void readResourceData(@PathVariable("resourceId") String resourceId, HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        LoginUser loginUser = (LoginUser) getBizContext().get(AppConstant.KEY_LOGIN_USER);
+        Long operatorId = loginUser.getUser().getUserId();
+        ProjectPermission permission = projectService.findUserPermissionInProjectResource(operatorId, resourceId);
+        if (!(permission.isSuper() || permission.canRead())) {
+            resp.setContentType("text/plain");
+            resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            resp.getWriter().println("没有权限");
+            return;
+        }
+
+        // Better way to extract the path variable from the wildcard (/**)
+        String urlPart = (String) req.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
+        urlPart = urlPart.substring(urlPart.indexOf(resourceId) + resourceId.length());
+        urlPart = URLDecoder.decode(urlPart, StandardCharsets.UTF_8);
+        if (urlPart.contains("..")) {
+            resp.setContentType("text/plain");
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().println("request path error");
+            return;
+        }
+        BizResult<String> resourceAbsolutePath = projectService.getResourceAbsolutePath(resourceId);
+        if (!resourceAbsolutePath.isSuccess()) {
+            resp.setContentType("text/plain");
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            resp.getWriter().println(resourceAbsolutePath.getMessage());
+            return;
+        }
+        String absPath = FileCustomUtils.concatPath(resourceAbsolutePath.getData(), urlPart);
+        File target = new File(absPath);
+        if (!target.exists()) {
+            resp.setContentType("text/plain");
+            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            resp.getWriter().println("not found");
+            return;
+        }
+        resp.setContentType(Files.probeContentType(target.toPath()));
+        resp.setContentLength((int) target.length());
+// Force the browser to render inside the frame rather than downloading
+        resp.setHeader("Content-Disposition", "inline; filename=\"" +
+                URLEncoder.encode(target.getName(), StandardCharsets.UTF_8) + "\"");
+        resp.setStatus(HttpServletResponse.SC_OK);
+        // 3. Ensure X-Frame-Options allows your own site
+        resp.setHeader("X-Frame-Options", "SAMEORIGIN");
+        Streams.writeAndClose(resp.getOutputStream(), Streams.fileIn(target));
+
+    }
+
     /**
      * AddResourceMember
      *
@@ -135,8 +208,7 @@ public class DevProjectController extends ApiBaseController {
         BizResult<AddResourceMemberResponse> bizResult = addResourceMemberExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toApiResult(bizResult);
     }
-    @Resource
-    DeleteResourceMemberExecutor deleteResourceMemberExecutor;
+
     /**
      * DeleteResourceMember
      *
@@ -763,23 +835,20 @@ public class DevProjectController extends ApiBaseController {
      * @param request request
      * @return data
      */
-    @Doc(value = "UploadProjectFiles", retClazz = {UploadProjectFilesResponse.class})
-    @RequestMapping(value = "/uploadProjectFiles", method = RequestMethod.POST)
-    public RpcResult<UploadProjectFilesResponse> uploadProjectFiles(@RequestBody UploadProjectFilesRequest request) {
-        BizResult<UploadProjectFilesResponse> bizResult = uploadProjectFilesExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+    @Doc(value = "updateProjectFile", retClazz = {UpdateProjectFileResponse.class})
+    @RequestMapping(value = "/updateProjectFile", method = RequestMethod.POST)
+    public RpcResult<UpdateProjectFileResponse> uploadProjectFiles(@RequestBody UpdateProjectFileRequest request) {
+        BizResult<UpdateProjectFileResponse> bizResult = updateProjectFileExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toApiResult(bizResult);
     }
 
-    /**
-     * DeleteProjectFiles
-     *
-     * @param request request
-     * @return data
-     */
-    @Doc(value = "DeleteProjectFiles", retClazz = {DeleteProjectFilesResponse.class})
-    @RequestMapping(value = "/deleteProjectFiles", method = RequestMethod.POST)
-    public RpcResult<DeleteProjectFilesResponse> deleteProjectFiles(@RequestBody DeleteProjectFilesRequest request) {
-        BizResult<DeleteProjectFilesResponse> bizResult = deleteProjectFilesExecutor.execute(getBizContext(), BizRequest.wrap("", request));
-        return toApiResult(bizResult);
+    @RequestMapping("upload")
+    @Doc(value = "文件上传",
+            group = "/通用"
+    )
+    public ApiResult<CommonFileUploadResponse> commonFileUpload(CommonFileUploadRequest request, HttpServletRequest req) {
+        BizResult<CommonFileUploadResponse> execute = commonFileUploadExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return execute.toApiResult();
     }
+
 }

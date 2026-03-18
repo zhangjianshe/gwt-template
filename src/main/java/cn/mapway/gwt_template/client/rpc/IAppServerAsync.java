@@ -7,8 +7,8 @@ import cn.mapway.gwt_template.shared.rpc.dns.*;
 import cn.mapway.gwt_template.shared.rpc.ldap.*;
 import cn.mapway.gwt_template.shared.rpc.message.*;
 import cn.mapway.gwt_template.shared.rpc.project.*;
-import cn.mapway.gwt_template.shared.rpc.project.UploadProjectFilesRequest;
-import cn.mapway.gwt_template.shared.rpc.project.UploadProjectFilesResponse;
+import cn.mapway.gwt_template.shared.rpc.project.UpdateProjectFileRequest;
+import cn.mapway.gwt_template.shared.rpc.project.UpdateProjectFileResponse;
 import cn.mapway.gwt_template.shared.rpc.project.res.*;
 import cn.mapway.gwt_template.shared.rpc.repository.*;
 import cn.mapway.gwt_template.shared.rpc.soft.*;
@@ -62,9 +62,7 @@ public interface IAppServerAsync {
 
 	void queryProjectActions(QueryProjectActionsRequest request, AsyncCallback<RpcResult<QueryProjectActionsResponse>> async);
 
-	void deleteProjectFiles(DeleteProjectFilesRequest request, AsyncCallback<RpcResult<DeleteProjectFilesResponse>> async);
-
-	void uploadProjectFiles(UploadProjectFilesRequest request, AsyncCallback<RpcResult<UploadProjectFilesResponse>> async);
+	void updateProjectFile(UpdateProjectFileRequest request, AsyncCallback<RpcResult<UpdateProjectFileResponse>> async);
 
 	void queryProjectFiles(QueryProjectFilesRequest request, AsyncCallback<RpcResult<QueryProjectFilesResponse>> async);
 

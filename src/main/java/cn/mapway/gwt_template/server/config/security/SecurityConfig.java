@@ -40,6 +40,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
+                .headers()
+                .frameOptions()
+                .sameOrigin()
+                .and()
                 // CRSF禁用，因为不使用session
                 .csrf().disable()
                 // 认证失败处理类

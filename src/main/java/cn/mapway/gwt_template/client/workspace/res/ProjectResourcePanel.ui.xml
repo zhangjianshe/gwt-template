@@ -1,32 +1,24 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
              xmlns:g='urn:import:com.google.gwt.user.client.ui'
-             xmlns:res="urn:import:cn.mapway.gwt_template.client.workspace.res">
+             xmlns:res="urn:import:cn.mapway.gwt_template.client.workspace.res"
+             xmlns:view="urn:import:cn.mapway.gwt_template.client.workspace.view">
     <ui:style>
         .top {
             display: flex;
             align-items: center;
             padding: 0 4px;
-            border-bottom: solid 1px #f0f0f0;
+            border-bottom: solid 1px #e0e0e0;
         }
     </ui:style>
     <g:DockLayoutPanel ui:field="root">
-        <g:north size="50">
+        <g:north size="40">
             <g:HTMLPanel addStyleNames="{style.top}" ui:field="naviBar"/>
         </g:north>
         <g:west size="400">
-            <g:DockLayoutPanel addStyleNames="ai-border-right">
-                <g:north size="50">
-                    <g:HTMLPanel addStyleNames="{style.top}">
-                        <g:Button ui:field="btnCreateResource">创建资源目录</g:Button>
-                    </g:HTMLPanel>
-                </g:north>
-                <g:center>
-                    <g:ScrollPanel>
-                        <res:ProjectResourceTree ui:field="tree"/>
-                    </g:ScrollPanel>
-                </g:center>
-            </g:DockLayoutPanel>
+            <res:ProjectResourceList ui:field="list" addStyleNames="ai-border-right"/>
         </g:west>
-
+        <g:center>
+            <view:FilePreview ui:field="filePreview"/>
+        </g:center>
     </g:DockLayoutPanel>
 </ui:UiBinder>

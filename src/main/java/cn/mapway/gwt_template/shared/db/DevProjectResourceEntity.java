@@ -34,6 +34,7 @@ public class DevProjectResourceEntity implements Serializable, IsSerializable {
     public static final String FLD_UPDATE_TIME = "update_time";
     public static final String FLD_SHARE = "share";
     public static final String FLD_MEMBER_COUNT = "member_count";
+    public static final String FLD_RANK = "rank";
 
     @Name
     @Comment("项目ID")
@@ -90,6 +91,11 @@ public class DevProjectResourceEntity implements Serializable, IsSerializable {
     @Comment("成员数量")
     @Column(FLD_MEMBER_COUNT)
     Integer memberCount;
+
+    @Comment("排序")
+    @Column(FLD_RANK)
+    @Default("0")
+    Integer rank;
 
     /**
      * 从成员表中读取，非主表字段

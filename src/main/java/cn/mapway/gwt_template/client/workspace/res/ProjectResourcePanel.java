@@ -1,28 +1,25 @@
 package cn.mapway.gwt_template.client.workspace.res;
 
-import cn.mapway.gwt_template.client.ClientContext;
 import cn.mapway.gwt_template.client.resource.AppResource;
-import cn.mapway.gwt_template.client.rpc.AppProxy;
+import cn.mapway.gwt_template.client.workspace.view.FilePreview;
 import cn.mapway.gwt_template.shared.db.DevProjectResourceEntity;
+import cn.mapway.gwt_template.shared.rpc.project.module.ProjectPermission;
 import cn.mapway.gwt_template.shared.rpc.project.module.ResItem;
-import cn.mapway.gwt_template.shared.rpc.project.res.UpdateProjectResourceRequest;
-import cn.mapway.gwt_template.shared.rpc.project.res.UpdateProjectResourceResponse;
 import cn.mapway.ui.client.tools.IData;
-import cn.mapway.ui.client.util.Colors;
 import cn.mapway.ui.client.util.StringUtil;
 import cn.mapway.ui.client.widget.AiAnchor;
 import cn.mapway.ui.client.widget.CommonEventComposite;
 import cn.mapway.ui.shared.CommonEvent;
-import cn.mapway.ui.shared.rpc.RpcResult;
-import com.google.gwt.core.client.Callback;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.DockLayoutPanel;
+import com.google.gwt.user.client.ui.HTMLPanel;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.RequiresResize;
 
 import java.util.List;
 
@@ -31,31 +28,34 @@ public class ProjectResourcePanel extends CommonEventComposite implements Requir
     @UiField
     HTMLPanel naviBar;
     @UiField
-    ProjectResourceTree tree;
+    ProjectResourceList list;
     @UiField
     DockLayoutPanel root;
     @UiField
-    Button btnCreateResource;
+    FilePreview filePreview;
     private String projectId;
 
     public ProjectResourcePanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
     }
 
-    @UiHandler("tree")
+    @UiHandler("list")
     public void treeCommon(CommonEvent event) {
         if (event.isSelect()) {
             Object data = event.getValue();
             if (data instanceof DevProjectResourceEntity) {
-                // load root
-                tree.loadRootDir(((DevProjectResourceEntity) data).getId());
+                list.loadRootDir(((DevProjectResourceEntity) data).getId());
             } else if (data instanceof ResItem) {
-                // load dir
-                tree.loadDir(((ResItem) data).getPathName());
+                list.loadDir(((ResItem) data).getPathName());
             }
         } else if (event.isPath()) {
             NavInfo navInfo = event.getValue();
             renderNavibar(navInfo);
+        } else if (event.isView()) {
+            NavInfo navInfo = event.getValue();
+            ProjectPermission permission = ProjectPermission.from(navInfo.getResource().getPermission());
+            filePreview.enableSave(permission.isSuper() || permission.canUpdate());
+            filePreview.preview(navInfo.getResource().getId(), navInfo.getFile());
         }
     }
 
@@ -72,7 +72,7 @@ public class ProjectResourcePanel extends CommonEventComposite implements Requir
             btnProjectHome.addClickHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
-                    tree.reload();
+                    list.reload();
                 }
             });
             naviBar.add(btnProjectHome);
@@ -88,7 +88,7 @@ public class ProjectResourcePanel extends CommonEventComposite implements Requir
         btnResource.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                tree.loadRootDir((String) btnResource.getData());
+                list.loadRootDir((String) btnResource.getData());
             }
         });
         naviBar.add(btnResource);
@@ -115,45 +115,6 @@ public class ProjectResourcePanel extends CommonEventComposite implements Requir
         }
     }
 
-    @UiHandler("btnCreateResource")
-    public void btnCreateResourceClick(ClickEvent event) {
-        ClientContext.get().input("输入资源目录", "资源目录", "", "", new Callback() {
-            @Override
-            public void onFailure(Object reason) {
-
-            }
-
-            @Override
-            public void onSuccess(Object result) {
-                doCreateResource((String) result);
-            }
-        });
-    }
-
-    private void doCreateResource(String resName) {
-
-        UpdateProjectResourceRequest request = new UpdateProjectResourceRequest();
-        DevProjectResourceEntity resource = new DevProjectResourceEntity();
-        resource.setProjectId(projectId);
-        resource.setName(resName);
-        resource.setColor(Colors.randomColor());
-        request.setResource(resource);
-        AppProxy.get().updateProjectResource(request, new AsyncCallback<RpcResult<UpdateProjectResourceResponse>>() {
-            @Override
-            public void onFailure(Throwable caught) {
-                ClientContext.get().toast(0, 0, caught.getMessage());
-            }
-
-            @Override
-            public void onSuccess(RpcResult<UpdateProjectResourceResponse> result) {
-                if (result.isSuccess()) {
-                    setData(projectId);
-                } else {
-                    ClientContext.get().toast(0, 0, result.getMessage());
-                }
-            }
-        });
-    }
 
     @Override
     public void onResize() {
@@ -168,7 +129,7 @@ public class ProjectResourcePanel extends CommonEventComposite implements Requir
     @Override
     public void setData(String projectId) {
         this.projectId = projectId;
-        tree.loadResourceList(projectId);
+        list.setData(projectId);
     }
 
 

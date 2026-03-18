@@ -13,5 +13,8 @@ import java.io.Serializable;
  */
 @Data
 @Doc("UploadProjectFilesRequest")
-public class UploadProjectFilesRequest implements Serializable, IsSerializable {
+public class UpdateProjectFileRequest implements Serializable, IsSerializable {
+    String resourceId;
+    String filePathName;
+    String body;
 }

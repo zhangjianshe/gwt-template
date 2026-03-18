@@ -1,0 +1,74 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:buttons="urn:import:cn.mapway.ui.client.widget.buttons"
+             xmlns:file="urn:import:cn.mapway.gwt_template.client.widget.file">
+    <ui:style>
+        .uploader {
+            opacity: 0;
+            cursor: pointer;
+        }
+
+
+        .empty {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 250px;
+            flex-direction: column;
+        }
+
+        .subinfo {
+            font-size: 14px;
+            color: #999;
+            margin-top: 20px;
+        }
+
+        .dragTarget {
+            width: 300px;
+            height: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 3px dashed #999;
+            color: #999;
+            margin-top: 20px;
+        }</ui:style>
+    <g:DockLayoutPanel ui:field="root">
+        <g:south size="68">
+            <g:HorizontalPanel width="100%" styleName="ai-toolbar ai-border-top" verticalAlignment="middle">
+                <g:Label ui:field="lbMessage" styleName="ai-message"/>
+                <g:cell horizontalAlignment="right">
+                    <g:HorizontalPanel spacing="10" verticalAlignment="middle">
+                        <g:LayoutPanel width="100px" height="32px">
+                            <g:layer>
+                                <g:Button ui:field="uploadButton" width="100px">
+                                    选择文件
+                                </g:Button>
+                            </g:layer>
+                            <g:layer>
+                                <g:FileUpload ui:field="htmlUploader" styleName="{style.uploader}"/>
+                            </g:layer>
+                        </g:LayoutPanel>
+                        <buttons:AiButton text="关闭" buttonStyle="second" ui:field="btnClose"/>
+                    </g:HorizontalPanel>
+                </g:cell>
+            </g:HorizontalPanel>
+        </g:south>
+        <g:east size="250">
+            <file:UploadSummary ui:field="uploadSummary"/>
+        </g:east>
+        <g:center>
+            <g:ScrollPanel styleName="ai-panel">
+                <g:HTMLPanel ui:field="taskPanel">
+                    <g:HTMLPanel ui:field="emptyPanel" styleName="{style.empty}">
+                        <g:Label styleName="ai-label">当前没有上传任务</g:Label>
+                        <g:Label styleName="{style.subinfo}" ui:field="lbSubInfo"/>
+                        <g:HTMLPanel ui:field="dropArea" styleName="{style.dragTarget}">
+                            <g:Label>拖动文件到这里也可以上传</g:Label>
+                        </g:HTMLPanel>
+                    </g:HTMLPanel>
+                </g:HTMLPanel>
+            </g:ScrollPanel>
+        </g:center>
+    </g:DockLayoutPanel>
+</ui:UiBinder>

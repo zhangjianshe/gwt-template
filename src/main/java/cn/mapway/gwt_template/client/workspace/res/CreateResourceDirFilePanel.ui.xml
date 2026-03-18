@@ -1,0 +1,35 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:dialog="urn:import:cn.mapway.ui.client.widget.dialog"
+             xmlns:widget="urn:import:cn.mapway.ui.client.widget">
+    <ui:style>
+        .box {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }</ui:style>
+    <g:DockLayoutPanel>
+        <g:south size="68">
+            <dialog:SaveBar ui:field="saveBar"/>
+        </g:south>
+        <g:center>
+            <g:TabLayoutPanel ui:field="tab" barHeight="50">
+                <g:tab>
+                    <g:header>文件</g:header>
+                    <g:HTMLPanel addStyleNames="{style.box}">
+                        <widget:Header>文件名称</widget:Header>
+                        <widget:AiTextBox width="250px" ui:field="txtFileName"/>
+                    </g:HTMLPanel>
+                </g:tab>
+                <g:tab>
+                    <g:header>目录</g:header>
+                    <g:HTMLPanel addStyleNames="{style.box}">
+                        <widget:Header>目录名称</widget:Header>
+                        <widget:AiTextBox width="250px" ui:field="txtDirName"/>
+                    </g:HTMLPanel>
+                </g:tab>
+            </g:TabLayoutPanel>
+        </g:center>
+    </g:DockLayoutPanel>
+</ui:UiBinder>

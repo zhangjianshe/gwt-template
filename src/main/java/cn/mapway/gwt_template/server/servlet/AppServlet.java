@@ -22,7 +22,6 @@ import cn.mapway.gwt_template.server.service.message.QueryUserMailboxExecutor;
 import cn.mapway.gwt_template.server.service.message.ReadMessageExecutor;
 import cn.mapway.gwt_template.server.service.message.SendMessageExecutor;
 import cn.mapway.gwt_template.server.service.project.*;
-import cn.mapway.gwt_template.server.service.project.UploadProjectFilesExecutor;
 import cn.mapway.gwt_template.server.service.project.res.*;
 import cn.mapway.gwt_template.server.service.repository.*;
 import cn.mapway.gwt_template.server.service.soft.CreateSoftwareExecutor;
@@ -43,8 +42,6 @@ import cn.mapway.gwt_template.shared.rpc.dns.*;
 import cn.mapway.gwt_template.shared.rpc.ldap.*;
 import cn.mapway.gwt_template.shared.rpc.message.*;
 import cn.mapway.gwt_template.shared.rpc.project.*;
-import cn.mapway.gwt_template.shared.rpc.project.UploadProjectFilesRequest;
-import cn.mapway.gwt_template.shared.rpc.project.UploadProjectFilesResponse;
 import cn.mapway.gwt_template.shared.rpc.project.res.*;
 import cn.mapway.gwt_template.shared.rpc.repository.*;
 import cn.mapway.gwt_template.shared.rpc.soft.*;
@@ -129,110 +126,28 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
     @Resource
     QueryConfigExecutor queryConfigExecutor;
 
-    ///CODE_GEN_INSERT_POINT///
-	
+    /// CODE_GEN_INSERT_POINT///
+
     @Resource
     DeleteResourceMemberExecutor deleteResourceMemberExecutor;
-    @Override
-    public RpcResult<DeleteResourceMemberResponse> deleteResourceMember(DeleteResourceMemberRequest request) {
-        BizResult<DeleteResourceMemberResponse> bizResult = deleteResourceMemberExecutor.execute(getBizContext(), BizRequest.wrap("", request));
-        return toRpcResult(bizResult);
-    }
-
-
-	
     @Resource
     AddResourceMemberExecutor addResourceMemberExecutor;
-    @Override
-    public RpcResult<AddResourceMemberResponse> addResourceMember(AddResourceMemberRequest request) {
-        BizResult<AddResourceMemberResponse> bizResult = addResourceMemberExecutor.execute(getBizContext(), BizRequest.wrap("", request));
-        return toRpcResult(bizResult);
-    }
-
-
-	
     @Resource
     QueryResourceMemberExecutor queryResourceMemberExecutor;
-    @Override
-    public RpcResult<QueryResourceMemberResponse> queryResourceMember(QueryResourceMemberRequest request) {
-        BizResult<QueryResourceMemberResponse> bizResult = queryResourceMemberExecutor.execute(getBizContext(), BizRequest.wrap("", request));
-        return toRpcResult(bizResult);
-    }
-
-
-	
     @Resource
     ViewProjectFileExecutor viewProjectFileExecutor;
-    @Override
-    public RpcResult<ViewProjectFileResponse> viewProjectFile(ViewProjectFileRequest request) {
-        BizResult<ViewProjectFileResponse> bizResult = viewProjectFileExecutor.execute(getBizContext(), BizRequest.wrap("", request));
-        return toRpcResult(bizResult);
-    }
-
-
-	
     @Resource
     QueryProjectDirExecutor queryProjectDirExecutor;
-    @Override
-    public RpcResult<QueryProjectDirResponse> queryProjectDir(QueryProjectDirRequest request) {
-        BizResult<QueryProjectDirResponse> bizResult = queryProjectDirExecutor.execute(getBizContext(), BizRequest.wrap("", request));
-        return toRpcResult(bizResult);
-    }
-
-
-
-	
     @Resource
     DeleteProjectDirFileExecutor deleteProjectDirFileExecutor;
-    @Override
-    public RpcResult<DeleteProjectDirFileResponse> deleteProjectDirFile(DeleteProjectDirFileRequest request) {
-        BizResult<DeleteProjectDirFileResponse> bizResult = deleteProjectDirFileExecutor.execute(getBizContext(), BizRequest.wrap("", request));
-        return toRpcResult(bizResult);
-    }
-
-
-	
     @Resource
     CreateProjectDirFileExecutor createProjectDirFileExecutor;
-    @Override
-    public RpcResult<CreateProjectDirFileResponse> createProjectDirFile(CreateProjectDirFileRequest request) {
-        BizResult<CreateProjectDirFileResponse> bizResult = createProjectDirFileExecutor.execute(getBizContext(), BizRequest.wrap("", request));
-        return toRpcResult(bizResult);
-    }
-
-
-	
     @Resource
     DeleteProjectResourceExecutor deleteProjectResourceExecutor;
-    @Override
-    public RpcResult<DeleteProjectResourceResponse> deleteProjectResource(DeleteProjectResourceRequest request) {
-        BizResult<DeleteProjectResourceResponse> bizResult = deleteProjectResourceExecutor.execute(getBizContext(), BizRequest.wrap("", request));
-        return toRpcResult(bizResult);
-    }
-
-
-	
     @Resource
     UpdateProjectResourceExecutor updateProjectResourceExecutor;
-    @Override
-    public RpcResult<UpdateProjectResourceResponse> updateProjectResource(UpdateProjectResourceRequest request) {
-        BizResult<UpdateProjectResourceResponse> bizResult = updateProjectResourceExecutor.execute(getBizContext(), BizRequest.wrap("", request));
-        return toRpcResult(bizResult);
-    }
-
-
-	
     @Resource
     QueryProjectResourceExecutor queryProjectResourceExecutor;
-    @Override
-    public RpcResult<QueryProjectResourceResponse> queryProjectResource(QueryProjectResourceRequest request) {
-        BizResult<QueryProjectResourceResponse> bizResult = queryProjectResourceExecutor.execute(getBizContext(), BizRequest.wrap("", request));
-        return toRpcResult(bizResult);
-    }
-
-
-	
-
     @Resource
     RegisterUserExecutor registerUserExecutor;
     @Resource
@@ -248,9 +163,7 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
     @Resource
     QueryProjectActionsExecutor queryProjectActionsExecutor;
     @Resource
-    DeleteProjectFilesExecutor deleteProjectFilesExecutor;
-    @Resource
-    UploadProjectFilesExecutor uploadProjectFilesExecutor;
+    UpdateProjectFileExecutor updateProjectFileExecutor;
     @Resource
     QueryProjectFilesExecutor queryProjectFilesExecutor;
     @Resource
@@ -393,6 +306,66 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
     UpdateDevGroupExecutor updateDevGroupExecutor;
 
     @Override
+    public RpcResult<DeleteResourceMemberResponse> deleteResourceMember(DeleteResourceMemberRequest request) {
+        BizResult<DeleteResourceMemberResponse> bizResult = deleteResourceMemberExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<AddResourceMemberResponse> addResourceMember(AddResourceMemberRequest request) {
+        BizResult<AddResourceMemberResponse> bizResult = addResourceMemberExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<QueryResourceMemberResponse> queryResourceMember(QueryResourceMemberRequest request) {
+        BizResult<QueryResourceMemberResponse> bizResult = queryResourceMemberExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<ViewProjectFileResponse> viewProjectFile(ViewProjectFileRequest request) {
+        BizResult<ViewProjectFileResponse> bizResult = viewProjectFileExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<QueryProjectDirResponse> queryProjectDir(QueryProjectDirRequest request) {
+        BizResult<QueryProjectDirResponse> bizResult = queryProjectDirExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<DeleteProjectDirFileResponse> deleteProjectDirFile(DeleteProjectDirFileRequest request) {
+        BizResult<DeleteProjectDirFileResponse> bizResult = deleteProjectDirFileExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<CreateProjectDirFileResponse> createProjectDirFile(CreateProjectDirFileRequest request) {
+        BizResult<CreateProjectDirFileResponse> bizResult = createProjectDirFileExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<DeleteProjectResourceResponse> deleteProjectResource(DeleteProjectResourceRequest request) {
+        BizResult<DeleteProjectResourceResponse> bizResult = deleteProjectResourceExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<UpdateProjectResourceResponse> updateProjectResource(UpdateProjectResourceRequest request) {
+        BizResult<UpdateProjectResourceResponse> bizResult = updateProjectResourceExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<QueryProjectResourceResponse> queryProjectResource(QueryProjectResourceRequest request) {
+        BizResult<QueryProjectResourceResponse> bizResult = queryProjectResourceExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
     public RpcResult<RegisterUserResponse> registerUser(RegisterUserRequest request) {
         BizResult<RegisterUserResponse> bizResult = registerUserExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toRpcResult(bizResult);
@@ -435,14 +408,8 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
     }
 
     @Override
-    public RpcResult<DeleteProjectFilesResponse> deleteProjectFiles(DeleteProjectFilesRequest request) {
-        BizResult<DeleteProjectFilesResponse> bizResult = deleteProjectFilesExecutor.execute(getBizContext(), BizRequest.wrap("", request));
-        return toRpcResult(bizResult);
-    }
-
-    @Override
-    public RpcResult<UploadProjectFilesResponse> uploadProjectFiles(UploadProjectFilesRequest request) {
-        BizResult<UploadProjectFilesResponse> bizResult = uploadProjectFilesExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+    public RpcResult<UpdateProjectFileResponse> updateProjectFile(UpdateProjectFileRequest request) {
+        BizResult<UpdateProjectFileResponse> bizResult = updateProjectFileExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toRpcResult(bizResult);
     }
 

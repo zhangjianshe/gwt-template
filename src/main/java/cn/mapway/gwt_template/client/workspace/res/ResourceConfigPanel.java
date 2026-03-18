@@ -9,11 +9,14 @@ import cn.mapway.gwt_template.client.workspace.task.ProjectMemberSelector;
 import cn.mapway.gwt_template.shared.db.DevProjectResourceEntity;
 import cn.mapway.gwt_template.shared.rpc.project.module.ProjectMember;
 import cn.mapway.gwt_template.shared.rpc.project.module.ProjectPermission;
+import cn.mapway.gwt_template.shared.rpc.project.module.ProjectPermissionKind;
 import cn.mapway.gwt_template.shared.rpc.project.module.ResourceMember;
 import cn.mapway.gwt_template.shared.rpc.project.res.*;
 import cn.mapway.ui.client.tools.IData;
+import cn.mapway.ui.client.util.StringUtil;
 import cn.mapway.ui.client.widget.AiTextBox;
 import cn.mapway.ui.client.widget.CommonEventComposite;
+import cn.mapway.ui.client.widget.buttons.DeleteButton;
 import cn.mapway.ui.client.widget.dialog.Popup;
 import cn.mapway.ui.shared.CommonEvent;
 import cn.mapway.ui.shared.CommonEventHandler;
@@ -23,9 +26,11 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.user.client.Window;
+import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
+import elemental2.promise.IThenable;
+import org.jspecify.annotations.Nullable;
 
 public class ResourceConfigPanel extends CommonEventComposite implements IData<DevProjectResourceEntity> {
     private static final ResourceConfigPanelUiBinder ourUiBinder = GWT.create(ResourceConfigPanelUiBinder.class);
@@ -39,11 +44,16 @@ public class ResourceConfigPanel extends CommonEventComposite implements IData<D
     FlexTable memberTable;
     @UiField
     Label lbHeader;
+    @UiField
+    Button btnSave;
+    @UiField
+    AiTextBox txtRank;
     private DevProjectResourceEntity resource;
 
     public ResourceConfigPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
         txtColor.asColor();
+        txtRank.asNumber();
         initTable();
     }
 
@@ -66,7 +76,13 @@ public class ResourceConfigPanel extends CommonEventComposite implements IData<D
         memberTable.addStyleName(style.table());
         memberTable.getRowFormatter().addStyleName(0, style.tableHeader());
         memberTable.setText(0, 0, "成员");
-        memberTable.setText(0, 1, "权限");
+        PermissionHeader permissionHeader = new PermissionHeader();
+        permissionHeader.addPermission(ProjectPermissionKind.CREATE);
+        permissionHeader.addPermission(ProjectPermissionKind.READ);
+        permissionHeader.addPermission(ProjectPermissionKind.UPDATE);
+        permissionHeader.addPermission(ProjectPermissionKind.DELETE);
+        permissionHeader.addPermission(ProjectPermissionKind.ADMIN);
+        memberTable.setWidget(0, 1, permissionHeader);
         memberTable.setText(0, 2, "加入时间");
         Button btnAddUser = new Button("添加帐号");
 
@@ -77,6 +93,8 @@ public class ResourceConfigPanel extends CommonEventComposite implements IData<D
             }
         });
         memberTable.setWidget(0, 3, btnAddUser);
+        FlexTable.FlexCellFormatter cellFormatter = memberTable.getFlexCellFormatter();
+        cellFormatter.setHorizontalAlignment(0, 3, HasHorizontalAlignment.ALIGN_RIGHT);
     }
 
     private void addUser(Widget widget) {
@@ -135,6 +153,8 @@ public class ResourceConfigPanel extends CommonEventComposite implements IData<D
     private void toUI() {
         txtColor.setValue(resource.getColor());
         txtName.setValue(resource.getName());
+        btnSave.setEnabled(false);
+        txtRank.setValue(String.valueOf(resource.getRank()));
         loadMember();
     }
 
@@ -151,13 +171,16 @@ public class ResourceConfigPanel extends CommonEventComposite implements IData<D
             @Override
             public void onData(RpcResult<QueryResourceMemberResponse> result) {
                 if (result.isSuccess()) {
-                    renderMembers(result.getData().getMembers());
+                    renderMembers(ProjectPermission.from(result.getData().getCurrentPermission()),
+                            result.getData().getMembers());
                 }
             }
         });
     }
 
-    private void renderMembers(java.util.List<ResourceMember> members) {
+    private void renderMembers(ProjectPermission currentPermission, java.util.List<ResourceMember> members) {
+        btnSave.setEnabled(currentPermission.isOwner());
+        FlexTable.FlexCellFormatter cellFormatter = memberTable.getFlexCellFormatter();
         for (ResourceMember m : members) {
             int row = memberTable.getRowCount();
             memberTable.getRowFormatter().addStyleName(row, style.tableRow());
@@ -179,30 +202,78 @@ public class ResourceConfigPanel extends CommonEventComposite implements IData<D
 
             // 2. 权限展示
             ProjectPermission p = ProjectPermission.from(m.getPermission());
-            String roleText = p.isOwner() ? "所有者" : (p.isAdmin() ? "管理员" : "成员");
-            Label lbRole = new Label(roleText);
-            if (p.isOwner()) lbRole.addStyleName(style.success());
-            memberTable.setWidget(row, 1, lbRole);
+            PermissionBar permissionBar = new PermissionBar();
+            permissionBar.setData(p);
+            if (p.isOwner()) {
+                permissionBar.setEnableEdit(false);
+            } else {
+                permissionBar.setEnableEdit(currentPermission.isSuper());
+            }
+            permissionBar.addPermission(ProjectPermissionKind.CREATE);
+            permissionBar.addPermission(ProjectPermissionKind.READ);
+            permissionBar.addPermission(ProjectPermissionKind.UPDATE);
+            permissionBar.addPermission(ProjectPermissionKind.DELETE);
+            permissionBar.addPermission(ProjectPermissionKind.ADMIN);
+            permissionBar.addCommonHandler(new CommonEventHandler() {
 
-            // 3. 时间
-            memberTable.setText(row, 2, m.getCreateTime() == null ? "-" : m.getCreateTime().toString());
-
-            // 4. 操作按钮 (移除成员)
-            Anchor lnkDelete = new Anchor("移除");
-            lnkDelete.addStyleName(style.primaryText());
-            lnkDelete.addClickHandler(event -> {
-                if (Window.confirm("确定要移除成员 " + m.getNickName() + " 吗?")) {
-                    doDeleteMember(m);
+                @Override
+                public void onCommonEvent(CommonEvent event) {
+                    if (event.isUpdate()) {
+                        ProjectPermission permission = event.getValue();
+                        updateUserPermission(m.getResourceId(), m.getUserId(), permission);
+                    }
                 }
             });
+            memberTable.setWidget(row, 1, permissionBar);
+
+            // 3. 时间
+            memberTable.setText(row, 2, StringUtil.formatDate(m.getCreateTime()));
+
 
             // 如果是所有者，通常不允许随便移除自己（除非有多个所有者），这里简单逻辑
-            if (p.isOwner()) {
-                lnkDelete.addStyleName(style.menuItemDisabled());
+            if (!p.isOwner()) {
+
+                DeleteButton deleteButton = new DeleteButton();
+                deleteButton.addClickHandler(event -> {
+                    String msg = "确定要移除成员 " + m.getNickName() + " 吗?";
+                    ClientContext.get().confirmDelete(msg).then(new IThenable.ThenOnFulfilledCallbackFn<Void, Object>() {
+                        @Override
+                        public @Nullable IThenable<Object> onInvoke(Void p0) {
+                            doDeleteMember(m);
+                            return null;
+                        }
+                    });
+                });
+                deleteButton.setEnabled(currentPermission.isSuper());
+                memberTable.setWidget(row, 3, deleteButton);
+            } else {
+                memberTable.setWidget(row, 3, new Label(""));
+            }
+            cellFormatter.setHorizontalAlignment(row, 3, HasHorizontalAlignment.ALIGN_RIGHT);
+
+        }
+    }
+
+    private void updateUserPermission(String resourceId, Long userId, ProjectPermission permission) {
+        AddResourceMemberRequest request = new AddResourceMemberRequest();
+        request.setPermission(permission.toString());
+        request.setResourceId(resourceId);
+        request.setUserId(userId);
+        AppProxy.get().addResourceMember(request, new AsyncCallback<RpcResult<AddResourceMemberResponse>>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                ClientContext.get().toast(0, 0, caught.getMessage());
             }
 
-            memberTable.setWidget(row, 3, lnkDelete);
-        }
+            @Override
+            public void onSuccess(RpcResult<AddResourceMemberResponse> result) {
+                if (result.isSuccess()) {
+                    ClientContext.get().toast(0, 0, "更新完成");
+                } else {
+                    ClientContext.get().toast(0, 0, result.getMessage());
+                }
+            }
+        });
     }
 
     private void doDeleteMember(ResourceMember m) {
@@ -220,6 +291,30 @@ public class ResourceConfigPanel extends CommonEventComposite implements IData<D
             public void onSuccess(RpcResult<DeleteResourceMemberResponse> result) {
                 if (result.isSuccess()) {
                     loadMember(); // 重新加载
+                } else {
+                    ClientContext.get().toast(0, 0, result.getMessage());
+                }
+            }
+        });
+    }
+
+    @UiHandler("btnSave")
+    public void btnSaveClick(ClickEvent event) {
+        UpdateProjectResourceRequest request = new UpdateProjectResourceRequest();
+        resource.setColor(txtColor.getValue());
+        resource.setName(txtName.getValue());
+        resource.setRank(Integer.parseInt(txtRank.getValue()));
+        request.setResource(resource);
+        AppProxy.get().updateProjectResource(request, new AsyncCallback<RpcResult<UpdateProjectResourceResponse>>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                ClientContext.get().toast(0, 0, caught.getMessage());
+            }
+
+            @Override
+            public void onSuccess(RpcResult<UpdateProjectResourceResponse> result) {
+                if (result.isSuccess()) {
+                    fireEvent(CommonEvent.updateEvent(result.getData().getResource()));
                 } else {
                     ClientContext.get().toast(0, 0, result.getMessage());
                 }

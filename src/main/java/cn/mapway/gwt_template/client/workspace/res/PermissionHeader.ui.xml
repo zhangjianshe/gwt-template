@@ -1,0 +1,13 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+    <ui:style type="cn.mapway.gwt_template.client.workspace.res.PermissionHeader.SStyle">
+        .item{
+            font-size: 12px;
+            width: 16px;
+            white-space: wrap;
+        }
+    </ui:style>
+    <g:HorizontalPanel spacing="3" ui:field="root" verticalAlignment="bottom">
+
+    </g:HorizontalPanel>
+</ui:UiBinder>

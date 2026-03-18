@@ -1,16 +1,31 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
              xmlns:g='urn:import:com.google.gwt.user.client.ui'>
     <ui:style>
+        @eval BACK_HOVER "var(--color-background-hover)";
+        @eval BACK_SELECTED "var(--color-background-selected)";
         .box {
             display: grid;
-            grid-template-columns: 26px 1fr 80px;
-            line-height: 30px;
+            grid-template-columns: 26px minmax(0, 1fr) 80px; /* 使用 minmax(0, 1fr) 防止内容撑开 */
+            line-height: 40px;
             align-items: center;
             padding: 0 4px;
         }
 
+        /* 为中间的文本添加截断样式 */
+        .nameStyle {
+            white-space: nowrap; /* 强制不换行 */
+            overflow: hidden; /* 隐藏超出部分 */
+            text-overflow: ellipsis; /* 显示省略号 */
+            min-width: 0; /* 关键：允许 Flex/Grid 子项收缩到比内容更小 */
+        }
+
+
         .box:HOVER {
-            background-color: skyblue;
+            background-color: BACK_HOVER;
+        }
+
+        .box[select="true"] {
+            background-color: BACK_SELECTED;
         }
 
         .icon {
@@ -27,8 +42,8 @@
         }</ui:style>
     <g:HTMLPanel ui:field="root" addStyleNames="{style.box}">
         <g:Label ui:field="lbIcon" addStyleNames="{style.icon}"/>
-        <g:Label ui:field="lbName"/>
-        <g:HTMLPanel ui:field="right">
+        <g:Label ui:field="lbName" addStyleNames="{style.nameStyle}"/>
+        <g:HTMLPanel ui:field="right" addStyleNames="{style.size}">
             <g:Label ui:field="lbSize" addStyleNames="{style.size}"/>
         </g:HTMLPanel>
     </g:HTMLPanel>

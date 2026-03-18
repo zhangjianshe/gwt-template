@@ -14,4 +14,10 @@ import java.io.Serializable;
 @Data
 @Doc("ViewProjectFileResponse")
 public class ViewProjectFileResponse implements Serializable, IsSerializable {
+    String mimeType;
+    String body;
+    String fileName;
+    Double fileSize;
+    String resourceId;
+
 }

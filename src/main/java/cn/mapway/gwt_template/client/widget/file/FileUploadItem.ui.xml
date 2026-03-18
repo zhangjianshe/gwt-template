@@ -1,0 +1,49 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:buttons="urn:import:cn.mapway.ui.client.widget.buttons"
+             xmlns:file="urn:import:cn.mapway.gwt_template.client.widget.file">
+    <ui:style>
+        .size {
+            color: brown;
+            font-style: italic;
+        }
+
+        .item {
+            border-bottom: 1px solid #ccc;
+            position: absolute;
+            left: 0;
+            top: 0;
+            right: 0;
+        }
+
+        .progressBar:hover {
+            background-color: #eee;
+        }
+
+        .container {
+            position: relative;
+
+        }
+
+        .progressBar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+        }
+    </ui:style>
+    <g:HTMLPanel width="100%" styleName="{style.container}">
+        <file:ProgressLabel ui:field="lbProgress" height="30px" textAlign="LEFT"
+                            styleName="{style.progressBar}"/>
+        <g:HorizontalPanel verticalAlignment="middle" width="100%" spacing="3" styleName="{style.item}">
+            <file:ProgressLabel ui:field="lbName" height="30px" textAlign="LEFT"
+                                     width="350px"/>
+            <g:cell horizontalAlignment="right">
+                <g:Label ui:field="lbSize" styleName="{style.size}"/>
+            </g:cell>
+            <g:cell width="26px" horizontalAlignment="center">
+                <buttons:DeleteButton ui:field="btnDelete"/>
+            </g:cell>
+        </g:HorizontalPanel>
+    </g:HTMLPanel>
+</ui:UiBinder>

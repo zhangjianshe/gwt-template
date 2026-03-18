@@ -14,4 +14,6 @@ import java.io.Serializable;
 @Data
 @Doc("ViewProjectFileRequest")
 public class ViewProjectFileRequest implements Serializable, IsSerializable {
+    String resourceId;
+    String relPathName;
 }

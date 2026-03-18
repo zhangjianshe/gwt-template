@@ -353,6 +353,15 @@ public class ProjectService {
         return BizResult.success(s);
     }
 
+    public BizResult<String> getResourceAbsolutePath(String resourceId) {
+        DevProjectResourceEntity resource = findProjectResource(resourceId);
+        if (resource == null || Strings.isBlank(resource.getId()) || resource.getId().length() < 6) {
+            return BizResult.error(500, "没有提供合适的资源信息");
+        }
+        String s = FileCustomUtils.concatPath(systemConfigService.getProjectResourceRootPath(), resource.getId().substring(0, 2), resource.getId().substring(2));
+        return BizResult.success(s);
+    }
+
     /**
      * 查询工作空间下的所有目录，并以树形结构返回（仅返回顶级节点）
      *
@@ -607,5 +616,9 @@ public class ProjectService {
         DevProjectEntity project= dao.fetch(DevProjectEntity.class, Cnd.where(DevProjectEntity.FLD_ID, "=", projectId));
         fillProjectExtraInformation(project);
         return project;
+    }
+
+    public DevProjectResourceEntity findProjectResource(String resourceId) {
+        return dao.fetch(DevProjectResourceEntity.class,resourceId);
     }
 }

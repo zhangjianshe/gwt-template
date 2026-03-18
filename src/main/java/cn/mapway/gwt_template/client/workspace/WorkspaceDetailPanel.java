@@ -169,7 +169,13 @@ public class WorkspaceDetailPanel extends CommonEventComposite implements ITools
                 }
             });
         } else {
-            folders.selectFirst();
+            folders.eachItem(new IEachElement<CommonListItem>() {
+                @Override
+                public boolean each(CommonListItem e) {
+                    folders.selectItem(e, true);
+                    return false;
+                }
+            });
         }
     }
 
@@ -255,8 +261,10 @@ public class WorkspaceDetailPanel extends CommonEventComposite implements ITools
             DevWorkspaceFolderEntity folder = event.getValue();
             workspaceFolder.setData(folder);
             List<DevProjectEntity> projects = projectsMaper.get(folder.getId());
-            for (DevProjectEntity project : projects) {
-                workspaceFolder.addProject(project);
+            if (projects != null) {
+                for (DevProjectEntity project : projects) {
+                    workspaceFolder.addProject(project);
+                }
             }
         }
     }

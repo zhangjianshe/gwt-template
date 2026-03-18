@@ -59,4 +59,6 @@ public interface AppCss extends CssResource {
 
     @ClassName("popup-top-panel")
     String popupHeaderPanel();
+
+    String emptyGlassStyle();
 }

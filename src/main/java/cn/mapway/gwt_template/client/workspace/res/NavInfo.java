@@ -11,4 +11,5 @@ public class NavInfo {
     DevProjectEntity project;
     DevProjectResourceEntity resource;
     String relPath;
+    private String file;
 }

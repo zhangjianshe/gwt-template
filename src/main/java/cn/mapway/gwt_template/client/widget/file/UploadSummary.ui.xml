@@ -1,0 +1,35 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+    <ui:style>
+        .lb {
+            justify-self: flex-start;
+            font-weight: bold;
+            text-align: right;
+            cursor: default;
+        }
+
+        .box {
+            padding: 10px;
+            display: grid;
+            grid-template-columns: 100px 1fr;
+            gap: 4px;
+            margin: 10px;
+        }
+    </ui:style>
+    <g:ScrollPanel>
+        <g:HTMLPanel addStyleNames="{style.box}">
+            <g:Label styleName="{style.lb}">上传队列</g:Label>
+            <g:Label ui:field="lbQueueSize"/>
+            <g:Label styleName="{style.lb}">总大小</g:Label>
+            <g:Label ui:field="lbTotal"/>
+            <g:Label styleName="{style.lb}">已上传</g:Label>
+            <g:Label ui:field="lbFinished"/>
+            <g:Label styleName="{style.lb}">已用时</g:Label>
+            <g:Label ui:field="lbElapsed"/>
+            <g:Label styleName="{style.lb}">预估用时</g:Label>
+            <g:Label ui:field="lbRemaining"/>
+            <g:Label styleName="{style.lb}">上传速度</g:Label>
+            <g:Label ui:field="lbSpeed"/>
+        </g:HTMLPanel>
+    </g:ScrollPanel>
+</ui:UiBinder>

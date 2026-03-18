@@ -69,6 +69,8 @@ public class QueryResourceMemberExecutor extends AbstractBizExecutor<QueryResour
 
         List<ResourceMember> members = new ArrayList<>();
 
+        // 5. 返回结果
+        QueryResourceMemberResponse response = new QueryResourceMemberResponse();
         // 4. 数据聚合：关联用户信息并转换为 ResourceMember 传输对象
         for (DevProjectResourceMemberEntity entity : memberEntities) {
             ResourceMember member = new ResourceMember();
@@ -89,10 +91,12 @@ public class QueryResourceMemberExecutor extends AbstractBizExecutor<QueryResour
             }
 
             members.add(member);
+            if (loginUser.getUser().getUserId().equals(entity.getUserId())) {
+                response.setCurrentPermission(entity.getPermission());
+            }
         }
 
-        // 5. 返回结果
-        QueryResourceMemberResponse response = new QueryResourceMemberResponse();
+
         response.setMembers(members);
 
         return BizResult.success(response);

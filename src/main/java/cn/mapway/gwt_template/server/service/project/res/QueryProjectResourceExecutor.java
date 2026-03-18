@@ -52,7 +52,7 @@ public class QueryProjectResourceExecutor extends AbstractBizExecutor<QueryProje
                 " ON p." + DevProjectResourceEntity.FLD_ID + " = m." + DevProjectResourceMemberEntity.FLD_RESOURCE_ID +
                 " AND m." + DevProjectResourceMemberEntity.FLD_USER_ID + " = @uid " + // 必须限定是当前用户的权限
                 " WHERE p." + DevProjectResourceEntity.FLD_PROJECT_ID + " = @pid " +
-                " ORDER BY p." + DevProjectResourceEntity.FLD_CREATE_TIME + " DESC";
+                " ORDER BY p." + DevProjectResourceEntity.FLD_RANK + " ASC";
 
         Sql sql = Sqls.create(sqlStr);
         sql.params().set("uid", user.getUser().getUserId()); // 传入当前用户ID

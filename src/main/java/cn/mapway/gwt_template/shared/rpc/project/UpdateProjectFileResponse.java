@@ -13,5 +13,5 @@ import java.io.Serializable;
  */
 @Data
 @Doc("UploadProjectFilesResponse")
-public class UploadProjectFilesResponse implements Serializable, IsSerializable {
+public class UpdateProjectFileResponse implements Serializable, IsSerializable {
 }

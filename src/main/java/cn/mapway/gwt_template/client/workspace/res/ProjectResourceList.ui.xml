@@ -1,0 +1,15 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+    <ui:style>
+
+    </ui:style>
+    <g:DockLayoutPanel>
+        <g:center>
+            <g:ScrollPanel ui:field="scroll">
+                <g:VerticalPanel ui:field="list" width="100%">
+
+                </g:VerticalPanel>
+            </g:ScrollPanel>
+        </g:center>
+    </g:DockLayoutPanel>
+</ui:UiBinder>
