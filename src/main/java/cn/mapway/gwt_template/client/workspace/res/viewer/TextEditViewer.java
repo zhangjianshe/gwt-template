@@ -5,7 +5,7 @@ import cn.mapway.ace.client.AceEditor;
 import cn.mapway.ace.client.AceEditorMode;
 import cn.mapway.gwt_template.client.ClientContext;
 import cn.mapway.gwt_template.client.rpc.AppProxy;
-import cn.mapway.gwt_template.client.workspace.res.FileEditorMode;
+import cn.mapway.gwt_template.shared.rpc.file.EditableFileSuffix;
 import cn.mapway.gwt_template.shared.rpc.project.UpdateProjectFileRequest;
 import cn.mapway.gwt_template.shared.rpc.project.UpdateProjectFileResponse;
 import cn.mapway.gwt_template.shared.rpc.project.res.ViewProjectFileResponse;
@@ -107,10 +107,10 @@ public class TextEditViewer extends CommonEventComposite implements RequiresResi
         editor.redisplay();
     }
 
-    public void setEditorData(ViewProjectFileResponse obj, FileEditorMode mode) {
+    public void setEditorData(ViewProjectFileResponse obj, EditableFileSuffix mode) {
         data = obj;
         toUI();
-        if (mode == FileEditorMode.NONE) {
+        if (mode == EditableFileSuffix.NONE) {
             editor.setMode(AceEditorMode.TEXT);
         } else {
             editor.setMode(mode.getMode());

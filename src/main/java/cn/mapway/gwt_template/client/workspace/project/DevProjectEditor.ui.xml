@@ -2,7 +2,8 @@
              xmlns:g='urn:import:com.google.gwt.user.client.ui'
              xmlns:dialog="urn:import:cn.mapway.ui.client.widget.dialog"
              xmlns:widget="urn:import:cn.mapway.ui.client.widget"
-             xmlns:workspace="urn:import:cn.mapway.gwt_template.client.workspace">
+             xmlns:workspace="urn:import:cn.mapway.gwt_template.client.workspace"
+             xmlns:widget2="urn:import:cn.mapway.gwt_template.client.workspace.widget">
     <ui:style>
         .table {
             display: grid;
@@ -22,6 +23,8 @@
                     <widget:AiTextBox ui:field="txtName"/>
                     <widget:Header>是否是模板</widget:Header>
                     <g:CheckBox ui:field="checkTemplate"/>
+                    <widget:Header>密级</widget:Header>
+                    <widget2:SecurityLevelDropdown ui:field="ddlSecurity"/>
                     <widget:Header>项目颜色</widget:Header>
                     <widget:AiTextBox ui:field="txtColor"/>
                     <widget:Header>项目分裂</widget:Header>

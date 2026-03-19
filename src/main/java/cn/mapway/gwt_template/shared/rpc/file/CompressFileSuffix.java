@@ -3,29 +3,25 @@ package cn.mapway.gwt_template.shared.rpc.file;
 import cn.mapway.ui.client.fonts.Fonts;
 import lombok.Getter;
 
-public enum ImageFileSuffix {
+public enum CompressFileSuffix {
     NONE("", Fonts.FILE),
-    JPG("jpg", Fonts.JPG),
-    PNG("png", Fonts.PNG),
-    BMP("bmp", Fonts.JPG),
-    GIF("gif", Fonts.PNG),
-    SVG("svg", Fonts.SVG),
-    JPEG("jpeg", Fonts.JPG);
+    ZIP("zip", Fonts.ZIP),
+    TAR("tar", Fonts.WORKSPACE); //TODO find a icon
     @Getter
     final String suffix;
     @Getter
     final String unicode;
 
-    ImageFileSuffix(String suffix, String unicode) {
+    CompressFileSuffix(String suffix, String unicode) {
         this.suffix = suffix;
         this.unicode = unicode;
     }
 
-    public static ImageFileSuffix fromSuffix(String suffix) {
+    public static CompressFileSuffix fromSuffix(String suffix) {
         if (suffix == null) {
             return NONE;
         }
-        for (ImageFileSuffix imageFileSuffix : ImageFileSuffix.values()) {
+        for (CompressFileSuffix imageFileSuffix : CompressFileSuffix.values()) {
             if (imageFileSuffix.suffix.equals(suffix)) {
                 return imageFileSuffix;
             }

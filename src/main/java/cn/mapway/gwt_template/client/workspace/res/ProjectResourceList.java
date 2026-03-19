@@ -7,6 +7,7 @@ import cn.mapway.gwt_template.client.workspace.widget.ActionMenu;
 import cn.mapway.gwt_template.client.workspace.widget.ActionMenuKind;
 import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.db.DevProjectResourceEntity;
+import cn.mapway.gwt_template.shared.rpc.file.FileUtil;
 import cn.mapway.gwt_template.shared.rpc.project.module.ProjectPermission;
 import cn.mapway.gwt_template.shared.rpc.project.module.ResItem;
 import cn.mapway.gwt_template.shared.rpc.project.res.*;
@@ -482,11 +483,18 @@ public class ProjectResourceList extends CommonEventComposite implements IData<S
                     for (ResItem resItem : result.getData().getResources()) {
                         ResourceItem item = new ResourceItem();
                         item.setData(resItem);
-                        item.setValue(resItem.getIsDir() ? Fonts.FOLDER : Fonts.FILE,
+                        String suffix = StringUtil.suffix(resItem.getPathName());
+                        item.setValue(resItem.getIsDir() ? Fonts.FOLDER : FileUtil.iconFromSuffix(suffix),
                                 StringUtil.extractName(resItem.getPathName()), StringUtil.formatFileSize(resItem.getFileSize().longValue()));
                         list.add(item);
                         item.addDomHandler(itemDownHandler, MouseDownEvent.getType());
                         item.addDomHandler(resItemHandler, ClickEvent.getType());
+                    }
+                    if (result.getData().getResources().isEmpty()) {
+                        MessagePanel messagePanel = new MessagePanel();
+                        messagePanel.setText("该目录内目前没有数据，右键上传.");
+                        messagePanel.setHeight("200px");
+                        list.add(messagePanel);
                     }
                     navInfo.setRelPath(result.getData().getRequestPath());
                     fireEvent(CommonEvent.pathEvent(navInfo));

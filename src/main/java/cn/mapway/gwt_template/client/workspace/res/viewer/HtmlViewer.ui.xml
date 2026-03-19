@@ -1,0 +1,29 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+    <ui:style>
+        /* 外层包装器：负责内边距和基础对齐 */
+        .box {
+            padding: 0;         /* 移除 padding，由内部 HTML 控制 */
+            min-height: 100%;
+            background-color: #ffffff; /* 统一底色 */
+        }
+
+        .container {
+            width: 100%;       /* 撑满宽度，以便内部 nowrap 元素触发水平滚动 */
+            margin: 0;
+        }
+    </ui:style>
+    <g:LayoutPanel>
+        <g:layer>
+            <g:ScrollPanel ui:field="scrollPanel">
+                <g:HTMLPanel addStyleNames="{style.box}">
+                    <g:HTMLPanel ui:field="container" addStyleNames="{style.container}">
+                    </g:HTMLPanel>
+                    <g:HorizontalPanel ui:field="tools">
+                        <g:Anchor target="_blank" ui:field="download">下载文件</g:Anchor>
+                    </g:HorizontalPanel>
+                </g:HTMLPanel>
+            </g:ScrollPanel>
+        </g:layer>
+    </g:LayoutPanel>
+</ui:UiBinder>

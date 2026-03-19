@@ -2,6 +2,7 @@ package cn.mapway.gwt_template.client.workspace.project;
 
 import cn.mapway.gwt_template.client.rpc.AppProxy;
 import cn.mapway.gwt_template.client.workspace.WorkspaceFolderDropdown;
+import cn.mapway.gwt_template.client.workspace.widget.SecurityLevelDropdown;
 import cn.mapway.gwt_template.shared.db.DevProjectEntity;
 import cn.mapway.gwt_template.shared.db.DevWorkspaceFolderEntity;
 import cn.mapway.gwt_template.shared.rpc.project.UpdateDevProjectRequest;
@@ -46,6 +47,8 @@ public class DevProjectEditor extends CommonEventComposite implements IData<DevP
     CheckBox checkTemplate;
     @UiField
     WorkspaceFolderDropdown ddlFolder;
+    @UiField
+    SecurityLevelDropdown ddlSecurity;
 
     public DevProjectEditor() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -104,6 +107,7 @@ public class DevProjectEditor extends CommonEventComposite implements IData<DevP
         uploader.setUrl(project.getIcon());
         checkTemplate.setValue(project.getIsTemplate());
         ddlFolder.setValue(project.getFolderId());
+        ddlSecurity.setValue(project.getSecurityLevel());
     }
 
     private void fromUI() {
@@ -117,6 +121,7 @@ public class DevProjectEditor extends CommonEventComposite implements IData<DevP
             project.setIcon(null);
         }
         project.setFolderId(DataCastor.castToString(ddlFolder.getValue()));
+        project.setSecurityLevel((Integer) ddlSecurity.getValue());
     }
 
     @UiHandler("saveBar")

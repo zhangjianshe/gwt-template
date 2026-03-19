@@ -1,12 +1,13 @@
 package cn.mapway.gwt_template.client.workspace.view;
 
 import cn.mapway.gwt_template.client.rpc.AppProxy;
-import cn.mapway.gwt_template.client.workspace.res.FileEditorMode;
+import cn.mapway.gwt_template.client.workspace.res.viewer.HtmlViewer;
 import cn.mapway.gwt_template.client.workspace.res.viewer.ImageViewer;
 import cn.mapway.gwt_template.client.workspace.res.viewer.InfoViewer;
 import cn.mapway.gwt_template.client.workspace.res.viewer.TextEditViewer;
+import cn.mapway.gwt_template.shared.AppConstant;
+import cn.mapway.gwt_template.shared.rpc.file.EditableFileSuffix;
 import cn.mapway.gwt_template.shared.rpc.file.ImageFileSuffix;
-import cn.mapway.gwt_template.shared.rpc.file.OfficeFileSuffix;
 import cn.mapway.gwt_template.shared.rpc.project.res.ViewProjectFileRequest;
 import cn.mapway.gwt_template.shared.rpc.project.res.ViewProjectFileResponse;
 import cn.mapway.ui.client.util.StringUtil;
@@ -15,6 +16,7 @@ import cn.mapway.ui.client.widget.Header;
 import cn.mapway.ui.shared.rpc.RpcResult;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
+import com.google.gwt.http.client.URL;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -25,7 +27,7 @@ import java.util.Objects;
 /**
  * 文件预览操作
  */
-public class FilePreview extends CommonEventComposite {
+public class FilePreview extends CommonEventComposite implements RequiresResize {
     private static final FilePreviewUiBinder ourUiBinder = GWT.create(FilePreviewUiBinder.class);
 
 
@@ -35,12 +37,15 @@ public class FilePreview extends CommonEventComposite {
     Header lbName;
     @UiField
     LayoutPanel contentPanel;
+    @UiField
+    DockLayoutPanel root;
     Widget currentWidget = null;
     InfoViewer infoViewer;
     TextEditViewer textEditViewer;
     boolean enableSave = false;
     ImageViewer imageViewer;
     Frame frameViewer;
+    HtmlViewer htmlViewer;
 
     public FilePreview() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -73,7 +78,7 @@ public class FilePreview extends CommonEventComposite {
         });
     }
 
-    private void switchEditor(ViewProjectFileResponse response, FileEditorMode mode) {
+    private void switchEditor(ViewProjectFileResponse response, EditableFileSuffix mode) {
         if (textEditViewer == null) {
             textEditViewer = new TextEditViewer();
         }
@@ -89,17 +94,58 @@ public class FilePreview extends CommonEventComposite {
 
     private void switchView(ViewProjectFileResponse data) {
         lbName.setText(StringUtil.extractName(data.getFileName()));
+
+        if (AppConstant.CANGLING_MIME_TYPE.equals(data.getMimeType())) {
+            String fileName = data.getFileName();
+
+            // 1. 先进行标准路径片段编码 (会将 / 变成 %2F)
+            String encodedPath = URL.encodePathSegment(fileName);
+
+            // 2. 将 %2F 还原为 /，这样 URL 就能保持层级结构，同时文件名中的特殊字符（如空格、#）已被安全编码
+            encodedPath = encodedPath.replace("%2F", "/");
+
+            // 3. 拼接基础路径
+            String baseUrl = "/api/v1/project/file/" + data.getResourceId();
+
+            // 确保 baseUrl 和 encodedPath 之间只有一个斜杠
+            String url;
+            if (encodedPath.startsWith("/")) {
+                url = baseUrl + encodedPath;
+            } else {
+                url = baseUrl + "/" + encodedPath;
+            }
+
+            switchHtml(data, url);
+            return;
+        }
+        if (AppConstant.CANGLING_MIME_FRAME.equals(data.getMimeType())) {
+            switchFrameViewer(data);
+            return;
+        }
+
         String suffix = StringUtil.suffix(data.getFileName()).toLowerCase();
-        FileEditorMode fileEditorMode = FileEditorMode.fromSuffix(suffix);
-        if (fileEditorMode != FileEditorMode.NONE) {
-            switchEditor(data, fileEditorMode);
+        EditableFileSuffix editableFileSuffix = EditableFileSuffix.fromSuffix(suffix);
+        if (editableFileSuffix != EditableFileSuffix.NONE) {
+            switchEditor(data, editableFileSuffix);
         } else if (ImageFileSuffix.fromSuffix(suffix) != ImageFileSuffix.NONE) {
             switchImageView(data);
-        } else if (OfficeFileSuffix.fromSuffix(suffix) != OfficeFileSuffix.NONE) {
-            switchFrameViewer(data);
         } else {
             switchMessage("不支持" + data.getMimeType());
         }
+    }
+
+    private void switchHtml(ViewProjectFileResponse data, String url) {
+        if (htmlViewer == null) {
+            htmlViewer = new HtmlViewer();
+        }
+        if (!Objects.equals(currentWidget, htmlViewer)) {
+            contentPanel.clear();
+            currentWidget = htmlViewer;
+            contentPanel.add(htmlViewer);
+        }
+        toolBar.clear();
+        toolBar.add(htmlViewer.getTools());
+        htmlViewer.setHtml(data.getBody(), url);
     }
 
     private void switchFrameViewer(ViewProjectFileResponse data) {
@@ -159,6 +205,11 @@ public class FilePreview extends CommonEventComposite {
             currentWidget = infoViewer;
         }
         infoViewer.setMessage(header, message);
+    }
+
+    @Override
+    public void onResize() {
+        root.onResize();
     }
 
     interface FilePreviewUiBinder extends UiBinder<DockLayoutPanel, FilePreview> {

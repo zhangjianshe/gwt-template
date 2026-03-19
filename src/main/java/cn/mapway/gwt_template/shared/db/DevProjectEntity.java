@@ -35,6 +35,7 @@ public class DevProjectEntity implements Serializable, IsSerializable {
     public static final String FLD_SUMMARY = "summary";
     public static final String FLD_UPDATE_TIME = "update_time";
     public static final String FLD_IS_TEMPLATE = "is_template";
+    public static final String FLD_SECURITY_LEVEL = "security_level";
     public static final String FLD_TAG = "tag";
 
     @Name
@@ -100,6 +101,11 @@ public class DevProjectEntity implements Serializable, IsSerializable {
     @Column(FLD_IS_TEMPLATE)
     @Default("false")
     Boolean isTemplate;
+
+    @Comment("密级")
+    @Column(FLD_SECURITY_LEVEL)
+    @Default("1")
+    Integer securityLevel;
 
     String createUserName;
     String createUserAvatar;

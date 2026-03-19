@@ -1,6 +1,7 @@
 package cn.mapway.gwt_template.client.workspace.project;
 
 import cn.mapway.gwt_template.client.rpc.AppProxy;
+import cn.mapway.gwt_template.client.workspace.widget.SecurityLevelDropdown;
 import cn.mapway.gwt_template.shared.db.DevProjectEntity;
 import cn.mapway.gwt_template.shared.rpc.project.QueryTemplateProjectRequest;
 import cn.mapway.gwt_template.shared.rpc.project.QueryTemplateProjectResponse;
@@ -52,6 +53,8 @@ public class CreateProjectPanel extends CommonEventComposite {
     TextArea txtSummary;
     @UiField
     DateBox txtStartDate;
+    @UiField
+    SecurityLevelDropdown ddlSecurity;
     ProjectTemplateItem currentSelected = null;
     @Setter
     String workspaceId;
@@ -204,6 +207,7 @@ public class CreateProjectPanel extends CommonEventComposite {
         project.setFolderId(folderId);
         project.setWorkspaceId(workspaceId);
         project.setTag("");
+        project.setSecurityLevel((Integer) ddlSecurity.getValue());
         request.setProject(project);
         btnCreate.setEnabled(false);
         if (currentSelected != null && currentSelected.getData() != null) {

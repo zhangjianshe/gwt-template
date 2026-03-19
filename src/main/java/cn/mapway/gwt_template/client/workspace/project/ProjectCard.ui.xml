@@ -3,65 +3,52 @@
     <ui:style>
         .card {
             background: white;
-            padding: 24px;
-            display: flex;
-            align-items: flex-start; /* 顶部对齐 */
-            border: 1px solid #f0f0f0;
-            margin: 15px;
+            border: 1px solid #e0e0e0;
+            width: 70%;
+            min-width: 70%;
+            min-height: 100%;
             position: relative;
         }
 
-        /* 左侧色条修饰 */
-        .color_bar {
-        }
-
-        .icon_box {
-            width: 64px;
-            height: 64px;
-            border-radius: 12px;
+        .info_main {
+            padding: 20px 20px;
             display: flex;
             align-items: center;
-            justify-content: center;
-            margin-right: 20px;
-            font-size: 28px;
-            color: white;
-            flex-shrink: 0;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .info_main {
-            flex: 1;
+            justify-content: space-between;
         }
 
         .title_row {
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
             margin-bottom: 8px;
+            flex-flow: column;
+            margin-top: 50px;
         }
 
         .title {
-            font-size: 20px;
-            font-weight: 600;
+            font-size: 1.8rem;
+            font-weight: bold;
             color: #2c3e50;
         }
 
         .desc {
-            font-size: 14px;
-            color: #7f8c8d;
-            line-height: 1.5;
-            margin-bottom: 16px;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
+            background-color: #f0f0f0;
+            padding: 30px;
+            line-height: 200%;
+            color: #888;
+            font-size: 0.8rem;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
         }
 
         .stats_row {
             display: flex;
             gap: 25px;
-            padding-top: 15px;
-            border-top: 1px dashed #eee;
+            padding: 30px;
+            background-color: #f0f0f0;
         }
 
         .stat_item {
@@ -78,28 +65,57 @@
             margin-top: 4px;
         }
 
-        .progress_container {
-            width: 150px;
-            margin-left: 30px;
-            align-self: center;
+
+        .security {
+            position: relative;
+            padding: 0;
+            border: double 2px #444;
+            width: 250px;
+            height: 100px;
+            margin-bottom: 20px;
         }
+
+        .sec_text {
+            font-weight: bold;
+            font-size: 2.3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 40px;
+        }
+
+        .sec_tip {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1rem;
+            background-color: #444;
+            color: white;
+        }
+
+        .date {
+            font-size: 1.1rem;
+            padding: 30px 30px;
+        }
+
     </ui:style>
 
     <g:HTMLPanel styleName="{style.card}">
-        <g:HTMLPanel styleName="{style.color_bar}" ui:field="pnlColorBar"/>
-
-        <g:HTMLPanel styleName="{style.icon_box}" ui:field="pnlIconBox">
-            <i ui:field="iconElement"/>
-        </g:HTMLPanel>
-
         <g:HTMLPanel styleName="{style.info_main}">
-            <div class="{style.title_row}">
-                <g:HTMLPanel styleName="{style.title}" ui:field="pnlName"/>
-                <g:InlineLabel ui:field="lbCreateTime" styleName="small-date"/>
-            </div>
-
-            <g:HTMLPanel styleName="{style.desc}" ui:field="pnlSummary"/>
-
+            <g:HTMLPanel addStyleNames="{style.security}">
+                <g:Label ui:field="lbSecurity" addStyleNames="{style.sec_text}"/>
+                <g:Label addStyleNames="{style.sec_tip}">秘密等级</g:Label>
+            </g:HTMLPanel>
             <div class="{style.stats_row}">
                 <div class="{style.stat_item}">
                     <span>创建者</span>
@@ -115,8 +131,10 @@
                 </div>
             </div>
         </g:HTMLPanel>
-
-        <g:HTMLPanel styleName="{style.progress_container}" ui:field="pnlExtra">
-        </g:HTMLPanel>
+        <div class="{style.title_row}">
+            <g:HTMLPanel styleName="{style.title}" ui:field="pnlName"/>
+            <g:InlineLabel ui:field="lbCreateTime" styleName="{style.date}"/>
+        </div>
+        <g:HTMLPanel styleName="{style.desc}" ui:field="pnlSummary"/>
     </g:HTMLPanel>
 </ui:UiBinder>
