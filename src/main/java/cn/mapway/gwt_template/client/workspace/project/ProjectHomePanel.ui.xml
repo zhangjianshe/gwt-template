@@ -19,7 +19,7 @@
             </g:HTMLPanel>
         </g:tab>
         <g:tab>
-            <g:header>项目任务</g:header>
+            <g:header>任务甘特图</g:header>
             <g:DockLayoutPanel>
                 <g:center>
                     <gantt:GanttWidget ui:field="gantt"/>
@@ -27,7 +27,7 @@
             </g:DockLayoutPanel>
         </g:tab>
         <g:tab>
-            <g:header>项目活动</g:header>
+            <g:header>项目日历</g:header>
             <g:HTMLPanel/>
         </g:tab>
         <g:tab>
