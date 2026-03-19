@@ -27,7 +27,7 @@
                     <widget2:SecurityLevelDropdown ui:field="ddlSecurity"/>
                     <widget:Header>项目颜色</widget:Header>
                     <widget:AiTextBox ui:field="txtColor"/>
-                    <widget:Header>项目分裂</widget:Header>
+                    <widget:Header>项目分类</widget:Header>
                     <workspace:WorkspaceFolderDropdown ui:field="ddlFolder"/>
                     <widget:Header>介绍</widget:Header>
                     <g:TextArea addStyleNames="ai-input" height="100px" ui:field="txtSummary"/>

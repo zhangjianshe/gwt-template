@@ -100,7 +100,7 @@ public class DevTaskEditor extends CommonEventComposite implements RequiresResiz
                     // 如果窗口正在显示，我们拦截 Escape 和 /
                     if (this.isShowing()) {
 
-                     if (keyCode == KeyCodes.KEY_S && event.getNativeEvent().getCtrlKey()) {
+                        if (keyCode == KeyCodes.KEY_S && event.getNativeEvent().getCtrlKey()) {
                             this.getContent().saveAndExit(new Callback<Void, Void>() {
                                 @Override
                                 public void onFailure(Void reason) {
@@ -200,6 +200,8 @@ public class DevTaskEditor extends CommonEventComposite implements RequiresResiz
         temp.setStatus((Integer) ddlStatus.getValue());
         temp.setSummary(txtSummary.getText());
         temp.setPriority((Integer) ddlPriority.getValue());
+        temp.setCharger(task.getCharger());
+
         doSave(temp);
     }
 
