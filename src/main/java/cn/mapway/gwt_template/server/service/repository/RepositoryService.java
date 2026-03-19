@@ -96,8 +96,12 @@ public class RepositoryService {
         }
     }
 
-    public List<VwRepositoryEntity> allRepositorys(Long userId) {
-        return dao.query(VwRepositoryEntity.class, Cnd.where("my_id", "=", userId).desc("create_time"));
+    public List<VwRepositoryEntity> allRepositories(Long userId, String nameFilter) {
+        if (Strings.isBlank(nameFilter)) {
+            return dao.query(VwRepositoryEntity.class, Cnd.where("my_id", "=", userId).desc("create_time"));
+        } else {
+            return dao.query(VwRepositoryEntity.class, Cnd.where("my_id", "=", userId).and("name", "like", "%" + nameFilter + "%").desc("create_time"));
+        }
     }
 
     public List<DevNodeEntity> allNodes() {

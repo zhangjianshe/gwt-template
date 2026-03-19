@@ -15,4 +15,5 @@ import java.io.Serializable;
 @Doc("QueryRepositoryRequest")
 public class QueryRepositoryRequest implements Serializable, IsSerializable {
     String repositoryId;
+    String nameFilter;
 }

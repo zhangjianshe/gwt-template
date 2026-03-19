@@ -38,7 +38,7 @@ public class QueryRepositoryExecutor extends AbstractBizExecutor<QueryRepository
         LoginUser user = (LoginUser) context.get(AppConstant.KEY_LOGIN_USER);
         if (Strings.isBlank(request.getRepositoryId())) {
             QueryRepositoryResponse response = new QueryRepositoryResponse();
-            response.setRepositories(repositoryService.allRepositorys(user.getUser().getUserId()));
+            response.setRepositories(repositoryService.allRepositories(user.getUser().getUserId(), request.getNameFilter()));
             return BizResult.success(response);
         } else {
             CommonPermission permission = repositoryService.findUserPermissionInRepository(user.getUser().getUserId(), request.getRepositoryId());

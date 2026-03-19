@@ -1,0 +1,31 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:dialog="urn:import:cn.mapway.ui.client.widget.dialog"
+             xmlns:widget="urn:import:cn.mapway.ui.client.widget"
+             xmlns:list="urn:import:cn.mapway.ui.client.widget.list">
+    <ui:style>
+        .panel {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            flex-wrap: wrap;
+            gap: 1rem;
+            padding: 2rem;
+        }
+    </ui:style>
+    <g:DockLayoutPanel>
+        <g:south size="68">
+            <dialog:SaveBar ui:field="saveBar" saveText="选择"/>
+        </g:south>
+        <g:north size="50">
+            <g:HTMLPanel addStyleNames="ai-flex-panel">
+                <widget:SearchBox ui:field="searchBox" width="300px"/>
+            </g:HTMLPanel>
+        </g:north>
+        <g:center>
+            <g:ScrollPanel>
+                <list:List width="100%" ui:field="list"/>
+            </g:ScrollPanel>
+        </g:center>
+    </g:DockLayoutPanel>
+</ui:UiBinder>

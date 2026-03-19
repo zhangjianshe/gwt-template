@@ -1,6 +1,7 @@
 package cn.mapway.gwt_template.client.workspace.repo;
 
 import cn.mapway.gwt_template.client.ClientContext;
+import cn.mapway.gwt_template.client.repository.CodeRepositorySelector;
 import cn.mapway.gwt_template.client.repository.RepositoryEditor;
 import cn.mapway.gwt_template.client.repository.RepositoryView;
 import cn.mapway.gwt_template.client.rpc.AppProxy;
@@ -202,6 +203,22 @@ public class ProjectRepoPanel extends CommonEventComposite implements IData<Stri
 
     @UiHandler("btnAssociate")
     public void btnAssociateClick(ClickEvent event) {
+        Dialog<CodeRepositorySelector> dialog = CodeRepositorySelector.getDialog(true);
+        dialog.addCommonHandler(new CommonEventHandler() {
+            @Override
+            public void onCommonEvent(CommonEvent commonEvent) {
+                if (commonEvent.isSelect()) {
+                    VwRepositoryEntity repo = commonEvent.getValue();
+                    doAppendRepoToProject(repo);
+                    dialog.hide();
+                } else if (commonEvent.isClose()) {
+                    dialog.hide();
+                }
+            }
+        });
+        dialog.getContent().load("");
+        dialog.center();
+
     }
 
     @UiHandler("list")
