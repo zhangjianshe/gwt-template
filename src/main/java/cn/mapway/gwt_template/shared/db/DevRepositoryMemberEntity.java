@@ -3,10 +3,7 @@ package cn.mapway.gwt_template.shared.db;
 import com.google.gwt.user.client.rpc.IsSerializable;
 import lombok.Getter;
 import lombok.Setter;
-import org.nutz.dao.entity.annotation.Column;
-import org.nutz.dao.entity.annotation.Default;
-import org.nutz.dao.entity.annotation.PK;
-import org.nutz.dao.entity.annotation.Table;
+import org.nutz.dao.entity.annotation.*;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
@@ -23,11 +20,14 @@ public class DevRepositoryMemberEntity implements Serializable, IsSerializable {
     public static final String FLD_OWNER = "owner";
 
     @Column("user_id")
+    @ColDefine(type = ColType.VARCHAR, width = 64)
     Long userId;
     @Column("repository_id")
+    @ColDefine(type = ColType.VARCHAR, width = 64)
     String repositoryId;
     @Column("permission")
-    Integer permission;
+    @ColDefine(type = ColType.VARCHAR, width = 255)
+    String permission;
     @Column(hump = true)
     Timestamp createTime;
     @Column(hump = true)

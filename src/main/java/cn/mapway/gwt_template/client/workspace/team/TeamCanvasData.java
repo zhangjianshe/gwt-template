@@ -5,8 +5,8 @@ import cn.mapway.gwt_template.client.resource.AppResource;
 import cn.mapway.gwt_template.client.rpc.AppProxy;
 import cn.mapway.gwt_template.shared.db.DevProjectTeamEntity;
 import cn.mapway.gwt_template.shared.rpc.project.*;
+import cn.mapway.gwt_template.shared.rpc.project.module.CommonPermission;
 import cn.mapway.gwt_template.shared.rpc.project.module.ProjectMember;
-import cn.mapway.gwt_template.shared.rpc.user.CommonPermission;
 import cn.mapway.ui.client.IUserInfo;
 import cn.mapway.ui.client.mvc.Rect;
 import cn.mapway.ui.client.mvc.Size;
@@ -54,7 +54,7 @@ public class TeamCanvasData {
             @Override
             public void onSuccess(RpcResult<QueryProjectTeamResponse> result) {
                 if (result.isSuccess()) {
-                    CommonPermission permission = CommonPermission.fromPermission(result.getData().getPermission());
+                    CommonPermission permission = CommonPermission.from(result.getData().getPermission());
                     teamCanvas.setReadonly(!permission.isAdmin());
                     setData(result.getData().getRootTeams());
                 }
@@ -347,7 +347,7 @@ public class TeamCanvasData {
         newChild.setName(teamName);
         newChild.setParentId(parent.getId());
         newChild.setProjectId(parent.getProjectId());
-        newChild.setTeamPermission(CommonPermission.fromPermission(0).getPermission());
+        newChild.setTeamPermission(CommonPermission.empty().toString());
         newChild.setColor("");
 
         UpdateProjectTeamRequest request = new UpdateProjectTeamRequest();

@@ -5,18 +5,16 @@ import cn.mapway.biz.core.BizContext;
 import cn.mapway.biz.core.BizRequest;
 import cn.mapway.biz.core.BizResult;
 import cn.mapway.gwt_template.server.service.file.FileCustomUtils;
-import cn.mapway.gwt_template.server.service.file.FileUploadExecutor;
 import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.rpc.project.UpdateProjectFileRequest;
 import cn.mapway.gwt_template.shared.rpc.project.UpdateProjectFileResponse;
-import cn.mapway.gwt_template.shared.rpc.project.module.ProjectPermission;
+import cn.mapway.gwt_template.shared.rpc.project.module.CommonPermission;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
 import lombok.extern.slf4j.Slf4j;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Files;
 import org.nutz.lang.Strings;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -41,7 +39,7 @@ public class UpdateProjectFileExecutor extends AbstractBizExecutor<UpdateProject
         LoginUser user = (LoginUser) context.get(AppConstant.KEY_LOGIN_USER);
         assertTrue(Strings.isNotBlank(request.getResourceId()), "没有资源ID");
         assertTrue(Strings.isNotBlank(request.getFilePathName()), "没有文件名称");
-        ProjectPermission permission = projectService.findUserPermissionInProjectResource(user.getUser().getUserId(), request.getResourceId());
+        CommonPermission permission = projectService.findUserPermissionInProjectResource(user.getUser().getUserId(), request.getResourceId());
         assertTrue(permission.isSuper() || permission.canUpdate(), "没有更新的权限");
 
         BizResult<String> resourceAbsolutePath = projectService.getResourceAbsolutePath(request.getResourceId());

@@ -24,8 +24,8 @@
             <g:DockLayoutPanel addStyleNames="{style.left}">
                 <g:north size="50">
                     <g:HTMLPanel addStyleNames="{style.top}">
-                        <widget:Head>我参与的项目</widget:Head>
-                        <buttons:AiButton ui:field="btnCreate">创建项目</buttons:AiButton>
+                        <widget:Head>我参与的代码</widget:Head>
+                        <buttons:AiButton ui:field="btnCreate">创建代码仓库</buttons:AiButton>
                     </g:HTMLPanel>
                 </g:north>
                 <g:center>

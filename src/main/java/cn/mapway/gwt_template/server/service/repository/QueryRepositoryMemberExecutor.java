@@ -19,7 +19,7 @@ import javax.annotation.Resource;
 import java.util.List;
 
 /**
- * QueryProjectMemberExecutor
+ * QueryRepositoryMemberExecutor
  *
  * @author zhangjianshe <zhangjianshe@gmail.com>
  */
@@ -35,7 +35,7 @@ public class QueryRepositoryMemberExecutor extends AbstractBizExecutor<QueryRepo
         LoginUser user= (LoginUser) context.get(AppConstant.KEY_LOGIN_USER);
         DevRepositoryMemberEntity member = repositoryService.findProjectMemberByMemberId(request.getRepositoryId(), user.getUser().getUserId());
         assertNotNull(member, "您不在项目中");
-        Integer currentUserPermission = member.getPermission();
+        String currentUserPermission = member.getPermission();
 
         List<VwRepositoryMemberEntity> members= repositoryService.findProjectMembers(request.getRepositoryId());
         QueryRepositoryMemberResponse response = new QueryRepositoryMemberResponse();

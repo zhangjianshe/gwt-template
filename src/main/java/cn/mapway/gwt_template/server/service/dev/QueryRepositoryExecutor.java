@@ -9,7 +9,7 @@ import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.db.VwRepositoryEntity;
 import cn.mapway.gwt_template.shared.rpc.dev.QueryRepositoryRequest;
 import cn.mapway.gwt_template.shared.rpc.dev.QueryRepositoryResponse;
-import cn.mapway.gwt_template.shared.rpc.user.CommonPermission;
+import cn.mapway.gwt_template.shared.rpc.project.module.CommonPermission;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
 import lombok.extern.slf4j.Slf4j;
 import org.nutz.json.Json;

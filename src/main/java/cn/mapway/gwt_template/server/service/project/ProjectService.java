@@ -4,8 +4,7 @@ import cn.mapway.biz.core.BizResult;
 import cn.mapway.gwt_template.server.service.config.SystemConfigService;
 import cn.mapway.gwt_template.server.service.file.FileCustomUtils;
 import cn.mapway.gwt_template.shared.db.*;
-import cn.mapway.gwt_template.shared.rpc.project.module.ProjectPermission;
-import cn.mapway.gwt_template.shared.rpc.user.CommonPermission;
+import cn.mapway.gwt_template.shared.rpc.project.module.CommonPermission;
 import cn.mapway.rbac.shared.db.postgis.RbacUserEntity;
 import cn.mapway.ui.client.IUserInfo;
 import cn.mapway.ui.client.fonts.Fonts;
@@ -83,7 +82,7 @@ public class ProjectService {
     /**
      * 创建项目小组
      */
-    public String createProjectTeam(String projectId, String parentId, String name, Integer permission, String color, String summary) {
+    public String createProjectTeam(String projectId, String parentId, String name, String permission, String color, String summary) {
         DevProjectTeamEntity team = new DevProjectTeamEntity();
         team.setId(R.UU16());
         team.setProjectId(projectId);
@@ -341,7 +340,7 @@ public class ProjectService {
         member.setWorkspaceId(workspace.getId());
         member.setCreateTime(workspace.getCreateTime());
         member.setIsOwner(true);
-        member.setPermission(ProjectPermission.from("").setOwner().toString());
+        member.setPermission(CommonPermission.from("").setOwner().toString());
         dao.insert(member);
     }
 
@@ -349,17 +348,17 @@ public class ProjectService {
         if (resource == null || Strings.isBlank(resource.getId()) || resource.getId().length() < 6) {
             return BizResult.error(500, "没有提供合适的资源信息");
         }
-        String s = FileCustomUtils.concatPath(systemConfigService.getProjectResourceRootPath(), resource.getId().substring(0, 2), resource.getId().substring(2));
+        //项目资源的路径为 projectId/
+        String projectId = FileCustomUtils.concatPath(resource.getProjectId().substring(0, 3), resource.getProjectId().substring(3));
+        String resourceId = FileCustomUtils.concatPath(resource.getId().substring(0, 3), resource.getId().substring(3));
+
+        String s = FileCustomUtils.concatPath(systemConfigService.getProjectResourceRootPath(), projectId, resourceId);
         return BizResult.success(s);
     }
 
     public BizResult<String> getResourceAbsolutePath(String resourceId) {
         DevProjectResourceEntity resource = findProjectResource(resourceId);
-        if (resource == null || Strings.isBlank(resource.getId()) || resource.getId().length() < 6) {
-            return BizResult.error(500, "没有提供合适的资源信息");
-        }
-        String s = FileCustomUtils.concatPath(systemConfigService.getProjectResourceRootPath(), resource.getId().substring(0, 2), resource.getId().substring(2));
-        return BizResult.success(s);
+        return getResourceAbsolutePath(resource);
     }
 
     /**
@@ -465,7 +464,7 @@ public class ProjectService {
      * @return
      */
     public CommonPermission userPermissionInProject(Long operatorId, String projectId) {
-        CommonPermission permission = CommonPermission.fromPermission(0);
+        CommonPermission permission = CommonPermission.empty();
         if (operatorId == null) return permission;
 
         DevProjectEntity project = dao.fetch(DevProjectEntity.class, projectId);
@@ -474,8 +473,7 @@ public class ProjectService {
         }
 
         if (project.getUserId().equals(operatorId)) {
-            permission.setAll();
-            return permission;
+            return CommonPermission.owner();
         }
 
         DevProjectTeamMemberEntity memberEntity = dao.fetch(DevProjectTeamMemberEntity.class, Cnd.where(DevProjectTeamMemberEntity.FLD_PROJECT_ID, "=", projectId)
@@ -483,7 +481,7 @@ public class ProjectService {
         if (memberEntity == null) {
             return permission;
         }
-        permission = CommonPermission.fromPermission(permission.getPermission());
+        permission = CommonPermission.from(memberEntity.getPermission());
         permission.setRead(true);
         return permission;
     }
@@ -588,8 +586,8 @@ public class ProjectService {
         return BizResult.success(true);
     }
 
-    public ProjectPermission findUserPermissionInProject(Long userId, String projectId) {
-        ProjectPermission permission = ProjectPermission.empty();
+    public CommonPermission findUserPermissionInProject(Long userId, String projectId) {
+        CommonPermission permission = CommonPermission.empty();
         // 必须指定 userId，否则会查出项目中所有人的权限汇总
         Cnd where = Cnd.where(DevProjectTeamMemberEntity.FLD_USER_ID, "=", userId)
                 .and(DevProjectTeamMemberEntity.FLD_PROJECT_ID, "=", projectId);
@@ -601,24 +599,24 @@ public class ProjectService {
         return permission;
     }
 
-    public ProjectPermission findUserPermissionInProjectResource(Long userId, String resourceId) {
+    public CommonPermission findUserPermissionInProjectResource(Long userId, String resourceId) {
         Cnd where = Cnd.where(DevProjectResourceMemberEntity.FLD_USER_ID, "=", userId)
                 .and(DevProjectResourceMemberEntity.FLD_RESOURCE_ID, "=", resourceId);
         DevProjectResourceMemberEntity resourceMember = dao.fetch(DevProjectResourceMemberEntity.class, where);
         if (resourceMember == null) {
-            return ProjectPermission.empty();
+            return CommonPermission.empty();
         } else {
-            return ProjectPermission.from(resourceMember.getPermission());
+            return CommonPermission.from(resourceMember.getPermission());
         }
     }
 
     public DevProjectEntity findProject(String projectId) {
-        DevProjectEntity project= dao.fetch(DevProjectEntity.class, Cnd.where(DevProjectEntity.FLD_ID, "=", projectId));
+        DevProjectEntity project = dao.fetch(DevProjectEntity.class, Cnd.where(DevProjectEntity.FLD_ID, "=", projectId));
         fillProjectExtraInformation(project);
         return project;
     }
 
     public DevProjectResourceEntity findProjectResource(String resourceId) {
-        return dao.fetch(DevProjectResourceEntity.class,resourceId);
+        return dao.fetch(DevProjectResourceEntity.class, resourceId);
     }
 }

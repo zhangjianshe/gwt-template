@@ -54,7 +54,7 @@ public class RepositoryEditor extends CommonEventComposite implements IData<VwRe
 
     private static Dialog<RepositoryEditor> createOne() {
         RepositoryEditor editor = new RepositoryEditor();
-        return new Dialog<>(editor, "创建项目");
+        return new Dialog<>(editor, "创建代码仓库");
     }
 
     @Override

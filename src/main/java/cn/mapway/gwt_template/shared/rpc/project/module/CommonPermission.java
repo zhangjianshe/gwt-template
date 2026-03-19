@@ -8,36 +8,44 @@ import java.io.Serializable;
  * 增强版基于字符串位的权限处理类
  * 整合了超级用户判定、权限合并与继承逻辑
  */
-public class ProjectPermission implements Serializable, IsSerializable {
+public class CommonPermission implements Serializable, IsSerializable {
     private static final char ALLOW = '1';
     private static final char DENY = '0';
     private final static String INIT_PERMISSION = "000000000000";
     private final StringBuilder bits;
 
-    public ProjectPermission() {
+    public CommonPermission() {
         this.bits = new StringBuilder(INIT_PERMISSION);
     }
 
-    public ProjectPermission(String data) {
+    public CommonPermission(String data) {
         this.bits = new StringBuilder((data == null || data.isEmpty()) ? INIT_PERMISSION : data);
     }
 
-    public static ProjectPermission from(String data) {
-        return new ProjectPermission(data);
+    public static CommonPermission from(String data) {
+        return new CommonPermission(data);
     }
 
-    public static ProjectPermission empty() {
-        return new ProjectPermission(null);
+    public static CommonPermission empty() {
+        return new CommonPermission(null);
     }
 
     // --- 快捷工厂方法 ---
 
-    public static ProjectPermission owner() {
-        return new ProjectPermission().set(ProjectPermissionKind.OWNER, true);
+    public static CommonPermission owner() {
+        return new CommonPermission().set(ProjectPermissionKind.OWNER, true);
     }
 
-    public static ProjectPermission admin() {
-        return new ProjectPermission().set(ProjectPermissionKind.ADMIN, true);
+    public static CommonPermission admin() {
+        return new CommonPermission().set(ProjectPermissionKind.ADMIN, true);
+    }
+
+    public static CommonPermission all() {
+        CommonPermission commonPermission = new CommonPermission();
+        for (ProjectPermissionKind kind : ProjectPermissionKind.values()) {
+            commonPermission.set(kind, true);
+        }
+        return commonPermission;
     }
 
     // --- 核心逻辑：超级权限判定 ---
@@ -93,7 +101,7 @@ public class ProjectPermission implements Serializable, IsSerializable {
         return isBitSet(ProjectPermissionKind.ADMIN.getIndex());
     }
 
-    public ProjectPermission setAdmin(boolean allow) {
+    public CommonPermission setAdmin(boolean allow) {
         return set(ProjectPermissionKind.ADMIN, allow);
     }
 
@@ -103,7 +111,7 @@ public class ProjectPermission implements Serializable, IsSerializable {
         return isBitSet(ProjectPermissionKind.OWNER.getIndex());
     }
 
-    public ProjectPermission set(ProjectPermissionKind type, boolean allow) {
+    public CommonPermission set(ProjectPermissionKind type, boolean allow) {
         if (type == null) return this;
         int index = type.getIndex();
         ensureCapacity(index);
@@ -111,23 +119,23 @@ public class ProjectPermission implements Serializable, IsSerializable {
         return this;
     }
 
-    public ProjectPermission setRead(boolean allow) {
+    public CommonPermission setRead(boolean allow) {
         return set(ProjectPermissionKind.READ, allow);
     }
 
-    public ProjectPermission setUpdate(boolean allow) {
+    public CommonPermission setUpdate(boolean allow) {
         return set(ProjectPermissionKind.UPDATE, allow);
     }
 
-    public ProjectPermission setDelete(boolean allow) {
+    public CommonPermission setDelete(boolean allow) {
         return set(ProjectPermissionKind.DELETE, allow);
     }
 
-    public ProjectPermission setCreate(boolean allow) {
+    public CommonPermission setCreate(boolean allow) {
         return set(ProjectPermissionKind.CREATE, allow);
     }
 
-    public ProjectPermission setOwner() {
+    public CommonPermission setOwner() {
         return set(ProjectPermissionKind.OWNER, true);
     }
 
@@ -142,7 +150,7 @@ public class ProjectPermission implements Serializable, IsSerializable {
      * 权限合并（OR 操作）
      * 用于将“项目权限”与“资源权限”合并，得出用户的最终有效权限
      */
-    public ProjectPermission merge(ProjectPermission other) {
+    public CommonPermission merge(CommonPermission other) {
         if (other == null) return this;
         String otherData = other.toString();
         for (int i = 0; i < otherData.length(); i++) {
@@ -153,7 +161,8 @@ public class ProjectPermission implements Serializable, IsSerializable {
         }
         return this;
     }
-    public ProjectPermission merge(String other) {
+
+    public CommonPermission merge(String other) {
         if (other == null || other.isEmpty()) return this;
 
         // 无论 other 多长或多短，我们只按索引位进行 OR 运算
@@ -173,7 +182,7 @@ public class ProjectPermission implements Serializable, IsSerializable {
         return bits.toString();
     }
 
-    public ProjectPermission clear() {
+    public CommonPermission clear() {
         bits.setLength(0);
         bits.append(INIT_PERMISSION);
         return this;

@@ -16,5 +16,5 @@ import java.io.Serializable;
 public class UpdateRepositoryMemberRequest implements Serializable, IsSerializable {
     String repositoryId;
     Long userId;
-    Integer permission;
+    String permission;
 }

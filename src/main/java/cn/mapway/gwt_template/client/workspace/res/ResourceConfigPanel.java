@@ -8,7 +8,7 @@ import cn.mapway.gwt_template.client.rpc.AsyncAdaptor;
 import cn.mapway.gwt_template.client.workspace.task.ProjectMemberSelector;
 import cn.mapway.gwt_template.shared.db.DevProjectResourceEntity;
 import cn.mapway.gwt_template.shared.rpc.project.module.ProjectMember;
-import cn.mapway.gwt_template.shared.rpc.project.module.ProjectPermission;
+import cn.mapway.gwt_template.shared.rpc.project.module.CommonPermission;
 import cn.mapway.gwt_template.shared.rpc.project.module.ProjectPermissionKind;
 import cn.mapway.gwt_template.shared.rpc.project.module.ResourceMember;
 import cn.mapway.gwt_template.shared.rpc.project.res.*;
@@ -171,14 +171,14 @@ public class ResourceConfigPanel extends CommonEventComposite implements IData<D
             @Override
             public void onData(RpcResult<QueryResourceMemberResponse> result) {
                 if (result.isSuccess()) {
-                    renderMembers(ProjectPermission.from(result.getData().getCurrentPermission()),
+                    renderMembers(CommonPermission.from(result.getData().getCurrentPermission()),
                             result.getData().getMembers());
                 }
             }
         });
     }
 
-    private void renderMembers(ProjectPermission currentPermission, java.util.List<ResourceMember> members) {
+    private void renderMembers(CommonPermission currentPermission, java.util.List<ResourceMember> members) {
         btnSave.setEnabled(currentPermission.isOwner());
         FlexTable.FlexCellFormatter cellFormatter = memberTable.getFlexCellFormatter();
         for (ResourceMember m : members) {
@@ -201,7 +201,7 @@ public class ResourceConfigPanel extends CommonEventComposite implements IData<D
             memberTable.setWidget(row, 0, userBox);
 
             // 2. 权限展示
-            ProjectPermission p = ProjectPermission.from(m.getPermission());
+            CommonPermission p = CommonPermission.from(m.getPermission());
             PermissionBar permissionBar = new PermissionBar();
             permissionBar.setData(p);
             if (p.isOwner()) {
@@ -219,7 +219,7 @@ public class ResourceConfigPanel extends CommonEventComposite implements IData<D
                 @Override
                 public void onCommonEvent(CommonEvent event) {
                     if (event.isUpdate()) {
-                        ProjectPermission permission = event.getValue();
+                        CommonPermission permission = event.getValue();
                         updateUserPermission(m.getResourceId(), m.getUserId(), permission);
                     }
                 }
@@ -254,7 +254,7 @@ public class ResourceConfigPanel extends CommonEventComposite implements IData<D
         }
     }
 
-    private void updateUserPermission(String resourceId, Long userId, ProjectPermission permission) {
+    private void updateUserPermission(String resourceId, Long userId, CommonPermission permission) {
         AddResourceMemberRequest request = new AddResourceMemberRequest();
         request.setPermission(permission.toString());
         request.setResourceId(resourceId);

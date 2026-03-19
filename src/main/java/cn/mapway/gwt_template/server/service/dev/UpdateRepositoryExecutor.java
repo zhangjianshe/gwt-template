@@ -10,8 +10,8 @@ import cn.mapway.gwt_template.shared.db.DevRepositoryEntity;
 import cn.mapway.gwt_template.shared.db.VwRepositoryEntity;
 import cn.mapway.gwt_template.shared.rpc.dev.UpdateRepositoryRequest;
 import cn.mapway.gwt_template.shared.rpc.dev.UpdateRepositoryResponse;
+import cn.mapway.gwt_template.shared.rpc.project.module.CommonPermission;
 import cn.mapway.gwt_template.shared.rpc.repository.RepositoryOwnerKind;
-import cn.mapway.gwt_template.shared.rpc.user.CommonPermission;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
 import lombok.extern.slf4j.Slf4j;
 import org.nutz.json.Json;
@@ -54,8 +54,8 @@ public class UpdateRepositoryExecutor extends AbstractBizExecutor<UpdateReposito
                 project.setSummary(project.getFullName());
             }
         } else {
-            CommonPermission permission = repositoryService.userProjectPermission(user.getUser().getUserId(), project.getId());
-            assertNotNull(permission.canWrite(), "没有更新权限");
+            CommonPermission permission = repositoryService.userRepoPermission(user.getUser().getUserId(), project.getId());
+            assertNotNull(permission.canUpdate(), "没有更新权限");
         }
         BizResult<DevRepositoryEntity> updateResult = repositoryService.saveOrUpdateProject(user.getUserName(), project);
         if (updateResult.isFailed()) {

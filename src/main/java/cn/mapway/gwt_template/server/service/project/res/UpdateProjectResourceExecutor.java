@@ -8,7 +8,7 @@ import cn.mapway.gwt_template.server.service.project.ProjectService;
 import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.db.DevProjectResourceEntity;
 import cn.mapway.gwt_template.shared.db.DevProjectResourceMemberEntity;
-import cn.mapway.gwt_template.shared.rpc.project.module.ProjectPermission;
+import cn.mapway.gwt_template.shared.rpc.project.module.CommonPermission;
 import cn.mapway.gwt_template.shared.rpc.project.res.UpdateProjectResourceRequest;
 import cn.mapway.gwt_template.shared.rpc.project.res.UpdateProjectResourceResponse;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
@@ -75,7 +75,7 @@ public class UpdateProjectResourceExecutor
         assertTrue(Strings.isNotBlank(resource.getProjectId()), "必须指定所属项目ID");
 
         // 2. 权限校验：创建资源通常需要项目管理员权限
-        ProjectPermission permission = projectService.findUserPermissionInProject(
+        CommonPermission permission = projectService.findUserPermissionInProject(
                 user.getUser().getUserId(),
                 resource.getProjectId()
         );
@@ -96,7 +96,7 @@ public class UpdateProjectResourceExecutor
         DevProjectResourceMemberEntity member = new DevProjectResourceMemberEntity();
         member.setResourceId(resourceId);
         member.setUserId(user.getUser().getUserId());
-        member.setPermission(ProjectPermission.owner().toString());
+        member.setPermission(CommonPermission.owner().toString());
         member.setCreateTime(now);
 
         // 5. 事务持久化
@@ -122,7 +122,7 @@ public class UpdateProjectResourceExecutor
         assertNotNull(old, "目标资源已不存在");
 
         // 2. 权限校验
-        ProjectPermission permission = projectService.findUserPermissionInProjectResource(
+        CommonPermission permission = projectService.findUserPermissionInProjectResource(
                 user.getUser().getUserId(),
                 resource.getId()
         );

@@ -91,7 +91,8 @@ public class DevProjectTeamEntity implements Serializable, IsSerializable {
 
     @Column(FLD_TEAM_PERMISSION)
     @Comment("小组权限")
-    Integer teamPermission;
+    @ColDefine(type = ColType.VARCHAR, width = 255)
+    String teamPermission;
 
     private List<DevProjectTeamEntity> children = new ArrayList<>();
     private List<ProjectMember> members = new ArrayList<>();

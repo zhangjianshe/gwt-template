@@ -7,7 +7,7 @@ import cn.mapway.biz.core.BizResult;
 import cn.mapway.gwt_template.server.service.project.ProjectService;
 import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.db.DevProjectResourceMemberEntity;
-import cn.mapway.gwt_template.shared.rpc.project.module.ProjectPermission;
+import cn.mapway.gwt_template.shared.rpc.project.module.CommonPermission;
 import cn.mapway.gwt_template.shared.rpc.project.res.DeleteResourceMemberRequest;
 import cn.mapway.gwt_template.shared.rpc.project.res.DeleteResourceMemberResponse;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
@@ -52,7 +52,7 @@ public class DeleteResourceMemberExecutor extends AbstractBizExecutor<DeleteReso
         assertNotNull(targetUserId, "必须提供目标用户ID");
 
         // 2. 权限校验
-        ProjectPermission operatorPermission = projectService.findUserPermissionInProjectResource(
+        CommonPermission operatorPermission = projectService.findUserPermissionInProjectResource(
                 operatorId,
                 request.getResourceId()
         );
@@ -74,7 +74,7 @@ public class DeleteResourceMemberExecutor extends AbstractBizExecutor<DeleteReso
         }
 
         // 4. 关键逻辑：防止最后一个 Owner 退出
-        ProjectPermission targetPermission = ProjectPermission.from(targetMember.getPermission());
+        CommonPermission targetPermission = CommonPermission.from(targetMember.getPermission());
         if (targetPermission.isOwner()) {
             // 查询当前资源下所有 Owner 的数量
             int ownerCount = 0;
@@ -82,7 +82,7 @@ public class DeleteResourceMemberExecutor extends AbstractBizExecutor<DeleteReso
                     Cnd.where("resource_id", "=", request.getResourceId()));
 
             for (DevProjectResourceMemberEntity m : allMembers) {
-                if (ProjectPermission.from(m.getPermission()).isOwner()) {
+                if (CommonPermission.from(m.getPermission()).isOwner()) {
                     ownerCount++;
                 }
             }

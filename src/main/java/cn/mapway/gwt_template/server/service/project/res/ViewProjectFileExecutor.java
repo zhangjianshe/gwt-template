@@ -9,7 +9,7 @@ import cn.mapway.gwt_template.server.service.file.FileService;
 import cn.mapway.gwt_template.server.service.project.ProjectService;
 import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.rpc.file.*;
-import cn.mapway.gwt_template.shared.rpc.project.module.ProjectPermission;
+import cn.mapway.gwt_template.shared.rpc.project.module.CommonPermission;
 import cn.mapway.gwt_template.shared.rpc.project.res.ViewProjectFileRequest;
 import cn.mapway.gwt_template.shared.rpc.project.res.ViewProjectFileResponse;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
@@ -49,7 +49,7 @@ public class ViewProjectFileExecutor extends AbstractBizExecutor<ViewProjectFile
         ViewProjectFileResponse response = new ViewProjectFileResponse();
         assertNotNull(Strings.isNotBlank(request.getResourceId()), "没有项目资源ID");
         assertNotNull(Strings.isNotBlank(request.getRelPathName()), "没有文件名称");
-        ProjectPermission permission = projectService.findUserPermissionInProjectResource(user.getUser().getUserId(), request.getResourceId());
+        CommonPermission permission = projectService.findUserPermissionInProjectResource(user.getUser().getUserId(), request.getResourceId());
         assertTrue(permission.isSuper() || permission.canRead(), "没有权限浏览该数据");
         BizResult<String> resourceAbsolutePath = projectService.getResourceAbsolutePath(request.getResourceId());
         if (resourceAbsolutePath.isFailed()) {

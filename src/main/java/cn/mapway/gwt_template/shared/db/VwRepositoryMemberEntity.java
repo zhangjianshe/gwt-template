@@ -19,7 +19,7 @@ public class VwRepositoryMemberEntity implements Serializable, IsSerializable {
     @Column(hump = true)
     String repositoryId;
     @Column(hump = true)
-    Integer permission;
+    String permission;
     @Column(hump = true)
     String userName;
     @Column(hump = true)

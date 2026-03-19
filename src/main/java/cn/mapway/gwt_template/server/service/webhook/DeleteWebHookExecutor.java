@@ -7,7 +7,7 @@ import cn.mapway.biz.core.BizResult;
 import cn.mapway.gwt_template.server.service.repository.RepositoryService;
 import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.db.WebHookEntity;
-import cn.mapway.gwt_template.shared.rpc.user.CommonPermission;
+import cn.mapway.gwt_template.shared.rpc.project.module.CommonPermission;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
 import cn.mapway.gwt_template.shared.rpc.webhook.DeleteWebHookRequest;
 import cn.mapway.gwt_template.shared.rpc.webhook.DeleteWebHookResponse;
@@ -53,7 +53,7 @@ public class DeleteWebHookExecutor extends AbstractBizExecutor<DeleteWebHookResp
         }
 
         // Only repository admins should be able to delete hooks
-        CommonPermission permission = repositoryService.userProjectPermission(
+        CommonPermission permission = repositoryService.userRepoPermission(
                 user.getUser().getUserId(), hook.getSourceId());
 
         if (!permission.isAdmin()) {

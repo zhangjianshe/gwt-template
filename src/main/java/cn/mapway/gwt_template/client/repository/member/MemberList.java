@@ -4,8 +4,8 @@ import cn.mapway.gwt_template.client.ClientContext;
 import cn.mapway.gwt_template.client.rpc.AppProxy;
 import cn.mapway.gwt_template.client.widget.Head;
 import cn.mapway.gwt_template.shared.db.VwRepositoryMemberEntity;
+import cn.mapway.gwt_template.shared.rpc.project.module.CommonPermission;
 import cn.mapway.gwt_template.shared.rpc.repository.*;
-import cn.mapway.gwt_template.shared.rpc.user.CommonPermission;
 import cn.mapway.ui.client.IUserInfo;
 import cn.mapway.ui.client.tools.IData;
 import cn.mapway.ui.client.widget.CommonEventComposite;
@@ -131,7 +131,7 @@ public class MemberList extends CommonEventComposite implements IData<String> {
             @Override
             public void onSuccess(RpcResult<QueryRepositoryMemberResponse> result) {
                 if (result.isSuccess()) {
-                    CommonPermission commonPermission = CommonPermission.fromPermission(result.getData().getCurrentUserPermission());
+                    CommonPermission commonPermission = CommonPermission.from(result.getData().getCurrentUserPermission());
                     renderMember(commonPermission.isAdmin(), result.getData().getMembers());
                 } else {
                     ClientContext.get().toast(0, 0, result.getMessage());
@@ -184,7 +184,7 @@ public class MemberList extends CommonEventComposite implements IData<String> {
         }
 
         UpdateRepositoryMemberRequest request = new UpdateRepositoryMemberRequest();
-        request.setPermission(CommonPermission.fromPermission(0).setRead(true).getPermission());
+        request.setPermission(CommonPermission.empty().setRead(true).toString());
         request.setUserId(userId);
         request.setRepositoryId(repositoryId);
         AppProxy.get().updateRepositoryMember(request, new AsyncCallback<RpcResult<UpdateRepositoryMemberResponse>>() {

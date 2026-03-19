@@ -9,7 +9,7 @@ import cn.mapway.gwt_template.server.service.repository.RepositoryService;
 import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.rpc.file.UploadFileRequest;
 import cn.mapway.gwt_template.shared.rpc.file.UploadReturnResponse;
-import cn.mapway.gwt_template.shared.rpc.user.CommonPermission;
+import cn.mapway.gwt_template.shared.rpc.project.module.CommonPermission;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
 import org.nutz.json.Json;
 import org.nutz.lang.Streams;
@@ -80,7 +80,7 @@ public class IndexController extends ApiBaseController{
             response.getWriter().println("请登录后获取内容");
             return;
         }
-        CommonPermission permission = repositoryService.findUserPermissionInProjectByName(user.getUser().getUserId(), owner, projectName);
+        CommonPermission permission = repositoryService.findUserPermissionInRepoByName(user.getUser().getUserId(), owner, projectName);
         if (!permission.isAdmin() && !permission.canRead()) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().println("请登录后获取内容");

@@ -8,7 +8,7 @@ import cn.mapway.gwt_template.server.service.project.ProjectService;
 import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.db.DevProjectResourceEntity;
 import cn.mapway.gwt_template.shared.db.DevProjectResourceMemberEntity;
-import cn.mapway.gwt_template.shared.rpc.project.module.ProjectPermission;
+import cn.mapway.gwt_template.shared.rpc.project.module.CommonPermission;
 import cn.mapway.gwt_template.shared.rpc.project.res.DeleteProjectResourceRequest;
 import cn.mapway.gwt_template.shared.rpc.project.res.DeleteProjectResourceResponse;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
@@ -57,7 +57,7 @@ public class DeleteProjectResourceExecutor extends AbstractBizExecutor<DeletePro
             return BizResult.success(new DeleteProjectResourceResponse()); // 幂等处理
         }
 
-        ProjectPermission permission = projectService.findUserPermissionInProjectResource(
+        CommonPermission permission = projectService.findUserPermissionInProjectResource(
                 user.getUser().getUserId(),
                 request.getResourceId()
         );

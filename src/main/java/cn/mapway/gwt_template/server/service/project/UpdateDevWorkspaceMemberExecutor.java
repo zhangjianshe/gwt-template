@@ -8,7 +8,7 @@ import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.db.DevWorkspaceMemberEntity;
 import cn.mapway.gwt_template.shared.rpc.project.UpdateDevWorkspaceMemberRequest;
 import cn.mapway.gwt_template.shared.rpc.project.UpdateDevWorkspaceMemberResponse;
-import cn.mapway.gwt_template.shared.rpc.project.module.ProjectPermission;
+import cn.mapway.gwt_template.shared.rpc.project.module.CommonPermission;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
 import lombok.extern.slf4j.Slf4j;
 import org.nutz.dao.Cnd;
@@ -60,7 +60,7 @@ public class UpdateDevWorkspaceMemberExecutor extends AbstractBizExecutor<Update
             // 新加入的成员默认不能直接设为 Owner (除非通过专门的转让接口)
             member.setIsOwner(false);
             if (member.getPermission() == null)
-                member.setPermission(ProjectPermission.empty().toString());
+                member.setPermission(CommonPermission.empty().toString());
 
             dao.insert(member);
         } else {

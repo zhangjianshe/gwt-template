@@ -7,7 +7,7 @@ import cn.mapway.biz.core.BizResult;
 import cn.mapway.gwt_template.server.service.project.ProjectService;
 import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.db.DevProjectResourceMemberEntity;
-import cn.mapway.gwt_template.shared.rpc.project.module.ProjectPermission;
+import cn.mapway.gwt_template.shared.rpc.project.module.CommonPermission;
 import cn.mapway.gwt_template.shared.rpc.project.module.ResourceMember;
 import cn.mapway.gwt_template.shared.rpc.project.res.QueryResourceMemberRequest;
 import cn.mapway.gwt_template.shared.rpc.project.res.QueryResourceMemberResponse;
@@ -55,7 +55,7 @@ public class QueryResourceMemberExecutor extends AbstractBizExecutor<QueryResour
 
         // 2. 权限校验：调用 ProjectService 判定当前操作者是否有权限查看该资源的成员
         // 通常只需要拥有 READ 权限即可查看成员列表
-        ProjectPermission resourceMemberPermission = projectService.findUserPermissionInProjectResource(
+        CommonPermission resourceMemberPermission = projectService.findUserPermissionInProjectResource(
                 loginUser.getUser().getUserId(),
                 request.getResourceId()
         );

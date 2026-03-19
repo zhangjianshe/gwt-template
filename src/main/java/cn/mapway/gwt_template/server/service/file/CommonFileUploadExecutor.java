@@ -10,7 +10,7 @@ import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.db.DevProjectResourceEntity;
 import cn.mapway.gwt_template.shared.rpc.file.CommonFileUploadRequest;
 import cn.mapway.gwt_template.shared.rpc.file.CommonFileUploadResponse;
-import cn.mapway.gwt_template.shared.rpc.project.module.ProjectPermission;
+import cn.mapway.gwt_template.shared.rpc.project.module.CommonPermission;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
 import lombok.extern.slf4j.Slf4j;
 import org.nutz.lang.Files;
@@ -85,7 +85,7 @@ public class CommonFileUploadExecutor extends AbstractBizExecutor<CommonFileUplo
         Files.createDirIfNoExists(absPath);
         String targetFile = FileCustomUtils.concatPath(absPath, request.getFile().getOriginalFilename());
         File target = new File(targetFile);
-        ProjectPermission permission = projectService.findUserPermissionInProjectResource(userId, resourceId);
+        CommonPermission permission = projectService.findUserPermissionInProjectResource(userId, resourceId);
 
         if (target.exists()) {
             //需要更新权限

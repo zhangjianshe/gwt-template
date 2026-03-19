@@ -11,7 +11,7 @@ import cn.mapway.gwt_template.shared.db.DevProjectTeamEntity;
 import cn.mapway.gwt_template.shared.db.DevWorkspaceFolderEntity;
 import cn.mapway.gwt_template.shared.rpc.project.UpdateDevProjectRequest;
 import cn.mapway.gwt_template.shared.rpc.project.UpdateDevProjectResponse;
-import cn.mapway.gwt_template.shared.rpc.project.module.ProjectPermission;
+import cn.mapway.gwt_template.shared.rpc.project.module.CommonPermission;
 import cn.mapway.gwt_template.shared.rpc.user.ResourcePoint;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
 import cn.mapway.rbac.server.service.RbacUserService;
@@ -144,31 +144,31 @@ public class UpdateDevProjectExecutor extends AbstractBizExecutor<UpdateDevProje
                         dao.insert(newTeams);
                         String adminTeamId = newTeams.get(0).getId();
                         dao.update(DevProjectTeamEntity.class, Chain.make(DevProjectTeamEntity.FLD_CHARGER, currentUserId), Cnd.where(DevProjectTeamEntity.FLD_ID, "=", adminTeamId));
-                        projectService.addUserToTeam(project.getId(), adminTeamId, currentUserId, ProjectPermission.owner().toString(), "创建者");
+                        projectService.addUserToTeam(project.getId(), adminTeamId, currentUserId, CommonPermission.owner().toString(), "创建者");
 
                     } else {
                         // 初始化小组树
-                        String adminTeamId = projectService.createProjectTeam(project.getId(), null, "管理组", 0xFFFF, "#FF4D4F", "负责项目整体管理");
+                        String adminTeamId = projectService.createProjectTeam(project.getId(), null, "管理组", CommonPermission.admin().toString(), "#FF4D4F", "负责项目整体管理");
 
                         // 设置负责人并加入成员
                         dao.update(DevProjectTeamEntity.class, Chain.make(DevProjectTeamEntity.FLD_CHARGER, currentUserId), Cnd.where(DevProjectTeamEntity.FLD_ID, "=", adminTeamId));
-                        projectService.addUserToTeam(project.getId(), adminTeamId, currentUserId, ProjectPermission.owner().toString(), "创建者");
+                        projectService.addUserToTeam(project.getId(), adminTeamId, currentUserId, CommonPermission.owner().toString(), "创建者");
 
                     }
 
                 } else {
                     // 初始化小组树
-                    String adminTeamId = projectService.createProjectTeam(project.getId(), null, "管理组", 0xFFFF, "#FF4D4F", "负责项目整体管理");
+                    String adminTeamId = projectService.createProjectTeam(project.getId(), null, "管理组", CommonPermission.admin().toString(), "#FF4D4F", "负责项目整体管理");
 
                     // 设置负责人并加入成员
                     dao.update(DevProjectTeamEntity.class, Chain.make(DevProjectTeamEntity.FLD_CHARGER, currentUserId), Cnd.where(DevProjectTeamEntity.FLD_ID, "=", adminTeamId));
-                    projectService.addUserToTeam(project.getId(), adminTeamId, currentUserId, ProjectPermission.owner().toString(), "创建者");
+                    projectService.addUserToTeam(project.getId(), adminTeamId, currentUserId, CommonPermission.owner().toString(), "创建者");
 
                     // 创建子小组
-                    projectService.createProjectTeam(project.getId(), adminTeamId, "产品组", 0x0008, "#1890FF", "需求与原型");
-                    projectService.createProjectTeam(project.getId(), adminTeamId, "开发组", 0x0004, "#52C41A", "代码实现");
-                    projectService.createProjectTeam(project.getId(), adminTeamId, "测试组", 0x0002, "#722ED1", "质量保证");
-                    projectService.createProjectTeam(project.getId(), adminTeamId, "交付组", 0x0001, "#FAAD14", "部署运维");
+                    projectService.createProjectTeam(project.getId(), adminTeamId, "产品组", CommonPermission.empty().toString(), "#1890FF", "需求与原型");
+                    projectService.createProjectTeam(project.getId(), adminTeamId, "开发组", CommonPermission.empty().toString(), "#52C41A", "代码实现");
+                    projectService.createProjectTeam(project.getId(), adminTeamId, "测试组", CommonPermission.empty().toString(), "#722ED1", "质量保证");
+                    projectService.createProjectTeam(project.getId(), adminTeamId, "交付组", CommonPermission.empty().toString(), "#FAAD14", "部署运维");
                     projectService.recordAction(project.getId(), currentUserId, "CREATE_PROJECT", "创建项目并初始化组织架构", project);
                 }
             } else {

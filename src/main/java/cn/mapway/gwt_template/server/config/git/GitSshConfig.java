@@ -4,7 +4,7 @@ import cn.mapway.gwt_template.server.config.AppConfig;
 import cn.mapway.gwt_template.server.service.file.FileCustomUtils;
 import cn.mapway.gwt_template.server.service.repository.RepositoryService;
 import cn.mapway.gwt_template.shared.db.SysUserKeyEntity;
-import cn.mapway.gwt_template.shared.rpc.user.CommonPermission;
+import cn.mapway.gwt_template.shared.rpc.project.module.CommonPermission;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.sshd.common.AttributeRepository;
 import org.apache.sshd.common.config.keys.KeyUtils;
@@ -134,10 +134,10 @@ public class GitSshConfig {
                 log.info("Auth Check: User {} requested {} on repository {}/{}",
                         userPublicKey.getUserName(), action, owner, project);
 
-                CommonPermission perm = repositoryService.findUserPermissionInProjectByName(
+                CommonPermission perm = repositoryService.findUserPermissionInRepoByName(
                         userPublicKey.getUserId(), owner, project);
 
-                if ((isPush && !perm.canWrite()) || (!isPush && !perm.canRead())) {
+                if ((isPush && !perm.canUpdate()) || (!isPush && !perm.canRead())) {
                     String reason = "User " + userPublicKey.getUserName() + " (ID: " + userPublicKey.getUserId() +
                             ") has no " + (isPush ? "UPDATE" : "READ") + " access to " + owner + "/" + project;
                     return createErrorCommand("[ACCESS DENIED] " + reason, 1);

@@ -3,9 +3,9 @@ package cn.mapway.gwt_template.client.repository.member;
 import cn.mapway.gwt_template.client.ClientContext;
 import cn.mapway.gwt_template.client.rpc.AppProxy;
 import cn.mapway.gwt_template.shared.db.VwRepositoryMemberEntity;
+import cn.mapway.gwt_template.shared.rpc.project.module.CommonPermission;
 import cn.mapway.gwt_template.shared.rpc.repository.UpdateRepositoryMemberRequest;
 import cn.mapway.gwt_template.shared.rpc.repository.UpdateRepositoryMemberResponse;
-import cn.mapway.gwt_template.shared.rpc.user.CommonPermission;
 import cn.mapway.ui.client.fonts.Fonts;
 import cn.mapway.ui.client.tools.IData;
 import cn.mapway.ui.client.widget.CommonEventComposite;
@@ -34,15 +34,17 @@ public class MemberItem extends CommonEventComposite implements IData<VwReposito
     @UiField
     CheckBox checkRead;
     @UiField
-    CheckBox checkWrite;
+    CheckBox checkUpdate;
     @UiField
     FontIcon btnRemove;
+    @UiField
+    CheckBox checkOwner;
     boolean isAdmin = false;
     private VwRepositoryMemberEntity data;
 
     public MemberItem() {
         initWidget(ourUiBinder.createAndBindUi(this));
-        checkWrite.addValueChangeHandler(event -> {
+        checkUpdate.addValueChangeHandler(event -> {
             updatePermission();
         });
         checkAdmin.addValueChangeHandler(event -> {
@@ -76,12 +78,13 @@ public class MemberItem extends CommonEventComposite implements IData<VwReposito
         });
     }
 
-    private Integer collectPermission() {
-        CommonPermission commonPermission = CommonPermission.fromPermission(0);
+    private String collectPermission() {
+        CommonPermission commonPermission = CommonPermission.empty();
         commonPermission.setAdmin(checkAdmin.getValue());
         commonPermission.setRead(checkRead.getValue());
-        commonPermission.setWrite(checkWrite.getValue());
-        return commonPermission.getPermission();
+        commonPermission.setUpdate(checkUpdate.getValue());
+
+        return commonPermission.toString();
     }
 
     @Override
@@ -106,24 +109,23 @@ public class MemberItem extends CommonEventComposite implements IData<VwReposito
 
     private void toUI() {
         if (ClientContext.get().isCurrentUser(data.getUserId())) {
-
             lbName.setText(data.getUserName() + "(创建人)");
         } else {
             lbName.setText(data.getUserName());
         }
-        CommonPermission permission = CommonPermission.fromPermission(data.getPermission());
+        CommonPermission permission = CommonPermission.from(data.getPermission());
         checkAdmin.setValue(permission.isAdmin());
         checkRead.setValue(permission.canRead());
-        checkWrite.setValue(permission.canWrite());
+        checkUpdate.setValue(permission.canUpdate());
         if (data.getOwner()) {
             checkAdmin.setEnabled(false);
             checkRead.setEnabled(false);
-            checkWrite.setEnabled(false);
+            checkUpdate.setEnabled(false);
             btnRemove.setEnabled(false);
         } else {
             checkAdmin.setEnabled(isAdmin);
             checkRead.setEnabled(isAdmin);
-            checkWrite.setEnabled(isAdmin);
+            checkUpdate.setEnabled(isAdmin);
             btnRemove.setEnabled(isAdmin);
         }
     }

@@ -3,7 +3,7 @@ package cn.mapway.gwt_template.client.workspace.res;
 import cn.mapway.gwt_template.client.resource.AppResource;
 import cn.mapway.gwt_template.client.workspace.view.FilePreview;
 import cn.mapway.gwt_template.shared.db.DevProjectResourceEntity;
-import cn.mapway.gwt_template.shared.rpc.project.module.ProjectPermission;
+import cn.mapway.gwt_template.shared.rpc.project.module.CommonPermission;
 import cn.mapway.gwt_template.shared.rpc.project.module.ResItem;
 import cn.mapway.ui.client.tools.IData;
 import cn.mapway.ui.client.util.StringUtil;
@@ -53,7 +53,7 @@ public class ProjectResourcePanel extends CommonEventComposite implements Requir
             renderNavibar(navInfo);
         } else if (event.isView()) {
             NavInfo navInfo = event.getValue();
-            ProjectPermission permission = ProjectPermission.from(navInfo.getResource().getPermission());
+            CommonPermission permission = CommonPermission.from(navInfo.getResource().getPermission());
             filePreview.enableSave(permission.isSuper() || permission.canUpdate());
             filePreview.preview(navInfo.getResource().getId(), navInfo.getFile());
         }

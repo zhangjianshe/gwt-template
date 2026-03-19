@@ -5,8 +5,8 @@ import cn.mapway.gwt_template.server.service.git.GitPushPayload;
 import cn.mapway.gwt_template.server.service.git.GitRepoService;
 import cn.mapway.gwt_template.server.service.webhook.WebHookService;
 import cn.mapway.gwt_template.shared.db.*;
+import cn.mapway.gwt_template.shared.rpc.project.module.CommonPermission;
 import cn.mapway.gwt_template.shared.rpc.repository.RepositoryStatus;
-import cn.mapway.gwt_template.shared.rpc.user.CommonPermission;
 import cn.mapway.gwt_template.shared.rpc.webhook.WebHookSourceKind;
 import cn.mapway.rbac.shared.db.postgis.RbacUserEntity;
 import lombok.extern.slf4j.Slf4j;
@@ -73,7 +73,7 @@ public class RepositoryService {
                 devRepositoryMemberEntity.setUserId(repository.getUserId());
                 devRepositoryMemberEntity.setCreateTime(repository.getCreateTime());
                 devRepositoryMemberEntity.setOwner(true);
-                devRepositoryMemberEntity.setPermission(CommonPermission.fromPermission(0).setAll().getPermission());
+                devRepositoryMemberEntity.setPermission(CommonPermission.owner().toString());
 
                 txDao.insert(devRepositoryMemberEntity);
                 //创建这个用户的代码仓库
@@ -119,37 +119,15 @@ public class RepositoryService {
         }
     }
 
-    public CommonPermission userProjectPermission(Long userId, String projectId) {
+    public CommonPermission userRepoPermission(Long userId, String repoId) {
         DevRepositoryMemberEntity fetch = dao.fetch(DevRepositoryMemberEntity.class, Cnd.where(
                 DevRepositoryMemberEntity.FLD_USER_ID, "=", userId
-        ).and(DevRepositoryMemberEntity.FLD_REPOSITORY_ID, "=", projectId));
+        ).and(DevRepositoryMemberEntity.FLD_REPOSITORY_ID, "=", repoId));
         if (fetch == null) {
-            return CommonPermission.fromPermission(0);
+            return CommonPermission.empty();
         } else {
-            return CommonPermission.fromPermission(fetch.getPermission());
+            return CommonPermission.from(fetch.getPermission());
         }
-    }
-
-    public DevGroupEntity findGroupByName(String name) {
-        return dao.fetch(DevGroupEntity.class, name);
-    }
-
-    public DevGroupMemberEntity findGroupMemberByMemberId(String name, Long userId) {
-        Cnd where = Cnd.where(DevGroupMemberEntity.FLD_GROUP_NAME, "=", name)
-                .and(DevGroupMemberEntity.FLD_USER_ID, "=", userId);
-        return dao.fetch(DevGroupMemberEntity.class, where);
-    }
-
-    public void updateGroupMember(String groupName) {
-        int count = dao.count(DevGroupMemberEntity.class, Cnd.where(DevGroupMemberEntity.FLD_GROUP_NAME, "=", groupName));
-        DevGroupEntity group = new DevGroupEntity();
-        group.setName(groupName);
-        group.setMemberCount(count);
-        dao.updateIgnoreNull(group);
-    }
-
-    public List<DevGroupEntity> userGroups(Long userId) {
-        return dao.query(DevGroupEntity.class, Cnd.where(DevGroupEntity.FLD_USERID, "=", userId).desc("create_time"));
     }
 
     /**
@@ -160,14 +138,14 @@ public class RepositoryService {
      * @return
      */
     public CommonPermission findUserPermissionInRepository(Long userId, String repositoryId) {
-        CommonPermission permission = CommonPermission.fromPermission(0);
+        CommonPermission permission = CommonPermission.empty();
         if (userId != null && Strings.isNotBlank(repositoryId)) {
             DevRepositoryMemberEntity devMyProject = dao.fetch(
                     DevRepositoryMemberEntity.class, Cnd.where(DevRepositoryMemberEntity.FLD_REPOSITORY_ID, "=", repositoryId)
                             .and(DevRepositoryMemberEntity.FLD_USER_ID, "=", userId)
             );
             if (devMyProject != null) {
-                permission = CommonPermission.fromPermission(devMyProject.getPermission());
+                permission = CommonPermission.from(devMyProject.getPermission());
             }
         }
         return permission;
@@ -204,9 +182,9 @@ public class RepositoryService {
         return dao.fetch(DevRepositoryEntity.class, Cnd.where(DevRepositoryEntity.FLD_ID, "=", projectId));
     }
 
-    public CommonPermission findUserPermissionInProjectByName(Long userId, String ownerName, String projectName) {
-        CommonPermission permission = CommonPermission.fromPermission(0);
-        DevRepositoryEntity project = findProjectByOwnerAndName(ownerName, projectName);
+    public CommonPermission findUserPermissionInRepoByName(Long userId, String ownerName, String projectName) {
+        CommonPermission permission = CommonPermission.empty();
+        DevRepositoryEntity project = findRepoByOwnerAndName(ownerName, projectName);
         if (project == null) {
             return permission;
         }
@@ -216,19 +194,19 @@ public class RepositoryService {
                             .and(DevRepositoryMemberEntity.FLD_USER_ID, "=", userId)
             );
             if (devMyProject != null) {
-                permission = CommonPermission.fromPermission(devMyProject.getPermission());
+                permission = CommonPermission.from(devMyProject.getPermission());
             }
         }
         return permission;
     }
 
-    private DevRepositoryEntity findProjectByOwnerAndName(String ownerName, String projectName) {
+    private DevRepositoryEntity findRepoByOwnerAndName(String ownerName, String projectName) {
         return dao.fetch(DevRepositoryEntity.class, Cnd.where(DevRepositoryEntity.FLD_OWNER_NAME, "=", ownerName)
                 .and(DevRepositoryEntity.FLD_NAME, "=", projectName));
     }
 
-    public boolean isProjectPublic(String ownerName, String projectName) {
-        DevRepositoryEntity projectByOwnerAndName = findProjectByOwnerAndName(ownerName, projectName);
+    public boolean isRepoPublic(String ownerName, String projectName) {
+        DevRepositoryEntity projectByOwnerAndName = findRepoByOwnerAndName(ownerName, projectName);
         return projectByOwnerAndName != null && projectByOwnerAndName.getIsPublic();
     }
 
@@ -311,7 +289,7 @@ public class RepositoryService {
         String projectName = parts[parts.length - 1];
         String ownerName = parts[parts.length - 2];
 
-        return findProjectByOwnerAndName(ownerName, projectName);
+        return findRepoByOwnerAndName(ownerName, projectName);
     }
 
     public List<String> getUserSshKeys(String username) {

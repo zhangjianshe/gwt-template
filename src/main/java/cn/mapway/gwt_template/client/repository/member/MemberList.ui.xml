@@ -39,12 +39,13 @@
         }</ui:style>
     <g:HTMLPanel>
         <g:HTMLPanel addStyleNames="{style.box}">
-            <widget:Head text="项目组成员" ui:field="lbHeader"/>
+            <widget:Head text="代码仓库成员" ui:field="lbHeader"/>
             <g:Label ui:field="lbMessage" addStyleNames="{style.msg}"/>
             <g:HorizontalPanel ui:field="buttons" verticalAlignment="middle" spacing="2">
                 <g:Label title="管理员" addStyleNames="{style.check}">A</g:Label>
                 <g:Label title="读权限" addStyleNames="{style.check}">R</g:Label>
                 <g:Label title="写权限" addStyleNames="{style.check}">W</g:Label>
+                <g:Label title="创建者" addStyleNames="{style.check}">O</g:Label>
                 <buttons:PlusButton title="添加成员" addStyleNames="{style.check} {style.check1}"
                                     ui:field="btnAdd"/>
             </g:HorizontalPanel>

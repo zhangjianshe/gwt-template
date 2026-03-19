@@ -7,9 +7,9 @@ import cn.mapway.biz.core.BizResult;
 import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.db.DevRepositoryMemberEntity;
 import cn.mapway.gwt_template.shared.db.VwRepositoryMemberEntity;
+import cn.mapway.gwt_template.shared.rpc.project.module.CommonPermission;
 import cn.mapway.gwt_template.shared.rpc.repository.UpdateRepositoryMemberRequest;
 import cn.mapway.gwt_template.shared.rpc.repository.UpdateRepositoryMemberResponse;
-import cn.mapway.gwt_template.shared.rpc.user.CommonPermission;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
 import lombok.extern.slf4j.Slf4j;
 import org.nutz.dao.Dao;
@@ -56,7 +56,7 @@ public class UpdateRepositoryMemberExecutor extends AbstractBizExecutor<UpdateRe
             member.setPermission(request.getPermission());
             dao.insert(member);
         } else {
-            member.setPermission(CommonPermission.fromPermission(request.getPermission()).getPermission());
+            member.setPermission(CommonPermission.from(request.getPermission()).toString());
             dao.updateIgnoreNull(member);
         }
         repositoryService.updateProjectMember(request.getRepositoryId());

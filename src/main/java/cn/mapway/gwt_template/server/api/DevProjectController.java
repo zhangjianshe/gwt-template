@@ -12,7 +12,7 @@ import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.rpc.file.CommonFileUploadRequest;
 import cn.mapway.gwt_template.shared.rpc.file.CommonFileUploadResponse;
 import cn.mapway.gwt_template.shared.rpc.project.*;
-import cn.mapway.gwt_template.shared.rpc.project.module.ProjectPermission;
+import cn.mapway.gwt_template.shared.rpc.project.module.CommonPermission;
 import cn.mapway.gwt_template.shared.rpc.project.res.*;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
 import cn.mapway.gwt_template.shared.rpc.workspace.ExportDevProjectTaskRequest;
@@ -151,7 +151,7 @@ public class DevProjectController extends ApiBaseController {
     public void readResourceData(@PathVariable("resourceId") String resourceId, HttpServletRequest req, HttpServletResponse resp) throws IOException {
         LoginUser loginUser = (LoginUser) getBizContext().get(AppConstant.KEY_LOGIN_USER);
         Long operatorId = loginUser.getUser().getUserId();
-        ProjectPermission permission = projectService.findUserPermissionInProjectResource(operatorId, resourceId);
+        CommonPermission permission = projectService.findUserPermissionInProjectResource(operatorId, resourceId);
         if (!(permission.isSuper() || permission.canRead())) {
             resp.setContentType("text/plain");
             resp.setStatus(HttpServletResponse.SC_FORBIDDEN);

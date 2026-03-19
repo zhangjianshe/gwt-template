@@ -9,7 +9,7 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * QueryProjectMemberResponse
+ * QueryRepositoryMemberResponse
  *
  * @author zhangjianshe@gmail.com
  */
@@ -17,5 +17,5 @@ import java.util.List;
 @Doc("QueryRepositoryMemberResponse")
 public class QueryRepositoryMemberResponse implements Serializable, IsSerializable {
     List<VwRepositoryMemberEntity> members;
-    Integer currentUserPermission;
+    String currentUserPermission;
 }

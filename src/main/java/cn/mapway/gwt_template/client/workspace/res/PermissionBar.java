@@ -1,6 +1,6 @@
 package cn.mapway.gwt_template.client.workspace.res;
 
-import cn.mapway.gwt_template.shared.rpc.project.module.ProjectPermission;
+import cn.mapway.gwt_template.shared.rpc.project.module.CommonPermission;
 import cn.mapway.gwt_template.shared.rpc.project.module.ProjectPermissionKind;
 import cn.mapway.ui.client.tools.IData;
 import cn.mapway.ui.client.widget.buttons.CheckBoxEx;
@@ -13,10 +13,10 @@ import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import lombok.Setter;
 
-public class PermissionBar extends HorizontalPanel implements HasCommonHandlers, IData<ProjectPermission> {
+public class PermissionBar extends HorizontalPanel implements HasCommonHandlers, IData<CommonPermission> {
     @Setter
     boolean enableEdit = false;
-    private ProjectPermission permission;
+    private CommonPermission permission;
     private final ValueChangeHandler<Boolean> checkBoxExHandler = new ValueChangeHandler<Boolean>() {
         @Override
         public void onValueChange(ValueChangeEvent<Boolean> event) {
@@ -54,12 +54,12 @@ public class PermissionBar extends HorizontalPanel implements HasCommonHandlers,
     }
 
     @Override
-    public ProjectPermission getData() {
+    public CommonPermission getData() {
         return permission;
     }
 
     @Override
-    public void setData(ProjectPermission obj) {
+    public void setData(CommonPermission obj) {
         permission = obj;
         clear();
     }

@@ -26,7 +26,8 @@
         <g:HorizontalPanel verticalAlignment="middle" spacing="2">
             <g:CheckBox ui:field="checkAdmin" addStyleNames="{style.check}"/>
             <g:CheckBox ui:field="checkRead" addStyleNames="{style.check}"/>
-            <g:CheckBox ui:field="checkWrite" addStyleNames="{style.check}"/>
+            <g:CheckBox ui:field="checkUpdate" addStyleNames="{style.check}"/>
+            <g:CheckBox ui:field="checkOwner" enabled="false" addStyleNames="{style.check}"/>
             <widget:FontIcon pushButton="true" ui:field="btnRemove" addStyleNames="ai-tool-btn {style.check}"/>
         </g:HorizontalPanel>
     </g:HTMLPanel>

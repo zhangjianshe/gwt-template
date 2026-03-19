@@ -292,18 +292,7 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
     DeleteRepositoryMemberExecutor deleteRepositoryMemberExecutor;
     @Resource
     UpdateRepositoryMemberExecutor updateRepositoryMemberExecutor;
-    @Resource
-    QueryGroupMemberExecutor queryGroupMemberExecutor;
-    @Resource
-    DeleteGroupMemberExecutor deleteGroupMemberExecutor;
-    @Resource
-    UpdateGroupMemberExecutor updateGroupMemberExecutor;
-    @Resource
-    QueryDevGroupExecutor queryDevGroupExecutor;
-    @Resource
-    DeleteDevGroupExecutor deleteDevGroupExecutor;
-    @Resource
-    UpdateDevGroupExecutor updateDevGroupExecutor;
+
 
     @Override
     public RpcResult<DeleteResourceMemberResponse> deleteResourceMember(DeleteResourceMemberRequest request) {
@@ -797,41 +786,6 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
         return toRpcResult(bizResult);
     }
 
-    @Override
-    public RpcResult<QueryGroupMemberResponse> queryGroupMember(QueryGroupMemberRequest request) {
-        BizResult<QueryGroupMemberResponse> bizResult = queryGroupMemberExecutor.execute(getBizContext(), BizRequest.wrap("", request));
-        return toRpcResult(bizResult);
-    }
-
-    @Override
-    public RpcResult<DeleteGroupMemberResponse> deleteGroupMember(DeleteGroupMemberRequest request) {
-        BizResult<DeleteGroupMemberResponse> bizResult = deleteGroupMemberExecutor.execute(getBizContext(), BizRequest.wrap("", request));
-        return toRpcResult(bizResult);
-    }
-
-    @Override
-    public RpcResult<UpdateGroupMemberResponse> updateGroupMember(UpdateGroupMemberRequest request) {
-        BizResult<UpdateGroupMemberResponse> bizResult = updateGroupMemberExecutor.execute(getBizContext(), BizRequest.wrap("", request));
-        return toRpcResult(bizResult);
-    }
-
-    @Override
-    public RpcResult<QueryDevGroupResponse> queryDevGroup(QueryDevGroupRequest request) {
-        BizResult<QueryDevGroupResponse> bizResult = queryDevGroupExecutor.execute(getBizContext(), BizRequest.wrap("", request));
-        return toRpcResult(bizResult);
-    }
-
-    @Override
-    public RpcResult<DeleteDevGroupResponse> deleteDevGroup(DeleteDevGroupRequest request) {
-        BizResult<DeleteDevGroupResponse> bizResult = deleteDevGroupExecutor.execute(getBizContext(), BizRequest.wrap("", request));
-        return toRpcResult(bizResult);
-    }
-
-    @Override
-    public RpcResult<UpdateDevGroupResponse> updateDevGroup(UpdateDevGroupRequest request) {
-        BizResult<UpdateDevGroupResponse> bizResult = updateDevGroupExecutor.execute(getBizContext(), BizRequest.wrap("", request));
-        return toRpcResult(bizResult);
-    }
 
 
     @Override

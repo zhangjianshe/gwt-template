@@ -8,7 +8,7 @@ import cn.mapway.gwt_template.client.workspace.widget.ActionMenuKind;
 import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.db.DevProjectResourceEntity;
 import cn.mapway.gwt_template.shared.rpc.file.FileUtil;
-import cn.mapway.gwt_template.shared.rpc.project.module.ProjectPermission;
+import cn.mapway.gwt_template.shared.rpc.project.module.CommonPermission;
 import cn.mapway.gwt_template.shared.rpc.project.module.ResItem;
 import cn.mapway.gwt_template.shared.rpc.project.res.*;
 import cn.mapway.ui.client.fonts.Fonts;
@@ -260,7 +260,7 @@ public class ProjectResourceList extends CommonEventComposite implements IData<S
             }
         } else if (data instanceof ResItem) {
 
-            ProjectPermission permission = ProjectPermission.from(navInfo.getResource().getPermission());
+            CommonPermission permission = CommonPermission.from(navInfo.getResource().getPermission());
             ResItem resItem = (ResItem) data;
             actionResource = null;
             actionItem = resItem;
@@ -294,7 +294,7 @@ public class ProjectResourceList extends CommonEventComposite implements IData<S
                 allMenu.addItem("无权限创建", ActionMenuKind.AMK_TIP);
             }
         } else {
-            ProjectPermission permission = ProjectPermission.from(navInfo.getResource().getPermission());
+            CommonPermission permission = CommonPermission.from(navInfo.getResource().getPermission());
             if (permission.isSuper()) {
                 allMenu.addItem("➕ 创建目录和文件", ActionMenuKind.AMK_CREATE_DIRFILE, true);
                 allMenu.addItem("📤 上传文件", ActionMenuKind.AMK_UPLOAD_DIRFILE, true);
@@ -357,7 +357,7 @@ public class ProjectResourceList extends CommonEventComposite implements IData<S
             ResourceItem item = new ResourceItem();
             item.setData(resource);
 
-            ProjectPermission permission = ProjectPermission.from(resource.getPermission());
+            CommonPermission permission = CommonPermission.from(resource.getPermission());
             if (!(permission.isSuper() || permission.canRead())) {
                 continue;
             }

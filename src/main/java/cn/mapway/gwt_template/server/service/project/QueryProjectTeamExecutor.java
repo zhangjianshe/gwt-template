@@ -8,8 +8,8 @@ import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.db.DevProjectTeamEntity;
 import cn.mapway.gwt_template.shared.rpc.project.QueryProjectTeamRequest;
 import cn.mapway.gwt_template.shared.rpc.project.QueryProjectTeamResponse;
+import cn.mapway.gwt_template.shared.rpc.project.module.CommonPermission;
 import cn.mapway.gwt_template.shared.rpc.project.module.ProjectMember;
-import cn.mapway.gwt_template.shared.rpc.user.CommonPermission;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
 import lombok.extern.slf4j.Slf4j;
 import org.nutz.dao.Cnd;
@@ -123,7 +123,7 @@ public class QueryProjectTeamExecutor extends AbstractBizExecutor<QueryProjectTe
         } else {
             response.setRootTeams(new ArrayList<>());
         }
-        response.setPermission(commonPermission.getPermission());
+        response.setPermission(commonPermission.toString());
 
         return BizResult.success(response);
     }

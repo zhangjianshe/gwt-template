@@ -3,7 +3,7 @@ package cn.mapway.gwt_template.server.config.git;
 import cn.mapway.biz.core.BizResult;
 import cn.mapway.gwt_template.server.service.repository.RepositoryService;
 import cn.mapway.gwt_template.server.service.user.login.LoginProvider;
-import cn.mapway.gwt_template.shared.rpc.user.CommonPermission;
+import cn.mapway.gwt_template.shared.rpc.project.module.CommonPermission;
 import cn.mapway.rbac.shared.rpc.LoginResponse;
 import cn.mapway.ui.client.IUserInfo;
 import com.google.common.cache.Cache;
@@ -64,7 +64,7 @@ public class GitAuthFilter extends OncePerRequestFilter {
                 "git-receive-pack".equals(request.getParameter("service"));
 
 
-        boolean isPublic = repositoryService.isProjectPublic(ownerName, projectName);
+        boolean isPublic = repositoryService.isRepoPublic(ownerName, projectName);
 
         // If it's a read operation on a public repository, allow without auth
         if (!isPush && isPublic) {
@@ -108,9 +108,9 @@ public class GitAuthFilter extends OncePerRequestFilter {
         // so we check these against the DB/Service every time)
         IUserInfo currentUser = loginData.getCurrentUser();
         Long userId = Long.parseLong(currentUser.getId());
-        CommonPermission permission = repositoryService.findUserPermissionInProjectByName(userId, ownerName, projectName);
+        CommonPermission permission = repositoryService.findUserPermissionInRepoByName(userId, ownerName, projectName);
 
-        if (isPush ? permission.canWrite() : permission.canRead()) {
+        if (isPush ? permission.canUpdate() : permission.canRead()) {
             filterChain.doFilter(request, response);
         } else {
             response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access Denied");

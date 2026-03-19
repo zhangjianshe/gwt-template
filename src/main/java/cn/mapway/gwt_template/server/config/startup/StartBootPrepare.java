@@ -223,8 +223,6 @@ public class StartBootPrepare implements ApplicationContextAware {
         checkAndCreate(DevRepositoryEntity.class);
         checkAndCreate(DevBuildEntity.class);
         checkAndCreate(DevRepositoryMemberEntity.class);
-        checkAndCreate(DevGroupEntity.class);
-        checkAndCreate(DevGroupMemberEntity.class);
         checkAndCreate(SysUserKeyEntity.class);
         checkAndCreate(WebHookEntity.class);
         checkAndCreate(WebHookInstanceEntity.class);

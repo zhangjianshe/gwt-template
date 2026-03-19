@@ -16,20 +16,6 @@
             justify-self: flex-start;
         }
 
-        .tip {
-            font-style: italic;
-            color: darkolivegreen;
-            font-size: 0.8rem;
-            padding: 0 4px;
-        }
-
-        .msg {
-            padding: 10px 15px;
-            border-radius: 6px;
-            border: solid 1px skyblue;
-            background-color: whitesmoke;
-            color: gray;
-        }
     </ui:style>
     <g:DockLayoutPanel>
         <g:south size="68">

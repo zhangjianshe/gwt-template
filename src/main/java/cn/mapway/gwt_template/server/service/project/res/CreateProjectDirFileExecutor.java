@@ -7,7 +7,7 @@ import cn.mapway.biz.core.BizResult;
 import cn.mapway.gwt_template.server.service.project.ProjectService;
 import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.db.DevProjectResourceEntity;
-import cn.mapway.gwt_template.shared.rpc.project.module.ProjectPermission;
+import cn.mapway.gwt_template.shared.rpc.project.module.CommonPermission;
 import cn.mapway.gwt_template.shared.rpc.project.res.CreateProjectDirFileRequest;
 import cn.mapway.gwt_template.shared.rpc.project.res.CreateProjectDirFileResponse;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
@@ -60,7 +60,7 @@ public class CreateProjectDirFileExecutor extends AbstractBizExecutor<CreateProj
         DevProjectResourceEntity resource = dao.fetch(DevProjectResourceEntity.class, request.getResourceId());
         assertNotNull(resource, "资源不存在");
 
-        ProjectPermission permission = projectService.findUserPermissionInProjectResource(
+        CommonPermission permission = projectService.findUserPermissionInProjectResource(
                 user.getUser().getUserId(),
                 request.getResourceId()
         );

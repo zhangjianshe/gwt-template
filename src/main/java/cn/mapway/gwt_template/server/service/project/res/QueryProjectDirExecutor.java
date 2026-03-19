@@ -7,7 +7,7 @@ import cn.mapway.biz.core.BizResult;
 import cn.mapway.gwt_template.server.service.project.ProjectService;
 import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.db.DevProjectResourceEntity;
-import cn.mapway.gwt_template.shared.rpc.project.module.ProjectPermission;
+import cn.mapway.gwt_template.shared.rpc.project.module.CommonPermission;
 import cn.mapway.gwt_template.shared.rpc.project.module.ResItem;
 import cn.mapway.gwt_template.shared.rpc.project.res.QueryProjectDirRequest;
 import cn.mapway.gwt_template.shared.rpc.project.res.QueryProjectDirResponse;
@@ -54,7 +54,7 @@ public class QueryProjectDirExecutor extends AbstractBizExecutor<QueryProjectDir
         assertNotNull(resource, "资源不存在");
 
         // 2. 权限校验
-        ProjectPermission permission = projectService.findUserPermissionInProjectResource(
+        CommonPermission permission = projectService.findUserPermissionInProjectResource(
                 user.getUser().getUserId(),
                 request.getResourceId()
         );

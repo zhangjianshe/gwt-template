@@ -8,7 +8,7 @@ import cn.mapway.gwt_template.server.service.project.ProjectService;
 import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.db.DevProjectResourceEntity;
 import cn.mapway.gwt_template.shared.db.DevProjectResourceMemberEntity;
-import cn.mapway.gwt_template.shared.rpc.project.module.ProjectPermission;
+import cn.mapway.gwt_template.shared.rpc.project.module.CommonPermission;
 import cn.mapway.gwt_template.shared.rpc.project.res.AddResourceMemberRequest;
 import cn.mapway.gwt_template.shared.rpc.project.res.AddResourceMemberResponse;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
@@ -52,7 +52,7 @@ public class AddResourceMemberExecutor extends AbstractBizExecutor<AddResourceMe
         assertNotNull(request.getUserId(), "未指定目标用户ID");
 
         // 2. 权限校验：只有管理员或所有者可以添加成员
-        ProjectPermission loginUserPermission = projectService.findUserPermissionInProjectResource(
+        CommonPermission loginUserPermission = projectService.findUserPermissionInProjectResource(
                 loginUser.getUser().getUserId(),
                 request.getResourceId()
         );
@@ -86,7 +86,7 @@ public class AddResourceMemberExecutor extends AbstractBizExecutor<AddResourceMe
         } else {
 
             // 更新权限
-            ProjectPermission permission = ProjectPermission.from(member.getPermission());
+            CommonPermission permission = CommonPermission.from(member.getPermission());
             if (permission.isOwner()) {
                 return BizResult.error(500, "不能修改拥有者权限");
             }
