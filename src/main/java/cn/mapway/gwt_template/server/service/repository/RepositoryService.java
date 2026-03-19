@@ -151,7 +151,7 @@ public class RepositoryService {
         return permission;
     }
 
-    public DevRepositoryMemberEntity findProjectMemberByMemberId(String projectId, Long userId) {
+    public DevRepositoryMemberEntity findRepositoryMemberByMemberId(String projectId, Long userId) {
         return dao.fetch(
                 DevRepositoryMemberEntity.class, Cnd.where(DevRepositoryMemberEntity.FLD_REPOSITORY_ID, "=", projectId)
                         .and(DevRepositoryMemberEntity.FLD_USER_ID, "=", userId)

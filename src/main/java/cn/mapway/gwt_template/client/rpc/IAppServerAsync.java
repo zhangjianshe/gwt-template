@@ -26,6 +26,12 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public interface IAppServerAsync {
 
     ///CODE_GEN_INSERT_POINT///
+	void addProjectRepo(AddProjectRepoRequest request, AsyncCallback<RpcResult<AddProjectRepoResponse>> async);
+
+	void removeProjectRepo(RemoveProjectRepoRequest request, AsyncCallback<RpcResult<RemoveProjectRepoResponse>> async);
+
+	void queryProjectRepo(QueryProjectRepoRequest request, AsyncCallback<RpcResult<QueryProjectRepoResponse>> async);
+
 	void deleteResourceMember(DeleteResourceMemberRequest request, AsyncCallback<RpcResult<DeleteResourceMemberResponse>> async);
 
 	void addResourceMember(AddResourceMemberRequest request, AsyncCallback<RpcResult<AddResourceMemberResponse>> async);

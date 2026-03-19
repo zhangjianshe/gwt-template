@@ -105,7 +105,15 @@ public class CommonPermission implements Serializable, IsSerializable {
         return set(ProjectPermissionKind.ADMIN, allow);
     }
 
+    public boolean isCoder() {
+        return isBitSet(ProjectPermissionKind.CODER.getIndex());
+    }
+
     // --- 状态设置方法 ---
+
+    public CommonPermission setCoder(boolean allow) {
+        return set(ProjectPermissionKind.CODER, allow);
+    }
 
     public boolean isOwner() {
         return isBitSet(ProjectPermissionKind.OWNER.getIndex());

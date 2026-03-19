@@ -16,7 +16,6 @@
                 <g:HorizontalPanel ui:field="buttons" spacing="0">
                     <widget:IconButton height="50px" ui:field="btnBasic"/>
                     <widget:IconButton height="50px" ui:field="btnCode"/>
-                    <widget:IconButton height="50px" ui:field="btnWiki"/>
                 </g:HorizontalPanel>
                 <widget:IconButton height="50px" ui:field="btnSetting"/>
             </g:HTMLPanel>

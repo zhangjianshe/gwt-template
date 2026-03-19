@@ -137,9 +137,56 @@ public class DevProjectController extends ApiBaseController {
     CommonFileUploadExecutor commonFileUploadExecutor;
     @Resource
     ProjectService projectService;
+
+
+    @Resource
+    QueryProjectRepoExecutor queryProjectRepoExecutor;
+    @Resource
+    RemoveProjectRepoExecutor removeProjectRepoExecutor;
+    @Resource
+    AddProjectRepoExecutor addProjectRepoExecutor;
     // "/api/v1/projects/file/", request.getResourceId(), request.getRelPathName());
     @Resource
     DeleteResourceMemberExecutor deleteResourceMemberExecutor;
+
+    /**
+     * QueryProjectRepo
+     *
+     * @param request request
+     * @return data
+     */
+    @Doc(value = "QueryProjectRepo", retClazz = {QueryProjectRepoResponse.class})
+    @RequestMapping(value = "/queryProjectRepo", method = RequestMethod.POST)
+    public RpcResult<QueryProjectRepoResponse> queryProjectRepo(@RequestBody QueryProjectRepoRequest request) {
+        BizResult<QueryProjectRepoResponse> bizResult = queryProjectRepoExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toApiResult(bizResult);
+    }
+
+    /**
+     * RemoveProjectRepo
+     *
+     * @param request request
+     * @return data
+     */
+    @Doc(value = "RemoveProjectRepo", retClazz = {RemoveProjectRepoResponse.class})
+    @RequestMapping(value = "/removeProjectRepo", method = RequestMethod.POST)
+    public RpcResult<RemoveProjectRepoResponse> removeProjectRepo(@RequestBody RemoveProjectRepoRequest request) {
+        BizResult<RemoveProjectRepoResponse> bizResult = removeProjectRepoExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toApiResult(bizResult);
+    }
+
+    /**
+     * AddProjectRepo
+     *
+     * @param request request
+     * @return data
+     */
+    @Doc(value = "AddProjectRepo", retClazz = {AddProjectRepoResponse.class})
+    @RequestMapping(value = "/addProjectRepo", method = RequestMethod.POST)
+    public RpcResult<AddProjectRepoResponse> addProjectRepo(@RequestBody AddProjectRepoRequest request) {
+        BizResult<AddProjectRepoResponse> bizResult = addProjectRepoExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toApiResult(bizResult);
+    }
 
     /**
      * Read Content from resource file

@@ -2,7 +2,8 @@
              xmlns:g='urn:import:com.google.gwt.user.client.ui'
              xmlns:project="urn:import:cn.mapway.gwt_template.client.workspace.project"
              xmlns:gantt="urn:import:cn.mapway.gwt_template.client.workspace.gantt"
-             xmlns:res="urn:import:cn.mapway.gwt_template.client.workspace.res">
+             xmlns:res="urn:import:cn.mapway.gwt_template.client.workspace.res"
+             xmlns:repo="urn:import:cn.mapway.gwt_template.client.workspace.repo">
     <ui:style>
         .tabContent {
             padding: 15px;
@@ -40,7 +41,7 @@
         </g:tab>
         <g:tab>
             <g:header>代码仓库</g:header>
-            <g:HTMLPanel/>
+            <repo:ProjectRepoPanel ui:field="repoPanel"/>
         </g:tab>
         <g:tab>
             <g:header>项目人员</g:header>

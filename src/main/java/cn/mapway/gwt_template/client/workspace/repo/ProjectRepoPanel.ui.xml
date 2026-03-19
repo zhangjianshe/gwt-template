@@ -1,0 +1,43 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui' xmlns:list="urn:import:cn.mapway.ui.client.widget.list"
+             xmlns:repository="urn:import:cn.mapway.gwt_template.client.repository"
+             xmlns:panel="urn:import:cn.mapway.ui.client.widget.panel">
+    <ui:style>
+
+        .top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 8px;
+            border-bottom: solid 1px #e0e0e0;
+        }
+    </ui:style>
+    <g:LayoutPanel ui:field="root">
+        <g:layer>
+            <panel:MessagePanel visible="false" ui:field="messagePanel"/>
+        </g:layer>
+        <g:layer>
+            <g:DockLayoutPanel visible="false" ui:field="contentPanel">
+                <g:west size="350">
+                    <g:DockLayoutPanel addStyleNames="ai-border-right">
+                        <g:north size="50">
+                            <g:HTMLPanel addStyleNames="{style.top}">
+                                <g:Button ui:field="btnAdd">创建代码仓库</g:Button>
+                                <g:Button ui:field="btnAssociate">关联代码仓库</g:Button>
+                            </g:HTMLPanel>
+                        </g:north>
+                        <g:center>
+                            <g:ScrollPanel>
+                                <list:List width="100%" ui:field="list"/>
+                            </g:ScrollPanel>
+                        </g:center>
+                    </g:DockLayoutPanel>
+                </g:west>
+                <g:center>
+                    <repository:RepositoryView ui:field="repositoryPanel"/>
+                </g:center>
+            </g:DockLayoutPanel>
+        </g:layer>
+    </g:LayoutPanel>
+
+</ui:UiBinder>

@@ -41,12 +41,12 @@ public class DeleteRepositoryMemberExecutor extends AbstractBizExecutor<DeleteRe
         assertNotNull(request.getUserId(), "没有用户ID");
 
         CommonPermission permission = repositoryService.findUserPermissionInRepository(user.getUser().getUserId(), request.getRepositoryId());
-        assertTrue(permission.isAdmin(), "没有操作权限");
+        assertTrue(permission.isSuper(), "没有操作权限");
 
         //检查成员
-        DevRepositoryMemberEntity member = repositoryService.findProjectMemberByMemberId(request.getRepositoryId(), request.getUserId());
+        DevRepositoryMemberEntity member = repositoryService.findRepositoryMemberByMemberId(request.getRepositoryId(), request.getUserId());
         if (member == null) {
-            return BizResult.error(500, "成员不再分组中");
+            return BizResult.error(500, "成员不在分组中");
         } else {
             if (member.getOwner() != null && member.getOwner()) {
                 return BizResult.error(500, "不能移除分组的创建者");

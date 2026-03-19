@@ -11,7 +11,8 @@ public enum ProjectPermissionKind {
     DELETE(2, "删除", false),
     CREATE(3, "创建", false),
     ADMIN(4, "管理员", false),
-    OWNER(5, "创建人", true);
+    OWNER(5, "创建人", true),
+    CODER(6, "代码访问", false);
 
     @Getter
     private final int index;

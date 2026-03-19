@@ -33,7 +33,7 @@ public class QueryRepositoryMemberExecutor extends AbstractBizExecutor<QueryRepo
         QueryRepositoryMemberRequest request = bizParam.getData();
         log.info("QueryProjectMemberExecutor {}", Json.toJson(request, JsonFormat.compact()));
         LoginUser user= (LoginUser) context.get(AppConstant.KEY_LOGIN_USER);
-        DevRepositoryMemberEntity member = repositoryService.findProjectMemberByMemberId(request.getRepositoryId(), user.getUser().getUserId());
+        DevRepositoryMemberEntity member = repositoryService.findRepositoryMemberByMemberId(request.getRepositoryId(), user.getUser().getUserId());
         assertNotNull(member, "您不在项目中");
         String currentUserPermission = member.getPermission();
 

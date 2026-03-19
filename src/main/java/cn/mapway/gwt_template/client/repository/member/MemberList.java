@@ -132,7 +132,7 @@ public class MemberList extends CommonEventComposite implements IData<String> {
             public void onSuccess(RpcResult<QueryRepositoryMemberResponse> result) {
                 if (result.isSuccess()) {
                     CommonPermission commonPermission = CommonPermission.from(result.getData().getCurrentUserPermission());
-                    renderMember(commonPermission.isAdmin(), result.getData().getMembers());
+                    renderMember(commonPermission.isSuper(), result.getData().getMembers());
                 } else {
                     ClientContext.get().toast(0, 0, result.getMessage());
                 }

@@ -30,4 +30,5 @@ public class AppConstant {
     public static final String UPLOAD_PREFIX_PROJECT_RESOURCE = "project_resource:";
     public static final String CANGLING_MIME_TYPE = "application/x-cangling-preview";
     public static final String CANGLING_MIME_FRAME = "application/x-cangling-frame";
+    public static final Integer ERROR_CODE_UNAUTHORITY = 50300;
 }

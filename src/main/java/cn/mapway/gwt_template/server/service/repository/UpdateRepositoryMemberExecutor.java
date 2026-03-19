@@ -43,10 +43,10 @@ public class UpdateRepositoryMemberExecutor extends AbstractBizExecutor<UpdateRe
         assertNotNull(request.getUserId(), "没有用户ID");
 
         CommonPermission permission = repositoryService.findUserPermissionInRepository(user.getUser().getUserId(), request.getRepositoryId());
-        assertTrue(permission.isAdmin(), "没有操作权限");
+        assertTrue(permission.isSuper(), "没有操作权限");
 
         //检查成员
-        DevRepositoryMemberEntity member = repositoryService.findProjectMemberByMemberId(request.getRepositoryId(), request.getUserId());
+        DevRepositoryMemberEntity member = repositoryService.findRepositoryMemberByMemberId(request.getRepositoryId(), request.getUserId());
         if (member == null) {
             member = new DevRepositoryMemberEntity();
             member.setRepositoryId(request.getRepositoryId());

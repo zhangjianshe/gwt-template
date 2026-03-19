@@ -129,6 +129,12 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
     /// CODE_GEN_INSERT_POINT///
 
     @Resource
+    AddProjectRepoExecutor addProjectRepoExecutor;
+    @Resource
+    RemoveProjectRepoExecutor removeProjectRepoExecutor;
+    @Resource
+    QueryProjectRepoExecutor queryProjectRepoExecutor;
+    @Resource
     DeleteResourceMemberExecutor deleteResourceMemberExecutor;
     @Resource
     AddResourceMemberExecutor addResourceMemberExecutor;
@@ -293,6 +299,23 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
     @Resource
     UpdateRepositoryMemberExecutor updateRepositoryMemberExecutor;
 
+    @Override
+    public RpcResult<AddProjectRepoResponse> addProjectRepo(AddProjectRepoRequest request) {
+        BizResult<AddProjectRepoResponse> bizResult = addProjectRepoExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<RemoveProjectRepoResponse> removeProjectRepo(RemoveProjectRepoRequest request) {
+        BizResult<RemoveProjectRepoResponse> bizResult = removeProjectRepoExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<QueryProjectRepoResponse> queryProjectRepo(QueryProjectRepoRequest request) {
+        BizResult<QueryProjectRepoResponse> bizResult = queryProjectRepoExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
 
     @Override
     public RpcResult<DeleteResourceMemberResponse> deleteResourceMember(DeleteResourceMemberRequest request) {
@@ -785,7 +808,6 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
         BizResult<UpdateRepositoryMemberResponse> bizResult = updateRepositoryMemberExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toRpcResult(bizResult);
     }
-
 
 
     @Override

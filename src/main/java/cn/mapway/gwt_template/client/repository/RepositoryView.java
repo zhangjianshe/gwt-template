@@ -40,8 +40,6 @@ public class RepositoryView extends BaseAbstractModule implements IData<VwReposi
     @UiField
     IconButton btnCode;
     @UiField
-    IconButton btnWiki;
-    @UiField
     IconButton btnBasic;
     @UiField
     LayoutPanel content;
@@ -55,7 +53,6 @@ public class RepositoryView extends BaseAbstractModule implements IData<VwReposi
         initWidget(ourUiBinder.createAndBindUi(this));
         btnBasic.setValue(Fonts.BOOK, "项目看板").setData(Fonts.BOOK);
         btnCode.setValue(Fonts.CODE, "代码").setData(Fonts.CODE);
-        btnWiki.setValue(Fonts.TXT, "WIKI").setData(Fonts.TXT);
         btnSetting.setValue(Fonts.SETTING, "设置").setData(Fonts.SETTING);
 
         CommonEventHandler buttonClickHandler = event -> {
@@ -70,15 +67,11 @@ public class RepositoryView extends BaseAbstractModule implements IData<VwReposi
                 } else if (data.equals(Fonts.SETTING)) {
                     selectButton(btnSetting);
                     gotoSetting();
-                } else if (data.equals(Fonts.TXT)) {
-                    selectButton(btnWiki);
-                    gotoWiki();
                 }
             }
         };
         btnBasic.addCommonHandler(buttonClickHandler);
         btnCode.addCommonHandler(buttonClickHandler);
-        btnWiki.addCommonHandler(buttonClickHandler);
         btnSetting.addCommonHandler(buttonClickHandler);
     }
 
@@ -97,7 +90,7 @@ public class RepositoryView extends BaseAbstractModule implements IData<VwReposi
         if (repositoryFlowPanel == null) {
             repositoryFlowPanel = new RepositoryFlowPanel();
             repositoryFlowPanel.addCommonHandler(event -> {
-                if(event.isUpdate()) {
+                if (event.isUpdate()) {
                     VwRepositoryEntity vwRepositoryEntity = event.getValue();
                     setData(vwRepositoryEntity);
                     fireEvent(CommonEvent.updateEvent(vwRepositoryEntity));
@@ -111,8 +104,6 @@ public class RepositoryView extends BaseAbstractModule implements IData<VwReposi
         repositoryFlowPanel.setData(vwRepository);
     }
 
-    private void gotoWiki() {
-    }
 
     private void gotoCode() {
         if (repositoryCodeFrame == null) {
