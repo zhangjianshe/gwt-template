@@ -43,5 +43,5 @@ public class DevWorkspaceMember implements Serializable, IsSerializable {
     private Boolean isOwner;
 
     @ApiField("权限位")
-    private Integer permission;
+    private String permission;
 }
