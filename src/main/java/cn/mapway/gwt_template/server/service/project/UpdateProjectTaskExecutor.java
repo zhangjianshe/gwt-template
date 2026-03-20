@@ -9,6 +9,7 @@ import cn.mapway.gwt_template.shared.db.DevProjectEntity;
 import cn.mapway.gwt_template.shared.db.DevProjectTaskEntity;
 import cn.mapway.gwt_template.shared.rpc.project.UpdateProjectTaskRequest;
 import cn.mapway.gwt_template.shared.rpc.project.UpdateProjectTaskResponse;
+import cn.mapway.gwt_template.shared.rpc.project.module.DevTaskCatalog;
 import cn.mapway.gwt_template.shared.rpc.project.module.DevTaskKind;
 import cn.mapway.gwt_template.shared.rpc.project.module.DevTaskStatus;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
@@ -50,6 +51,8 @@ public class UpdateProjectTaskExecutor extends AbstractBizExecutor<UpdateProject
 
         DevProjectEntity project = dao.fetch(DevProjectEntity.class, task.getProjectId());
         assertNotNull(project, "没有项目信息");
+        //确保没一个任务都有一个分类 缺省是任务用于甘特图
+        task.setCatalog(DevTaskCatalog.fromCode(task.getCatalog()).getCode());
         // 2. 权限准入 (数据权限校验)
         // 只有项目成员才能创建或修改该项目的任务
         assertTrue(projectService.isMemberOfProject(currentUserId, task.getProjectId()), "您不是该项目的成员，无权操作任务");
@@ -93,9 +96,9 @@ public class UpdateProjectTaskExecutor extends AbstractBizExecutor<UpdateProject
             if (isNew) {
                 task.setId(R.UU16());
                 // --- 自动生成任务编号 ---
-                int nextCode = projectService.getNextTaskCode(task.getProjectId());
+                int nextCode = projectService.getNextTaskCode(task.getProjectId(),task.getCatalog());
                 task.setCode(nextCode);
-                task.setRank(projectService.getNextRank(task.getProjectId()));
+                task.setRank(projectService.getNextRank(task.getProjectId(),task.getCatalog()));
                 // ----------------------
                 task.setCreateTime(new Timestamp(System.currentTimeMillis()));
                 task.setCreateUserId(currentUserId);

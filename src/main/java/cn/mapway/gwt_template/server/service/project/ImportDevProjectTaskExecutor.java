@@ -6,6 +6,7 @@ import cn.mapway.biz.core.BizRequest;
 import cn.mapway.biz.core.BizResult;
 import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.db.DevProjectTaskEntity;
+import cn.mapway.gwt_template.shared.rpc.project.module.DevTaskCatalog;
 import cn.mapway.gwt_template.shared.rpc.project.module.DevTaskKind;
 import cn.mapway.gwt_template.shared.rpc.project.module.DevTaskPriority;
 import cn.mapway.gwt_template.shared.rpc.project.module.DevTaskStatus;
@@ -60,7 +61,7 @@ public class ImportDevProjectTaskExecutor extends AbstractBizExecutor<ImportDevP
         }
 
 
-        int code = projectService.getNextTaskCode(request.getProjectId());
+        int code = projectService.getNextTaskCode(request.getProjectId(), DevTaskCatalog.DTC_TASK.getCode());
 
         List<String> rows = new ArrayList<>();
         Streams.eachLine(Streams.utf8r(Lang.ins(request.getBody())), new Each<String>() {

@@ -8,6 +8,7 @@ import cn.mapway.gwt_template.client.workspace.gantt.GanttItem;
 import cn.mapway.gwt_template.client.workspace.widget.ActionMenu;
 import cn.mapway.gwt_template.client.workspace.widget.ActionMenuKind;
 import cn.mapway.gwt_template.shared.db.DevProjectTaskEntity;
+import cn.mapway.gwt_template.shared.rpc.project.module.DevTaskCatalog;
 import cn.mapway.gwt_template.shared.rpc.project.module.DevTaskKind;
 import cn.mapway.gwt_template.shared.rpc.project.module.DevTaskStatus;
 import cn.mapway.gwt_template.shared.rpc.workspace.ImportDevProjectTaskRequest;
@@ -165,6 +166,7 @@ public class GanttMouseActionDefault implements IMouseHandler {
         taskEntity.setId(null);
         taskEntity.setProjectId(chart.getDocument().getProjectId());
         taskEntity.setName("新的任务");
+        taskEntity.setCatalog(DevTaskCatalog.DTC_TASK.getCode());
         taskEntity.setCharger(null);
         long baseTime = (ganttItem != null)
                 ? ganttItem.getEntity().getEstimateTime().getTime()
@@ -227,6 +229,7 @@ public class GanttMouseActionDefault implements IMouseHandler {
         taskEntity.setId(null);
         taskEntity.setProjectId(chart.getDocument().getProjectId());
         taskEntity.setName("新的任务");
+        taskEntity.setCatalog(DevTaskCatalog.DTC_TASK.getCode());
         taskEntity.setCharger(null);
         long baseTime = (ganttItem != null)
                 ? ganttItem.getEntity().getEstimateTime().getTime()

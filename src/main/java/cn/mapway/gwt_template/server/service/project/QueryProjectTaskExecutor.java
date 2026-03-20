@@ -9,6 +9,7 @@ import cn.mapway.gwt_template.shared.db.DevProjectEntity;
 import cn.mapway.gwt_template.shared.db.DevProjectTaskEntity;
 import cn.mapway.gwt_template.shared.rpc.project.QueryProjectTaskRequest;
 import cn.mapway.gwt_template.shared.rpc.project.QueryProjectTaskResponse;
+import cn.mapway.gwt_template.shared.rpc.project.module.DevTaskCatalog;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
 import cn.mapway.rbac.shared.db.postgis.RbacUserEntity;
 import lombok.extern.slf4j.Slf4j;
@@ -44,6 +45,8 @@ public class QueryProjectTaskExecutor extends AbstractBizExecutor<QueryProjectTa
         log.info("QueryProjectTaskExecutor {}", Json.toJson(request, JsonFormat.compact()));
         LoginUser user = (LoginUser) context.get(AppConstant.KEY_LOGIN_USER);
 
+        request.setCatalog(DevTaskCatalog.fromCode(request.getCatalog()).getCode());
+
         String projectId = request.getProjectId();
         assertTrue(Strings.isNotBlank(projectId), "项目ID不能为空");
         Long currentUserId = user.getUser().getUserId();
@@ -59,6 +62,7 @@ public class QueryProjectTaskExecutor extends AbstractBizExecutor<QueryProjectTa
         // 1. 查询该项目下的所有任务，按优先级和编号排序
         List<DevProjectTaskEntity> allTasks = dao.query(DevProjectTaskEntity.class,
                 Cnd.where(DevProjectTaskEntity.FLD_PROJECT_ID, "=", projectId)
+                        .and(DevProjectTaskEntity.FLD_CATALOG, "=", DevTaskCatalog.DTC_TASK.getCode())
                         .asc(DevProjectTaskEntity.FLD_RANK));
 
         // 2. 内存组装树形结构

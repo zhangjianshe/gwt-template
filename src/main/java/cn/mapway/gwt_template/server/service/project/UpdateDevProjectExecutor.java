@@ -12,6 +12,7 @@ import cn.mapway.gwt_template.shared.db.DevWorkspaceFolderEntity;
 import cn.mapway.gwt_template.shared.rpc.project.UpdateDevProjectRequest;
 import cn.mapway.gwt_template.shared.rpc.project.UpdateDevProjectResponse;
 import cn.mapway.gwt_template.shared.rpc.project.module.CommonPermission;
+import cn.mapway.gwt_template.shared.rpc.project.module.DevTaskCatalog;
 import cn.mapway.gwt_template.shared.rpc.user.ResourcePoint;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
 import cn.mapway.rbac.server.service.RbacUserService;
@@ -102,7 +103,8 @@ public class UpdateDevProjectExecutor extends AbstractBizExecutor<UpdateDevProje
                 return BizResult.error(500, "没有权限使用该模板");
             }
             List<DevProjectTeamEntity> teams = dao.query(DevProjectTeamEntity.class, Cnd.where(DevProjectTeamEntity.FLD_PROJECT_ID, "=", templateProject.getId()));
-            List<DevProjectTaskEntity> tasks = dao.query(DevProjectTaskEntity.class, Cnd.where(DevProjectTaskEntity.FLD_PROJECT_ID, "=", templateProject.getId()));
+            List<DevProjectTaskEntity> tasks = dao.query(DevProjectTaskEntity.class, Cnd.where(DevProjectTaskEntity.FLD_PROJECT_ID, "=", templateProject.getId())
+                    .and(DevProjectTaskEntity.FLD_CATALOG, "=", DevTaskCatalog.DTC_TASK.getCode()));
 
             templateTeams = buildTeamTree(teams);
             templateTasks = buildTaskTree(tasks, templateStartTime);

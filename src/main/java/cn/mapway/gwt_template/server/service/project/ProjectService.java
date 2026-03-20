@@ -213,11 +213,12 @@ public class ProjectService {
     /**
      * 获取项目下下一个任务编号
      */
-    public int getNextTaskCode(String projectId) {
+    public int getNextTaskCode(String projectId, Integer catalog) {
         // 查询当前项目下最大的 code 值
         // SELECT max(code) FROM dev_project_task WHERE project_id = 'xxx'
-        Sql sql = Sqls.create("SELECT max(code) FROM dev_project_task WHERE project_id = @pid");
+        Sql sql = Sqls.create("SELECT max(code) FROM " + DevProjectTaskEntity.TBL_DEV_PROJECT_TASK + " WHERE project_id = @pid and catalog = @catalog");
         sql.setParam("pid", projectId);
+        sql.setParam("catalog", catalog);
         sql.setCallback(Sqls.callback.integer());
         dao.execute(sql);
         int maxCode = sql.getInt();
@@ -527,11 +528,12 @@ public class ProjectService {
         return dao.count(DevProjectTaskEntity.class, Cnd.where(DevProjectTaskEntity.FLD_PARENT_ID, "=", taskId));
     }
 
-    public Double getNextRank(String projectId) {
+    public Double getNextRank(String projectId, Integer catalog) {
         // 查询当前项目下最大的 rank 值
         // SELECT max(code) FROM dev_project_task WHERE project_id = 'xxx'
-        Sql sql = Sqls.create("SELECT max(rank) FROM dev_project_task WHERE project_id = @pid");
+        Sql sql = Sqls.create("SELECT max(rank) FROM dev_project_task WHERE project_id = @pid and catalog = @catalog");
         sql.setParam("pid", projectId);
+        sql.setParam("catalog", catalog);
         sql.setCallback(Sqls.callback.integer());
         dao.execute(sql);
         double maxRank = sql.getDouble(1.0);
