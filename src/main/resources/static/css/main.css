@@ -519,7 +519,8 @@ body {
     cursor: default;
     user-select: none;
     font-size: var(--font-size);
-    white-space: nowrap;
+    white-space: pre-wrap;
+    word-break: break-all;
 }
 
 .gwt-Label[enabled="false"] {
