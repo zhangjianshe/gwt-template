@@ -9,6 +9,7 @@ import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.db.VwRepositoryEntity;
 import cn.mapway.gwt_template.shared.rpc.project.*;
 import cn.mapway.gwt_template.shared.rpc.project.module.CommonPermission;
+import cn.mapway.ui.client.fonts.Fonts;
 import cn.mapway.ui.client.tools.IData;
 import cn.mapway.ui.client.widget.CommonEventComposite;
 import cn.mapway.ui.client.widget.buttons.DeleteButton;
@@ -115,6 +116,7 @@ public class ProjectRepoPanel extends CommonEventComposite implements IData<Stri
             list.addItem(item);
             if (admin) {
                 DeleteButton deleteButton = new DeleteButton();
+                deleteButton.setIconUnicode(Fonts.LINK);
                 deleteButton.setData(repo);
                 deleteButton.addClickHandler(new ClickHandler() {
                     @Override

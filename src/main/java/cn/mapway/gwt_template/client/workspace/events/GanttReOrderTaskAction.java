@@ -90,13 +90,10 @@ public class GanttReOrderTaskAction implements IMouseHandler {
                     }
                     lastDropLocation.setValid(true);
                 }
-
+                chart.redraw();
                 break;
             }
-
         }
-
-
     }
 
     @Override
