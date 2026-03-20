@@ -4,6 +4,7 @@ import cn.mapway.gwt_template.client.ClientContext;
 import cn.mapway.gwt_template.client.rpc.AppProxy;
 import cn.mapway.gwt_template.client.workspace.DevWorkspaceFrame;
 import cn.mapway.gwt_template.client.workspace.home.WorkspaceCard;
+import cn.mapway.gwt_template.client.workspace.calendar.ProjectCalendarWidget;
 import cn.mapway.gwt_template.shared.db.DesktopItemEntity;
 import cn.mapway.gwt_template.shared.db.DevWorkspaceEntity;
 import cn.mapway.gwt_template.shared.rpc.desktop.DeleteDesktopRequest;
@@ -44,11 +45,15 @@ public class DesktopFrame extends BaseAbstractModule implements RequiresResize {
     @UiField
     DesktopItem btnAdd;
     @UiField
-    DockLayoutPanel root;
+    TabLayoutPanel root;
     @UiField
     ScrollPanel content;
     @UiField
     HTMLPanel panelWorkspace;
+    @UiField
+    ProjectCalendarWidget calendar;
+    @UiField
+    DockLayoutPanel desktop;
     Widget currentWidget = content;
 
 
@@ -60,6 +65,17 @@ public class DesktopFrame extends BaseAbstractModule implements RequiresResize {
         btnAdd.setValue("img/plus.svg", "添加快捷方式");
 
         currentWidget = content;
+
+        root.addSelectionHandler(event -> {
+            Integer selectedItem = event.getSelectedItem();
+            switch (selectedItem) {
+                case 0:
+                    break;
+                case 1:
+                    calendar.setData("9fe502023e8c443292138f6d0a7c7455");
+                    break;
+            }
+        });
     }
 
 
@@ -175,7 +191,7 @@ public class DesktopFrame extends BaseAbstractModule implements RequiresResize {
         root.onResize();
     }
 
-    interface DesktopFrameUiBinder extends UiBinder<DockLayoutPanel, DesktopFrame> {
+    interface DesktopFrameUiBinder extends UiBinder<TabLayoutPanel, DesktopFrame> {
     }
 
     private final CommonEventHandler itemHandler = event -> {

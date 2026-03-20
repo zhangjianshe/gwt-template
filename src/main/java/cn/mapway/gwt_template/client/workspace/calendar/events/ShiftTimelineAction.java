@@ -1,25 +1,27 @@
-package cn.mapway.gwt_template.client.workspace.events;
+package cn.mapway.gwt_template.client.workspace.calendar.events;
 
-import cn.mapway.gwt_template.client.workspace.gantt.GanttChart;
+import cn.mapway.gwt_template.client.workspace.calendar.ProjectCalendar;
+import cn.mapway.gwt_template.client.workspace.events.IMouseHandler;
 import cn.mapway.ui.client.mvc.Size;
 import com.google.gwt.event.dom.client.MouseDownEvent;
 import com.google.gwt.event.dom.client.MouseMoveEvent;
 import com.google.gwt.event.dom.client.MouseUpEvent;
 import com.google.gwt.user.client.DOM;
 
-public class GanttShiftTimelineAction implements IMouseHandler<GanttHitResult> {
-    final GanttChart chart;
+public class ShiftTimelineAction implements IMouseHandler<ProjectCalendarHitResult> {
+    final ProjectCalendar chart;
+    final ProjectCalendarHitResult result;
     Size origin = new Size(0, 0);
     Size current = new Size(0, 0);
     boolean mouseDown = false;
-    GanttHitResult result = new GanttHitResult();
 
-    public GanttShiftTimelineAction(GanttChart ganttChart) {
+    public ShiftTimelineAction(ProjectCalendar ganttChart) {
         chart = ganttChart;
+        result = new ProjectCalendarHitResult();
         result.reset();
     }
 
-    public void start(GanttHitResult hitResult, MouseDownEvent event) {
+    public void start(ProjectCalendarHitResult hitResult, MouseDownEvent event) {
         origin.set(event.getX(), event.getY());
         result.copyFrom(hitResult);
         mouseDown = true;

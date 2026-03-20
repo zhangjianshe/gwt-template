@@ -29,7 +29,7 @@ import elemental2.dom.WheelEvent;
 import java.sql.Timestamp;
 import java.util.List;
 
-public class GanttMouseActionDefault implements IMouseHandler {
+public class GanttMouseActionDefault implements IMouseHandler<GanttHitResult> {
     final GanttChart chart;
     Size current = new Size(0, 0);
     GanttHitResult result = new GanttHitResult();

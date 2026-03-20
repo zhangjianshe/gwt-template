@@ -8,7 +8,7 @@ import com.google.gwt.event.dom.client.MouseMoveEvent;
 import com.google.gwt.event.dom.client.MouseUpEvent;
 import com.google.gwt.user.client.DOM;
 
-public class GanttResizeControlPanelAction implements IMouseHandler {
+public class GanttResizeControlPanelAction implements IMouseHandler<GanttHitResult> {
     final GanttChart chart;
     Size origin = new Size(0, 0);
     Size current = new Size(0, 0);

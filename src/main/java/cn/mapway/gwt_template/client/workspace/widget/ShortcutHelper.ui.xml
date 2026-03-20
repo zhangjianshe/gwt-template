@@ -54,7 +54,7 @@
         <g:center>
             <g:ScrollPanel>
                 <g:HTMLPanel addStyleNames="{style.content}">
-                    <g:HTMLPanel addStyleNames="{style.box}">
+                    <g:HTMLPanel addStyleNames="{style.box}" ui:field="ganttPanel" visible="false">
                         <widget:KeyItem key="e" desc="编辑当前选择任务"/>
                         <widget:KeyItem key="Escape" desc="退出当前编辑"/>
                         <widget:KeyItem key="Enter(回车)" desc="创建子任务"/>
@@ -67,6 +67,13 @@
                         <widget:KeyItem key="Ctrl+鼠标滚轮" desc="时间轴缩放"/>
                         <widget:KeyItem key="Shift+鼠标滚轮" desc="时间轴移动"/>
                         <widget:KeyItem key="鼠标滚轮" desc="窗口内容上下移动"/>
+                        <widget:KeyItem key="/" desc="显示本窗口"/>
+                    </g:HTMLPanel>
+                    <g:HTMLPanel addStyleNames="{style.box}" ui:field="calendarPanel" visible="false">
+                        <widget:KeyItem key="e" desc="编辑当前选择任务"/>
+                        <widget:KeyItem key="Escape" desc="退出当前编辑"/>
+                        <widget:KeyItem key="Enter(回车)" desc="创建子任务"/>
+                        <widget:KeyItem key="H 或者 Home" desc="回到今天"/>
                         <widget:KeyItem key="/" desc="显示本窗口"/>
                     </g:HTMLPanel>
                 </g:HTMLPanel>

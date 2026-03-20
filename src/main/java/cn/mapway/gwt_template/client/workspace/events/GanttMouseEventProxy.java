@@ -5,7 +5,7 @@ import cn.mapway.ui.client.mvc.Size;
 import com.google.gwt.event.dom.client.*;
 import elemental2.dom.WheelEvent;
 
-public class GanttMouseEventProxy implements IMouseHandler {
+public class GanttMouseEventProxy implements IMouseHandler<GanttHitResult> {
     final GanttChart chart;
     final GanttMouseActionDefault defaultActionHandler;
     final GanttShiftTimelineAction shiftTimelineActionHandler;
@@ -15,7 +15,7 @@ public class GanttMouseEventProxy implements IMouseHandler {
     final GanttShiftTaskStartAction shiftTaskStartActionHandler;
     final GanttReOrderTaskAction reorderTaskActionHandler;
     GanttMouseAction action = GanttMouseAction.ACTION_DEFAULT;
-    IMouseHandler currentActionHandler = null;
+    IMouseHandler<GanttHitResult> currentActionHandler = null;
     Size origin = new Size(0, 0);
     Size current = new Size(0, 0);
     GanttHitResult hitResult = new GanttHitResult();
@@ -36,7 +36,6 @@ public class GanttMouseEventProxy implements IMouseHandler {
         action = GanttMouseAction.ACTION_DEFAULT;
         currentActionHandler = defaultActionHandler;
         chart.setCursor("default");
-
     }
 
     @Override

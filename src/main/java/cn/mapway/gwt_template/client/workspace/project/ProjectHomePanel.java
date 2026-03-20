@@ -1,7 +1,7 @@
 package cn.mapway.gwt_template.client.workspace.project;
 
-import cn.mapway.gwt_template.client.resource.AppResource;
 import cn.mapway.gwt_template.client.workspace.gantt.GanttWidget;
+import cn.mapway.gwt_template.client.workspace.calendar.ProjectCalendarWidget;
 import cn.mapway.gwt_template.client.workspace.repo.ProjectRepoPanel;
 import cn.mapway.gwt_template.client.workspace.res.ProjectResourcePanel;
 import cn.mapway.gwt_template.shared.db.DevProjectEntity;
@@ -21,7 +21,7 @@ public class ProjectHomePanel extends CommonEventComposite implements IToolsProv
     // 重新定义常量，确保与 XML 中的 Tab 顺序严格对应
     public static final int TAB_OVERVIEW = 0;
     public static final int TAB_TASK = 1;
-    public static final int TAB_ACTIVITY = 2;
+    public static final int TAB_CALENDAR = 2;
     public static final int TAB_ISSUE = 3;
     public static final int TAB_RESOURCE = 4;
     public static final int TAB_REPO = 5;
@@ -39,13 +39,15 @@ public class ProjectHomePanel extends CommonEventComposite implements IToolsProv
     ProjectResourcePanel projectResource;
     @UiField
     ProjectRepoPanel repoPanel;
+    @UiField
+    ProjectCalendarWidget projectCalendar;
     private DevProjectEntity project;
     private boolean teamDataLoaded = false; // 懒加载标志位
 
     public ProjectHomePanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
         initHandlers();
-        mainTab.addStyleName(AppResource.INSTANCE.styles().mainBackground());
+        // mainTab.addStyleName(AppResource.INSTANCE.styles().mainBackground());
     }
 
     private void initHandlers() {
@@ -60,6 +62,9 @@ public class ProjectHomePanel extends CommonEventComposite implements IToolsProv
                 projectResource.setData(project.getId());
             } else if (index == TAB_REPO) {
                 repoPanel.setData(project.getId());
+            } else  if (index == TAB_CALENDAR) {
+                projectCalendar.setData(project.getId());
+                projectCalendar.setFocus(true);
             }
         });
     }

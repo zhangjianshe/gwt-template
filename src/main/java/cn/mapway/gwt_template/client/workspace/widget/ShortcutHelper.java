@@ -6,8 +6,10 @@ import cn.mapway.ui.client.widget.dialog.Popup;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.uibinder.client.UiBinder;
+import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
+import com.google.gwt.user.client.ui.HTMLPanel;
 
 
 /**
@@ -16,6 +18,10 @@ import com.google.gwt.user.client.ui.DockLayoutPanel;
 public class ShortcutHelper extends CommonEventComposite {
     private static final ShortcutHelperUiBinder ourUiBinder = GWT.create(ShortcutHelperUiBinder.class);
     private static Popup<ShortcutHelper> popup;
+    @UiField
+    HTMLPanel ganttPanel;
+    @UiField
+    HTMLPanel calendarPanel;
 
     public ShortcutHelper() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -56,6 +62,16 @@ public class ShortcutHelper extends CommonEventComposite {
     @Override
     public Size requireDefaultSize() {
         return new Size(760, 400);
+    }
+
+    public void showGanttHelper() {
+        calendarPanel.setVisible(false);
+        ganttPanel.setVisible(true);
+    }
+
+    public void showCalendarHelper() {
+        calendarPanel.setVisible(true);
+        ganttPanel.setVisible(false);
     }
 
     interface ShortcutHelperUiBinder extends UiBinder<DockLayoutPanel, ShortcutHelper> {

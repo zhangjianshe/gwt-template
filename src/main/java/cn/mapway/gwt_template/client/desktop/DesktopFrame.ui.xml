@@ -1,6 +1,7 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
              xmlns:g='urn:import:com.google.gwt.user.client.ui'
              xmlns:desktop="urn:import:cn.mapway.gwt_template.client.desktop"
+             xmlns:milestone="urn:import:cn.mapway.gwt_template.client.workspace.calendar"
 >
     <ui:style>
         .box {
@@ -32,22 +33,32 @@
             font-weight: bold;
         }
     </ui:style>
-    <g:DockLayoutPanel ui:field="root">
-        <g:center>
-            <g:ScrollPanel ui:field="content">
-                <g:HTMLPanel addStyleNames="{style.box1}">
-                    <g:HTMLPanel addStyleNames="{style.title}">
-                        <g:Label addStyleNames="{style.header}">快捷方式</g:Label>
-                    </g:HTMLPanel>
-                    <g:HTMLPanel ui:field="panel" addStyleNames="{style.box}">
-                        <desktop:DesktopItem ui:field="btnAdd"/>
-                    </g:HTMLPanel>
-                    <g:HTMLPanel addStyleNames="{style.title}">
-                        <g:Label addStyleNames="{style.header}">我的项目空间</g:Label>
-                    </g:HTMLPanel>
-                    <g:HTMLPanel ui:field="panelWorkspace" addStyleNames="{style.box3}"/>
-                </g:HTMLPanel>
-            </g:ScrollPanel>
-        </g:center>
-    </g:DockLayoutPanel>
+    <g:TabLayoutPanel barHeight="50" ui:field="root">
+        <g:tab>
+            <g:header>桌面</g:header>
+            <g:DockLayoutPanel ui:field="desktop">
+                <g:center>
+                    <g:ScrollPanel ui:field="content">
+                        <g:HTMLPanel addStyleNames="{style.box1}">
+                            <g:HTMLPanel addStyleNames="{style.title}">
+                                <g:Label addStyleNames="{style.header}">快捷方式</g:Label>
+                            </g:HTMLPanel>
+                            <g:HTMLPanel ui:field="panel" addStyleNames="{style.box}">
+                                <desktop:DesktopItem ui:field="btnAdd"/>
+                            </g:HTMLPanel>
+                            <g:HTMLPanel addStyleNames="{style.title}">
+                                <g:Label addStyleNames="{style.header}">我的项目空间</g:Label>
+                            </g:HTMLPanel>
+                            <g:HTMLPanel ui:field="panelWorkspace" addStyleNames="{style.box3}"/>
+                        </g:HTMLPanel>
+                    </g:ScrollPanel>
+                </g:center>
+            </g:DockLayoutPanel>
+        </g:tab>
+        <g:tab>
+            <g:header>工作日历</g:header>
+            <milestone:ProjectCalendarWidget ui:field="calendar"/>
+        </g:tab>
+    </g:TabLayoutPanel>
+
 </ui:UiBinder>

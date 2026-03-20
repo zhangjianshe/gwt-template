@@ -17,7 +17,7 @@ import java.util.List;
 /**
  * 拖动任务排序操作
  */
-public class GanttReOrderTaskAction implements IMouseHandler {
+public class GanttReOrderTaskAction implements IMouseHandler<GanttHitResult> {
     // 容错阈值（单位：像素）
     private static final int DRAG_THRESHOLD = 3;
     final GanttChart chart;

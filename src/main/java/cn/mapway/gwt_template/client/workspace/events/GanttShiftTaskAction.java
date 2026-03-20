@@ -10,7 +10,7 @@ import com.google.gwt.user.client.DOM;
 
 import java.sql.Timestamp;
 
-public class GanttShiftTaskAction implements IMouseHandler {
+public class GanttShiftTaskAction implements IMouseHandler<GanttHitResult> {
     // 容错阈值（单位：像素）
     private static final int DRAG_THRESHOLD = 3;
     final GanttChart chart;
