@@ -8,8 +8,12 @@ import elemental2.dom.WheelEvent;
 
 public class CalendarEventProxy implements IMouseHandler<ProjectCalendarHitResult> {
     final ShiftTimelineAction shiftTimelineAction;
+    final ShiftMeetingAction shiftMeetingAction;
+    final ShiftMeetingStartAction shiftMeetingStartAction;
+    final ShiftMeetingEndAction shiftMeetingEndAction;
     ProjectCalendar chart;
     ProjectCalendarDefaultAction defaultAction;
+
     IMouseHandler<ProjectCalendarHitResult> currentActionHandler = null;
     Size origin = new Size(0, 0);
     ProjectCalendarHitResult hitResult = new ProjectCalendarHitResult();
@@ -19,6 +23,9 @@ public class CalendarEventProxy implements IMouseHandler<ProjectCalendarHitResul
         this.chart = calendar;
         this.defaultAction = new ProjectCalendarDefaultAction(chart);
         shiftTimelineAction = new ShiftTimelineAction(chart);
+        shiftMeetingAction = new ShiftMeetingAction(chart);
+        shiftMeetingStartAction = new ShiftMeetingStartAction(chart);
+        shiftMeetingEndAction = new ShiftMeetingEndAction(chart);
         currentActionHandler = defaultAction;
     }
 
@@ -32,6 +39,18 @@ public class CalendarEventProxy implements IMouseHandler<ProjectCalendarHitResul
         switch (hitResult.hitTest) {
             case HIT_NONE:
                 currentActionHandler = shiftTimelineAction;
+                currentActionHandler.start(hitResult, event);
+                break;
+            case HIT_MEETING_NODE_BODY:
+                currentActionHandler = shiftMeetingAction;
+                currentActionHandler.start(hitResult, event);
+                break;
+            case HIT_MEETING_NODE_START:
+                currentActionHandler = shiftMeetingStartAction;
+                currentActionHandler.start(hitResult, event);
+                break;
+            case HIT_MEETING_NODE_END:
+                currentActionHandler = shiftMeetingEndAction;
                 currentActionHandler.start(hitResult, event);
                 break;
         }

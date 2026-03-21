@@ -1,14 +1,29 @@
 package cn.mapway.gwt_template.client.workspace.calendar;
 
+import cn.mapway.gwt_template.client.workspace.calendar.events.CalendarHitTest;
+import cn.mapway.gwt_template.client.workspace.calendar.events.ProjectCalendarHitResult;
+import cn.mapway.gwt_template.client.workspace.team.BaseNode;
 import cn.mapway.gwt_template.shared.db.DevProjectTaskEntity;
 import cn.mapway.ui.client.mvc.Rect;
+import cn.mapway.ui.client.mvc.Size;
+import cn.mapway.ui.client.util.StringUtil;
 import elemental2.dom.BaseRenderingContext2D;
 import elemental2.dom.CanvasRenderingContext2D;
 import lombok.Getter;
+import lombok.Setter;
 
-public class MeetingNode {
+/**
+ * 构想了一个虚拟的二维平面 (世界坐标系)
+ * 该坐标系参考原点为 (2000-01-01:00:00:00) 单位为秒，
+ * 任意一个时间点 的坐标为 Tx - T0
+ */
+public class MeetingNode extends BaseNode {
+
     @Getter
     private final Rect rect;
+    @Setter
+    public NodeState state = NodeState.NS_NONE;
+    @Getter
     DevProjectTaskEntity meeting;
 
     public MeetingNode(DevProjectTaskEntity meeting) {
@@ -16,18 +31,274 @@ public class MeetingNode {
         rect = new Rect();
     }
 
+    public void clearState() {
+        state = NodeState.NS_NONE;
+    }
+
+    public boolean hitTest(CalendarDocument document, ProjectCalendarHitResult hit, Size worldLoc) {
+        // 1. 定义容差（像素级），转换为世界坐标系的时间跨度
+        double tolPx = 8.0;
+        double tolTime = document.getTimeBySpan(tolPx);
+
+        // 2. 构建一个“扩张矩形”进行初筛
+        // 左右各扩 8 像素的时间，上下各扩 8 像素
+        double minX = rect.getX() - tolTime;
+        double maxX = rect.getX() + rect.getWidth() + tolTime;
+        double minY = rect.getY() - tolPx;
+        double maxY = rect.getY() + rect.getHeight() + tolPx;
+
+        if (worldLoc.getX() < minX || worldLoc.getX() > maxX ||
+                worldLoc.getY() < minY || worldLoc.getY() > maxY) {
+            return false;
+        }
+
+        // 3. 进入扩张矩形后，精细化判定具体位置
+        hit.setNode(this);
+        double mouseX = worldLoc.getX();
+
+        // 判定左边缘：在 [Start - 8px, Start + 8px] 范围内
+        if (mouseX <= rect.getX() + tolTime) {
+            hit.setNode(this);
+            hit.setHitTest(CalendarHitTest.HIT_MEETING_NODE_START);
+            return true;
+        }
+
+        // 判定右边缘：在 [End - 8px, End + 8px] 范围内
+        if (mouseX >= (rect.getX() + rect.getWidth()) - tolTime) {
+            hit.setNode(this);
+            hit.setHitTest(CalendarHitTest.HIT_MEETING_NODE_END);
+            return true;
+        }
+
+        // 4. 判定主体：如果没落在左右边缘，且在垂直高度内
+        if (worldLoc.getY() >= rect.getY() && worldLoc.getY() <= rect.getY() + rect.getHeight()) {
+            hit.setNode(this);
+            hit.setHitTest(CalendarHitTest.HIT_MEETING_NODE_BODY);
+            return true;
+        }
+
+        return false;
+    }
+
+    public void reLayout() {
+        rect.setX(meeting.getStartTime().getTime());
+        rect.setWidth(meeting.getEstimateTime().getTime() - meeting.getStartTime().getTime());
+    }
 
     public void draw(CalendarDocument document, CanvasRenderingContext2D ctx) {
-        double xStart = document.getXByDate(meeting.getStartTime().getTime());
-        double xEnd = document.getXByDate(meeting.getEstimateTime().getTime());
-        if (xEnd <= 0 || xStart >= xEnd) {
+
+        // 1. 视口剔除 (Culling)
+        if (!document.getViewRect().intersect(rect)) {
             return;
         }
-        double width = Math.min(10, xEnd - xStart);
-        ctx.beginPath();
-        ctx.rect(xStart, rect.getY(), width, 30);
-        ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("brown");
-        ctx.strokeStyle = BaseRenderingContext2D.StrokeStyleUnionType.of("#444");
-        ctx.fill();
+
+        // 2. 投影到屏幕 (Projection)
+        Rect screenRect = new Rect();
+        document.projectToScreen(rect, screenRect);
+
+        double x = screenRect.getX();
+        double y = screenRect.getY();
+        double w = Math.max(2, screenRect.getWidth());
+        double h = screenRect.getHeight() - 4;
+
+        withContext(ctx, () -> {
+
+            // 1. 设置透明度和阴影
+            boolean isMoving = (state == NodeState.NS_DRAG_BODY || state == NodeState.NS_DRAG_START || state == NodeState.NS_DRAG_END);
+            boolean isHovering = (state == NodeState.NS_HOVER_BODY || state == NodeState.NS_HOVER_START || state == NodeState.NS_HOVER_END);
+
+            ctx.globalAlpha = isMoving ? 0.7 : 1.0;
+
+            if (isHovering || isMoving) {
+                ctx.shadowBlur = 12;
+                ctx.shadowColor = "rgba(0,0,0,0.5)";
+                ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("#357abd"); // 选中的蓝色更深
+            } else {
+                ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("#4a90e2");
+            }
+
+            // 2. 绘制主体块
+            ctx.beginPath();
+            drawRoundedRect(ctx, x, y, w, h, 4);
+            ctx.fill();
+
+            // 3. 绘制状态装饰（边缘高亮、辅助线等）
+            drawStateEffects(document, ctx, x, y, w, h);
+
+            // 4. 绘制文本 (Sticky Logic)
+            drawStickyText(ctx, x, y, w, h);
+
+            // 5. 绘制时间标签 (仅在拖拽或边缘悬停时显示)
+            if (isMoving || state == NodeState.NS_HOVER_START || state == NodeState.NS_HOVER_END) {
+                drawTimeLabel(ctx, x, y, w, h);
+            }
+        });
     }
+    /**
+     * 绘制带有粘滞效果的文本
+     */
+    private void drawStickyText(CanvasRenderingContext2D ctx, double x, double y, double w, double h) {
+        String name = meeting.getName() == null ? "" : meeting.getName();
+        if (w < 30 || name.isEmpty()) {
+            return;
+        }
+
+        ctx.save();
+
+        // 1. 设置文字基本样式
+        ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("#ffffff");
+        // 如果正在拖拽主体，加粗文字提示
+        ctx.font = (state == NodeState.NS_DRAG_BODY) ? "bold 12px sans-serif" : "12px sans-serif";
+        ctx.textBaseline = "middle";
+        ctx.textAlign = "left";
+
+        // 2. 计算粘滞 X 坐标
+        double padding = 8;
+        // 让 textX 至少为 padding，但不能小于 x + padding
+        // Math.max(x, 0) 确保了当 x 为负数（左侧出屏）时，文字停留在屏幕左边缘
+        double textX = Math.max(x, 0) + padding;
+
+        // 3. 测量文字宽度，防止文字超出右边缘
+        double textWidth = ctx.measureText(name).width;
+
+        // 如果计算出的 textX 会导致文字穿过右边缘 (x + w)，则将其往回推
+        if (textX + textWidth > x + w - padding) {
+            textX = x + w - padding - textWidth;
+        }
+
+        // 4. 极端情况处理：如果整个块太短，文字完全放不下，则切换样式或隐藏
+        if (textWidth > w - padding) {
+            // 选项 A: 将文字画在块的右侧外面 (黑色字)
+            ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("#444");
+            ctx.fillText(name, x + w + padding, y + h / 2);
+        } else {
+            // 选项 B: 正常绘制在块内部，并使用 clip 确保安全
+            ctx.beginPath();
+            ctx.rect(x, y, w, h);
+            ctx.clip();
+            ctx.fillText(name, textX, y + h / 2);
+        }
+
+        ctx.restore();
+    }
+    private void drawTimeLabel(CanvasRenderingContext2D ctx, double x, double y, double w, double h) {
+        ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("#ffffff");
+        ctx.font = "bold 10px sans-serif";
+        ctx.textBaseline = "bottom";
+
+        String timeStr = "";
+        double labelX = x;
+
+        if (state == NodeState.NS_DRAG_END || state == NodeState.NS_HOVER_END) {
+            timeStr = StringUtil.formatDate(meeting.getEstimateTime());
+            labelX = x + w;
+            ctx.textAlign = "left";
+        } else {
+            timeStr = StringUtil.formatDate(meeting.getStartTime());
+            ctx.textAlign = "right";
+            labelX = x - 4;
+        }
+
+        // 绘制半透明背景小气泡
+        double txtW = ctx.measureText(timeStr).width;
+        ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("rgba(0,0,0,0.6)");
+        ctx.fillRect(labelX - (ctx.textAlign.equals("right") ? txtW + 4 : 0), y - 18, txtW + 8, 14);
+
+        ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("#ffffff");
+        ctx.fillText(timeStr, labelX + (ctx.textAlign.equals("right") ? -4 : 4), y - 6);
+    }
+    /**
+     * 根据当前状态绘制装饰性元素
+     */
+    private void drawStateEffects(CalendarDocument document, CanvasRenderingContext2D ctx, double x, double y, double w, double h) {
+        // 1. 边缘高亮逻辑
+        if (state == NodeState.NS_HOVER_START || state == NodeState.NS_DRAG_START) {
+            drawEdgeHighlight(ctx, x, y, h, true, state == NodeState.NS_DRAG_START);
+            if (state == NodeState.NS_DRAG_START) drawVLine(document, ctx, x); // 拖拽时画垂直辅助线
+        }
+        else if (state == NodeState.NS_HOVER_END || state == NodeState.NS_DRAG_END) {
+            drawEdgeHighlight(ctx, x + w, y, h, false, state == NodeState.NS_DRAG_END);
+            if (state == NodeState.NS_DRAG_END) drawVLine(document, ctx, x + w);
+        }
+        else if (state == NodeState.NS_DRAG_BODY) {
+            // 整体移动时：增加外发光边框
+            ctx.setLineDash(new double[]{5, 5}); // 虚线边框
+            ctx.strokeStyle = BaseRenderingContext2D.StrokeStyleUnionType.of("#ffffff");
+            ctx.lineWidth = 2;
+            ctx.strokeRect(x, y, w, h);
+        }
+    }
+    private void drawEdgeHighlight(CanvasRenderingContext2D ctx, double x, double y, double h, boolean isLeft, boolean isDragging) {
+        ctx.beginPath();
+        ctx.lineWidth = isDragging ? 4 : 2;
+        ctx.strokeStyle = BaseRenderingContext2D.StrokeStyleUnionType.of(isDragging ? "#ffcc00" : "#ffffff");
+        // 稍微画长一点，突出边缘感
+        ctx.moveTo(x, y - 2);
+        ctx.lineTo(x, y + h + 2);
+        ctx.stroke();
+    }
+
+    private void drawVLine(CalendarDocument document, CanvasRenderingContext2D ctx, double x) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.setLineDash(new double[]{4, 4});
+        ctx.strokeStyle = BaseRenderingContext2D.StrokeStyleUnionType.of("rgba(255, 255, 255, 0.5)");
+        ctx.lineWidth = 1;
+        // 从表头下方一直画到画布底部
+        ctx.moveTo(x, document.getTopHeight());
+        ctx.lineTo(x, document.getChart().getOffsetHeight());
+        ctx.stroke();
+        ctx.restore();
+    }
+    public void offsetMeetingTime(CalendarDocument document, double deltaX, double deltaY) {
+        double timeBySpan = document.getTimeBySpan(deltaX);
+        meeting.getStartTime().setTime((long) (meeting.getStartTime().getTime() + timeBySpan));
+        meeting.getEstimateTime().setTime((long) (meeting.getEstimateTime().getTime() + timeBySpan));
+        rect.offset(timeBySpan, 0);
+    }
+
+    // 调整开始时间（左边缘拖拽）
+    public void offsetStartTime(CalendarDocument document, double deltaX) {
+        double timeDiff = document.getTimeBySpan(deltaX);
+        double currentStart = meeting.getStartTime().getTime();
+        double currentEnd = meeting.getEstimateTime().getTime();
+
+        // 动态计算保护间隔：确保任务条在当前缩放级别下至少占 5 像素宽
+        double minSafeWidthMs = document.getTimeBySpan(5.0);
+        double newStart = currentStart + timeDiff;
+
+        // 保护：新开始时间不能超过 [结束时间 - 最小安全宽度]
+        if (newStart < currentEnd - minSafeWidthMs) {
+            meeting.getStartTime().setTime((long) newStart);
+            rect.setX(newStart);
+            rect.setWidth(currentEnd - newStart); // 同步更新矩形宽度
+        }
+    }
+
+    // 调整结束时间（右边缘拖拽）
+    public void offsetEstimateTime(CalendarDocument document, double deltaX) {
+        double timeDiff = document.getTimeBySpan(deltaX);
+        double currentStart = meeting.getStartTime().getTime();
+        double currentEnd = meeting.getEstimateTime().getTime();
+
+        double minSafeWidthMs = document.getTimeBySpan(5.0);
+        double newEnd = currentEnd + timeDiff;
+
+        if (newEnd > currentStart + minSafeWidthMs) {
+            meeting.getEstimateTime().setTime((long) newEnd);
+            rect.setWidth(newEnd - currentStart);
+        }
+    }
+
+    public enum NodeState {
+        NS_NONE,
+        NS_DRAG_START,
+        NS_DRAG_END,
+        NS_DRAG_BODY,
+        NS_HOVER_BODY,
+        NS_HOVER_START,
+        NS_HOVER_END,
+    }
+
+
 }

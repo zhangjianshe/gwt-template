@@ -51,8 +51,7 @@ public class UpdateProjectTaskExecutor extends AbstractBizExecutor<UpdateProject
 
         DevProjectEntity project = dao.fetch(DevProjectEntity.class, task.getProjectId());
         assertNotNull(project, "没有项目信息");
-        //确保没一个任务都有一个分类 缺省是任务用于甘特图
-        task.setCatalog(DevTaskCatalog.fromCode(task.getCatalog()).getCode());
+
         // 2. 权限准入 (数据权限校验)
         // 只有项目成员才能创建或修改该项目的任务
         assertTrue(projectService.isMemberOfProject(currentUserId, task.getProjectId()), "您不是该项目的成员，无权操作任务");
@@ -62,6 +61,8 @@ public class UpdateProjectTaskExecutor extends AbstractBizExecutor<UpdateProject
         // 2. 事务外业务逻辑预处理
         if (isNew) {
             assertTrue(Strings.isNotBlank(task.getName()), "任务名称不能为空");
+            //确保没一个任务都有一个分类 缺省是任务用于甘特图
+            task.setCatalog(DevTaskCatalog.fromCode(task.getCatalog()).getCode());
             if (task.getKind() == null) {
                 task.setKind(DevTaskKind.DTK_TASK.getCode());
             }

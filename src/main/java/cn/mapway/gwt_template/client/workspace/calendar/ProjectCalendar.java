@@ -139,10 +139,11 @@ public class ProjectCalendar extends CanvasWidget implements RequiresResize, IDa
 
         if (!document.isValid()) {
             ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("#333");
-            ctx.setFont("18px  sans-serif");
+            ctx.setFont("bold 18px  sans-serif");
             ctx.textAlign = "center";
             DomGlobal.console.log(document.getErrorMessage());
             ctx.fillText(document.getErrorMessage(), (double) getOffsetWidth() / 2, (double) getOffsetHeight() / 2);
+            return;
         }
 
 
@@ -157,7 +158,7 @@ public class ProjectCalendar extends CanvasWidget implements RequiresResize, IDa
             drawDynamicTopHeader(ctx, getOffsetWidth(), document.getTopHeight() / 2);
             drawCurrentTimeLine(ctx);
 
-            for (MeetingNode node : document.drawingItems) {
+            for (MeetingNode node : document.allNodes) {
                 node.draw(document, ctx);
             }
         });
@@ -166,7 +167,7 @@ public class ProjectCalendar extends CanvasWidget implements RequiresResize, IDa
 
     private void drawCurrentTimeLine(CanvasRenderingContext2D ctx) {
         double now = (double) new java.util.Date().getTime();
-        double x = document.getXByDate((long) now);
+        double x = document.getScreenX((long) now);
 
         // 如果当前时间在屏幕可视范围外，则不绘制
         if (x < 0 || x > getOffsetWidth()) {
@@ -215,12 +216,12 @@ public class ProjectCalendar extends CanvasWidget implements RequiresResize, IDa
 
         ctx.save();
         for (int i = 0; i < 500; i++) {
-            double x = document.getXByDate((long) date.getTime());
+            double x = document.getScreenX((long) date.getTime());
             if (x > width) break;
 
             // 计算当前这一个步进的具体毫秒数（考虑月、年天数不同）
             double currentStepMs = timeHelper.calculateActualStepMsFast(date.getTime(), stepMs);
-            double nextX = document.getXByDate((long) (date.getTime() + currentStepMs));
+            double nextX = document.getScreenX((long) (date.getTime() + currentStepMs));
             double cellWidth = nextX - x;
 
             if (nextX >= 0) {
@@ -256,12 +257,12 @@ public class ProjectCalendar extends CanvasWidget implements RequiresResize, IDa
         ctx.textAlign = "left";
 
         for (int i = 0; i < 100; i++) { // 100次循环足够覆盖屏幕
-            double x = document.getXByDate((long) date.getTime());
+            double x = document.getScreenX((long) date.getTime());
             if (x > width) break;
 
             // 计算这一格的物理长度
             double actualMs = timeHelper.calculateActualStepMsFast(date.getTime(), topStepMs);
-            double nextX = document.getXByDate((long) (date.getTime() + actualMs));
+            double nextX = document.getScreenX((long) (date.getTime() + actualMs));
             double periodW = nextX - x;
 
             if (nextX >= 0) {
@@ -354,12 +355,12 @@ public class ProjectCalendar extends CanvasWidget implements RequiresResize, IDa
         double originTime = tempDate.getTime();
         for (int i = 0; i < 500; i++) {
 
-            double x = document.getXByDate(currentTime);
+            double x = document.getScreenX(currentTime);
             if (x > width) break;
 
             // 计算步进像素宽度
             double currentStepMs = timeHelper.calculateActualStepMsFast(date.getTime(), stepMs);
-            double nextX = document.getXByDate((long) (date.getTime() + currentStepMs));
+            double nextX = document.getScreenX((long) (date.getTime() + currentStepMs));
             double cellWidth = nextX - x;
 
             if (nextX >= 0) {

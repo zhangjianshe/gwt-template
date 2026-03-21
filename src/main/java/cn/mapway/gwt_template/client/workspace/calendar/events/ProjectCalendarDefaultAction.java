@@ -1,20 +1,23 @@
 package cn.mapway.gwt_template.client.workspace.calendar.events;
 
+import cn.mapway.gwt_template.client.workspace.calendar.CalendarDocument;
+import cn.mapway.gwt_template.client.workspace.calendar.MeetingNode;
 import cn.mapway.gwt_template.client.workspace.calendar.ProjectCalendar;
 import cn.mapway.gwt_template.client.workspace.events.IMouseHandler;
 import cn.mapway.ui.client.mvc.Size;
 import com.google.gwt.dom.client.NativeEvent;
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.*;
 import elemental2.dom.WheelEvent;
 
 public class ProjectCalendarDefaultAction implements IMouseHandler<ProjectCalendarHitResult> {
     final ProjectCalendar chart;
     final ProjectCalendarHitResult result;
-    Size current=new Size(0,0);
+    Size current = new Size(0, 0);
 
     public ProjectCalendarDefaultAction(ProjectCalendar chart) {
         this.chart = chart;
-        result=new ProjectCalendarHitResult();
+        result = new ProjectCalendarHitResult();
     }
 
     @Override
@@ -26,14 +29,35 @@ public class ProjectCalendarDefaultAction implements IMouseHandler<ProjectCalend
     public void onMouseUp(MouseUpEvent event) {
 
     }
+
     @Override
     public void onMouseMove(MouseMoveEvent event) {
         current.set(event.getX(), event.getY());
         chart.hitTest(result, current);
+        //高亮提示
+        CalendarDocument document = chart.getDocument();
+        document.clearHoverNode();
         switch (result.hitTest) {
+            case HIT_MEETING_NODE_BODY: {
+                document.setHoverNode(result.getNode());
+                result.getNode().setState(MeetingNode.NodeState.NS_HOVER_BODY);
+                chart.resetCursor();
+                break;
+            }
+            case HIT_MEETING_NODE_START: {
+                document.setHoverNode(result.getNode());
+                result.getNode().setState(MeetingNode.NodeState.NS_HOVER_START);
+                chart.setCursor(Style.Cursor.COL_RESIZE.getCssName());
+                break;
+            }
 
+            case HIT_MEETING_NODE_END: {
+                document.setHoverNode(result.getNode());
+                result.getNode().setState(MeetingNode.NodeState.NS_HOVER_END);
+                chart.setCursor(Style.Cursor.COL_RESIZE.getCssName());
+                break;
+            }
             case HIT_NONE:
-
                 chart.resetCursor();
         }
         chart.redraw();
