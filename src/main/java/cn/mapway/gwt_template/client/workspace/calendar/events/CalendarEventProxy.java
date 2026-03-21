@@ -83,7 +83,8 @@ public class CalendarEventProxy implements IMouseHandler<ProjectCalendarHitResul
         if (currentActionHandler != null) {
             currentActionHandler.onMouseUp(event);
         }
-        currentActionHandler = defaultAction;
+        // 关键：切换回 defaultAction 前，确保清除所有 Action 状态
+        resetToDefault();
     }
 
     @Override
@@ -102,7 +103,9 @@ public class CalendarEventProxy implements IMouseHandler<ProjectCalendarHitResul
         }
     }
 
-    public void reset() {
+    public void resetToDefault() {
         currentActionHandler = defaultAction;
+        chart.resetCursor();
+        // 如果需要，可以在这里强制通知 document 清理状态
     }
 }

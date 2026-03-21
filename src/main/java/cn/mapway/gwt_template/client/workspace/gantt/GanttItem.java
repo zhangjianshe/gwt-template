@@ -23,8 +23,6 @@ import java.util.List;
 public class GanttItem extends BaseNode {
     private static final BaseRenderingContext2D.FillStyleUnionType FILL_HOVER = BaseRenderingContext2D.FillStyleUnionType.of("#f0f0f0");
     private static final BaseRenderingContext2D.StrokeStyleUnionType LINE_STYLE = BaseRenderingContext2D.StrokeStyleUnionType.of("#f0f0f0");
-    private static final String NORMAL_FONT = "16px mapway-font,sans-serif";
-    private static final String BOLD_NORMAL_FONT = "bold 16px mapway-font,sans-serif";
     private static final BaseRenderingContext2D.FillStyleUnionType FILL_SELECTED = BaseRenderingContext2D.FillStyleUnionType.of("rgba(135, 206, 235, 0.8)");
     private static final String ICON_SUMMARY = new String(Character.toChars(Integer.parseInt(Fonts.CAOZUORIZHI1, 16)));
     private static String ICON_FILL_DOWN = new String(Character.toChars(Integer.parseInt(Fonts.EXPAND_FILL, 16)));

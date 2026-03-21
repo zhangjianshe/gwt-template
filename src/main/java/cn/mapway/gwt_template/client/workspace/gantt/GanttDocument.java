@@ -333,7 +333,7 @@ public class GanttDocument {
 
     public void offsetTimeline(double deltaX, double deltaY) {
         // 1. 处理垂直滚动
-       this.scrollTop += deltaY;
+        this.scrollTop += deltaY;
 
         // 边界检查：不要滚出任务列表底部
         double maxScroll = Math.max(0, totalHeight - (chart.getOffsetHeight() - GANTT_HEAD_HEIGHT));
@@ -564,6 +564,12 @@ public class GanttDocument {
 
                 reLayout();
                 chart.redraw();
+            }
+
+            @Override
+            protected double interpolate(double progress) {
+                // Standard Ease-out: 1 - (1 - x)^3
+                return 1.0 - Math.pow(1.0 - progress, 3);
             }
 
             @Override

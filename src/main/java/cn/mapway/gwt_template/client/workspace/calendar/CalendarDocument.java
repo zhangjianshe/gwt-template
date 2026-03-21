@@ -35,8 +35,8 @@ public class CalendarDocument {
     final JsDate alignedStartTime = new JsDate();
     final List<MeetingNode> allNodes = new ArrayList<>();
     final List<MeetingNode> drawingItems = new ArrayList<>();
+    final List<MeetingNode> selectedNodes = new ArrayList<>();
     private final TimeSpaceView projector;
-
     @Getter
     boolean valid;
     @Getter
@@ -51,7 +51,6 @@ public class CalendarDocument {
     double startTimeMillis = System.currentTimeMillis();
     double totalHeight = 0;
     Animation currentAnimation = null;
-
     Size TEMP_SCREEN_SIZE = new Size(0, 0);
     Size TEMP_WORLD_SIZE = new Size(0, 0);
     Size TEMP_LOCATION_IN_WORLD = new Size(0, 0);
@@ -337,10 +336,15 @@ public class CalendarDocument {
             @Override
             protected void onUpdate(double progress) {
                 scrollTop = startS + (deltaS * progress);
-                startTimeMillis = (long) (startT + (deltaT * progress));
-
-                reLayout();
+                startTimeMillis = (startT + (deltaT * progress));
+                syncProjector();
                 chart.redraw();
+            }
+
+            @Override
+            protected double interpolate(double progress) {
+                // Standard Ease-out: 1 - (1 - x)^3
+                return 1.0 - Math.pow(1.0 - progress, 3);
             }
 
             @Override
@@ -350,8 +354,8 @@ public class CalendarDocument {
 
                 // 最终位置补偿
                 scrollTop = startS + deltaS;
-                startTimeMillis = (long) (startT + deltaT);
-                reLayout();
+                startTimeMillis = (startT + deltaT);
+                syncProjector();
                 chart.redraw();
             }
 
@@ -359,6 +363,8 @@ public class CalendarDocument {
             protected void onCancel() {
                 // 动画被取消时，也清除引用
                 currentAnimation = null;
+                syncProjector();
+                chart.redraw();
             }
         };
 
@@ -416,5 +422,26 @@ public class CalendarDocument {
                 }
             }
         });
+    }
+
+    public double getSnapMs() {
+        return 10 * 60 * 1000L;
+    }
+
+    public void appendSelect(MeetingNode node, boolean clear) {
+        if (clear) {
+            for (MeetingNode n : selectedNodes) {
+                n.setSelected(false);
+            }
+            selectedNodes.clear();
+        }
+        node.setSelected(true);
+        selectedNodes.add(node);
+    }
+
+    public void fireSelectFirst() {
+        if (!selectedNodes.isEmpty()) {
+            chart.fireEvent(CommonEvent.selectEvent(selectedNodes.get(0).getMeeting()));
+        }
     }
 }

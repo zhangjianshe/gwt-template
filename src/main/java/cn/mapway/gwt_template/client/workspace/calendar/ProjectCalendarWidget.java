@@ -1,11 +1,15 @@
 package cn.mapway.gwt_template.client.workspace.calendar;
 
+import cn.mapway.gwt_template.shared.db.DevProjectTaskEntity;
 import cn.mapway.ui.client.tools.IData;
 import cn.mapway.ui.client.widget.CommonEventComposite;
+import cn.mapway.ui.client.widget.MySplitLayoutPanel;
+import cn.mapway.ui.shared.CommonEvent;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.user.client.ui.LayoutPanel;
+import com.google.gwt.uibinder.client.UiHandler;
+import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.RequiresResize;
 
 /**
@@ -14,9 +18,11 @@ import com.google.gwt.user.client.ui.RequiresResize;
 public class ProjectCalendarWidget extends CommonEventComposite implements RequiresResize, IData<String> {
     private static final ProjectCalendarWidgetUiBinder ourUiBinder = GWT.create(ProjectCalendarWidgetUiBinder.class);
     @UiField
-    LayoutPanel root;
+    DockLayoutPanel root;
     @UiField
     ProjectCalendar calendar;
+    @UiField
+    MeetingPanel meetingPanel;
     private String projectId;
 
     public ProjectCalendarWidget() {
@@ -36,13 +42,23 @@ public class ProjectCalendarWidget extends CommonEventComposite implements Requi
 
     @Override
     public void onResize() {
-        root.onResize();
+        double width = root.getOffsetWidth() / 3.;
+        root.setWidgetSize(meetingPanel, width);
     }
 
     public void setFocus(boolean b) {
         calendar.setFocus(b);
     }
 
-    interface ProjectCalendarWidgetUiBinder extends UiBinder<LayoutPanel, ProjectCalendarWidget> {
+    @UiHandler("calendar")
+    public void calendarCommon(CommonEvent event) {
+        if (event.isSelect()) {
+            DevProjectTaskEntity meeting = event.getValue();
+            meetingPanel.setData(meeting);
+        }
+    }
+
+
+    interface ProjectCalendarWidgetUiBinder extends UiBinder<MySplitLayoutPanel, ProjectCalendarWidget> {
     }
 }

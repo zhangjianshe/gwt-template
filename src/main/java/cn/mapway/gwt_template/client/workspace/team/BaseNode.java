@@ -5,6 +5,42 @@ import elemental2.dom.CanvasRenderingContext2D;
 import jsinterop.base.Js;
 
 public class BaseNode {
+    public static final String NORMAL_FONT = "16px mapway-font,sans-serif";
+    public static final String ICON_FONT = "28px mapway-font,sans-serif";
+    public static final String BOLD_NORMAL_FONT = "bold 16px mapway-font,sans-serif";
+    // Grays
+    public static final String COLOR_LIGHTGRAY = "rgba(200, 200, 200, 1)";
+    public static final String COLOR_GRAY      = "rgba(130, 130, 130, 1)";
+    public static final String COLOR_DARKGRAY  = "rgba(80, 80, 80, 1)";
+
+    // Primary Colors
+    public static final String COLOR_YELLOW    = "rgba(253, 249, 0, 1)";
+    public static final String COLOR_GOLD      = "rgba(255, 203, 0, 1)";
+    public static final String COLOR_ORANGE    = "rgba(255, 161, 0, 1)";
+    public static final String COLOR_PINK      = "rgba(255, 109, 194, 1)";
+    public static final String COLOR_RED       = "rgba(230, 41, 55, 1)";
+    public static final String COLOR_MAROON    = "rgba(190, 33, 55, 1)";
+    public static final String COLOR_GREEN     = "rgba(0, 228, 48, 1)";
+    public static final String COLOR_LIME      = "rgba(0, 158, 47, 1)";
+    public static final String COLOR_DARKGREEN = "rgba(0, 117, 44, 1)";
+    public static final String COLOR_SKYBLUE   = "rgba(102, 191, 255, 1)";
+    public static final String COLOR_BLUE      = "rgba(0, 121, 241, 1)";
+    public static final String COLOR_DARKBLUE  = "rgba(0, 82, 172, 1)";
+    public static final String COLOR_PURPLE    = "rgba(200, 122, 255, 1)";
+    public static final String COLOR_VIOLET    = "rgba(135, 60, 190, 1)";
+    public static final String COLOR_DARKPURPLE= "rgba(112, 31, 126, 1)";
+
+    // Earth Tones
+    public static final String COLOR_BEIGE     = "rgba(211, 176, 131, 1)";
+    public static final String COLOR_BROWN     = "rgba(127, 106, 79, 1)";
+    public static final String COLOR_DARKBROWN = "rgba(76, 63, 47, 1)";
+
+    // Utility
+    public static final String COLOR_WHITE     = "rgba(255, 255, 255, 1)";
+    public static final String COLOR_BLACK     = "rgba(0, 0, 0, 1)";
+    public static final String COLOR_BLANK     = "rgba(0, 0, 0, 0)";
+    public static final String COLOR_MAGENTA   = "rgba(255, 0, 255, 1)";
+    public static final String COLOR_RAYWHITE  = "rgba(245, 245, 245, 1)";
     public static void drawRoundedRect(CanvasRenderingContext2D ctx, double x, double y, double w, double h, double r) {
         // 检查原生方法是否存在 (GWT/JsInterop 语法)
         if (Js.asPropertyMap(ctx).has("roundRect")) {

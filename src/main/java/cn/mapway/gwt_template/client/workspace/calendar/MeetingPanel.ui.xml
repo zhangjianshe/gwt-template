@@ -1,0 +1,105 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:widget="urn:import:cn.mapway.gwt_template.client.workspace.widget">
+
+    <ui:import field="cn.mapway.gwt_template.client.workspace.team.BaseNode.*"/>
+
+    <ui:style>
+        .page {
+            background-color: white;
+            font-family: "mapway-font", sans-serif;
+        }
+
+        .header-box {
+            padding: 24px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .title {
+            font-size: 1.6rem;
+            font-weight: bold;
+            color: #222;
+            padding: 2px 4px;
+        }
+        .title:focus {
+            outline: 2px solid #66bfff; /* 使用 Raylib SKYBLUE */
+            background-color: #fff;
+
+            border-radius: 4px;
+        }
+
+        .title:hover {
+            background-color: #f5f5f5; /* 使用 Raylib RAYWHITE */
+            cursor: text;
+        }
+        .time-label {
+            color: #666; /* 或者使用 COLOR_GRAY */
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .meta-section {
+            padding: 16px 24px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            margin: 10px 24px;
+        }
+
+        .meta-item {
+            font-size: 0.9rem;
+            color: #555;
+            margin-bottom: 6px;
+        }
+
+        .content-body {
+            padding: 24px;
+            line-height: 1.6;
+            font-size: 1rem;
+            color: #333;
+            word-wrap: break-word;
+        }
+
+        .icon {
+            margin-right: 8px;
+            color: #888;
+        }
+    </ui:style>
+
+    <g:DockLayoutPanel ui:field="root" addStyleNames="{style.page}">
+        <g:center>
+            <g:ScrollPanel>
+                <g:HTMLPanel>
+                    <g:HTMLPanel addStyleNames="{style.header-box}">
+                        <widget:EditableLabel ui:field="lbName" addStyleNames="{style.title}"
+                                 title="点击直接修改标题"/>
+                        <g:DateLabel ui:field="lbTime"
+                                     customFormat="yyyy年MM月dd日 HH:mm"
+                                     addStyleNames="{style.time-label}"/>
+                    </g:HTMLPanel>
+
+                    <g:HTMLPanel addStyleNames="{style.meta-section}">
+                        <g:HorizontalPanel verticalAlignment="middle" addStyleNames="{style.meta-item}">
+                            <g:Label text="📍 " addStyleNames="{style.icon}"/>
+                            <g:Label ui:field="lbLocation"/>
+                        </g:HorizontalPanel>
+                        <g:HorizontalPanel verticalAlignment="middle" addStyleNames="{style.meta-item}">
+                            <g:Label text="👥 " addStyleNames="{style.icon}"/>
+                            <g:Label ui:field="lbParticipate"/>
+                        </g:HorizontalPanel>
+                    </g:HTMLPanel>
+
+                    <g:HTML ui:field="lbContent" addStyleNames="{style.content-body}"/>
+                </g:HTMLPanel>
+            </g:ScrollPanel>
+        </g:center>
+
+        <g:south size="60">
+            <g:HTMLPanel addStyleNames="ai-border-top">
+            </g:HTMLPanel>
+        </g:south>
+    </g:DockLayoutPanel>
+</ui:UiBinder>

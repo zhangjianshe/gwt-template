@@ -452,7 +452,10 @@ public class ProjectCalendar extends CanvasWidget implements RequiresResize, IDa
     }
 
     public void resetToDefaultAction() {
-        mouseHandlerProxy.reset();
-        setCursor("default");
+        mouseHandlerProxy.resetToDefault();
+    }
+
+    public double getSnapMs() {
+        return document.getSnapMs();
     }
 }
