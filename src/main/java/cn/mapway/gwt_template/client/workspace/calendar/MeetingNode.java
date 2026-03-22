@@ -22,6 +22,9 @@ import lombok.Setter;
 public class MeetingNode extends BaseNode {
     private static final String ICON_MEETING = new String(Character.toChars(Integer.parseInt(Fonts.MEETING, 16)));
 
+    /**
+     * 这个矩形 初始化的时候使用会议中起始时间和估计时间 渲染的时候会调整到有包含文字大小的举行 主要用于渲染UI
+     */
     @Getter
     private final Rect rect;
     @Setter
@@ -145,7 +148,7 @@ public class MeetingNode extends BaseNode {
                 DevTaskPriority priority = DevTaskPriority.fromCode(meeting.getPriority());
                 ctx.shadowBlur = 12;
                 ctx.shadowColor = "rgba(0,0,0,0.5)";
-                ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of(priority.getColor()); // 选中的蓝色更深
+                ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of(priority.getColor());
             }
 
             DevTaskPriority priority = DevTaskPriority.fromCode(meeting.getPriority());

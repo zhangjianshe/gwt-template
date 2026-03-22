@@ -397,7 +397,7 @@ public class ProjectResourceList extends CommonEventComposite implements IData<S
         if (resources.isEmpty()) {
             MessagePanel messagePanel = new MessagePanel();
             messagePanel.setHeight("200px");
-            messagePanel.setText("没有资源,请添加");
+            messagePanel.setText("右键菜单创建新的资源分类");
             list.add(messagePanel);
         } else if (list.getWidgetCount() == 0) {
             MessagePanel messagePanel = new MessagePanel();
