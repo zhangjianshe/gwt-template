@@ -88,7 +88,6 @@ public class ShiftMeetingAction implements IMouseHandler<ProjectCalendarHitResul
     @Override
     public void onMouseMove(MouseMoveEvent event) {
         if (chart.getDocument().isReadOnly()) {
-
             return;
         }
         if (mouseDown && result.getNode() != null) {

@@ -12,6 +12,7 @@ import elemental2.dom.HTMLElement;
 import jsinterop.base.Js;
 
 public class EditableLabel extends Label implements HasValue<String> {
+    boolean editable = false;
     private String oldText = "";
 
     public EditableLabel(String text) {
@@ -31,10 +32,9 @@ public class EditableLabel extends Label implements HasValue<String> {
     }
 
     private void init() {
-        HTMLElement element = Js.uncheckedCast(getElement());
-        element.setAttribute("contentEditable", "true");
         // 1. Capture the "Enter" key to prevent new lines in a title
         addDomHandler(event -> {
+            if (!editable) return;
             if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
                 event.preventDefault(); // 阻止换行
                 getElement().blur(); // 触发失去焦点以保存
@@ -43,6 +43,7 @@ public class EditableLabel extends Label implements HasValue<String> {
 
         // 2. Save the data when the user clicks away
         addDomHandler(event -> {
+            if (!editable) return;
             String newTitle = getText().trim();
 
             if (!newTitle.isEmpty() && !newTitle.equals(oldText)) {
@@ -72,5 +73,15 @@ public class EditableLabel extends Label implements HasValue<String> {
     @Override
     public HandlerRegistration addValueChangeHandler(ValueChangeHandler<String> handler) {
         return addHandler(handler, ValueChangeEvent.getType());
+    }
+
+    public void setEditable(boolean enable) {
+        editable = enable;
+        HTMLElement element = Js.uncheckedCast(getElement());
+        if (enable) {
+            element.setAttribute("contentEditable", "true");
+        } else {
+            element.removeAttribute("contentEditable");
+        }
     }
 }

@@ -14,4 +14,5 @@ import java.io.Serializable;
 @Data
 @Doc("UploadProjectAttachmentResponse")
 public class UploadProjectAttachmentResponse implements Serializable, IsSerializable {
+    String taskId;
 }

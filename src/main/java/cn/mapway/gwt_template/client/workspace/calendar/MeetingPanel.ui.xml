@@ -1,6 +1,7 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
              xmlns:g='urn:import:com.google.gwt.user.client.ui'
-             xmlns:widget="urn:import:cn.mapway.gwt_template.client.workspace.widget">
+             xmlns:widget="urn:import:cn.mapway.gwt_template.client.workspace.widget"
+             xmlns:ace="urn:import:cn.mapway.ace.client" xmlns:dialog="urn:import:cn.mapway.ui.client.widget.dialog">
 
     <ui:import field="cn.mapway.gwt_template.client.workspace.team.BaseNode.*"/>
 
@@ -12,7 +13,6 @@
 
         .header-box {
             padding: 24px;
-            border-bottom: 1px solid #f0f0f0;
             display: flex;
             flex-direction: column;
             gap: 8px;
@@ -24,10 +24,10 @@
             color: #222;
             padding: 2px 4px;
         }
+
         .title:focus {
             outline: 2px solid #66bfff; /* 使用 Raylib SKYBLUE */
             background-color: #fff;
-
             border-radius: 4px;
         }
 
@@ -35,71 +35,81 @@
             background-color: #f5f5f5; /* 使用 Raylib RAYWHITE */
             cursor: text;
         }
+
         .time-label {
             color: #666; /* 或者使用 COLOR_GRAY */
             font-size: 0.95rem;
             display: flex;
             align-items: center;
-        }
-
-        .meta-section {
-            padding: 16px 24px;
-            background-color: #f9f9f9;
-            border-radius: 8px;
-            margin: 10px 24px;
+            padding: 2px 4px;
         }
 
         .meta-item {
+            display: grid;
+            grid-template-columns: 30px 1fr;
+            gap: 10px;
             font-size: 0.9rem;
             color: #555;
-            margin-bottom: 6px;
-        }
-
-        .content-body {
-            padding: 24px;
-            line-height: 1.6;
-            font-size: 1rem;
-            color: #333;
-            word-wrap: break-word;
+            align-items: center;
+            padding: 2px 4px;
         }
 
         .icon {
             margin-right: 8px;
             color: #888;
         }
+
+        .edit {
+            padding: 2px 4px;
+            width: 100%;
+            line-height: 28px;
+        }
+
+        .edit:focus {
+            outline: 2px solid #66bfff; /* 使用 Raylib SKYBLUE */
+            background-color: #fff;
+            border-radius: 4px;
+        }
     </ui:style>
 
     <g:DockLayoutPanel ui:field="root" addStyleNames="{style.page}">
-        <g:center>
-            <g:ScrollPanel>
-                <g:HTMLPanel>
-                    <g:HTMLPanel addStyleNames="{style.header-box}">
-                        <widget:EditableLabel ui:field="lbName" addStyleNames="{style.title}"
-                                 title="点击直接修改标题"/>
-                        <g:DateLabel ui:field="lbTime"
-                                     customFormat="yyyy年MM月dd日 HH:mm"
-                                     addStyleNames="{style.time-label}"/>
-                    </g:HTMLPanel>
-
-                    <g:HTMLPanel addStyleNames="{style.meta-section}">
-                        <g:HorizontalPanel verticalAlignment="middle" addStyleNames="{style.meta-item}">
-                            <g:Label text="📍 " addStyleNames="{style.icon}"/>
-                            <g:Label ui:field="lbLocation"/>
-                        </g:HorizontalPanel>
-                        <g:HorizontalPanel verticalAlignment="middle" addStyleNames="{style.meta-item}">
-                            <g:Label text="👥 " addStyleNames="{style.icon}"/>
-                            <g:Label ui:field="lbParticipate"/>
-                        </g:HorizontalPanel>
-                    </g:HTMLPanel>
-
-                    <g:HTML ui:field="lbContent" addStyleNames="{style.content-body}"/>
+        <g:north size="200">
+            <g:HTMLPanel addStyleNames="{style.header-box}">
+                <widget:EditableLabel ui:field="lbName" addStyleNames="{style.title}"
+                                      title="点击直接修改标题"/>
+                <g:HorizontalPanel>
+                    <g:DateLabel ui:field="lbTime"
+                                 customFormat="yyyy年MM月dd日 HH:mm"
+                                 addStyleNames="{style.time-label}"/>
+                    <g:Label ui:field="lbDuration" addStyleNames="{style.time-label}"/>
+                </g:HorizontalPanel>
+                <g:Label/>
+                <g:HTMLPanel addStyleNames="{style.meta-item}">
+                    <g:Label text="📍 " addStyleNames="{style.icon}"/>
+                    <widget:EditableLabel ui:field="lbLocation" addStyleNames="{style.edit}"/>
                 </g:HTMLPanel>
-            </g:ScrollPanel>
-        </g:center>
-
-        <g:south size="60">
-            <g:HTMLPanel addStyleNames="ai-border-top">
+                <g:HTMLPanel addStyleNames="{style.meta-item}">
+                    <g:Label text="👥 " addStyleNames="{style.icon}"/>
+                    <widget:EditableLabel ui:field="lbParticipate" addStyleNames="{style.edit}"/>
+                </g:HTMLPanel>
             </g:HTMLPanel>
+        </g:north>
+        <g:south size="68">
+            <dialog:SaveBar ui:field="saveBar" enableCancel="false" saveText="保存"/>
         </g:south>
+        <g:center>
+            <g:TabLayoutPanel barHeight="50">
+                <g:tab>
+                    <g:header>会议纪要</g:header>
+                    <ace:AceEditor ui:field="editor"/>
+                </g:tab>
+                <g:tab>
+                    <g:header>会议附件</g:header>
+                    <g:HTMLPanel>
+
+                    </g:HTMLPanel>
+                </g:tab>
+            </g:TabLayoutPanel>
+        </g:center>
     </g:DockLayoutPanel>
 </ui:UiBinder>

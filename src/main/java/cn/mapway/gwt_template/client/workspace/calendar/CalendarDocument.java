@@ -448,4 +448,17 @@ public class CalendarDocument {
             chart.fireEvent(CommonEvent.selectEvent(selectedNodes.get(0).getMeeting()));
         }
     }
+
+    public void updateMeetingLocal(DevProjectTaskEntity meeting) {
+        if (meeting == null) {
+            return;
+        }
+        for (MeetingNode node : allNodes) {
+            if (node.getMeeting().getId().equals(meeting.getId())) {
+                node.meeting = meeting;
+                break;
+            }
+        }
+        chart.redraw();
+    }
 }

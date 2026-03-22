@@ -5,6 +5,7 @@ import elemental2.core.Global;
 import jsinterop.annotations.JsOverlay;
 import jsinterop.annotations.JsType;
 import jsinterop.base.Js;
+import jsinterop.base.JsPropertyMap;
 
 /**
  * 表示一个会议的信息
@@ -23,7 +24,10 @@ public class Meeting {
      * 会议内容
      */
     public String body;
-
+    @JsOverlay
+    public static Meeting create() {
+        return Js.uncheckedCast(JsPropertyMap.of());
+    }
     @JsOverlay
     public static Meeting fromJson(String json) {
         if (StringUtil.isBlank(json)) {
