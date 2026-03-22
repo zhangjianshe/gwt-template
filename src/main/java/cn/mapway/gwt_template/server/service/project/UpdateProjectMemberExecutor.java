@@ -45,27 +45,30 @@ public class UpdateProjectMemberExecutor extends AbstractBizExecutor<UpdateProje
         Long currentUserId = user.getUser().getUserId();
 
         assertNotNull(request.getAction(), "成员信息不能为空");
-        assertTrue(Strings.isNotBlank(request.getSourceTeamId()), "小组ID不能为空");
         assertTrue(request.getUserId() != null, "用户ID不能为空");
+        assertTrue(Strings.isNotBlank(request.getProjectId()), "没有填写projectId");
 
-        // --- 1. 事务外的查询与校验 ---
-        DevProjectTeamEntity team = dao.fetch(DevProjectTeamEntity.class, request.getSourceTeamId());
-        assertNotNull(team, "源小组不存在");
-        assertTrue(team.getProjectId().equals(request.getProjectId()), "目标小组不属于项目" + request.getProjectId());
+        CommonPermission operatorPermission = projectService.findUserPermissionInProject(currentUserId, request.getProjectId());
 
         // 权限校验
-        assertTrue(projectService.isCreatorOfProject(currentUserId, team.getProjectId()), "只有项目创建者可以管理小组成员");
+        assertTrue(operatorPermission.isSuper(), "只有项目创建者可以管理小组成员");
 
         switch (request.getAction()) {
             case ACTION_UPDATE:
+                assertTrue(Strings.isNotBlank(request.getSourceTeamId()), "小组ID不能为空");
                 return updateMember(request);
             case ACTION_ADD: {
+                assertTrue(Strings.isNotBlank(request.getSourceTeamId()), "小组ID不能为空");
                 return doAddTeamMember(request);
             }
             case ACTION_REMOVE: {
                 return doRemoveTeamMember(request);
             }
             case ACTION_MOVE: {
+                // --- 1. 事务外的查询与校验 ---
+                DevProjectTeamEntity team = dao.fetch(DevProjectTeamEntity.class, request.getSourceTeamId());
+                assertNotNull(team, "源小组不存在");
+                assertTrue(team.getProjectId().equals(request.getProjectId()), "目标小组不属于项目" + request.getProjectId());
                 return doMoveTeamMember(request);
             }
             case ACTION_SET_CHARGER: {
@@ -145,6 +148,13 @@ public class UpdateProjectMemberExecutor extends AbstractBizExecutor<UpdateProje
     }
 
     private BizResult<UpdateProjectMemberResponse> doRemoveTeamMember(UpdateProjectMemberRequest request) {
+
+        //检查成员是否是项目的创建者
+        CommonPermission permission = projectService.findUserPermissionInProject(request.getUserId(), request.getPermission());
+        if (permission.isOwner()) {
+            return BizResult.error(500, "不能删删除项目创建者");
+        }
+
         dao.deletex(DevProjectTeamMemberEntity.class, request.getSourceTeamId(), request.getUserId());
         return BizResult.success(new UpdateProjectMemberResponse());
     }

@@ -50,6 +50,7 @@ public class QueryProjectTeamExecutor extends AbstractBizExecutor<QueryProjectTe
 
         String projectId = request.getProjectId();
         assertTrue(Strings.isNotBlank(projectId), "必须指定项目ID");
+
         CommonPermission commonPermission=projectService.userPermissionInProject(operatorId,request.getProjectId());
         if(!commonPermission.canRead())
         {
@@ -90,8 +91,14 @@ public class QueryProjectTeamExecutor extends AbstractBizExecutor<QueryProjectTe
 
         // 3.2 将所有成员分发到对应的 Team 节点
         for (ProjectMember member : allMembers) {
+            // 根据成员的 teamId 从刚才查出的 teamMap 中获取对应的实体
             DevProjectTeamEntity team = teamMap.get(member.getTeamId());
             if (team != null) {
+                // 关键点：将数据库查出的 team.name 赋值给 member 对象的 teamName 字段
+                member.setTeamName(team.getName());
+                member.setProjectId(team.getProjectId());
+
+                // 然后再将成员加入该小组的列表
                 team.getMembers().add(member);
             }
         }

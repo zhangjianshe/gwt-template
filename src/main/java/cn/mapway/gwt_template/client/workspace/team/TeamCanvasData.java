@@ -9,8 +9,8 @@ import cn.mapway.gwt_template.shared.rpc.project.module.CommonPermission;
 import cn.mapway.gwt_template.shared.rpc.project.module.ProjectMember;
 import cn.mapway.ui.client.IUserInfo;
 import cn.mapway.ui.client.mvc.Rect;
-import cn.mapway.ui.client.mvc.Size;
 import cn.mapway.ui.client.util.StringUtil;
+import cn.mapway.ui.shared.CommonEvent;
 import cn.mapway.ui.shared.rpc.RpcResult;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import elemental2.dom.DomGlobal;
@@ -55,8 +55,9 @@ public class TeamCanvasData {
             public void onSuccess(RpcResult<QueryProjectTeamResponse> result) {
                 if (result.isSuccess()) {
                     CommonPermission permission = CommonPermission.from(result.getData().getPermission());
-                    teamCanvas.setReadonly(!permission.isAdmin());
+                    teamCanvas.setReadonly(!permission.isSuper());
                     setData(result.getData().getRootTeams());
+                    teamCanvas.fireEvent(CommonEvent.loadEndEvent(result.getData()));
                 }
             }
         });
@@ -130,23 +131,6 @@ public class TeamCanvasData {
         node.setChargeImage(img);
     }
 
-    /**
-     * 在逻辑坐标系下寻找潜在的父节点
-     */
-    public TeamGroupNode findPotentialParent(TeamGroupNode movingNode) {
-        // 遍历所有节点，寻找一个“不是我自己”且“包含我左边缘中心点”的节点
-        Rect rect = movingNode.getRect();
-        Size leftCenter = new Size(rect.x, rect.y + movingNode.getTitleHeight() / 2.0);
-
-        for (TeamGroupNode target : flatNodes) {
-            if (target == movingNode) continue;
-            // 如果移动节点的左中心进入了目标节点的矩形范围（或者稍微扩大的感应区）
-            if (target.getRect().contains(leftCenter.x, leftCenter.y)) {
-                return target;
-            }
-        }
-        return null;
-    }
 
     /**
      * 递归检查 potential 是否为 hitArea 的后代
@@ -300,18 +284,7 @@ public class TeamCanvasData {
         return flatNodes.isEmpty();
     }
 
-    /**
-     * 清除除指定节点外所有节点的选中状态
-     *
-     * @param exceptNode 需要保持选中状态的节点，如果为 null 则清除所有
-     */
-    public void clearAllSelectionsExcept(@Nullable TeamGroupNode exceptNode) {
-        for (TeamGroupNode node : flatNodes) {
-            if (node != exceptNode) {
-                node.setSelected(false);
-            }
-        }
-    }
+
 
     public void clearSelection() {
         for (TeamGroupNode node : flatNodes) {

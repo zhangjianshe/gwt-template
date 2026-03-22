@@ -9,10 +9,7 @@ import cn.mapway.gwt_template.shared.rpc.project.QueryProjectTaskRequest;
 import cn.mapway.gwt_template.shared.rpc.project.QueryProjectTaskResponse;
 import cn.mapway.gwt_template.shared.rpc.project.UpdateProjectTaskRequest;
 import cn.mapway.gwt_template.shared.rpc.project.UpdateProjectTaskResponse;
-import cn.mapway.gwt_template.shared.rpc.project.module.DevTaskCatalog;
-import cn.mapway.gwt_template.shared.rpc.project.module.DevTaskKind;
-import cn.mapway.gwt_template.shared.rpc.project.module.DevTaskPriority;
-import cn.mapway.gwt_template.shared.rpc.project.module.DevTaskStatus;
+import cn.mapway.gwt_template.shared.rpc.project.module.*;
 import cn.mapway.ui.client.mvc.Rect;
 import cn.mapway.ui.client.mvc.Size;
 import cn.mapway.ui.client.util.StringUtil;
@@ -34,7 +31,6 @@ import java.util.List;
 public class CalendarDocument {
     final JsDate alignedStartTime = new JsDate();
     final List<MeetingNode> allNodes = new ArrayList<>();
-    final List<MeetingNode> drawingItems = new ArrayList<>();
     final List<MeetingNode> selectedNodes = new ArrayList<>();
     private final TimeSpaceView projector;
     @Getter
@@ -45,6 +41,8 @@ public class CalendarDocument {
     @Setter
     ProjectCalendar chart;
     String projectId;
+    @Getter
+    boolean readOnly;
     /**
      * 画布当前的开始事件
      */
@@ -122,6 +120,7 @@ public class CalendarDocument {
         AppProxy.get().queryProjectTask(request, new AsyncCallback<RpcResult<QueryProjectTaskResponse>>() {
             @Override
             public void onFailure(Throwable caught) {
+                readOnly = true;
                 DomGlobal.console.log("loading " + projectId + " " + caught.getMessage());
                 setError(caught.getMessage());
             }
@@ -130,8 +129,9 @@ public class CalendarDocument {
             public void onSuccess(RpcResult<QueryProjectTaskResponse> result) {
                 if (result.isSuccess()) {
                     valid = true;
-                    DomGlobal.console.log("loading " + projectId + " success");
                     allNodes.clear();
+                    CommonPermission permission = CommonPermission.from(result.getData().getUserPermission());
+                    readOnly = !(permission.isOwner() || permission.isSecretary());
                     for (DevProjectTaskEntity meeting : result.getData().getRootTasks()) {
                         MeetingNode meetingNode = new MeetingNode(meeting);
                         allNodes.add(meetingNode);
@@ -142,6 +142,7 @@ public class CalendarDocument {
                     }
                     buildAndLayout();
                 } else {
+                    readOnly = true;
                     setError(result.getMessage());
                 }
             }
@@ -159,6 +160,9 @@ public class CalendarDocument {
     }
 
     public void addMeeting() {
+        if (isReadOnly()) {
+            return;
+        }
         DevProjectTaskEntity meeting = new DevProjectTaskEntity();
         meeting.setCatalog(DevTaskCatalog.DTC_MEETING.getCode());
         meeting.setName("会议主题");

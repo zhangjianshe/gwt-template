@@ -15,12 +15,14 @@ import cn.mapway.ui.client.util.StringUtil;
 import cn.mapway.ui.client.widget.canvas.CanvasWidget;
 import cn.mapway.ui.shared.CommonEvent;
 import cn.mapway.ui.shared.CommonEventHandler;
+import cn.mapway.ui.shared.HasCommonHandlers;
 import cn.mapway.ui.shared.rpc.RpcResult;
 import com.google.gwt.core.client.Callback;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ContextMenuEvent;
 import com.google.gwt.event.dom.client.MouseWheelEvent;
+import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import elemental2.core.JsArray;
@@ -38,15 +40,7 @@ import org.jspecify.annotations.Nullable;
  * 团队架构画布 - 优化版
  * 功能：平移缩放、树状布局、左键选中、右键菜单、动态鼠标样式
  */
-public class TeamCanvas extends CanvasWidget implements IData<String> {
-    public void withContext(CanvasRenderingContext2D ctx, Runnable action) {
-        ctx.save(); // 保存当前画笔状态
-        try {
-            action.run();
-        } finally {
-            ctx.restore(); // 无论如何都要恢复，防止污染下一个节点
-        }
-    }
+public class TeamCanvas extends CanvasWidget implements IData<String>, HasCommonHandlers {
     public final Size translation = new Size(0, 0); // 替代 translateX, translateY
     // 交互辅助
     private final Size lastMousePos = new Size(0, 0);   // 上一次鼠标位置 (屏幕坐标)
@@ -59,7 +53,6 @@ public class TeamCanvas extends CanvasWidget implements IData<String> {
     TeamHitResult hitLast = new TeamHitResult();
     ActionMenu menuNode = new ActionMenu();
     ActionMenu menuCanvas = new ActionMenu();
-
     boolean mouseDown = false;
     CommonEventHandler menuNodeHandler = new CommonEventHandler() {
         @Override
@@ -96,7 +89,6 @@ public class TeamCanvas extends CanvasWidget implements IData<String> {
     @Getter
     private boolean readonly = false;
     private ActionMode actionMode = ActionMode.ACTION_MODE_DEFAULT;
-
     public TeamCanvas() {
         super();
         data = new TeamCanvasData(this);
@@ -311,6 +303,15 @@ public class TeamCanvas extends CanvasWidget implements IData<String> {
             resetInteractionState();
             redraw();
         });
+    }
+
+    public void withContext(CanvasRenderingContext2D ctx, Runnable action) {
+        ctx.save(); // 保存当前画笔状态
+        try {
+            action.run();
+        } finally {
+            ctx.restore(); // 无论如何都要恢复，防止污染下一个节点
+        }
     }
 
     private void onZoomToFit() {
@@ -903,8 +904,6 @@ public class TeamCanvas extends CanvasWidget implements IData<String> {
     }
 
 
-
-
     private void drawLinks(CanvasRenderingContext2D ctx, TeamGroupNode p) {
         if (p.getChildren() == null || p.getChildren().isEmpty()) return;
 
@@ -960,4 +959,8 @@ public class TeamCanvas extends CanvasWidget implements IData<String> {
         data.rebuild(projectId);
     }
 
+    @Override
+    public HandlerRegistration addCommonHandler(CommonEventHandler handler) {
+        return addHandler(handler, CommonEvent.TYPE);
+    }
 }

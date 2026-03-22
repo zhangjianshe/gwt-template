@@ -4,6 +4,9 @@
     <ui:style>
     </ui:style>
     <g:DockLayoutPanel ui:field="root">
+        <g:east size="500">
+            <team:ProjectMemberPermissionList addStyleNames="ai-border-left" ui:field="permissionPanel"/>
+        </g:east>
         <g:center>
             <team:TeamCanvas width="100%" height="100%" ui:field="teamCanvas"/>
         </g:center>

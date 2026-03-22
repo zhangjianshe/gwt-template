@@ -11,6 +11,7 @@ import cn.mapway.ui.client.mvc.Size;
 import cn.mapway.ui.client.util.StringUtil;
 import elemental2.dom.BaseRenderingContext2D;
 import elemental2.dom.CanvasRenderingContext2D;
+import elemental2.dom.TextMetrics;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -27,6 +28,7 @@ public class MeetingNode extends BaseNode {
      */
     @Getter
     private final Rect rect;
+    private final Rect visualRect = new Rect();
     @Setter
     public NodeState state = NodeState.NS_NONE;
     @Getter
@@ -47,6 +49,20 @@ public class MeetingNode extends BaseNode {
     public boolean hitTest(CalendarDocument document, ProjectCalendarHitResult hit, Size worldLoc) {
 
 
+        Rect screenRect = new Rect();
+        document.projectToScreen(rect, screenRect);
+
+        if (screenRect.width < 40) {
+            if (visualRect.contains(worldLoc)) {
+                hit.setNode(this);
+                hit.setHitTest(CalendarHitTest.HIT_MEETING_NODE_BODY);
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+
         // 1. 定义容差（像素级），转换为世界坐标系的时间跨度
         double tolPx = 8.0;
         double tolTime = document.getTimeBySpan(tolPx);
@@ -61,15 +77,6 @@ public class MeetingNode extends BaseNode {
         if (worldLoc.getX() < minX || worldLoc.getX() > maxX ||
                 worldLoc.getY() < minY || worldLoc.getY() > maxY) {
             return false;
-        }
-
-        Rect screenRect = new Rect();
-        document.projectToScreen(rect, screenRect);
-
-        if (screenRect.width < 40) {
-            hit.setNode(this);
-            hit.setHitTest(CalendarHitTest.HIT_MEETING_NODE_BODY);
-            return true;
         }
 
         // 3. 进入扩张矩形后，精细化判定具体位置
@@ -164,14 +171,22 @@ public class MeetingNode extends BaseNode {
                 ctx.setFont(NORMAL_FONT);
             }
             ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("#000");
+            TextMetrics textMetrics = ctx.measureText(meeting.getName());
             ctx.fillText(meeting.getName(), x + 30, y + h / 2);
+            double totalVisualWidthInPixel = 30 + textMetrics.width;
+            double timeSpan = document.getTimeBySpan(totalVisualWidthInPixel);
+            visualRect.copyFrom(rect);
+            visualRect.setWidth(timeSpan);
+
+
             if (isSelected()) {
                 ctx.beginPath();
-                drawRoundedRect(ctx, x, y + 4, 28, h - 8, 4);
+                drawRoundedRect(ctx, x, y + 4, totalVisualWidthInPixel + 8, h - 8, 4);
                 ctx.strokeStyle = BaseRenderingContext2D.StrokeStyleUnionType.of(priority.getColor());
                 ctx.lineWidth = 1.0;
                 ctx.stroke();
             }
+
         });
     }
 

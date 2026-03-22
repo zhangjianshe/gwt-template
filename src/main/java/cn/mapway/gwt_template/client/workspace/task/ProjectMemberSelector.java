@@ -7,17 +7,16 @@ import cn.mapway.gwt_template.shared.rpc.project.QueryProjectTeamResponse;
 import cn.mapway.gwt_template.shared.rpc.project.module.ProjectMember;
 import cn.mapway.ui.client.mvc.Size;
 import cn.mapway.ui.client.tools.IData;
-import cn.mapway.ui.client.util.IEachElement;
 import cn.mapway.ui.client.util.StringUtil;
 import cn.mapway.ui.client.widget.CommonEventComposite;
 import cn.mapway.ui.client.widget.SearchBox;
 import cn.mapway.ui.client.widget.dialog.Popup;
 import cn.mapway.ui.client.widget.dialog.SaveBar;
-import cn.mapway.ui.client.widget.tree.Tree;
-import cn.mapway.ui.client.widget.tree.TreeItem;
 import cn.mapway.ui.shared.CommonEvent;
 import cn.mapway.ui.shared.rpc.RpcResult;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -25,10 +24,9 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
+import com.google.gwt.user.client.ui.HTMLPanel;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 项目成员选择
@@ -39,11 +37,18 @@ public class ProjectMemberSelector extends CommonEventComposite implements IData
     @UiField
     SaveBar saveBar;
     @UiField
-    Tree teamTree;
-    @UiField
     SearchBox searchBox;
+    @UiField
+    HTMLPanel list;
     ProjectMember member = null;
-    Map<Long, ProjectMember> caches = new HashMap<>();
+    ProjectMemberItem selectedItem = null;
+    private final ClickHandler itemClicked = new ClickHandler() {
+        @Override
+        public void onClick(ClickEvent event) {
+            ProjectMemberItem source = (ProjectMemberItem) event.getSource();
+            selectItem(source);
+        }
+    };
     private String projectId;
 
     public ProjectMemberSelector() {
@@ -72,25 +77,31 @@ public class ProjectMemberSelector extends CommonEventComposite implements IData
         return new Popup<>(selector);
     }
 
+    private void selectItem(ProjectMemberItem source) {
+        if (selectedItem != null) {
+            selectedItem.setSelect(false);
+            selectedItem = null;
+        }
+        selectedItem = source;
+        if (selectedItem != null) {
+            selectedItem.setSelect(true);
+            member = selectedItem.getData();
+            saveBar.msg("选择了用户" + member.getUserName());
+        }
+    }
+
     private void filter(String value) {
         if (StringUtil.isBlank(value)) {
-            teamTree.eachItem(new IEachElement<TreeItem>() {
-                @Override
-                public boolean each(TreeItem e) {
-                    ProjectMember member1 = (ProjectMember) e.getData();
-                    e.setVisible(member1.getUserName().contains(value) || member1.getNickName().contains(value));
-                    return true;
-                }
-            });
+            for (int i = 0; i < list.getWidgetCount(); i++) {
+                ProjectMemberItem item = (ProjectMemberItem) list.getWidget(i);
+                item.setVisible(true);
+            }
         } else {
-            teamTree.eachItem(new IEachElement<TreeItem>() {
-
-                @Override
-                public boolean each(TreeItem e) {
-                    e.setVisible(true);
-                    return true;
-                }
-            });
+            for (int i = 0; i < list.getWidgetCount(); i++) {
+                ProjectMemberItem item = (ProjectMemberItem) list.getWidget(i);
+                ProjectMember projectMember = item.getData();
+                item.setVisible(projectMember.getNickName().contains(value) || projectMember.getNickName().contains(value.toLowerCase()));
+            }
         }
     }
 
@@ -112,17 +123,6 @@ public class ProjectMemberSelector extends CommonEventComposite implements IData
         }
     }
 
-    @UiHandler("teamTree")
-    public void teamTreeCommon(CommonEvent event) {
-        if (event.isSelect()) {
-            TreeItem item = event.getValue();
-            Object data = item.getData();
-            if (data instanceof ProjectMember) {
-                member = (ProjectMember) data;
-                saveBar.msg("选择了用户 " + member.getUserName());
-            }
-        }
-    }
 
     @Override
     public String getData() {
@@ -156,27 +156,23 @@ public class ProjectMemberSelector extends CommonEventComposite implements IData
     }
 
     private void renderMembers(List<DevProjectTeamEntity> rootTeams) {
-        teamTree.clear();
-        caches.clear();
+        list.clear();
         recursiveHandler(rootTeams);
     }
 
     private void recursiveHandler(List<DevProjectTeamEntity> rootTeams) {
-        if (rootTeams == null || rootTeams.size() == 0) {
+        if (rootTeams == null || rootTeams.isEmpty()) {
             return;
         }
         for (DevProjectTeamEntity team : rootTeams) {
             recursiveHandler(team.getChildren());
             List<ProjectMember> members = team.getMembers();
-            if (members != null && members.size() > 0) {
+            if (members != null && !members.isEmpty()) {
                 for (ProjectMember member : members) {
-                    ProjectMember exist = caches.get(member.getUserId());
-                    if (exist != null) {
-                        continue;
-                    }
-                    caches.put(member.getUserId(), member);
-                    TreeItem item1 = teamTree.addImageItem(null, member.getUserName(), member.getAvatar());
-                    item1.setData(member);
+                    ProjectMemberItem item = new ProjectMemberItem();
+                    item.setData(member);
+                    list.add(item);
+                    item.addDomHandler(itemClicked, ClickEvent.getType());
                 }
             }
         }

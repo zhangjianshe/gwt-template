@@ -17,4 +17,5 @@ import java.util.List;
 @Doc("QueryProjectTaskResponse")
 public class QueryProjectTaskResponse implements Serializable, IsSerializable {
     List<DevProjectTaskEntity> rootTasks;
+    String userPermission;
 }

@@ -37,28 +37,42 @@ public class ProjectCalendarDefaultAction implements IMouseHandler<ProjectCalend
         //高亮提示
         CalendarDocument document = chart.getDocument();
         document.clearHoverNode();
-        switch (result.hitTest) {
-            case HIT_MEETING_NODE_BODY: {
-                document.setHoverNode(result.getNode());
-                result.getNode().setState(MeetingNode.NodeState.NS_HOVER_BODY);
-                chart.resetCursor();
-                break;
+        if(document.isReadOnly())
+        {
+            //只允许选择
+            switch (result.hitTest) {
+                case HIT_MEETING_NODE_BODY: {
+                    document.setHoverNode(result.getNode());
+                    result.getNode().setState(MeetingNode.NodeState.NS_HOVER_BODY);
+                    chart.resetCursor();
+                    break;
+                }
             }
-            case HIT_MEETING_NODE_START: {
-                document.setHoverNode(result.getNode());
-                result.getNode().setState(MeetingNode.NodeState.NS_HOVER_START);
-                chart.setCursor(Style.Cursor.COL_RESIZE.getCssName());
-                break;
-            }
+        }
+        else {
+            switch (result.hitTest) {
+                case HIT_MEETING_NODE_BODY: {
+                    document.setHoverNode(result.getNode());
+                    result.getNode().setState(MeetingNode.NodeState.NS_HOVER_BODY);
+                    chart.resetCursor();
+                    break;
+                }
+                case HIT_MEETING_NODE_START: {
+                    document.setHoverNode(result.getNode());
+                    result.getNode().setState(MeetingNode.NodeState.NS_HOVER_START);
+                    chart.setCursor(Style.Cursor.COL_RESIZE.getCssName());
+                    break;
+                }
 
-            case HIT_MEETING_NODE_END: {
-                document.setHoverNode(result.getNode());
-                result.getNode().setState(MeetingNode.NodeState.NS_HOVER_END);
-                chart.setCursor(Style.Cursor.COL_RESIZE.getCssName());
-                break;
+                case HIT_MEETING_NODE_END: {
+                    document.setHoverNode(result.getNode());
+                    result.getNode().setState(MeetingNode.NodeState.NS_HOVER_END);
+                    chart.setCursor(Style.Cursor.COL_RESIZE.getCssName());
+                    break;
+                }
+                case HIT_NONE:
+                    chart.resetCursor();
             }
-            case HIT_NONE:
-                chart.resetCursor();
         }
         chart.redraw();
     }

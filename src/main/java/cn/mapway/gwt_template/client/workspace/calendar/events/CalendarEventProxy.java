@@ -36,23 +36,34 @@ public class CalendarEventProxy implements IMouseHandler<ProjectCalendarHitResul
         chart.setFocus(true);
         origin.set(event.getX(), event.getY());
         chart.hitTest(hitResult, origin);
-        switch (hitResult.hitTest) {
-            case HIT_NONE:
-                currentActionHandler = shiftTimelineAction;
-                currentActionHandler.start(hitResult, event);
-                break;
-            case HIT_MEETING_NODE_BODY:
-                currentActionHandler = shiftMeetingAction;
-                currentActionHandler.start(hitResult, event);
-                break;
-            case HIT_MEETING_NODE_START:
-                currentActionHandler = shiftMeetingStartAction;
-                currentActionHandler.start(hitResult, event);
-                break;
-            case HIT_MEETING_NODE_END:
-                currentActionHandler = shiftMeetingEndAction;
-                currentActionHandler.start(hitResult, event);
-                break;
+        if(chart.getDocument().isReadOnly())
+        {
+            switch (hitResult.hitTest) {
+                case HIT_MEETING_NODE_BODY:
+                    currentActionHandler = shiftMeetingAction;
+                    currentActionHandler.start(hitResult, event);
+                    break;
+            }
+        }
+        else {
+            switch (hitResult.hitTest) {
+                case HIT_NONE:
+                    currentActionHandler = shiftTimelineAction;
+                    currentActionHandler.start(hitResult, event);
+                    break;
+                case HIT_MEETING_NODE_BODY:
+                    currentActionHandler = shiftMeetingAction;
+                    currentActionHandler.start(hitResult, event);
+                    break;
+                case HIT_MEETING_NODE_START:
+                    currentActionHandler = shiftMeetingStartAction;
+                    currentActionHandler.start(hitResult, event);
+                    break;
+                case HIT_MEETING_NODE_END:
+                    currentActionHandler = shiftMeetingEndAction;
+                    currentActionHandler.start(hitResult, event);
+                    break;
+            }
         }
     }
 

@@ -5,7 +5,7 @@
              xmlns:widget="urn:import:cn.mapway.ui.client.widget">
     <g:DockLayoutPanel>
         <g:north size="50">
-            <g:HorizontalPanel height="100%" horizontalAlignment="center" verticalAlignment="middle" width="100%">
+            <g:HorizontalPanel height="100%" addStyleNames="ai-border-bottom" horizontalAlignment="center" verticalAlignment="middle" width="100%">
                 <widget:SearchBox width="150px" ui:field="searchBox"/>
             </g:HorizontalPanel>
         </g:north>
@@ -14,7 +14,9 @@
         </g:south>
         <g:center>
             <g:ScrollPanel>
-                <tree:Tree width="100%" ui:field="teamTree"/>
+                <g:HTMLPanel ui:field="list">
+
+                </g:HTMLPanel>
             </g:ScrollPanel>
         </g:center>
     </g:DockLayoutPanel>

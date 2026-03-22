@@ -35,7 +35,7 @@
     </ui:style>
     <g:TabLayoutPanel barHeight="50" ui:field="root">
         <g:tab>
-            <g:header>🖥️桌面</g:header>
+            <g:header>🖥️ 桌面</g:header>
             <g:DockLayoutPanel ui:field="desktop">
                 <g:center>
                     <g:ScrollPanel ui:field="content">
@@ -56,7 +56,7 @@
             </g:DockLayoutPanel>
         </g:tab>
         <g:tab>
-            <g:header>🗓️工作日历</g:header>
+            <g:header>🗓️ 工作日历</g:header>
             <milestone:ProjectCalendarWidget ui:field="calendar"/>
         </g:tab>
     </g:TabLayoutPanel>

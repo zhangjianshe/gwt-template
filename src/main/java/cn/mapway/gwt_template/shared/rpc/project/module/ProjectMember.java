@@ -42,6 +42,9 @@ public class ProjectMember implements Serializable, IsSerializable {
     @ApiField("小组ID")
     private String teamId;
 
+    @ApiField("小组名称")
+    private String teamName;
+
     @ApiField("加入时间")
     private Date createTime;
 
@@ -49,5 +52,5 @@ public class ProjectMember implements Serializable, IsSerializable {
     private Boolean isOwner;
 
     @ApiField("权限位")
-    private Integer permission;
+    private String permission;
 }

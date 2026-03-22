@@ -10,6 +10,7 @@ import cn.mapway.gwt_template.shared.db.DevProjectTeamEntity;
 import cn.mapway.gwt_template.shared.db.DevProjectTeamMemberEntity;
 import cn.mapway.gwt_template.shared.rpc.project.DeleteProjectMemberRequest;
 import cn.mapway.gwt_template.shared.rpc.project.DeleteProjectMemberResponse;
+import cn.mapway.gwt_template.shared.rpc.project.module.CommonPermission;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
 import lombok.extern.slf4j.Slf4j;
 import org.nutz.dao.Cnd;
@@ -57,8 +58,11 @@ public class DeleteProjectMemberExecutor extends AbstractBizExecutor<DeleteProje
         DevProjectEntity project = dao.fetch(DevProjectEntity.class, team.getProjectId());
         assertNotNull(project, "项目不存在");
 
+        CommonPermission permission = projectService.findUserPermissionInProject(user.getUser().getUserId(), team.getProjectId());
+
+
         // 权限校验：只有项目创建者或管理员有权管理成员
-        assertTrue(projectService.isCreatorOfProject(currentUserId, project.getId()), "您没有权限管理该项目的成员");
+        assertTrue(permission.isSuper(), "您没有权限管理该项目的成员");
 
         // --- 2. 核心保护逻辑：防止创建者被移出根管理组 ---
         boolean isRootTeam = Strings.isBlank(team.getParentId()); // 根节点 parentId 为空

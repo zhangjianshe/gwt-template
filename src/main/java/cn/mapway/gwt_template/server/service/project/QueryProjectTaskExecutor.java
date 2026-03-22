@@ -94,6 +94,7 @@ public class QueryProjectTaskExecutor extends AbstractBizExecutor<QueryProjectTa
 
         QueryProjectTaskResponse response = new QueryProjectTaskResponse();
         response.setRootTasks(rootTasks);
+        response.setUserPermission(projectService.findUserPermissionInProject(currentUserId, request.getProjectId()).toString());
         fillTaskUserInfo(request.getProjectId(), allTasks);
         return BizResult.success(response);
     }

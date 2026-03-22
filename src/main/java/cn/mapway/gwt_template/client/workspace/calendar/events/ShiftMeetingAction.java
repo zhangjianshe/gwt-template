@@ -45,10 +45,13 @@ public class ShiftMeetingAction implements IMouseHandler<ProjectCalendarHitResul
         // 初始化高精度虚拟时间
         virtualStartTime = oldStart;
         lastSnappedStart = (long) oldStart;
-
         mouseDown = true;
-        chart.setCursor(Style.Cursor.MOVE.getCssName());
-        result.getNode().setState(MeetingNode.NodeState.NS_DRAG_BODY);
+        if (chart.getDocument().isReadOnly()) {
+
+        } else {
+            chart.setCursor(Style.Cursor.MOVE.getCssName());
+            result.getNode().setState(MeetingNode.NodeState.NS_DRAG_BODY);
+        }
         DOM.setCapture(chart.getElement());
     }
 
@@ -65,7 +68,7 @@ public class ShiftMeetingAction implements IMouseHandler<ProjectCalendarHitResul
         chart.resetToDefaultAction();
 
         int totalDeltaX = Math.abs(event.getX() - (int) startPoint.getX());
-        if (totalDeltaX > DRAG_THRESHOLD) {
+        if (totalDeltaX > DRAG_THRESHOLD && !chart.getDocument().isReadOnly()) {
             // 提交最终结果
             chart.getDocument().updateMeetingTime(result.getNode(), oldStart, oldEstimate);
         } else {
@@ -84,6 +87,10 @@ public class ShiftMeetingAction implements IMouseHandler<ProjectCalendarHitResul
 
     @Override
     public void onMouseMove(MouseMoveEvent event) {
+        if (chart.getDocument().isReadOnly()) {
+
+            return;
+        }
         if (mouseDown && result.getNode() != null) {
             SNAP_MS = chart.getSnapMs();
             // 1. 计算鼠标移动的物理位移转换为时间跨度 (ms)

@@ -119,12 +119,25 @@ public class CommonPermission implements Serializable, IsSerializable {
         return isBitSet(ProjectPermissionKind.OWNER.getIndex());
     }
 
+    /**
+     * 是否是项目秘书
+     *
+     * @return
+     */
+    public boolean isSecretary() {
+        return isBitSet(ProjectPermissionKind.SECRETARY.getIndex());
+    }
+
     public CommonPermission set(ProjectPermissionKind type, boolean allow) {
         if (type == null) return this;
         int index = type.getIndex();
         ensureCapacity(index);
         bits.setCharAt(index, allow ? ALLOW : DENY);
         return this;
+    }
+
+    public CommonPermission seSecretary(boolean allow) {
+        return set(ProjectPermissionKind.SECRETARY, allow);
     }
 
     public CommonPermission setRead(boolean allow) {

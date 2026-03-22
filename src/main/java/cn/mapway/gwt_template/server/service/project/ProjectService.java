@@ -8,6 +8,7 @@ import cn.mapway.gwt_template.shared.rpc.project.module.CommonPermission;
 import cn.mapway.rbac.shared.db.postgis.RbacUserEntity;
 import cn.mapway.ui.client.IUserInfo;
 import cn.mapway.ui.client.fonts.Fonts;
+import cn.mapway.ui.client.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.nutz.dao.Cnd;
 import org.nutz.dao.Dao;
@@ -577,16 +578,6 @@ public class ProjectService {
         }
     }
 
-    /**
-     * 检查 currentUserId 是否在任务链上
-     *
-     * @param currentUserId
-     * @param parentTaskId
-     * @return
-     */
-    public BizResult<Boolean> isTaskManager(String projectId, Long currentUserId, String parentTaskId) {
-        return BizResult.success(true);
-    }
 
     public CommonPermission findUserPermissionInProject(Long userId, String projectId) {
         CommonPermission permission = CommonPermission.empty();
@@ -620,5 +611,21 @@ public class ProjectService {
 
     public DevProjectResourceEntity findProjectResource(String resourceId) {
         return dao.fetch(DevProjectResourceEntity.class, resourceId);
+    }
+
+    public BizResult<Boolean> isTaskManager(String projectId, Long currentUserId, String parentId) {
+        if (StringUtil.isBlank(projectId)) {
+            //根节点 必须是管理员
+            CommonPermission permission = findUserPermissionInProject(currentUserId, parentId);
+            if (!permission.isSuper()) {
+                return BizResult.error(500, "必须是管理员才能创建根目录");
+            }
+        } else {
+            DevProjectTaskEntity fetchx = dao.fetchx(DevProjectTaskEntity.class, parentId);
+            if (fetchx == null || fetchx.getCharger() == null || !fetchx.getCharger().equals(currentUserId)) {
+                return BizResult.error(500, "您不是该任务的负责人");
+            }
+        }
+        return BizResult.success(true);
     }
 }

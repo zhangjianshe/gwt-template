@@ -1,0 +1,43 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+    <ui:style>
+        @eval BACKGROUND "var(--color-background-hover)";
+        @eval BACKGROUND_SELECTED "var(--color-background-selected)";
+        .box {
+            display: grid;
+            align-items: center;
+            gap: 4px;
+            grid-template-columns: 50px 2fr 1fr;
+            justify-content: flex-end;
+            height: 50px;
+        }
+
+        .box:HOVER {
+            background-color: BACKGROUND;
+        }
+
+        .box[select="true"] {
+            background-color: BACKGROUND_SELECTED;
+        }
+
+        .icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            justify-self: center;
+        }
+
+        .name {
+            font-weight: bold;
+        }
+
+        .group {
+
+        }
+    </ui:style>
+    <g:HTMLPanel addStyleNames="{style.box}">
+        <g:Image ui:field="icon" addStyleNames="{style.icon}"/>
+        <g:Label ui:field="lbName" addStyleNames="{style.name}"/>
+        <g:Label ui:field="lbGroup" addStyleNames="{style.group}"/>
+    </g:HTMLPanel>
+</ui:UiBinder>
