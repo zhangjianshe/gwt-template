@@ -2,7 +2,9 @@ package cn.mapway.gwt_template.client.workspace.calendar;
 
 import cn.mapway.ace.client.AceEditor;
 import cn.mapway.ace.client.AceEditorMode;
+import cn.mapway.gwt_template.client.ClientContext;
 import cn.mapway.gwt_template.client.rpc.AppProxy;
+import cn.mapway.gwt_template.client.workspace.task.TaskAttachmentsPanel;
 import cn.mapway.gwt_template.client.workspace.widget.EditableLabel;
 import cn.mapway.gwt_template.shared.db.DevProjectTaskEntity;
 import cn.mapway.gwt_template.shared.rpc.project.UpdateProjectTaskRequest;
@@ -13,19 +15,19 @@ import cn.mapway.ui.client.tools.IData;
 import cn.mapway.ui.client.util.StringUtil;
 import cn.mapway.ui.client.widget.CommonEventComposite;
 import cn.mapway.ui.client.widget.dialog.Popup;
-import cn.mapway.ui.client.widget.dialog.SaveBar;
 import cn.mapway.ui.shared.CommonEvent;
 import cn.mapway.ui.shared.rpc.RpcResult;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.logical.shared.SelectionEvent;
+import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.DateLabel;
-import com.google.gwt.user.client.ui.DockLayoutPanel;
-import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.*;
 import elemental2.dom.DomGlobal;
 
 /**
@@ -48,9 +50,15 @@ public class MeetingPanel extends CommonEventComposite implements IData<DevProje
     @UiField
     AceEditor editor;
     @UiField
-    SaveBar saveBar;
-    @UiField
     DockLayoutPanel root;
+    @UiField
+    TaskAttachmentsPanel attachmentPanel;
+    @UiField
+    TabLayoutPanel tabs;
+    @UiField
+    HorizontalPanel toolsPanel;
+    @UiField
+    Button btnSave;
     boolean initialzied = false;
 
     public MeetingPanel() {
@@ -59,6 +67,18 @@ public class MeetingPanel extends CommonEventComposite implements IData<DevProje
             @Override
             public void onValueChange(ValueChangeEvent<String> event) {
                 DomGlobal.console.log(event.getValue());
+            }
+        });
+        tabs.addSelectionHandler(new SelectionHandler<Integer>() {
+            @Override
+            public void onSelection(SelectionEvent<Integer> event) {
+                if (event.getSelectedItem() == 0) {
+                    toolsPanel.clear();
+                    toolsPanel.add(btnSave);
+                } else if (event.getSelectedItem() == 1) {
+                    toolsPanel.clear();
+                    toolsPanel.add(attachmentPanel.getTools());
+                }
             }
         });
     }
@@ -98,11 +118,8 @@ public class MeetingPanel extends CommonEventComposite implements IData<DevProje
         lbLocation.setEditable(enable);
         lbParticipate.setEditable(enable);
         editor.setReadOnly(!enable);
-        if (enable) {
-            root.setWidgetSize(saveBar, 40);
-        } else {
-            root.setWidgetSize(saveBar, 0);
-        }
+        btnSave.setEnabled(enable);
+        attachmentPanel.enableEdit(enable);
     }
 
     private void toUI() {
@@ -125,6 +142,7 @@ public class MeetingPanel extends CommonEventComposite implements IData<DevProje
         String bodyHtml = content.body != null ? content.body : "无会议详情";
         initEditor();
         editor.setValue(bodyHtml);
+        attachmentPanel.setData(meeting.getId());
     }
 
     @Override
@@ -147,12 +165,12 @@ public class MeetingPanel extends CommonEventComposite implements IData<DevProje
         editor.redisplay();
     }
 
-    @UiHandler("saveBar")
-    public void saveBarCommon(CommonEvent event) {
+
+    @UiHandler("btnSave")
+    public void btnSaveClick(ClickEvent event) {
         if (meeting == null) {
             return;
         }
-        saveBar.msg("开始保存...");
         UpdateProjectTaskRequest request = new UpdateProjectTaskRequest();
         meeting.setName(lbName.getValue());
         Meeting newMeeting = Meeting.create();
@@ -166,16 +184,16 @@ public class MeetingPanel extends CommonEventComposite implements IData<DevProje
         AppProxy.get().updateProjectTask(request, new AsyncCallback<RpcResult<UpdateProjectTaskResponse>>() {
             @Override
             public void onFailure(Throwable caught) {
-                saveBar.msg(caught.getMessage());
+                ClientContext.get().toast(0, 0, caught.getMessage());
             }
 
             @Override
             public void onSuccess(RpcResult<UpdateProjectTaskResponse> result) {
                 if (result.isSuccess()) {
-                    saveBar.msg("已保存");
+                    ClientContext.get().toast(0, 0, "已保存");
                     fireEvent(CommonEvent.updateEvent(result.getData().getProjectTask()));
                 } else {
-                    saveBar.msg(result.getMessage());
+                    ClientContext.get().toast(0, 0, result.getMessage());
                 }
             }
         });

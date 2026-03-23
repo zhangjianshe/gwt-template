@@ -152,6 +152,50 @@ public class DevProjectController extends ApiBaseController {
 
     @Resource
     QueryFavoriteProjectExecutor queryFavoriteProjectExecutor;
+
+
+    @Resource
+    QueryTaskAttachmentsExecutor queryTaskAttachmentsExecutor;
+    /**
+     * QueryTaskAttachments
+     *
+     * @param request request
+     * @return data
+     */
+    @Doc(value = "QueryTaskAttachments", retClazz = {QueryTaskAttachmentsResponse.class})
+    @RequestMapping(value = "/queryTaskAttachments", method = RequestMethod.POST)
+    public RpcResult<QueryTaskAttachmentsResponse> queryTaskAttachments(@RequestBody QueryTaskAttachmentsRequest request) {
+        BizResult<QueryTaskAttachmentsResponse> bizResult = queryTaskAttachmentsExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toApiResult(bizResult);
+    }
+    @Resource
+    UploadTaskAttachmentsExecutor uploadTaskAttachmentsExecutor;
+    /**
+     * UploadTaskAttachments
+     *
+     * @param request request
+     * @return data
+     */
+    @Doc(value = "UploadTaskAttachments", retClazz = {UploadTaskAttachmentsResponse.class})
+    @RequestMapping(value = "/uploadTaskAttachments", method = RequestMethod.POST)
+    public RpcResult<UploadTaskAttachmentsResponse> uploadTaskAttachments(@RequestBody UploadTaskAttachmentsRequest request) {
+        BizResult<UploadTaskAttachmentsResponse> bizResult = uploadTaskAttachmentsExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toApiResult(bizResult);
+    }
+    @Resource
+    DeleteTaskAttachmentsExecutor deleteTaskAttachmentsExecutor;
+    /**
+     * DeleteTaskAttachments
+     *
+     * @param request request
+     * @return data
+     */
+    @Doc(value = "DeleteTaskAttachments", retClazz = {DeleteTaskAttachmentsResponse.class})
+    @RequestMapping(value = "/deleteTaskAttachments", method = RequestMethod.POST)
+    public RpcResult<DeleteTaskAttachmentsResponse> deleteTaskAttachments(@RequestBody DeleteTaskAttachmentsRequest request) {
+        BizResult<DeleteTaskAttachmentsResponse> bizResult = deleteTaskAttachmentsExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toApiResult(bizResult);
+    }
     /**
      * QueryFavoriteProject
      *

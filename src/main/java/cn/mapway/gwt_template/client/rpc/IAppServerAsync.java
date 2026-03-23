@@ -26,6 +26,12 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public interface IAppServerAsync {
 
     ///CODE_GEN_INSERT_POINT///
+	void deleteTaskAttachments(DeleteTaskAttachmentsRequest request, AsyncCallback<RpcResult<DeleteTaskAttachmentsResponse>> async);
+
+	void uploadTaskAttachments(UploadTaskAttachmentsRequest request, AsyncCallback<RpcResult<UploadTaskAttachmentsResponse>> async);
+
+	void queryTaskAttachments(QueryTaskAttachmentsRequest request, AsyncCallback<RpcResult<QueryTaskAttachmentsResponse>> async);
+
 	void updateFavoriteProject(UpdateFavoriteProjectRequest request, AsyncCallback<RpcResult<UpdateFavoriteProjectResponse>> async);
 
 	void queryFavoriteProject(QueryFavoriteProjectRequest request, AsyncCallback<RpcResult<QueryFavoriteProjectResponse>> async);

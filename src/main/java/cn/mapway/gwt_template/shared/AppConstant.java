@@ -28,6 +28,7 @@ public class AppConstant {
     public static final String USER_IS_PUBLIC_ACCOUNT = "USER_IS_PUBLIC_ACCOUNT"; //用户是一个公共账户
     public static final String TEMP_WORKSPACE_FOLDER_ID = "TEMP_FOLDER";
     public static final String UPLOAD_PREFIX_PROJECT_RESOURCE = "project_resource:";
+    public static final String UPLOAD_PREFIX_TASK_ATTACHMENT = "task_attachment:";
     public static final String CANGLING_MIME_TYPE = "application/x-cangling-preview";
     public static final String CANGLING_MIME_FRAME = "application/x-cangling-frame";
     public static final Integer ERROR_CODE_UNAUTHORITY = 50300;

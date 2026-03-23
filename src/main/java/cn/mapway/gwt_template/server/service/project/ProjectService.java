@@ -16,6 +16,7 @@ import org.nutz.dao.Sqls;
 import org.nutz.dao.sql.Sql;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
+import org.nutz.lang.Files;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
 import org.nutz.trans.Trans;
@@ -620,9 +621,9 @@ public class ProjectService {
         }
     }
 
-    public DevProjectEntity findProject(String projectId,Long userId) {
+    public DevProjectEntity findProject(String projectId, Long userId) {
         DevProjectEntity project = dao.fetch(DevProjectEntity.class, Cnd.where(DevProjectEntity.FLD_ID, "=", projectId));
-        fillProjectExtraInformation(project,userId);
+        fillProjectExtraInformation(project, userId);
         return project;
     }
 
@@ -667,5 +668,28 @@ public class ProjectService {
         dao.execute(sql);
 
         return sql.getList(DevProjectEntity.class);
+    }
+
+    public DevProjectTaskEntity findTask(String taskId) {
+        return dao.fetch(DevProjectTaskEntity.class, taskId);
+    }
+
+    /**
+     * 任务附件的目录
+     *
+     * @param task
+     * @return
+     */
+    public String getTaskAttachmentRoot(DevProjectTaskEntity task) {
+
+        String projectId = task.getProjectId();
+        String taskId = task.getId();
+        //项目资源的路径为 projectId/
+        String projectPath = FileCustomUtils.concatPath(projectId.substring(0, 3), projectId.substring(3), "atta");
+        String taskPath = FileCustomUtils.concatPath(taskId.substring(0, 3), taskId.substring(3));
+
+        String s = FileCustomUtils.concatPath(systemConfigService.getProjectResourceRootPath(), projectPath, taskPath);
+        Files.createDirIfNoExists(s);
+        return s;
     }
 }

@@ -127,6 +127,36 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
     QueryConfigExecutor queryConfigExecutor;
 
     ///CODE_GEN_INSERT_POINT///
+	
+    @Resource
+    DeleteTaskAttachmentsExecutor deleteTaskAttachmentsExecutor;
+    @Override
+    public RpcResult<DeleteTaskAttachmentsResponse> deleteTaskAttachments(DeleteTaskAttachmentsRequest request) {
+        BizResult<DeleteTaskAttachmentsResponse> bizResult = deleteTaskAttachmentsExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    UploadTaskAttachmentsExecutor uploadTaskAttachmentsExecutor;
+    @Override
+    public RpcResult<UploadTaskAttachmentsResponse> uploadTaskAttachments(UploadTaskAttachmentsRequest request) {
+        BizResult<UploadTaskAttachmentsResponse> bizResult = uploadTaskAttachmentsExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    QueryTaskAttachmentsExecutor queryTaskAttachmentsExecutor;
+    @Override
+    public RpcResult<QueryTaskAttachmentsResponse> queryTaskAttachments(QueryTaskAttachmentsRequest request) {
+        BizResult<QueryTaskAttachmentsResponse> bizResult = queryTaskAttachmentsExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
 
     @Resource
     AddProjectRepoExecutor addProjectRepoExecutor;
