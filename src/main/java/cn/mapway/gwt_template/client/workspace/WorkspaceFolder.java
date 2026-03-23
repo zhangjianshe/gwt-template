@@ -3,12 +3,16 @@ package cn.mapway.gwt_template.client.workspace;
 import cn.mapway.gwt_template.client.ClientContext;
 import cn.mapway.gwt_template.client.resource.AppCss;
 import cn.mapway.gwt_template.client.resource.AppResource;
+import cn.mapway.gwt_template.client.rpc.AppProxy;
+import cn.mapway.gwt_template.client.rpc.AsyncAdaptor;
 import cn.mapway.gwt_template.client.user.UserIcon;
 import cn.mapway.gwt_template.client.workspace.project.CreateProjectPanel;
 import cn.mapway.gwt_template.client.workspace.project.DevProjectEditor;
 import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.db.DevProjectEntity;
 import cn.mapway.gwt_template.shared.db.DevWorkspaceFolderEntity;
+import cn.mapway.gwt_template.shared.rpc.project.UpdateFavoriteProjectRequest;
+import cn.mapway.gwt_template.shared.rpc.project.UpdateFavoriteProjectResponse;
 import cn.mapway.gwt_template.shared.rpc.user.ResourcePoint;
 import cn.mapway.ui.client.tools.IData;
 import cn.mapway.ui.client.util.StringUtil;
@@ -17,12 +21,16 @@ import cn.mapway.ui.client.widget.AiLabel;
 import cn.mapway.ui.client.widget.CommonEventComposite;
 import cn.mapway.ui.client.widget.buttons.AiButton;
 import cn.mapway.ui.client.widget.buttons.EditButton;
+import cn.mapway.ui.client.widget.buttons.FavoriteButton;
 import cn.mapway.ui.client.widget.dialog.Dialog;
 import cn.mapway.ui.client.widget.dialog.Popup;
 import cn.mapway.ui.shared.CommonEvent;
+import cn.mapway.ui.shared.rpc.RpcResult;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.regexp.shared.MatchResult;
 import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -137,6 +145,7 @@ public class WorkspaceFolder extends CommonEventComposite implements IData<DevWo
         table.setText(0, col++, "项目进度");
         table.setText(0, col++, "成员数量");
         table.setText(0, col++, "创建人");
+        table.setText(0, col++, "添加到桌面");
         table.setText(0, col++, "操作");
 
 
@@ -225,6 +234,24 @@ public class WorkspaceFolder extends CommonEventComposite implements IData<DevWo
         UserIcon userIcon = new UserIcon();
         userIcon.setUserInformation(project.getUserId(), project.getCreateUserName(), project.getCreateUserAvatar()).setImageSize(24, 24);
         table.setWidget(row, col++, userIcon);
+
+        FavoriteButton favoriteButton = new FavoriteButton();
+        favoriteButton.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+            @Override
+            public void onValueChange(ValueChangeEvent<Boolean> event) {
+                UpdateFavoriteProjectRequest request = new UpdateFavoriteProjectRequest();
+                request.setProjectId(project.getId());
+                request.setFavorite(event.getValue());
+                AppProxy.get().updateFavoriteProject(request, new AsyncAdaptor<RpcResult<UpdateFavoriteProjectResponse>>() {
+                    @Override
+                    public void onData(RpcResult<UpdateFavoriteProjectResponse> result) {
+                        ClientContext.get().toast(0, 0, "改变成功");
+                    }
+                });
+            }
+        });
+        favoriteButton.setValue(project.getFavorite());
+        table.setWidget(row, col++, favoriteButton);
 
         EditButton editButton = new EditButton();
         editButton.setData(project);

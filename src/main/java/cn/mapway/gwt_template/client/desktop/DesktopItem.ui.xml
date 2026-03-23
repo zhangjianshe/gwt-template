@@ -2,34 +2,7 @@
              xmlns:g='urn:import:com.google.gwt.user.client.ui'
              xmlns:buttons="urn:import:cn.mapway.ui.client.widget.buttons">
     <ui:style>
-        .box {
-            /* 基础布局 */
-            background: rgba(255, 255, 255, 0.65); /* 半透明白色底 */
-            border-radius: 16px; /* 圆角 */
-            padding: 24px;
-            text-align: center;
-            width: 160px;
-            height: 160px;
 
-            /* 毛玻璃核心：背景模糊 */
-            -webkit-backdrop-filter: blur(10px);
-            backdrop-filter: blur(10px);
-
-            /* 边框和阴影，增加立体感 */
-            border: 1px solid rgba(178, 178, 178, 0.4); /* 微亮的边框 */
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); /* 柔和阴影 */
-
-            /* 动效过渡 */
-            transition: all 0.3s ease-out;
-            cursor: pointer;
-        }
-
-        .box:HOVER {
-            transform: translateY(-8px); /* 向上浮动 */
-            background: rgba(255, 255, 255, 0.85); /* 增加不透明度 */
-            box-shadow: 0 12px 30px rgba(47, 84, 235, 0.15); /* 阴影变深并带有一点品牌色 */
-            border: 1px solid rgba(47, 84, 235, 0.2); /* 边框变品牌色 */
-        }
 
         .img {
             object-fit: cover;
@@ -83,7 +56,7 @@
             background-color: skyblue;
         }
     </ui:style>
-    <g:HTMLPanel addStyleNames="{style.box}">
+    <g:HTMLPanel width="160px" height="160px" ui:field="root">
         <g:HTMLPanel ui:field="btnPan" visible="false" addStyleNames="{style.editor}">
             <buttons:DeleteButton addStyleNames="{style.btn}" color="white" ui:field="btnDelete" fontSize="24"/>
             <buttons:EditButton addStyleNames="{style.btn}" color="white" ui:field="btnEditor" fontSize="22"/>

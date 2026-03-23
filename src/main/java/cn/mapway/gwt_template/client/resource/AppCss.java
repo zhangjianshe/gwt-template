@@ -61,4 +61,8 @@ public interface AppCss extends CssResource {
     String popupHeaderPanel();
 
     String emptyGlassStyle();
+
+    String projectItem();
+
+    String box();
 }

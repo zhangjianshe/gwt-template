@@ -26,6 +26,10 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public interface IAppServerAsync {
 
     ///CODE_GEN_INSERT_POINT///
+	void updateFavoriteProject(UpdateFavoriteProjectRequest request, AsyncCallback<RpcResult<UpdateFavoriteProjectResponse>> async);
+
+	void queryFavoriteProject(QueryFavoriteProjectRequest request, AsyncCallback<RpcResult<QueryFavoriteProjectResponse>> async);
+
 	void addProjectRepo(AddProjectRepoRequest request, AsyncCallback<RpcResult<AddProjectRepoResponse>> async);
 
 	void removeProjectRepo(RemoveProjectRepoRequest request, AsyncCallback<RpcResult<RemoveProjectRepoResponse>> async);

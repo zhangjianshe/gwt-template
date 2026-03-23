@@ -1,6 +1,7 @@
 package cn.mapway.gwt_template.client.desktop;
 
 import cn.mapway.gwt_template.client.ClientContext;
+import cn.mapway.gwt_template.client.resource.AppResource;
 import cn.mapway.gwt_template.shared.db.DesktopItemEntity;
 import cn.mapway.ui.client.tools.IData;
 import cn.mapway.ui.client.util.StringUtil;
@@ -29,11 +30,14 @@ public class DesktopItem extends CommonEventComposite implements IData<DesktopIt
     DeleteButton btnDelete;
     @UiField
     HTMLPanel btnPan;
+    @UiField
+    HTMLPanel root;
     boolean needShowTools = false;
     private DesktopItemEntity data;
 
     public DesktopItem() {
         initWidget(ourUiBinder.createAndBindUi(this));
+        addStyleName(AppResource.INSTANCE.styles().box());
         addDomHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {

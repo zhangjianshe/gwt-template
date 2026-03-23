@@ -127,7 +127,7 @@ public class QueryDevProjectExecutor extends AbstractBizExecutor<QueryDevProject
 
         //统计项目信息
         for (DevProjectEntity project : projects) {
-            projectService.fillProjectExtraInformation(project);
+            projectService.fillProjectExtraInformation(project,currentUserId);
         }
 
         response.setProjects(projects);

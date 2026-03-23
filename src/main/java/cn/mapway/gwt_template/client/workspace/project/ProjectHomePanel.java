@@ -1,13 +1,18 @@
 package cn.mapway.gwt_template.client.workspace.project;
 
-import cn.mapway.gwt_template.client.workspace.gantt.GanttWidget;
+import cn.mapway.gwt_template.client.rpc.AppProxy;
+import cn.mapway.gwt_template.client.rpc.AsyncAdaptor;
 import cn.mapway.gwt_template.client.workspace.calendar.ProjectCalendarWidget;
+import cn.mapway.gwt_template.client.workspace.gantt.GanttWidget;
 import cn.mapway.gwt_template.client.workspace.repo.ProjectRepoPanel;
 import cn.mapway.gwt_template.client.workspace.res.ProjectResourcePanel;
 import cn.mapway.gwt_template.shared.db.DevProjectEntity;
-import cn.mapway.ui.client.mvc.IToolsProvider;
+import cn.mapway.gwt_template.shared.rpc.project.QueryDevProjectRequest;
+import cn.mapway.gwt_template.shared.rpc.project.QueryDevProjectResponse;
+import cn.mapway.ui.client.fonts.Fonts;
+import cn.mapway.ui.client.mvc.*;
 import cn.mapway.ui.client.tools.IData;
-import cn.mapway.ui.client.widget.CommonEventComposite;
+import cn.mapway.ui.shared.rpc.RpcResult;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
@@ -16,7 +21,18 @@ import com.google.gwt.user.client.ui.RequiresResize;
 import com.google.gwt.user.client.ui.TabLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 
-public class ProjectHomePanel extends CommonEventComposite implements IToolsProvider, RequiresResize, IData<DevProjectEntity> {
+import static cn.mapway.gwt_template.client.workspace.project.ProjectHomePanel.MODULE_CODE;
+
+
+@ModuleMarker(
+        value = MODULE_CODE,
+        name = "项目空间",
+        summary = "project manager",
+        unicode = Fonts.PROJECT,
+        order = 200
+)
+public class ProjectHomePanel extends BaseAbstractModule implements IToolsProvider, RequiresResize, IData<DevProjectEntity> {
+    public static final String MODULE_CODE = "DevProjectHomePanel";
     // 定义 Tab 索引常量，提高可读性
     // 重新定义常量，确保与 XML 中的 Tab 顺序严格对应
     public static final int TAB_OVERVIEW = 0;
@@ -50,6 +66,30 @@ public class ProjectHomePanel extends CommonEventComposite implements IToolsProv
         // mainTab.addStyleName(AppResource.INSTANCE.styles().mainBackground());
     }
 
+    @Override
+    public boolean initialize(IModule parentModule, ModuleParameter parameter) {
+        boolean b = super.initialize(parentModule, parameter);
+        Object object = parameter.get();
+        if (object instanceof DevProjectEntity) {
+            setData((DevProjectEntity) object);
+        } else if (object instanceof String) {
+            String projectId = (String) object;
+            loadProject(projectId);
+        }
+        return b;
+    }
+
+    private void loadProject(String projectId) {
+        QueryDevProjectRequest request = new QueryDevProjectRequest();
+        request.setProjectId(projectId);
+        AppProxy.get().queryDevProject(request, new AsyncAdaptor<RpcResult<QueryDevProjectResponse>>() {
+            @Override
+            public void onData(RpcResult<QueryDevProjectResponse> result) {
+                setData(result.getData().getProjects().get(0));
+            }
+        });
+    }
+
     private void initHandlers() {
         mainTab.addSelectionHandler(event -> {
             Integer index = event.getSelectedItem();
@@ -62,7 +102,7 @@ public class ProjectHomePanel extends CommonEventComposite implements IToolsProv
                 projectResource.setData(project.getId());
             } else if (index == TAB_REPO) {
                 repoPanel.setData(project.getId());
-            } else  if (index == TAB_CALENDAR) {
+            } else if (index == TAB_CALENDAR) {
                 projectCalendar.setData(project.getId());
                 projectCalendar.setFocus(true);
             }
@@ -108,6 +148,11 @@ public class ProjectHomePanel extends CommonEventComposite implements IToolsProv
     @Override
     public Widget getTools() {
         return new Label("");
+    }
+
+    @Override
+    public String getModuleCode() {
+        return MODULE_CODE;
     }
 
     interface ProjectHomePanelUiBinder extends UiBinder<TabLayoutPanel, ProjectHomePanel> {

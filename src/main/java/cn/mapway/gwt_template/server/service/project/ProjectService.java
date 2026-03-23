@@ -13,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.nutz.dao.Cnd;
 import org.nutz.dao.Dao;
 import org.nutz.dao.Sqls;
-import org.nutz.dao.entity.Record;
 import org.nutz.dao.sql.Sql;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
@@ -411,47 +410,65 @@ public class ProjectService {
     }
 
     /**
-     * 获取项目额外信息：创建人名称、头像、成员总数、任务进度
+     * 获取项目额外信息：创建人名称、头像、收藏状态、成员总数、任务进度
      *
-     * @param project 项目实体
+     * @param project       项目实体
+     * @param currentUserId 当前登录用户ID，用于判断该用户是否收藏了此项目
      */
-    public void fillProjectExtraInformation(DevProjectEntity project) {
+    public void fillProjectExtraInformation(DevProjectEntity project, Long currentUserId) {
         if (project == null || Strings.isBlank(project.getId())) {
             return;
         }
 
-        // 1. 获取创建人信息 (关联 rbac_user 表)
-        // 假设你有通用的用户服务或直接查询
+        // 1. 获取创建人基本信息 (建议此处增加缓存，避免循环查询数据库)
         RbacUserEntity rbacUser = dao.fetch(RbacUserEntity.class, project.getUserId());
-        if (rbacUser == null) {
-            project.setCreateUserName("查无此人");
-            project.setCreateUserAvatar("/img/avatar.png");
-        } else {
+        if (rbacUser != null) {
             project.setCreateUserName(rbacUser.getUserName());
             project.setCreateUserAvatar(rbacUser.getAvatar());
+        } else {
+            project.setCreateUserName("未知用户");
+            project.setCreateUserAvatar("");
         }
 
+        // 2. 处理收藏状态 (解决多条记录问题)
+        // 逻辑：使用 MAX(favorite) 或 COUNT > 0。在大多数 DB 中，true(1) > false(0)
+        String favoriteSql = "SELECT count(*) FROM " + DevProjectTeamMemberEntity.TBL_DEV_PROJECT_TEAM_MEMBER
+                + " WHERE " + DevProjectTeamMemberEntity.FLD_PROJECT_ID + " = @pid"
+                + " AND " + DevProjectTeamMemberEntity.FLD_USER_ID + " = @uid"
+                + " AND " + DevProjectTeamMemberEntity.FLD_FAVORITE + " = true";
 
-        // 2. 获取项目成员总数
-        // 逻辑：该项目下所有小组的不重复成员总数
-        int count = dao.count(DevProjectTeamMemberEntity.class, Cnd.where(DevProjectTeamMemberEntity.FLD_PROJECT_ID, "=", project.getId()));
+        Sql favSql = Sqls.create(favoriteSql);
+        favSql.setParam("pid", project.getId());
+        favSql.setParam("uid", currentUserId);
+        favSql.setCallback(Sqls.callback.integer());
+        dao.execute(favSql);
+
+        int favCount = favSql.getInt();
+        project.setFavorite(favCount > 0);
+
+        // 3. 获取项目成员总数 (注意：如果是跨团队，建议用 DISTINCT 去重)
+        // 如果业务定义是“只要在成员表里就算一次”，则用目前的逻辑：
+        int count = dao.count(DevProjectTeamMemberEntity.class,
+                Cnd.where(DevProjectTeamMemberEntity.FLD_PROJECT_ID, "=", project.getId()));
         project.setMemberCount(count);
 
-        // 3. 计算项目进度
-        // 逻辑：已完成任务数 / 总任务数 (以百分比字符串表示)
+        // 4. 计算项目进度
         String progressSqlStr = "SELECT " +
                 "count(*) as total, " +
-                "sum(CASE WHEN status = 2 THEN 1 ELSE 0 END) as completed " + // 假设 2 是完成状态
+                "sum(CASE WHEN status = 2 THEN 1 ELSE 0 END) as completed " +
                 "FROM dev_project_task WHERE project_id = @pid";
+
         Sql progressSql = Sqls.create(progressSqlStr);
         progressSql.setParam("pid", project.getId());
         progressSql.setCallback(Sqls.callback.record());
         dao.execute(progressSql);
-        org.nutz.dao.entity.Record progRec = (Record) progressSql.getResult();
+
+        org.nutz.dao.entity.Record progRec = progressSql.getOutParams();
 
         if (progRec != null && progRec.getInt("total") > 0) {
             int total = progRec.getInt("total");
             int completed = progRec.getInt("completed");
+            // 计算百分比
             project.setProgress((completed * 100 / total) + "%");
         } else {
             project.setProgress("0%");
@@ -603,9 +620,9 @@ public class ProjectService {
         }
     }
 
-    public DevProjectEntity findProject(String projectId) {
+    public DevProjectEntity findProject(String projectId,Long userId) {
         DevProjectEntity project = dao.fetch(DevProjectEntity.class, Cnd.where(DevProjectEntity.FLD_ID, "=", projectId));
-        fillProjectExtraInformation(project);
+        fillProjectExtraInformation(project,userId);
         return project;
     }
 
@@ -627,5 +644,28 @@ public class ProjectService {
             }
         }
         return BizResult.success(true);
+    }
+
+    public List<DevProjectEntity> queryFavoriteProjects(Long userId) {
+        // --- 优化后的 SQL 逻辑 ---
+        // 使用 EXISTS 子查询可以完美解决“多条记录”导致的重复问题
+        // 逻辑：查询所有项目 P，只要存在一条【该用户参与且标记为收藏】的成员记录即可
+        String sqlSb = "SELECT p.* FROM " + DevProjectEntity.TBL_DEV_PROJECT + " p " +
+                "WHERE EXISTS (" +
+                "  SELECT 1 FROM " + DevProjectTeamMemberEntity.TBL_DEV_PROJECT_TEAM_MEMBER + " m " +
+                "  WHERE m." + DevProjectTeamMemberEntity.FLD_PROJECT_ID + " = p.id " +
+                "  AND m." + DevProjectTeamMemberEntity.FLD_USER_ID + " = @uid " +
+                "  AND m." + DevProjectTeamMemberEntity.FLD_FAVORITE + " = true" +
+                ") " +
+                "ORDER BY p.create_time DESC";
+
+        Sql sql = Sqls.create(sqlSb);
+        sql.setParam("uid", userId);
+
+        sql.setEntity(dao.getEntity(DevProjectEntity.class));
+        sql.setCallback(Sqls.callback.entities());
+        dao.execute(sql);
+
+        return sql.getList(DevProjectEntity.class);
     }
 }

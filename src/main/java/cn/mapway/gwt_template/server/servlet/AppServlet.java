@@ -126,7 +126,7 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
     @Resource
     QueryConfigExecutor queryConfigExecutor;
 
-    /// CODE_GEN_INSERT_POINT///
+    ///CODE_GEN_INSERT_POINT///
 
     @Resource
     AddProjectRepoExecutor addProjectRepoExecutor;
@@ -298,6 +298,22 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
     DeleteRepositoryMemberExecutor deleteRepositoryMemberExecutor;
     @Resource
     UpdateRepositoryMemberExecutor updateRepositoryMemberExecutor;
+    @Resource
+    UpdateFavoriteProjectExecutor updateFavoriteProjectExecutor;
+    @Resource
+    QueryFavoriteProjectExecutor queryFavoriteProjectExecutor;
+
+    @Override
+    public RpcResult<UpdateFavoriteProjectResponse> updateFavoriteProject(UpdateFavoriteProjectRequest request) {
+        BizResult<UpdateFavoriteProjectResponse> bizResult = updateFavoriteProjectExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<QueryFavoriteProjectResponse> queryFavoriteProject(QueryFavoriteProjectRequest request) {
+        BizResult<QueryFavoriteProjectResponse> bizResult = queryFavoriteProjectExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
 
     @Override
     public RpcResult<AddProjectRepoResponse> addProjectRepo(AddProjectRepoRequest request) {

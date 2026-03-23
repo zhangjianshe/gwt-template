@@ -149,6 +149,37 @@ public class DevProjectController extends ApiBaseController {
     @Resource
     DeleteResourceMemberExecutor deleteResourceMemberExecutor;
 
+
+    @Resource
+    QueryFavoriteProjectExecutor queryFavoriteProjectExecutor;
+    /**
+     * QueryFavoriteProject
+     *
+     * @param request request
+     * @return data
+     */
+    @Doc(value = "QueryFavoriteProject", retClazz = {QueryFavoriteProjectResponse.class})
+    @RequestMapping(value = "/queryFavoriteProject", method = RequestMethod.POST)
+    public RpcResult<QueryFavoriteProjectResponse> queryFavoriteProject(@RequestBody QueryFavoriteProjectRequest request) {
+        BizResult<QueryFavoriteProjectResponse> bizResult = queryFavoriteProjectExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toApiResult(bizResult);
+    }
+    @Resource
+    UpdateFavoriteProjectExecutor updateFavoriteProjectExecutor;
+    /**
+     * UpdateFavoriteProject
+     *
+     * @param request request
+     * @return data
+     */
+    @Doc(value = "UpdateFavoriteProject", retClazz = {UpdateFavoriteProjectResponse.class})
+    @RequestMapping(value = "/updateFavoriteProject", method = RequestMethod.POST)
+    public RpcResult<UpdateFavoriteProjectResponse> updateFavoriteProject(@RequestBody UpdateFavoriteProjectRequest request) {
+        BizResult<UpdateFavoriteProjectResponse> bizResult = updateFavoriteProjectExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toApiResult(bizResult);
+    }
+
+
     /**
      * QueryProjectRepo
      *

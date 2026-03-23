@@ -7,6 +7,7 @@ import cn.mapway.biz.core.BizResult;
 import cn.mapway.gwt_template.server.service.project.ProjectService;
 import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.db.DesktopItemEntity;
+import cn.mapway.gwt_template.shared.db.DevProjectEntity;
 import cn.mapway.gwt_template.shared.db.DevWorkspaceEntity;
 import cn.mapway.gwt_template.shared.rpc.desktop.QueryDesktopRequest;
 import cn.mapway.gwt_template.shared.rpc.desktop.QueryDesktopResponse;
@@ -49,6 +50,12 @@ public class QueryDesktopExecutor extends AbstractBizExecutor<QueryDesktopRespon
         projectService.fillWorkspaceInfo(workspaces, false);
         response.setItems(result);
         response.setWorkspaces(workspaces);
+        List<DevProjectEntity> projectEntities = projectService.queryFavoriteProjects(user.getUser().getUserId());
+        for (DevProjectEntity projectEntity : projectEntities) {
+            projectService.fillProjectExtraInformation(projectEntity, user.getUser().getUserId());
+        }
+
+        response.setFavoriteProjects(projectEntities);
         return BizResult.success(response);
     }
 }

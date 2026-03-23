@@ -1,11 +1,14 @@
 package cn.mapway.gwt_template.client.desktop;
 
 import cn.mapway.gwt_template.client.ClientContext;
+import cn.mapway.gwt_template.client.resource.AppResource;
 import cn.mapway.gwt_template.client.rpc.AppProxy;
 import cn.mapway.gwt_template.client.workspace.DevWorkspaceFrame;
-import cn.mapway.gwt_template.client.workspace.home.WorkspaceCard;
 import cn.mapway.gwt_template.client.workspace.calendar.ProjectCalendarWidget;
+import cn.mapway.gwt_template.client.workspace.home.WorkspaceCard;
+import cn.mapway.gwt_template.client.workspace.project.ProjectHomePanel;
 import cn.mapway.gwt_template.shared.db.DesktopItemEntity;
+import cn.mapway.gwt_template.shared.db.DevProjectEntity;
 import cn.mapway.gwt_template.shared.db.DevWorkspaceEntity;
 import cn.mapway.gwt_template.shared.rpc.desktop.DeleteDesktopRequest;
 import cn.mapway.gwt_template.shared.rpc.desktop.DeleteDesktopResponse;
@@ -14,12 +17,14 @@ import cn.mapway.gwt_template.shared.rpc.desktop.QueryDesktopResponse;
 import cn.mapway.ui.client.fonts.Fonts;
 import cn.mapway.ui.client.mvc.*;
 import cn.mapway.ui.client.util.StringUtil;
+import cn.mapway.ui.client.widget.AiLabel;
 import cn.mapway.ui.client.widget.dialog.Dialog;
 import cn.mapway.ui.shared.CommonEvent;
 import cn.mapway.ui.shared.CommonEventHandler;
 import cn.mapway.ui.shared.rpc.RpcResult;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.Window;
@@ -54,6 +59,8 @@ public class DesktopFrame extends BaseAbstractModule implements RequiresResize {
     ProjectCalendarWidget calendar;
     @UiField
     DockLayoutPanel desktop;
+    @UiField
+    HTMLPanel panelProjects;
     Widget currentWidget = content;
 
 
@@ -162,6 +169,22 @@ public class DesktopFrame extends BaseAbstractModule implements RequiresResize {
                     switchTo(event.getValue());
                 }
             });
+        }
+
+        panelProjects.clear();
+        for (DevProjectEntity project : data.getFavoriteProjects()) {
+            AiLabel label = new AiLabel();
+            label.setText(project.getName());
+            label.setStyleName(AppResource.INSTANCE.styles().box());
+            label.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    SwitchModuleData switchModuleData = new SwitchModuleData(ProjectHomePanel.MODULE_CODE, "");
+                    switchModuleData.getParameters().put(project);
+                    fireModuleEvent(DesktopFrame.this, CommonEvent.switchEvent(switchModuleData));
+                }
+            });
+            panelProjects.add(label);
         }
     }
 

@@ -110,6 +110,7 @@ public class DevProjectEntity implements Serializable, IsSerializable {
     String createUserName;
     String createUserAvatar;
     String progress;
+    Boolean favorite;
     Integer memberCount;
 
 }

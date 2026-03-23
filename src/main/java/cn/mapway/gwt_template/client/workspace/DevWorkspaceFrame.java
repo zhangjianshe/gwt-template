@@ -7,10 +7,7 @@ import cn.mapway.gwt_template.client.workspace.widget.NavibarItem;
 import cn.mapway.gwt_template.shared.db.DevProjectEntity;
 import cn.mapway.gwt_template.shared.db.DevWorkspaceEntity;
 import cn.mapway.ui.client.fonts.Fonts;
-import cn.mapway.ui.client.mvc.BaseAbstractModule;
-import cn.mapway.ui.client.mvc.IModule;
-import cn.mapway.ui.client.mvc.ModuleMarker;
-import cn.mapway.ui.client.mvc.ModuleParameter;
+import cn.mapway.ui.client.mvc.*;
 import cn.mapway.ui.shared.CommonEvent;
 import cn.mapway.ui.shared.CommonEventHandler;
 import com.google.gwt.core.client.GWT;
@@ -42,7 +39,6 @@ public class DevWorkspaceFrame extends BaseAbstractModule implements RequiresRes
     DockLayoutPanel root;
     @UiField
     HTMLPanel tools;
-    ProjectHomePanel projectDetailPanel;
     NavibarItem btnHome = new NavibarItem();
     NavibarItem btnWorkspace = new NavibarItem();
     NavibarItem btnProject = new NavibarItem();
@@ -123,29 +119,9 @@ public class DevWorkspaceFrame extends BaseAbstractModule implements RequiresRes
     }
 
     private void gotoProject(DevProjectEntity project) {
-        if (projectDetailPanel == null) {
-            projectDetailPanel = new ProjectHomePanel();
-            projectDetailPanel.addCommonHandler(event -> {
-                if (event.isSelect()) {
-                    DevProjectEntity devProject = event.getValue();
-                    gotoTeamPanel(devProject);
-                }
-            });
-        }
-
-        if (!(current instanceof ProjectHomePanel)) {
-            if (current != null) {
-                root.remove(current);
-            }
-            current = projectDetailPanel;
-            root.add(projectDetailPanel);
-            tools.clear();
-            tools.add(projectDetailPanel.getTools());
-        }
-        projectDetailPanel.setData(project);
-        btnProject.setInfo(Fonts.PROJECT, project.getName(), false);
-        btnProject.setData(project);
-        updateNavi(btnHome, btnWorkspace, btnProject);
+        SwitchModuleData switchModuleData = new SwitchModuleData(ProjectHomePanel.MODULE_CODE, "");
+        switchModuleData.getParameters().put(project);
+        fireModuleEvent(this, CommonEvent.switchEvent(switchModuleData));
     }
 
     private void gotoTeamPanel(DevProjectEntity devProject) {

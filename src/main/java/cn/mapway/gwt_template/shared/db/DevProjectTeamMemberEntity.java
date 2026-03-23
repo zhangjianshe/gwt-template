@@ -31,6 +31,7 @@ public class DevProjectTeamMemberEntity implements Serializable, IsSerializable 
     public static final String FLD_SUMMARY = "summary";
     public static final String FLD_PERMISSION = "permission";
     public static final String FLD_CREATE_TIME = "create_time";
+    public static final String FLD_FAVORITE = "favorite";
 
     @Column(FLD_TEAM_ID)
     @Comment("分组ID")
@@ -59,6 +60,9 @@ public class DevProjectTeamMemberEntity implements Serializable, IsSerializable 
     @Column(FLD_CREATE_TIME)
     @Comment("加入时间")
     Timestamp createTime;
-    
 
+    @Column(FLD_FAVORITE)
+    @Comment("是否设置为快捷方式")
+    @Default("false")
+    Boolean favorite;
 }

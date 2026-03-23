@@ -41,6 +41,11 @@
                     <g:ScrollPanel ui:field="content">
                         <g:HTMLPanel addStyleNames="{style.box1}">
                             <g:HTMLPanel addStyleNames="{style.title}">
+                                <g:Label addStyleNames="{style.header}">常用项目</g:Label>
+                            </g:HTMLPanel>
+                            <g:HTMLPanel ui:field="panelProjects" addStyleNames="{style.box}">
+                            </g:HTMLPanel>
+                            <g:HTMLPanel addStyleNames="{style.title}">
                                 <g:Label addStyleNames="{style.header}">快捷方式</g:Label>
                             </g:HTMLPanel>
                             <g:HTMLPanel ui:field="panel" addStyleNames="{style.box}">

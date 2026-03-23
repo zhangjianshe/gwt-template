@@ -64,7 +64,7 @@ public class QueryProjectResourceExecutor extends AbstractBizExecutor<QueryProje
         List<DevProjectResourceEntity> list = sql.getList(DevProjectResourceEntity.class);
 
         QueryProjectResourceResponse response = new QueryProjectResourceResponse();
-        response.setProject(projectService.findProject(request.getProjectId()));
+        response.setProject(projectService.findProject(request.getProjectId(), user.getUser().getUserId()));
         response.setResources(list);
         return BizResult.success(response);
     }
