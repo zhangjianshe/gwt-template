@@ -14,4 +14,6 @@ import java.io.Serializable;
 @Data
 @Doc("DeleteTaskAttachmentsRequest")
 public class DeleteTaskAttachmentsRequest implements Serializable, IsSerializable {
+    String taskId;
+    String pathName;
 }

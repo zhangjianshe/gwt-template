@@ -1,7 +1,13 @@
 package cn.mapway.gwt_template.client.workspace.task;
 
+import cn.mapway.gwt_template.client.rpc.AppProxy;
+import cn.mapway.gwt_template.client.rpc.AsyncAdaptor;
 import cn.mapway.gwt_template.client.widget.file.MultiFileUploader;
+import cn.mapway.gwt_template.client.workspace.view.FilePreview;
 import cn.mapway.gwt_template.shared.AppConstant;
+import cn.mapway.gwt_template.shared.rpc.project.DeleteTaskAttachmentsRequest;
+import cn.mapway.gwt_template.shared.rpc.project.DeleteTaskAttachmentsResponse;
+import cn.mapway.gwt_template.shared.rpc.project.module.ResItem;
 import cn.mapway.ui.client.mvc.IToolsProvider;
 import cn.mapway.ui.client.tools.IData;
 import cn.mapway.ui.client.util.StringUtil;
@@ -9,6 +15,7 @@ import cn.mapway.ui.client.widget.CommonEventComposite;
 import cn.mapway.ui.client.widget.dialog.Dialog;
 import cn.mapway.ui.shared.CommonEvent;
 import cn.mapway.ui.shared.CommonEventHandler;
+import cn.mapway.ui.shared.rpc.RpcResult;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -27,6 +34,9 @@ public class TaskAttachmentsPanel extends CommonEventComposite implements ITools
     AttachmentList list;
     @UiField
     HTMLPanel tools;
+    @UiField
+    FilePreview filePreview;
+    boolean enableEditable = false;
     private String taskId;
 
     public TaskAttachmentsPanel() {
@@ -42,7 +52,7 @@ public class TaskAttachmentsPanel extends CommonEventComposite implements ITools
     public void setData(String obj) {
         taskId = obj;
         btnUpload.setEnabled(StringUtil.isNotBlank(taskId));
-        list.load(taskId);
+        list.load(taskId, enableEditable);
     }
 
     @UiHandler("btnUpload")
@@ -52,7 +62,8 @@ public class TaskAttachmentsPanel extends CommonEventComposite implements ITools
             @Override
             public void onCommonEvent(CommonEvent event) {
                 if (event.isRefresh()) {
-                    list.load(taskId);
+                    list.load(taskId, enableEditable);
+                    dialog.hide();
                 } else if (event.isClose()) {
                     dialog.hide();
                 }
@@ -65,12 +76,29 @@ public class TaskAttachmentsPanel extends CommonEventComposite implements ITools
 
     }
 
+    @UiHandler("list")
+    public void listCommon(CommonEvent event) {
+        if (event.isDelete()) {
+            ResItem item = event.getValue();
+            DeleteTaskAttachmentsRequest request = new DeleteTaskAttachmentsRequest();
+            request.setTaskId(taskId);
+            request.setPathName(item.getPathName());
+            AppProxy.get().deleteTaskAttachments(request, new AsyncAdaptor<RpcResult<DeleteTaskAttachmentsResponse>>() {
+                @Override
+                public void onData(RpcResult<DeleteTaskAttachmentsResponse> result) {
+                    list.load(taskId, enableEditable);
+                }
+            });
+        }
+    }
+
     @Override
     public Widget getTools() {
         return tools;
     }
 
     public void enableEdit(boolean enable) {
+        enableEditable = enable;
         btnUpload.setEnabled(enable);
     }
 

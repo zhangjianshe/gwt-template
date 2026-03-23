@@ -1,0 +1,28 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui' xmlns:widget="urn:import:cn.mapway.ui.client.widget"
+             xmlns:buttons="urn:import:cn.mapway.ui.client.widget.buttons">
+    <ui:style>
+        .box {
+            display: grid;
+            grid-template-columns: 30px 1fr 25px;
+            align-items: center;
+            gap: 4px;
+            min-height: 40px;
+            border-radius: 6px;
+            padding: 4px;
+        }
+
+        .box:HOVER {
+            background-color: #f0f0f0;
+        }
+
+        .box[select="true"] {
+            background-color: skyblue;
+        }
+    </ui:style>
+    <g:HTMLPanel addStyleNames="{style.box}">
+        <widget:FontIcon ui:field="icon" fontSize="28"/>
+        <g:Label ui:field="lbName"/>
+        <buttons:DeleteButton ui:field="btnDelete"/>
+    </g:HTMLPanel>
+</ui:UiBinder>

@@ -11,7 +11,6 @@ import cn.mapway.gwt_template.shared.rpc.project.QueryTaskAttachmentsResponse;
 import cn.mapway.gwt_template.shared.rpc.project.module.ResItem;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
 import lombok.extern.slf4j.Slf4j;
-import org.nutz.dao.Dao;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Strings;
@@ -30,8 +29,6 @@ import java.util.List;
 @Component
 @Slf4j
 public class QueryTaskAttachmentsExecutor extends AbstractBizExecutor<QueryTaskAttachmentsResponse, QueryTaskAttachmentsRequest> {
-    @Resource
-    Dao dao;
     @Resource
     ProjectService projectService;
 
