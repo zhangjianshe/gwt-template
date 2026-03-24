@@ -8,7 +8,6 @@ import cn.mapway.gwt_template.shared.rpc.project.module.CommonPermission;
 import cn.mapway.rbac.shared.db.postgis.RbacUserEntity;
 import cn.mapway.ui.client.IUserInfo;
 import cn.mapway.ui.client.fonts.Fonts;
-import cn.mapway.ui.client.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.nutz.dao.Cnd;
 import org.nutz.dao.Dao;
@@ -632,7 +631,7 @@ public class ProjectService {
     }
 
     public BizResult<Boolean> isTaskManager(String projectId, Long currentUserId, String parentId) {
-        if (StringUtil.isBlank(projectId)) {
+        if (Strings.isBlank(projectId)) {
             //根节点 必须是管理员
             CommonPermission permission = findUserPermissionInProject(currentUserId, parentId);
             if (!permission.isSuper()) {
