@@ -4,6 +4,7 @@ import cn.mapway.gwt_template.client.ClientContext;
 import cn.mapway.gwt_template.client.rpc.AppProxy;
 import cn.mapway.gwt_template.client.workspace.calendar.editor.MeetingEditor;
 import cn.mapway.gwt_template.client.workspace.calendar.events.ProjectCalendarHitResult;
+import cn.mapway.gwt_template.client.workspace.team.BaseNode;
 import cn.mapway.gwt_template.shared.db.DevProjectTaskEntity;
 import cn.mapway.gwt_template.shared.rpc.project.QueryProjectTaskRequest;
 import cn.mapway.gwt_template.shared.rpc.project.QueryProjectTaskResponse;
@@ -85,18 +86,41 @@ public class CalendarDocument {
      * 每一天 为 24*60*60= 86400秒 如果我们将通过缩放映射为屏幕上的像素坐标+
      */
     public void reLayout() {
-        int ITEM_HEIGHT = 40;
-        // 注意：这里 Rect 存储的是“世界坐标”
-        // X 是时间戳 (ms)，Y 是相对于文档顶部的像素
-        double currentY = 10 + getTopHeight();
+        final int ITEM_HEIGHT = 40;
+        final int VERTICAL_GAP = 5;
+        final int TEXT_MARGIN = 10;
+
+        double topOffset = 10 + getTopHeight();
+        double lastRowEndMs = -1; // 记录上一行（最后一行）的结束位置
+        int currentRow = 0;
 
         for (MeetingNode node : allNodes) {
-            node.getRect().setY(currentY);
+            DevProjectTaskEntity task = node.getMeeting();
+            double startMs = task.getStartTime().getTime();
+            double endMs = task.getEstimateTime().getTime();
+
+            // 计算文字所占的时间宽度
+            double textPx = chart.measureText(task.getName(), BaseNode.NORMAL_FONT + 50);
+            double textMs = projector.pxToDuration(textPx + TEXT_MARGIN);
+            double totalOccupiedMs = endMs + textMs;
+
+            // 如果当前任务的开始时间 晚于 上一行的结束时间，则尝试留在当前行（可选）
+            // 但如果你要求“一直向下”，我们直接让 row 指数递增
+            // 或者：只有发生碰撞时 currentRow++，且永远不减小
+            if (startMs < lastRowEndMs) {
+                currentRow++;
+            }
+
+            double nodeY = topOffset + (currentRow * (ITEM_HEIGHT + VERTICAL_GAP));
+            node.getRect().setY(nodeY);
             node.getRect().setHeight(ITEM_HEIGHT);
+
+            // 更新“最后一行”的结束标记
+            lastRowEndMs = totalOccupiedMs;
+
             node.reLayout();
-            currentY += ITEM_HEIGHT;
         }
-        this.totalHeight = currentY;
+        this.totalHeight = topOffset + ((currentRow + 1) * (ITEM_HEIGHT + VERTICAL_GAP)) + 100;
         chart.redraw();
     }
 

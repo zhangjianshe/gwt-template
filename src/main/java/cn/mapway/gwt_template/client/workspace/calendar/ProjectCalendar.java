@@ -13,6 +13,7 @@ import cn.mapway.ui.client.widget.dialog.Popup;
 import cn.mapway.ui.shared.CommonEvent;
 import cn.mapway.ui.shared.CommonEventHandler;
 import cn.mapway.ui.shared.HasCommonHandlers;
+import com.google.gwt.canvas.dom.client.Context2d;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.shared.HandlerRegistration;
@@ -444,6 +445,12 @@ public class ProjectCalendar extends CanvasWidget implements RequiresResize, IDa
         } finally {
             ctx.restore(); // 无论如何都要恢复，防止污染下一个节点
         }
+    }
+
+    public double measureText(String text,String font) {
+        Context2d ctx = getContext2d();
+        ctx.setFont(font); // 确保与绘制时的字体一致
+        return ctx.measureText(text).getWidth();
     }
 
     public void hitTest(ProjectCalendarHitResult result, Size current) {
