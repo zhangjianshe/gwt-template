@@ -4,7 +4,6 @@ import cn.mapway.gwt_template.client.ClientContext;
 import cn.mapway.gwt_template.client.resource.AppResource;
 import cn.mapway.gwt_template.client.rpc.AppProxy;
 import cn.mapway.gwt_template.client.workspace.DevWorkspaceFrame;
-import cn.mapway.gwt_template.client.workspace.calendar.ProjectCalendarWidget;
 import cn.mapway.gwt_template.client.workspace.home.WorkspaceCard;
 import cn.mapway.gwt_template.client.workspace.project.ProjectHomePanel;
 import cn.mapway.gwt_template.shared.db.DesktopItemEntity;
