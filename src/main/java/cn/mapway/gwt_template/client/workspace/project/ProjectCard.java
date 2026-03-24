@@ -8,6 +8,7 @@ import cn.mapway.gwt_template.shared.rpc.project.QueryDevProjectResponse;
 import cn.mapway.gwt_template.shared.rpc.project.module.CommonPermission;
 import cn.mapway.ui.client.mvc.IToolsProvider;
 import cn.mapway.ui.client.tools.IData;
+import cn.mapway.ui.client.util.StringUtil;
 import cn.mapway.ui.client.widget.CommonEventComposite;
 import cn.mapway.ui.client.widget.buttons.AiButton;
 import cn.mapway.ui.client.widget.dialog.Dialog;
@@ -15,6 +16,7 @@ import cn.mapway.ui.shared.CommonEvent;
 import cn.mapway.ui.shared.CommonEventHandler;
 import cn.mapway.ui.shared.rpc.RpcResult;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -43,6 +45,8 @@ public class ProjectCard extends CommonEventComposite implements IToolsProvider,
     AiButton btnEdit;
     @UiField
     HorizontalPanel tools;
+    @UiField
+    HTMLPanel card;
     DevProjectEntity project;
     private String projectId;
 
@@ -103,7 +107,11 @@ public class ProjectCard extends CommonEventComposite implements IToolsProvider,
         // 3. 应用项目主颜色 (Color)
         String themeColor = (project.getColor() != null && !project.getColor().isEmpty()) ? project.getColor() : "#4a90e2";
         CommonPermission commonPermission = CommonPermission.from(project.getCurrentUserPermission());
-
+        if(StringUtil.isNotBlank(project.getIcon()))
+        {
+            Style style = card.getElement().getStyle();
+            style.setBackgroundImage("url('" + project.getIcon() + "')");
+        }
         btnEdit.setVisible(commonPermission.isSuper());
     }
 

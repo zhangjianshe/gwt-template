@@ -2,19 +2,50 @@
              xmlns:g='urn:import:com.google.gwt.user.client.ui'
              xmlns:buttons="urn:import:cn.mapway.ui.client.widget.buttons">
     <ui:style>
+        /* 1. 基础容器：负责背景图 */
         .card {
-            background: white;
+            background-color: white;
+            background-size: cover;
+            background-position: center;
             border: 1px solid #e0e0e0;
             width: 70%;
             min-width: 70%;
             min-height: 100%;
             position: relative;
+            overflow: hidden;
         }
+
+        /* 2. 毛玻璃层与遮罩层：位于背景之上，内容之下 */
+        .card::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+
+            /* 核心修改：将原本的浅色背景 rgba(255, 255, 255, 0.2) 改为深色半透明遮罩 */
+            /* 增加对比度，确保文字清晰。0.6 的透明度能有效压暗背景，同时保留模糊轮廓。 */
+            background-color: rgba(0, 0, 0, 0.2);
+
+            z-index: 1;
+        }
+
+        /* 3. 内容包装器：强制提升层级 */
+        .content_overlay {
+            position: relative;
+            z-index: 2; /* 必须大于 .card::before 的 1 */
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            min-height: inherit;
+        }
+
+        /* --- 以下是保留原有样式并增强对比度 --- */
 
         .info_main {
             padding: 20px 20px;
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             justify-content: space-between;
         }
 
@@ -25,38 +56,47 @@
             margin-bottom: 8px;
             flex-flow: column;
             margin-top: 50px;
+            flex-grow: 1; /* 占据中间空间，将 desc 顶到底部 */
         }
 
+        /* 修复标题不明显的核心 */
         .title {
             font-size: 1.8rem;
             font-weight: bold;
-            color: #2c3e50;
+
+            /* 核心修改：将原本的暗色 #2c3e50 改为白色，确保在深色遮罩上 pop 出来 */
+            color: #FFFFFF;
+
+            /* 核心修改：增加深色文字阴影，使文字更立体，进一步分离背景 */
+            text-shadow: 0 2px 4px rgba(0,0,0,0.6);
         }
 
+        /* 保留原有样式的 desc 逻辑 */
         .desc {
-            background-color: #f0f0f0;
+            background-color: rgba(240, 240, 240, 0.95); /* A bit less opaque for cleaner look */
             padding: 30px;
             line-height: 200%;
-            color: #888;
+            color: #444; /* 稍微加深以保证可读性 */
             font-size: 0.8rem;
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
+            width: 100%;
+            box-sizing: border-box;
+            margin-top: auto; /* 自动触底 */
         }
 
+        /* 统计栏样式 */
         .stats_row {
             display: flex;
             gap: 25px;
-            padding: 30px;
-            background-color: #f0f0f0;
+            padding: 20px 30px;
+            background-color: rgba(240, 240, 240, 0.8);
+            border-radius: 4px;
         }
 
         .stat_item {
             display: flex;
             flex-direction: column;
             font-size: 12px;
-            color: #95a5a6;
+            color: #7f8c8d;
         }
 
         .stat_value {
@@ -66,34 +106,31 @@
             margin-top: 4px;
         }
 
-
+        /* 密级组件样式 */
         .security {
             position: relative;
             padding: 0;
             border: double 2px #444;
             width: 250px;
             height: 100px;
+            background-color: white; /* 保持实色背景 */
             margin-bottom: 20px;
         }
 
         .sec_text {
             font-weight: bold;
-            font-size: 2.3rem;
+            font-size: 2.3rem !important;
             display: flex;
             align-items: center;
             justify-content: center;
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 40px;
+            top: 0; left: 0; right: 0; bottom: 40px;
+            color: #d35400; /* 这里的橙色在白色背景上应该还行。 */
         }
 
         .sec_tip {
             position: absolute;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            left: 0; right: 0; bottom: 0;
             height: 40px;
             display: flex;
             align-items: center;
@@ -104,9 +141,16 @@
             color: white;
         }
 
+        /* 日期样式修复 */
         .date {
             font-size: 1.1rem;
-            padding: 30px 30px;
+            padding: 10px 30px; /* Reduced padding for tidiness */
+
+            /* 核心修改：将原本的暗色改为浅灰色，在深色遮罩上清晰可见 */
+            color: #CCCCCC;
+
+            /* 核心修改：增加微妙文字阴影 */
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
         }
 
         .btn {
@@ -116,36 +160,43 @@
 
     </ui:style>
 
-    <g:HTMLPanel styleName="{style.card}">
-        <g:HTMLPanel styleName="{style.info_main}">
-            <g:HTMLPanel addStyleNames="{style.security}">
-                <g:Label ui:field="lbSecurity" addStyleNames="{style.sec_text}"/>
-                <g:Label addStyleNames="{style.sec_tip}">秘密等级</g:Label>
-            </g:HTMLPanel>
-            <g:VerticalPanel horizontalAlignment="right">
-                <g:HTMLPanel styleName="{style.stats_row}">
-                    <div class="{style.stat_item}">
-                        <span>创建者</span>
-                        <span class="{style.stat_value}" ui:field="lbCreator">--</span>
-                    </div>
-                    <div class="{style.stat_item}">
-                        <span>团队成员</span>
-                        <span class="{style.stat_value}" ui:field="lbMemberCount">0</span>
-                    </div>
-                    <div class="{style.stat_item}">
-                        <span>当前进度</span>
-                        <span class="{style.stat_value}" ui:field="lbProgress">0%</span>
-                    </div>
+    <g:HTMLPanel styleName="{style.card}" ui:field="card">
+        <div class="{style.content_overlay}">
+
+            <g:HTMLPanel styleName="{style.info_main}">
+                <g:HTMLPanel addStyleNames="{style.security}">
+                    <g:Label ui:field="lbSecurity" addStyleNames="{style.sec_text}"/>
+                    <g:Label addStyleNames="{style.sec_tip}">秘密等级</g:Label>
                 </g:HTMLPanel>
-                <g:HorizontalPanel ui:field="tools">
-                    <buttons:AiButton ui:field="btnEdit">编辑项目信息</buttons:AiButton>
-                </g:HorizontalPanel>
-            </g:VerticalPanel>
-        </g:HTMLPanel>
-        <div class="{style.title_row}">
-            <g:HTMLPanel styleName="{style.title}" ui:field="pnlName"/>
-            <g:InlineLabel ui:field="lbCreateTime" styleName="{style.date}"/>
+
+                <g:VerticalPanel horizontalAlignment="right">
+                    <g:HTMLPanel styleName="{style.stats_row}">
+                        <div class="{style.stat_item}">
+                            <span>创建者</span>
+                            <span class="{style.stat_value}" ui:field="lbCreator">--</span>
+                        </div>
+                        <div class="{style.stat_item}">
+                            <span>团队成员</span>
+                            <span class="{style.stat_value}" ui:field="lbMemberCount">0</span>
+                        </div>
+                        <div class="{style.stat_item}">
+                            <span>当前进度</span>
+                            <span class="{style.stat_value}" ui:field="lbProgress">0%</span>
+                        </div>
+                    </g:HTMLPanel>
+                    <g:HorizontalPanel ui:field="tools" styleName="{style.btn}">
+                        <buttons:AiButton ui:field="btnEdit">编辑项目信息</buttons:AiButton>
+                    </g:HorizontalPanel>
+                </g:VerticalPanel>
+            </g:HTMLPanel>
+
+            <div class="{style.title_row}">
+                <g:HTMLPanel styleName="{style.title}" ui:field="pnlName"/>
+                <g:InlineLabel ui:field="lbCreateTime" styleName="{style.date}"/>
+            </div>
+
+            <g:HTMLPanel styleName="{style.desc}" ui:field="pnlSummary"/>
+
         </div>
-        <g:HTMLPanel styleName="{style.desc}" ui:field="pnlSummary"/>
     </g:HTMLPanel>
 </ui:UiBinder>

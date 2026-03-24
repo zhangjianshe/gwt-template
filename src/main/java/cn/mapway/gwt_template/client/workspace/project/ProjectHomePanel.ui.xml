@@ -6,12 +6,6 @@
              xmlns:repo="urn:import:cn.mapway.gwt_template.client.workspace.repo"
              xmlns:milestone="urn:import:cn.mapway.gwt_template.client.workspace.calendar">
     <ui:style>
-        .tabContent {
-            padding: 15px;
-            /* 允许内容滚动 */
-            overflow: auto;
-        }
-
         .toolbar {
             display: flex;
             align-items: center;
@@ -24,9 +18,11 @@
             <g:TabLayoutPanel ui:field="mainTab" barHeight="50">
                 <g:tab>
                     <g:header>项目概况</g:header>
-                    <g:HTMLPanel styleName="{style.tabContent}" ui:field="content">
-                        <project:ProjectCard ui:field="projectCard"/>
-                    </g:HTMLPanel>
+                    <g:LayoutPanel>
+                        <g:layer top="15px" bottom="15px" left="15px" right="15px">
+                            <project:ProjectCard ui:field="projectCard"/>
+                        </g:layer>
+                    </g:LayoutPanel>
                 </g:tab>
                 <g:tab>
                     <g:header>任务甘特图</g:header>
