@@ -104,14 +104,25 @@ public class ProjectCard extends CommonEventComposite implements IToolsProvider,
             lbCreateTime.setText(DateTimeFormat.getFormat("yyyy-MM-dd").format(project.getCreateTime()));
         }
 
-        // 3. 应用项目主颜色 (Color)
+        // 3. 应用项目主颜色与背景
         String themeColor = (project.getColor() != null && !project.getColor().isEmpty()) ? project.getColor() : "#4a90e2";
         CommonPermission commonPermission = CommonPermission.from(project.getCurrentUserPermission());
-        if(StringUtil.isNotBlank(project.getIcon()))
-        {
-            Style style = card.getElement().getStyle();
+        Style style = card.getElement().getStyle();
+
+        if (StringUtil.isNotBlank(project.getIcon())) {
+            // 【有背景图】：应用图片，移除 no-bg 类，恢复深色遮罩与白字模式
             style.setBackgroundImage("url('" + project.getIcon() + "')");
+            style.clearBackgroundColor();
+            style.clearProperty("borderTop"); // 移除顶部边框
+            card.removeStyleName("no-bg");
+        } else {
+            // 【无背景图】：清空图片，添加 no-bg 类，启用浅色干净模式
+            style.clearBackgroundImage();
+            style.setBackgroundColor("#ffffff"); // 设置纯白底色
+            style.setProperty("borderTop", "6px solid " + themeColor); // 巧用主题色作为顶部线条点缀，非常专业！
+            card.addStyleName("no-bg");
         }
+
         btnEdit.setVisible(commonPermission.isSuper());
     }
 

@@ -2,6 +2,34 @@
              xmlns:g='urn:import:com.google.gwt.user.client.ui'
              xmlns:buttons="urn:import:cn.mapway.ui.client.widget.buttons">
     <ui:style>
+        /* 告诉 GWT 不要混淆这个类名，方便我们在 Java 中通过字符串直接调用 */
+        @external no-bg;
+
+        /* ========== 以下为无背景图 (no-bg) 状态的样式覆盖 ========== */
+
+        /* 1. 当没有背景图时，隐藏深色的毛玻璃遮罩 */
+        .card.no-bg::before {
+            display: none;
+        }
+
+        /* 2. 当没有背景图时，标题变回深蓝色，并去掉文字阴影，保持清爽 */
+        .card.no-bg .title {
+            color: #2c3e50;
+            text-shadow: none;
+        }
+
+        /* 3. 当没有背景图时，日期变回深灰色，去掉文字阴影 */
+        .card.no-bg .date {
+            color: #7f8c8d;
+            text-shadow: none;
+        }
+
+        /* 4. （可选）如果你觉得无背景图时，右侧统计栏的底色太深，也可以让它变透明或纯白 */
+        .card.no-bg .stats_row {
+            background-color: transparent;
+            border: 1px solid #eeeeee;
+        }
+
         /* 1. 基础容器：负责背景图 */
         .card {
             background-color: white;
@@ -19,7 +47,10 @@
         .card::before {
             content: "";
             position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
             backdrop-filter: blur(15px);
             -webkit-backdrop-filter: blur(15px);
 
@@ -61,14 +92,14 @@
 
         /* 修复标题不明显的核心 */
         .title {
-            font-size: 1.8rem;
+            font-size: 2.2rem;
             font-weight: bold;
 
             /* 核心修改：将原本的暗色 #2c3e50 改为白色，确保在深色遮罩上 pop 出来 */
             color: #FFFFFF;
 
             /* 核心修改：增加深色文字阴影，使文字更立体，进一步分离背景 */
-            text-shadow: 0 2px 4px rgba(0,0,0,0.6);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
         }
 
         /* 保留原有样式的 desc 逻辑 */
@@ -119,18 +150,23 @@
 
         .sec_text {
             font-weight: bold;
-            font-size: 2.3rem !important;
+            font-size: 2.0rem !important;
             display: flex;
             align-items: center;
             justify-content: center;
             position: absolute;
-            top: 0; left: 0; right: 0; bottom: 40px;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 40px;
             color: #d35400; /* 这里的橙色在白色背景上应该还行。 */
         }
 
         .sec_tip {
             position: absolute;
-            left: 0; right: 0; bottom: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
             height: 40px;
             display: flex;
             align-items: center;
@@ -143,14 +179,14 @@
 
         /* 日期样式修复 */
         .date {
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             padding: 10px 30px; /* Reduced padding for tidiness */
 
             /* 核心修改：将原本的暗色改为浅灰色，在深色遮罩上清晰可见 */
-            color: #CCCCCC;
+            color: #DDDDDD;
 
             /* 核心修改：增加微妙文字阴影 */
-            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
         }
 
         .btn {

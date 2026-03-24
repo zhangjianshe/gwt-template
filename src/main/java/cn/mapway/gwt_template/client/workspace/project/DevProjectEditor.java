@@ -115,11 +115,6 @@ public class DevProjectEditor extends CommonEventComposite implements IData<DevP
         project.setName(txtName.getValue());
         project.setSummary(txtSummary.getValue());
         project.setIsTemplate(checkTemplate.getValue());
-        if (uploader.getUrl() != null && !uploader.getUrl().startsWith("data")) {
-            project.setIcon(uploader.getUrl());
-        } else {
-            project.setIcon(null);
-        }
         project.setFolderId(DataCastor.castToString(ddlFolder.getValue()));
         project.setSecurityLevel((Integer) ddlSecurity.getValue());
     }
