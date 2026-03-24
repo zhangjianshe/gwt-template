@@ -53,6 +53,7 @@ public class TaskAttachmentsPanel extends CommonEventComposite implements ITools
         taskId = obj;
         btnUpload.setEnabled(StringUtil.isNotBlank(taskId));
         list.load(taskId, enableEditable);
+        filePreview.previewEmpty();
     }
 
     @UiHandler("btnUpload")
@@ -89,6 +90,10 @@ public class TaskAttachmentsPanel extends CommonEventComposite implements ITools
                     list.load(taskId, enableEditable);
                 }
             });
+        }else if(event.isSelect())
+        {
+            ResItem item = event.getValue();
+            filePreview.previewAttachment(taskId, item.getPathName());
         }
     }
 
@@ -100,6 +105,7 @@ public class TaskAttachmentsPanel extends CommonEventComposite implements ITools
     public void enableEdit(boolean enable) {
         enableEditable = enable;
         btnUpload.setEnabled(enable);
+        btnUpload.setVisible(enable);
     }
 
     interface TaskAttachmentsPanelUiBinder extends UiBinder<DockLayoutPanel, TaskAttachmentsPanel> {

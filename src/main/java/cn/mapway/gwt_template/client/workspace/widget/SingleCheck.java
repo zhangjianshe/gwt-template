@@ -24,9 +24,13 @@ public class SingleCheck extends CommonEventComposite implements HasValue<Object
     @UiField
     HTMLPanel root;
     AiButton selected = null;
+    boolean enabled = true;
     ClickHandler itemClicked = new ClickHandler() {
         @Override
         public void onClick(ClickEvent event) {
+            if (!enabled) {
+                return;
+            }
             selectButton((AiButton) event.getSource(), true);
         }
     };
@@ -78,7 +82,7 @@ public class SingleCheck extends CommonEventComposite implements HasValue<Object
 
     @Override
     public void setValue(Object value) {
-        setValue(value, true);
+        setValue(value, false);
     }
 
     @Override
@@ -92,6 +96,11 @@ public class SingleCheck extends CommonEventComposite implements HasValue<Object
                 selectButton(button, fireEvents);
             }
         }
+    }
+
+    @Override
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 
     @Override

@@ -31,7 +31,7 @@ public class AttachmentList extends CommonEventComposite {
                 selectItem = source;
                 if (selectItem != null) {
                     selectItem.setSelect(true);
-                    fireEvent(CommonEvent.selectEvent(selectItem));
+                    fireEvent(CommonEvent.selectEvent(selectItem.getData()));
                 }
             } else if (event.isDelete()) {
                 fireEvent(CommonEvent.deleteEvent(event.getValue()));

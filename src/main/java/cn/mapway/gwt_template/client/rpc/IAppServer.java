@@ -11,6 +11,8 @@ import cn.mapway.gwt_template.shared.rpc.project.*;
 import cn.mapway.gwt_template.shared.rpc.project.res.*;
 import cn.mapway.gwt_template.shared.rpc.repository.*;
 import cn.mapway.gwt_template.shared.rpc.soft.*;
+import cn.mapway.gwt_template.shared.rpc.tools.MarkdownToHtmlRequest;
+import cn.mapway.gwt_template.shared.rpc.tools.MarkdownToHtmlResponse;
 import cn.mapway.gwt_template.shared.rpc.user.*;
 import cn.mapway.gwt_template.shared.rpc.webhook.*;
 import cn.mapway.gwt_template.shared.rpc.workspace.ExportDevProjectTaskRequest;
@@ -26,6 +28,10 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 @RemoteServiceRelativePath(AppConstant.DEFAULT_SERVER_PATH)
 public interface IAppServer extends RemoteService {
     ///CODE_GEN_INSERT_POINT///
+	RpcResult<ViewAttachmentFileResponse> viewAttachmentFile(ViewAttachmentFileRequest request);
+
+	RpcResult<MarkdownToHtmlResponse> markdownToHtml(MarkdownToHtmlRequest request);
+
 	RpcResult<DeleteTaskAttachmentsResponse> deleteTaskAttachments(DeleteTaskAttachmentsRequest request);
 
 	RpcResult<UploadTaskAttachmentsResponse> uploadTaskAttachments(UploadTaskAttachmentsRequest request);

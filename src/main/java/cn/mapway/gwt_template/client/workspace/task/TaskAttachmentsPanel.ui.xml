@@ -8,10 +8,10 @@
     <g:DockLayoutPanel>
         <g:north size="0">
             <g:HTMLPanel ui:field="tools" addStyleNames="ai-flex-panel">
-                <g:Button ui:field="btnUpload">上传</g:Button>
+                <g:Button addStyleNames="ai-small" ui:field="btnUpload">上传</g:Button>
             </g:HTMLPanel>
         </g:north>
-        <g:north size="300">
+        <g:north size="200">
             <g:ScrollPanel>
                 <task:AttachmentList width="100%" ui:field="list"/>
             </g:ScrollPanel>

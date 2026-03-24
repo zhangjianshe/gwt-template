@@ -53,16 +53,19 @@ public class ProjectCalendarWidget extends CommonEventComposite implements Requi
     @UiHandler("calendar")
     public void calendarCommon(CommonEvent event) {
         if (event.isSelect()) {
-            DevProjectTaskEntity meeting = event.getValue();
-            meetingPanel.enableEdit(!calendar.getDocument().readOnly);
-            meetingPanel.setData(meeting);
+            Object data = event.getValue();
+            if (data instanceof DevProjectTaskEntity) {
+                meetingPanel.enableEdit(!calendar.getDocument().readOnly);
+                meetingPanel.setData((DevProjectTaskEntity) data);
+            } else {
+                meetingPanel.setData(null);
+            }
         }
     }
 
     @UiHandler("meetingPanel")
     public void meetingPanelCommon(CommonEvent event) {
-        if(event.isUpdate())
-        {
+        if (event.isUpdate()) {
             DevProjectTaskEntity meeting = event.getValue();
             calendar.getDocument().updateMeetingLocal(meeting);
         }

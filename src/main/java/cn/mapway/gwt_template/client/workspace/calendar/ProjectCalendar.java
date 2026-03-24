@@ -158,6 +158,9 @@ public class ProjectCalendar extends CanvasWidget implements RequiresResize, IDa
             drawDynamicTopHeader(ctx, getOffsetWidth(), document.getTopHeight() / 2);
             drawCurrentTimeLine(ctx);
 
+            ctx.beginPath();
+            ctx.rect(0, document.getTopHeight(), getOffsetWidth(), getOffsetHeight() - document.getTopHeight());
+            ctx.clip();
             for (MeetingNode node : document.allNodes) {
                 node.draw(document, ctx);
             }

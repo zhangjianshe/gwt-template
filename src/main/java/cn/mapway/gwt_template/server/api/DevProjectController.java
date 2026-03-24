@@ -9,6 +9,7 @@ import cn.mapway.gwt_template.server.service.file.FileCustomUtils;
 import cn.mapway.gwt_template.server.service.project.*;
 import cn.mapway.gwt_template.server.service.project.res.*;
 import cn.mapway.gwt_template.shared.AppConstant;
+import cn.mapway.gwt_template.shared.db.DevProjectTaskEntity;
 import cn.mapway.gwt_template.shared.rpc.file.CommonFileUploadRequest;
 import cn.mapway.gwt_template.shared.rpc.file.CommonFileUploadResponse;
 import cn.mapway.gwt_template.shared.rpc.project.*;
@@ -156,6 +157,13 @@ public class DevProjectController extends ApiBaseController {
 
     @Resource
     QueryTaskAttachmentsExecutor queryTaskAttachmentsExecutor;
+    @Resource
+    UploadTaskAttachmentsExecutor uploadTaskAttachmentsExecutor;
+    @Resource
+    DeleteTaskAttachmentsExecutor deleteTaskAttachmentsExecutor;
+    @Resource
+    UpdateFavoriteProjectExecutor updateFavoriteProjectExecutor;
+
     /**
      * QueryTaskAttachments
      *
@@ -168,8 +176,7 @@ public class DevProjectController extends ApiBaseController {
         BizResult<QueryTaskAttachmentsResponse> bizResult = queryTaskAttachmentsExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toApiResult(bizResult);
     }
-    @Resource
-    UploadTaskAttachmentsExecutor uploadTaskAttachmentsExecutor;
+
     /**
      * UploadTaskAttachments
      *
@@ -182,8 +189,7 @@ public class DevProjectController extends ApiBaseController {
         BizResult<UploadTaskAttachmentsResponse> bizResult = uploadTaskAttachmentsExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toApiResult(bizResult);
     }
-    @Resource
-    DeleteTaskAttachmentsExecutor deleteTaskAttachmentsExecutor;
+
     /**
      * DeleteTaskAttachments
      *
@@ -196,6 +202,7 @@ public class DevProjectController extends ApiBaseController {
         BizResult<DeleteTaskAttachmentsResponse> bizResult = deleteTaskAttachmentsExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toApiResult(bizResult);
     }
+
     /**
      * QueryFavoriteProject
      *
@@ -208,8 +215,7 @@ public class DevProjectController extends ApiBaseController {
         BizResult<QueryFavoriteProjectResponse> bizResult = queryFavoriteProjectExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toApiResult(bizResult);
     }
-    @Resource
-    UpdateFavoriteProjectExecutor updateFavoriteProjectExecutor;
+
     /**
      * UpdateFavoriteProject
      *
@@ -261,6 +267,65 @@ public class DevProjectController extends ApiBaseController {
     public RpcResult<AddProjectRepoResponse> addProjectRepo(@RequestBody AddProjectRepoRequest request) {
         BizResult<AddProjectRepoResponse> bizResult = addProjectRepoExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toApiResult(bizResult);
+    }
+
+    /**
+     * Read Content from resource file
+     *
+     * @return data
+     */
+    @Doc(value = "读取附件资源数据")
+    @RequestMapping(value = "attachment/{taskId}/**", method = RequestMethod.GET)
+    public void readAttachmentData(@PathVariable("taskId") String taskId, HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        LoginUser loginUser = (LoginUser) getBizContext().get(AppConstant.KEY_LOGIN_USER);
+        Long operatorId = loginUser.getUser().getUserId();
+        DevProjectTaskEntity task = projectService.findTask(taskId);
+
+        if (task == null) {
+            resp.setContentType("text/plain");
+            resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            resp.getWriter().println("没有任务信息" + taskId);
+            return;
+        }
+
+        boolean isMember = projectService.isMemberOfProject(operatorId, task.getProjectId());
+        if (!isMember) {
+            resp.setContentType("text/plain");
+            resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            resp.getWriter().println("没有权限");
+            return;
+        }
+
+        // Better way to extract the path variable from the wildcard (/**)
+        String urlPart = (String) req.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
+        urlPart = urlPart.substring(urlPart.indexOf(taskId) + taskId.length());
+        urlPart = URLDecoder.decode(urlPart, StandardCharsets.UTF_8);
+        if (urlPart.contains("..")) {
+            resp.setContentType("text/plain");
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().println("request path error");
+            return;
+        }
+        String attachmentRoot = projectService.getTaskAttachmentRoot(task);
+
+        String absPath = FileCustomUtils.concatPath(attachmentRoot, urlPart);
+        File target = new File(absPath);
+        if (!target.exists()) {
+            resp.setContentType("text/plain");
+            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            resp.getWriter().println("not found");
+            return;
+        }
+        resp.setContentType(Files.probeContentType(target.toPath()));
+        resp.setContentLength((int) target.length());
+        // Force the browser to render inside the frame rather than downloading
+        resp.setHeader("Content-Disposition", "inline; filename=\"" +
+                URLEncoder.encode(target.getName(), StandardCharsets.UTF_8) + "\"");
+        resp.setStatus(HttpServletResponse.SC_OK);
+        // 3. Ensure X-Frame-Options allows your own site
+        resp.setHeader("X-Frame-Options", "SAMEORIGIN");
+        Streams.writeAndClose(resp.getOutputStream(), Streams.fileIn(target));
+
     }
 
     /**

@@ -8,6 +8,9 @@ import cn.mapway.gwt_template.client.workspace.res.viewer.TextEditViewer;
 import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.rpc.file.EditableFileSuffix;
 import cn.mapway.gwt_template.shared.rpc.file.ImageFileSuffix;
+import cn.mapway.gwt_template.shared.rpc.project.ViewAttachmentFileRequest;
+import cn.mapway.gwt_template.shared.rpc.project.ViewAttachmentFileResponse;
+import cn.mapway.gwt_template.shared.rpc.project.module.PreviewData;
 import cn.mapway.gwt_template.shared.rpc.project.res.ViewProjectFileRequest;
 import cn.mapway.gwt_template.shared.rpc.project.res.ViewProjectFileResponse;
 import cn.mapway.ui.client.util.StringUtil;
@@ -55,6 +58,35 @@ public class FilePreview extends CommonEventComposite implements RequiresResize 
         this.enableSave = enable;
     }
 
+    /**
+     * 预览附件信息
+     *
+     * @param taskId   任务ID
+     * @param fileName 文件名称
+     */
+    public void previewAttachment(String taskId, String fileName) {
+        ViewAttachmentFileRequest request = new ViewAttachmentFileRequest();
+        request.setTaskId(taskId);
+        request.setRelPathName(fileName);
+        lbName.setText(StringUtil.extractName(fileName));
+        AppProxy.get().viewAttachmentFile(request, new AsyncCallback<RpcResult<ViewAttachmentFileResponse>>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                switchMessage(caught.getMessage());
+            }
+
+            @Override
+            public void onSuccess(RpcResult<ViewAttachmentFileResponse> result) {
+                if (result.isSuccess()) {
+                    toolBar.clear();
+                    switchView(result.getData().getPreviewData());
+                } else {
+                    switchMessage(result.getMessage());
+                }
+            }
+        });
+    }
+
     public void preview(String resourceId, String fileName) {
         ViewProjectFileRequest request = new ViewProjectFileRequest();
         request.setResourceId(resourceId);
@@ -70,7 +102,7 @@ public class FilePreview extends CommonEventComposite implements RequiresResize 
             public void onSuccess(RpcResult<ViewProjectFileResponse> result) {
                 if (result.isSuccess()) {
                     toolBar.clear();
-                    switchView(result.getData());
+                    switchView(result.getData().getPreviewData());
                 } else {
                     switchMessage(result.getMessage());
                 }
@@ -78,7 +110,7 @@ public class FilePreview extends CommonEventComposite implements RequiresResize 
         });
     }
 
-    private void switchEditor(ViewProjectFileResponse response, EditableFileSuffix mode) {
+    private void switchEditor(PreviewData response, EditableFileSuffix mode) {
         if (textEditViewer == null) {
             textEditViewer = new TextEditViewer();
         }
@@ -92,7 +124,7 @@ public class FilePreview extends CommonEventComposite implements RequiresResize 
         textEditViewer.setEditorData(response, mode);
     }
 
-    private void switchView(ViewProjectFileResponse data) {
+    private void switchView(PreviewData data) {
         lbName.setText(StringUtil.extractName(data.getFileName()));
 
         if (AppConstant.CANGLING_MIME_TYPE.equals(data.getMimeType())) {
@@ -134,7 +166,7 @@ public class FilePreview extends CommonEventComposite implements RequiresResize 
         }
     }
 
-    private void switchHtml(ViewProjectFileResponse data, String url) {
+    private void switchHtml(PreviewData data, String url) {
         if (htmlViewer == null) {
             htmlViewer = new HtmlViewer();
         }
@@ -148,7 +180,7 @@ public class FilePreview extends CommonEventComposite implements RequiresResize 
         htmlViewer.setHtml(data.getBody(), url);
     }
 
-    private void switchFrameViewer(ViewProjectFileResponse data) {
+    private void switchFrameViewer(PreviewData data) {
         if (frameViewer == null) {
             frameViewer = new Frame();
             frameViewer.setWidth("100%");
@@ -177,7 +209,7 @@ public class FilePreview extends CommonEventComposite implements RequiresResize 
         frameViewer.setUrl(data.getBody());
     }
 
-    private void switchImageView(ViewProjectFileResponse data) {
+    private void switchImageView(PreviewData data) {
         if (imageViewer == null) {
             imageViewer = new ImageViewer();
         }
@@ -210,6 +242,11 @@ public class FilePreview extends CommonEventComposite implements RequiresResize 
     @Override
     public void onResize() {
         root.onResize();
+    }
+
+    public void previewEmpty() {
+        lbName.setText("");
+        switchMessage("", "附件预览");
     }
 
     interface FilePreviewUiBinder extends UiBinder<DockLayoutPanel, FilePreview> {

@@ -8,7 +8,7 @@ import cn.mapway.gwt_template.client.rpc.AppProxy;
 import cn.mapway.gwt_template.shared.rpc.file.EditableFileSuffix;
 import cn.mapway.gwt_template.shared.rpc.project.UpdateProjectFileRequest;
 import cn.mapway.gwt_template.shared.rpc.project.UpdateProjectFileResponse;
-import cn.mapway.gwt_template.shared.rpc.project.res.ViewProjectFileResponse;
+import cn.mapway.gwt_template.shared.rpc.project.module.PreviewData;
 import cn.mapway.ui.client.mvc.IToolsProvider;
 import cn.mapway.ui.client.widget.CommonEventComposite;
 import cn.mapway.ui.shared.rpc.RpcResult;
@@ -32,7 +32,7 @@ public class TextEditViewer extends CommonEventComposite implements RequiresResi
     @UiField
     DockLayoutPanel root;
     boolean initialize = false;
-    private ViewProjectFileResponse data;
+    private PreviewData data;
 
     public TextEditViewer() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -107,7 +107,7 @@ public class TextEditViewer extends CommonEventComposite implements RequiresResi
         editor.redisplay();
     }
 
-    public void setEditorData(ViewProjectFileResponse obj, EditableFileSuffix mode) {
+    public void setEditorData(PreviewData obj, EditableFileSuffix mode) {
         data = obj;
         toUI();
         if (mode == EditableFileSuffix.NONE) {

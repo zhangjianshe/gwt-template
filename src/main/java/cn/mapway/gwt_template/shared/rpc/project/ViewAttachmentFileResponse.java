@@ -1,4 +1,4 @@
-package cn.mapway.gwt_template.shared.rpc.project.res;
+package cn.mapway.gwt_template.shared.rpc.project;
 
 import cn.mapway.document.annotation.Doc;
 import cn.mapway.gwt_template.shared.rpc.project.module.PreviewData;
@@ -8,12 +8,12 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * ViewProjectFileResponse
+ * ViewAttachmentFileResponse
  *
  * @author zhangjianshe@gmail.com
  */
 @Data
-@Doc("ViewProjectFileResponse")
-public class ViewProjectFileResponse implements Serializable, IsSerializable {
+@Doc("ViewAttachmentFileResponse")
+public class ViewAttachmentFileResponse implements Serializable, IsSerializable {
     PreviewData previewData;
 }

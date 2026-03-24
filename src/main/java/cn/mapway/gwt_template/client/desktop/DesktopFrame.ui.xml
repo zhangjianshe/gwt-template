@@ -1,7 +1,6 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
              xmlns:g='urn:import:com.google.gwt.user.client.ui'
              xmlns:desktop="urn:import:cn.mapway.gwt_template.client.desktop"
-             xmlns:milestone="urn:import:cn.mapway.gwt_template.client.workspace.calendar"
 >
     <ui:style>
         .box {
@@ -12,6 +11,7 @@
             justify-items: center;
             padding: 30px;
         }
+
         .box3 {
             gap: 1rem;
             display: grid;
@@ -20,6 +20,7 @@
             justify-items: center;
             padding: 30px;
         }
+
         .title {
             margin: 25px;
         }
@@ -62,7 +63,7 @@
         </g:tab>
         <g:tab>
             <g:header>🗓️ 工作日历</g:header>
-            <milestone:ProjectCalendarWidget ui:field="calendar"/>
+            <g:Label>工作日历</g:Label>
         </g:tab>
     </g:TabLayoutPanel>
 

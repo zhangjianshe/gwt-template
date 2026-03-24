@@ -4,18 +4,24 @@ import cn.mapway.ace.client.AceEditor;
 import cn.mapway.ace.client.AceEditorMode;
 import cn.mapway.gwt_template.client.ClientContext;
 import cn.mapway.gwt_template.client.rpc.AppProxy;
+import cn.mapway.gwt_template.client.rpc.AsyncAdaptor;
 import cn.mapway.gwt_template.client.workspace.task.TaskAttachmentsPanel;
 import cn.mapway.gwt_template.client.workspace.widget.EditableLabel;
+import cn.mapway.gwt_template.client.workspace.widget.TaskPriorityDropdown;
 import cn.mapway.gwt_template.shared.db.DevProjectTaskEntity;
 import cn.mapway.gwt_template.shared.rpc.project.UpdateProjectTaskRequest;
 import cn.mapway.gwt_template.shared.rpc.project.UpdateProjectTaskResponse;
 import cn.mapway.gwt_template.shared.rpc.project.module.Meeting;
+import cn.mapway.gwt_template.shared.rpc.tools.MarkdownToHtmlRequest;
+import cn.mapway.gwt_template.shared.rpc.tools.MarkdownToHtmlResponse;
 import cn.mapway.ui.client.mvc.Size;
 import cn.mapway.ui.client.tools.IData;
 import cn.mapway.ui.client.util.StringUtil;
 import cn.mapway.ui.client.widget.CommonEventComposite;
+import cn.mapway.ui.client.widget.buttons.AiButton;
 import cn.mapway.ui.client.widget.dialog.Popup;
 import cn.mapway.ui.shared.CommonEvent;
+import cn.mapway.ui.shared.CommonEventHandler;
 import cn.mapway.ui.shared.rpc.RpcResult;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -28,7 +34,6 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
-import elemental2.dom.DomGlobal;
 
 /**
  * 会议展示页
@@ -56,17 +61,63 @@ public class MeetingPanel extends CommonEventComposite implements IData<DevProje
     @UiField
     TabLayoutPanel tabs;
     @UiField
-    HorizontalPanel toolsPanel;
+    HTMLPanel toolsPanel;
     @UiField
     Button btnSave;
+    @UiField
+    HTMLPanel markdownBody;
+    @UiField
+    LayoutPanel markdownPanel;
+    @UiField
+    ScrollPanel htmlPanel;
+    @UiField
+    HorizontalPanel editTools;
+    @UiField
+    Button btnEdit;
+    @UiField
+    AiButton btnCancel;
+    @UiField
+    TaskPriorityDropdown ddlPriority;
+    @UiField
+    HTMLPanel masker;
+    @UiField
+    LayoutPanel allLayers;
     boolean initialzied = false;
+    boolean enabledEdit = false;
+    Meeting content;
 
     public MeetingPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
         lbName.addValueChangeHandler(new ValueChangeHandler<String>() {
             @Override
             public void onValueChange(ValueChangeEvent<String> event) {
-                DomGlobal.console.log(event.getValue());
+                if (enabledEdit && StringUtil.isNotBlank(event.getValue())) {
+                    btnSaveClick(null);
+                }
+            }
+        });
+        lbLocation.addValueChangeHandler(new ValueChangeHandler<String>() {
+            @Override
+            public void onValueChange(ValueChangeEvent<String> event) {
+                if (enabledEdit && StringUtil.isNotBlank(event.getValue())) {
+                    btnSaveClick(null);
+                }
+            }
+        });
+        lbParticipate.addValueChangeHandler(new ValueChangeHandler<String>() {
+            @Override
+            public void onValueChange(ValueChangeEvent<String> event) {
+                if (enabledEdit && StringUtil.isNotBlank(event.getValue())) {
+                    btnSaveClick(null);
+                }
+            }
+        });
+        ddlPriority.addCommonHandler(new CommonEventHandler() {
+            @Override
+            public void onCommonEvent(CommonEvent event) {
+                if (event.isSelect()) {
+                    btnSaveClick(null);
+                }
             }
         });
         tabs.addSelectionHandler(new SelectionHandler<Integer>() {
@@ -74,13 +125,14 @@ public class MeetingPanel extends CommonEventComposite implements IData<DevProje
             public void onSelection(SelectionEvent<Integer> event) {
                 if (event.getSelectedItem() == 0) {
                     toolsPanel.clear();
-                    toolsPanel.add(btnSave);
+                    toolsPanel.add(editTools);
                 } else if (event.getSelectedItem() == 1) {
                     toolsPanel.clear();
                     toolsPanel.add(attachmentPanel.getTools());
                 }
             }
         });
+
     }
 
     public static Popup<MeetingPanel> getPopup(boolean reuse) {
@@ -110,39 +162,85 @@ public class MeetingPanel extends CommonEventComposite implements IData<DevProje
     @Override
     public void setData(DevProjectTaskEntity obj) {
         meeting = obj;
+        if (meeting == null) {
+            allLayers.setWidgetVisible(masker, true);
+            allLayers.setWidgetVisible(root, false);
+            return;
+        }
+        allLayers.setWidgetVisible(masker, false);
+        allLayers.setWidgetVisible(root, true);
+
         toUI();
     }
 
     public void enableEdit(boolean enable) {
+        enabledEdit = enable;
+        if (enabledEdit) {
+            btnSave.setEnabled(true);
+            btnEdit.setEnabled(true);
+            btnSave.setVisible(false);
+            btnCancel.setVisible(false);
+        } else {
+            btnSave.setEnabled(false);
+            btnEdit.setEnabled(false);
+            btnCancel.setVisible(false);
+
+            btnSave.setVisible(false);
+            btnEdit.setVisible(false);
+        }
         lbName.setEditable(enable);
         lbLocation.setEditable(enable);
         lbParticipate.setEditable(enable);
-        editor.setReadOnly(!enable);
         btnSave.setEnabled(enable);
         attachmentPanel.enableEdit(enable);
+        ddlPriority.setEnabled(enable);
     }
 
     private void toUI() {
         if (meeting == null) return;
+        tabs.selectTab(0, true);
+        toolsPanel.clear();
+        toolsPanel.add(editTools);
 
         lbName.setText(meeting.getName());
         lbTime.setValue(meeting.getStartTime());
+
         long span = meeting.getEstimateTime().getTime() - meeting.getStartTime().getTime();
         lbDuration.setText("持续时长:" + StringUtil.formatMillseconds(span));
         // 解析会议详情
-        Meeting content = Meeting.fromJson(meeting.getSummary());
+        content = Meeting.fromJson(meeting.getSummary());
         if (content == null) {
             content = new Meeting(); // 防止 NullPointerException
         }
+
+        ddlPriority.setValue(meeting.getPriority());
 
         lbLocation.setText((content.location != null ? content.location : "未填写"));
         lbParticipate.setText((content.participant != null ? content.participant : "全员"));
 
 
         String bodyHtml = content.body != null ? content.body : "无会议详情";
-        initEditor();
-        editor.setValue(bodyHtml);
         attachmentPanel.setData(meeting.getId());
+        renderMarkdown(bodyHtml);
+    }
+
+    private void renderMarkdown(String bodyHtml) {
+        markdownPanel.setWidgetVisible(htmlPanel, true);
+        markdownPanel.setWidgetVisible(editor, false);
+        if (enabledEdit) {
+            btnEdit.setVisible(true);
+            btnCancel.setVisible(false);
+            btnSave.setVisible(false);
+        }
+        MarkdownToHtmlRequest request = new MarkdownToHtmlRequest();
+        request.setMarkdown(bodyHtml);
+        AppProxy.get().markdownToHtml(request, new AsyncAdaptor<RpcResult<MarkdownToHtmlResponse>>() {
+            @Override
+            public void onData(RpcResult<MarkdownToHtmlResponse> result) {
+                markdownBody.clear();
+                markdownBody.add(new HTML(result.getData().getHtml()));
+            }
+        });
     }
 
     @Override
@@ -180,6 +278,7 @@ public class MeetingPanel extends CommonEventComposite implements IData<DevProje
         meeting.setSummary(newMeeting.toJson());
         meeting.setStartTime(null);
         meeting.setEstimateTime(null);
+        meeting.setPriority((Integer) ddlPriority.getValue());
         request.setProjectTask(meeting);
         AppProxy.get().updateProjectTask(request, new AsyncCallback<RpcResult<UpdateProjectTaskResponse>>() {
             @Override
@@ -192,6 +291,7 @@ public class MeetingPanel extends CommonEventComposite implements IData<DevProje
                 if (result.isSuccess()) {
                     ClientContext.get().toast(0, 0, "已保存");
                     fireEvent(CommonEvent.updateEvent(result.getData().getProjectTask()));
+                    setData(result.getData().getProjectTask());
                 } else {
                     ClientContext.get().toast(0, 0, result.getMessage());
                 }
@@ -199,6 +299,22 @@ public class MeetingPanel extends CommonEventComposite implements IData<DevProje
         });
     }
 
-    interface MeetingPanelUiBinder extends UiBinder<DockLayoutPanel, MeetingPanel> {
+    @UiHandler("btnEdit")
+    public void btnEditClick(ClickEvent event) {
+        btnSave.setVisible(true);
+        btnCancel.setVisible(true);
+        btnEdit.setVisible(false);
+        markdownPanel.setWidgetVisible(htmlPanel, false);
+        markdownPanel.setWidgetVisible(editor, true);
+        editor.setValue(content.body);
+    }
+
+    @UiHandler("btnCancel")
+    public void btnCancelClick(ClickEvent event) {
+        //取消编辑
+        setData(meeting);
+    }
+
+    interface MeetingPanelUiBinder extends UiBinder<LayoutPanel, MeetingPanel> {
     }
 }

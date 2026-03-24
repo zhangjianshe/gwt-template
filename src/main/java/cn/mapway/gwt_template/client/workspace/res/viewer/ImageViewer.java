@@ -1,6 +1,6 @@
 package cn.mapway.gwt_template.client.workspace.res.viewer;
 
-import cn.mapway.gwt_template.shared.rpc.project.res.ViewProjectFileResponse;
+import cn.mapway.gwt_template.shared.rpc.project.module.PreviewData;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
@@ -17,7 +17,7 @@ public class ImageViewer extends Composite {
         initWidget(ourUiBinder.createAndBindUi(this));
     }
 
-    public void setData(ViewProjectFileResponse data) {
+    public void setData(PreviewData data) {
         image.setUrl(data.getBody());
     }
 

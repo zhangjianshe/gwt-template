@@ -7,11 +7,11 @@ import cn.mapway.gwt_template.shared.rpc.dns.*;
 import cn.mapway.gwt_template.shared.rpc.ldap.*;
 import cn.mapway.gwt_template.shared.rpc.message.*;
 import cn.mapway.gwt_template.shared.rpc.project.*;
-import cn.mapway.gwt_template.shared.rpc.project.UpdateProjectFileRequest;
-import cn.mapway.gwt_template.shared.rpc.project.UpdateProjectFileResponse;
 import cn.mapway.gwt_template.shared.rpc.project.res.*;
 import cn.mapway.gwt_template.shared.rpc.repository.*;
 import cn.mapway.gwt_template.shared.rpc.soft.*;
+import cn.mapway.gwt_template.shared.rpc.tools.MarkdownToHtmlRequest;
+import cn.mapway.gwt_template.shared.rpc.tools.MarkdownToHtmlResponse;
 import cn.mapway.gwt_template.shared.rpc.user.*;
 import cn.mapway.gwt_template.shared.rpc.webhook.*;
 import cn.mapway.gwt_template.shared.rpc.workspace.ExportDevProjectTaskRequest;
@@ -26,6 +26,10 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public interface IAppServerAsync {
 
     ///CODE_GEN_INSERT_POINT///
+	void viewAttachmentFile(ViewAttachmentFileRequest request, AsyncCallback<RpcResult<ViewAttachmentFileResponse>> async);
+
+	void markdownToHtml(MarkdownToHtmlRequest request, AsyncCallback<RpcResult<MarkdownToHtmlResponse>> async);
+
 	void deleteTaskAttachments(DeleteTaskAttachmentsRequest request, AsyncCallback<RpcResult<DeleteTaskAttachmentsResponse>> async);
 
 	void uploadTaskAttachments(UploadTaskAttachmentsRequest request, AsyncCallback<RpcResult<UploadTaskAttachmentsResponse>> async);

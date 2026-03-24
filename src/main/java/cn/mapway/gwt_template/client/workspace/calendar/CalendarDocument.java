@@ -439,8 +439,10 @@ public class CalendarDocument {
             }
             selectedNodes.clear();
         }
-        node.setSelected(true);
-        selectedNodes.add(node);
+        if (node != null) {
+            node.setSelected(true);
+            selectedNodes.add(node);
+        }
     }
 
     public void fireSelectFirst() {
@@ -460,5 +462,10 @@ public class CalendarDocument {
             }
         }
         chart.redraw();
+    }
+
+    public void selectNone() {
+        appendSelect(null, true);
+        chart.fireEvent(CommonEvent.selectEvent(null));
     }
 }

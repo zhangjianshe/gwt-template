@@ -28,6 +28,7 @@ import cn.mapway.gwt_template.server.service.soft.CreateSoftwareExecutor;
 import cn.mapway.gwt_template.server.service.soft.DeleteSoftwareExecutor;
 import cn.mapway.gwt_template.server.service.soft.QuerySoftwareExecutor;
 import cn.mapway.gwt_template.server.service.soft.QuerySoftwareFilesExecutor;
+import cn.mapway.gwt_template.server.service.tools.MarkdownToHtmlExecutor;
 import cn.mapway.gwt_template.server.service.user.QueryUserInfoExecutor;
 import cn.mapway.gwt_template.server.service.user.RegisterUserExecutor;
 import cn.mapway.gwt_template.server.service.user.TokenService;
@@ -45,6 +46,8 @@ import cn.mapway.gwt_template.shared.rpc.project.*;
 import cn.mapway.gwt_template.shared.rpc.project.res.*;
 import cn.mapway.gwt_template.shared.rpc.repository.*;
 import cn.mapway.gwt_template.shared.rpc.soft.*;
+import cn.mapway.gwt_template.shared.rpc.tools.MarkdownToHtmlRequest;
+import cn.mapway.gwt_template.shared.rpc.tools.MarkdownToHtmlResponse;
 import cn.mapway.gwt_template.shared.rpc.user.*;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
 import cn.mapway.gwt_template.shared.rpc.webhook.*;
@@ -127,6 +130,26 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
     QueryConfigExecutor queryConfigExecutor;
 
     ///CODE_GEN_INSERT_POINT///
+	
+    @Resource
+    ViewAttachmentFileExecutor viewAttachmentFileExecutor;
+    @Override
+    public RpcResult<ViewAttachmentFileResponse> viewAttachmentFile(ViewAttachmentFileRequest request) {
+        BizResult<ViewAttachmentFileResponse> bizResult = viewAttachmentFileExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    MarkdownToHtmlExecutor markdownToHtmlExecutor;
+    @Override
+    public RpcResult<MarkdownToHtmlResponse> markdownToHtml(MarkdownToHtmlRequest request) {
+        BizResult<MarkdownToHtmlResponse> bizResult = markdownToHtmlExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
 	
     @Resource
     DeleteTaskAttachmentsExecutor deleteTaskAttachmentsExecutor;

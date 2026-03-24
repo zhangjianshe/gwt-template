@@ -28,6 +28,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HTMLPanel;
@@ -130,7 +131,8 @@ public class MainMenuBar extends CommonEventComposite {
 
             @Override
             public void onSuccess(RpcResult<LogoutResponse> result) {
-                ClientContext.get().fireEvent(CommonEvent.needLoginEvent(null));
+                Window.Location.reload();
+                //ClientContext.get().fireEvent(CommonEvent.needLoginEvent(null));
             }
         });
     }

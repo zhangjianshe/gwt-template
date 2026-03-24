@@ -26,8 +26,9 @@ public class ProjectMemberPermissionList extends CommonEventComposite implements
 
     public ProjectMemberPermissionList() {
         initWidget(ourUiBinder.createAndBindUi(this));
-        header.addPermission(ProjectPermissionKind.ADMIN);
+        header.addPermission(ProjectPermissionKind.CODER);
         header.addPermission(ProjectPermissionKind.SECRETARY);
+        header.addPermission(ProjectPermissionKind.ADMIN);
     }
 
     @Override

@@ -64,8 +64,9 @@ public class ProjectMemberPermissionItem extends CommonEventComposite implements
         lbGroup.setText(member.getTeamName());
         permissionBar.setData(CommonPermission.from(member.getPermission()));
         permissionBar.setEnableEdit(enableEditPermission);
-        permissionBar.addPermission(ProjectPermissionKind.ADMIN);
+        permissionBar.addPermission(ProjectPermissionKind.CODER);
         permissionBar.addPermission(ProjectPermissionKind.SECRETARY);
+        permissionBar.addPermission(ProjectPermissionKind.ADMIN);
     }
 
     public void enableEdit(boolean enabled) {
