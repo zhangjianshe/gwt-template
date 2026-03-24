@@ -638,7 +638,7 @@ public class ProjectService {
                 return BizResult.error(500, "必须是管理员才能创建根目录");
             }
         } else {
-            DevProjectTaskEntity fetchx = dao.fetchx(DevProjectTaskEntity.class, parentId);
+            DevProjectTaskEntity fetchx = dao.fetch(DevProjectTaskEntity.class, parentId);
             if (fetchx == null || fetchx.getCharger() == null || !fetchx.getCharger().equals(currentUserId)) {
                 return BizResult.error(500, "您不是该任务的负责人");
             }
