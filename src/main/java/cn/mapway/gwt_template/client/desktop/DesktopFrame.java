@@ -56,8 +56,6 @@ public class DesktopFrame extends BaseAbstractModule implements RequiresResize {
     @UiField
     HTMLPanel panelWorkspace;
     @UiField
-    ProjectCalendarWidget calendar;
-    @UiField
     DockLayoutPanel desktop;
     @UiField
     HTMLPanel panelProjects;
@@ -79,7 +77,6 @@ public class DesktopFrame extends BaseAbstractModule implements RequiresResize {
                 case 0:
                     break;
                 case 1:
-                    calendar.setData("9fe502023e8c443292138f6d0a7c7455");
                     break;
             }
         });
