@@ -631,7 +631,7 @@ public class ProjectService {
     }
 
     public BizResult<Boolean> isTaskManager(String projectId, Long currentUserId, String parentId) {
-        if (Strings.isBlank(projectId)) {
+        if (Strings.isBlank(parentId)) {
             //根节点 必须是管理员
             CommonPermission permission = findUserPermissionInProject(currentUserId, parentId);
             if (!permission.isSuper()) {
