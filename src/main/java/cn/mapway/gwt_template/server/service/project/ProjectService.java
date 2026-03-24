@@ -633,7 +633,7 @@ public class ProjectService {
     public BizResult<Boolean> isTaskManager(String projectId, Long currentUserId, String parentId) {
         if (Strings.isBlank(parentId)) {
             //根节点 必须是管理员
-            CommonPermission permission = findUserPermissionInProject(currentUserId, parentId);
+            CommonPermission permission = findUserPermissionInProject(currentUserId, projectId);
             if (!permission.isSuper()) {
                 return BizResult.error(500, "必须是管理员才能创建根目录");
             }
