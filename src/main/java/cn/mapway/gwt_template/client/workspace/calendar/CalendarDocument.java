@@ -26,6 +26,8 @@ import lombok.Setter;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class CalendarDocument {
@@ -132,6 +134,7 @@ public class CalendarDocument {
                     allNodes.clear();
                     CommonPermission permission = CommonPermission.from(result.getData().getUserPermission());
                     readOnly = !(permission.isOwner() || permission.isSecretary());
+                    Collections.sort(result.getData().getRootTasks(), Comparator.comparing(DevProjectTaskEntity::getStartTime));
                     for (DevProjectTaskEntity meeting : result.getData().getRootTasks()) {
                         MeetingNode meetingNode = new MeetingNode(meeting);
                         allNodes.add(meetingNode);
@@ -159,9 +162,12 @@ public class CalendarDocument {
         reLayout();
     }
 
-    public void addMeeting() {
+    public void addMeeting(Double time) {
         if (isReadOnly()) {
             return;
+        }
+        if (time == null) {
+            time = (double) System.currentTimeMillis();
         }
         DevProjectTaskEntity meeting = new DevProjectTaskEntity();
         meeting.setCatalog(DevTaskCatalog.DTC_MEETING.getCode());
@@ -171,8 +177,8 @@ public class CalendarDocument {
         meeting.setKind(DevTaskKind.DTK_EPIC.getCode());
         meeting.setPriority(DevTaskPriority.MEDIUM.getCode());
         meeting.setCharger(Long.parseLong(ClientContext.get().getUserInfo().getId()));
-        meeting.setStartTime(new Timestamp(System.currentTimeMillis()));
-        meeting.setEstimateTime(new Timestamp(System.currentTimeMillis() + 3 * 24 * 60 * 60 * 1000));
+        meeting.setStartTime(new Timestamp(time.longValue()));
+        meeting.setEstimateTime(new Timestamp(meeting.getStartTime().getTime() + 4 * 60 * 60 * 1000));
         meeting.setInitExpand(true);
         meeting.setStatus(DevTaskStatus.DTS_CREATED.getCode());
         meeting.setRank(1.0);

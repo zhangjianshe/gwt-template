@@ -6,6 +6,7 @@ import cn.mapway.gwt_template.shared.db.DevProjectTaskEntity;
 import cn.mapway.gwt_template.shared.rpc.project.UpdateProjectTaskRequest;
 import cn.mapway.gwt_template.shared.rpc.project.UpdateProjectTaskResponse;
 import cn.mapway.gwt_template.shared.rpc.project.module.DevTaskCatalog;
+import cn.mapway.gwt_template.shared.rpc.project.module.DevTaskPriority;
 import cn.mapway.gwt_template.shared.rpc.project.module.Meeting;
 import cn.mapway.ui.client.mvc.Size;
 import cn.mapway.ui.client.tools.IData;
@@ -77,7 +78,7 @@ public class MeetingEditor extends CommonEventComposite implements IData<DevProj
 
     @Override
     public Size requireDefaultSize() {
-        return new Size(900, 600);
+        return new Size(900, 530);
     }
 
     private void toUI() {
@@ -86,7 +87,7 @@ public class MeetingEditor extends CommonEventComposite implements IData<DevProj
         txtBody.setValue(meetingData.body);
         txtLocation.setValue(meetingData.location);
         txtParticipate.setValue(meetingData.participant);
-
+        ddlPriority.setValue(DevTaskPriority.MEDIUM.getCode());
     }
 
     @UiHandler("saveBar")

@@ -61,6 +61,7 @@ public class ProjectCalendarWidget extends CommonEventComposite implements Requi
                 meetingPanel.setData(null);
             }
         }
+
     }
 
     @UiHandler("meetingPanel")

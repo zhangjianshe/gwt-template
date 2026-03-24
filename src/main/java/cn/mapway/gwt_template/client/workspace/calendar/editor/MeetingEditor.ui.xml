@@ -12,23 +12,21 @@
             padding: 8px;
             gap: 1rem;
         }
-    </ui:style>
+
+        .box {
+            padding: 20px;
+        }</ui:style>
     <g:DockLayoutPanel>
         <g:south size="68">
             <dialog:SaveBar ui:field="saveBar"/>
         </g:south>
-        <g:east size="300">
-            <g:VerticalPanel>
-
-            </g:VerticalPanel>
-        </g:east>
         <g:center>
-            <g:ScrollPanel>
+            <g:ScrollPanel addStyleNames="{style.box}">
                 <g:VerticalPanel width="100%" spacing="4">
                     <g:HTMLPanel addStyleNames="{style.top}">
                         <g:HorizontalPanel verticalAlignment="middle" spacing="4">
                             <widget1:Header>主题</widget1:Header>
-                            <widget1:AiTextBox ui:field="txtName"/>
+                            <widget1:AiTextBox width="280px" ui:field="txtName"/>
                         </g:HorizontalPanel>
                         <g:HorizontalPanel verticalAlignment="middle" spacing="4">
                             <widget1:Header>重要程度</widget1:Header>
@@ -44,7 +42,7 @@
                         <widget1:AiTextBox ui:field="txtParticipate"/>
                     </g:HTMLPanel>
                     <g:HTMLPanel addStyleNames="{style.top}">
-                        <g:TextArea addStyleNames="ai-input" width="100%" height="80px" ui:field="txtBody"/>
+                        <g:TextArea addStyleNames="ai-input" width="100%" height="200px" ui:field="txtBody"/>
                     </g:HTMLPanel>
                 </g:VerticalPanel>
             </g:ScrollPanel>

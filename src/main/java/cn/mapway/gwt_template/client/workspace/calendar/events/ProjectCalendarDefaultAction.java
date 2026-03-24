@@ -37,8 +37,7 @@ public class ProjectCalendarDefaultAction implements IMouseHandler<ProjectCalend
         //高亮提示
         CalendarDocument document = chart.getDocument();
         document.clearHoverNode();
-        if(document.isReadOnly())
-        {
+        if (document.isReadOnly()) {
             //只允许选择
             switch (result.hitTest) {
                 case HIT_MEETING_NODE_BODY: {
@@ -48,8 +47,7 @@ public class ProjectCalendarDefaultAction implements IMouseHandler<ProjectCalend
                     break;
                 }
             }
-        }
-        else {
+        } else {
             switch (result.hitTest) {
                 case HIT_MEETING_NODE_BODY: {
                     document.setHoverNode(result.getNode());
@@ -100,7 +98,7 @@ public class ProjectCalendarDefaultAction implements IMouseHandler<ProjectCalend
     public void onKeyDown(KeyDownEvent event) {
         switch (event.getNativeKeyCode()) {
             case KeyCodes.KEY_ENTER:
-                chart.getDocument().addMeeting();
+                chart.getDocument().addMeeting(null);
                 break;
             case 191:
                 chart.showHelp();
@@ -140,4 +138,17 @@ public class ProjectCalendarDefaultAction implements IMouseHandler<ProjectCalend
         }
     }
 
+    @Override
+    public void onDoubleClick(DoubleClickEvent event) {
+        if (chart.getDocument().isReadOnly()) {
+            return;
+        }
+        //双击 在当前的时间点创建一个新的会议
+        current.set(event.getX(), event.getY());
+        chart.hitTest(result, current);
+        if (result.hitTest == CalendarHitTest.HIT_NONE) {
+            Double time = chart.getDocument().getTimeByX(event.getX());
+            chart.getDocument().addMeeting(time);
+        }
+    }
 }
