@@ -248,6 +248,7 @@
     /* 动效过渡 */
     transition: all 0.3s ease-out;
     cursor: pointer;
+    width: 100%;
 }
 
 .box:HOVER {

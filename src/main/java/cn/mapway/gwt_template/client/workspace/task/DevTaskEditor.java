@@ -195,7 +195,7 @@ public class DevTaskEditor extends CommonEventComposite implements RequiresResiz
             temp.setId(task.getId());
             temp.setProjectId(task.getProjectId());
         }
-        temp.setName(txtName.getText());
+        temp.setName(txtName.getValue());
         temp.setKind((Integer) ddlKind.getValue());
         temp.setStatus((Integer) ddlStatus.getValue());
         temp.setSummary(txtSummary.getText());
