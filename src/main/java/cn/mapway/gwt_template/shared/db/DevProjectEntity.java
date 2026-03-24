@@ -112,5 +112,6 @@ public class DevProjectEntity implements Serializable, IsSerializable {
     String progress;
     Boolean favorite;
     Integer memberCount;
+    String currentUserPermission;
 
 }

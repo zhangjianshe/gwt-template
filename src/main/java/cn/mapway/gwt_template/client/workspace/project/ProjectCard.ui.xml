@@ -1,5 +1,6 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
-             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:buttons="urn:import:cn.mapway.ui.client.widget.buttons">
     <ui:style>
         .card {
             background: white;
@@ -108,6 +109,11 @@
             padding: 30px 30px;
         }
 
+        .btn {
+            margin-top: 8px;
+            padding: 4px;
+        }
+
     </ui:style>
 
     <g:HTMLPanel styleName="{style.card}">
@@ -116,20 +122,25 @@
                 <g:Label ui:field="lbSecurity" addStyleNames="{style.sec_text}"/>
                 <g:Label addStyleNames="{style.sec_tip}">秘密等级</g:Label>
             </g:HTMLPanel>
-            <div class="{style.stats_row}">
-                <div class="{style.stat_item}">
-                    <span>创建者</span>
-                    <span class="{style.stat_value}" ui:field="lbCreator">--</span>
-                </div>
-                <div class="{style.stat_item}">
-                    <span>团队成员</span>
-                    <span class="{style.stat_value}" ui:field="lbMemberCount">0</span>
-                </div>
-                <div class="{style.stat_item}">
-                    <span>当前进度</span>
-                    <span class="{style.stat_value}" ui:field="lbProgress">0%</span>
-                </div>
-            </div>
+            <g:VerticalPanel horizontalAlignment="right">
+                <g:HTMLPanel styleName="{style.stats_row}">
+                    <div class="{style.stat_item}">
+                        <span>创建者</span>
+                        <span class="{style.stat_value}" ui:field="lbCreator">--</span>
+                    </div>
+                    <div class="{style.stat_item}">
+                        <span>团队成员</span>
+                        <span class="{style.stat_value}" ui:field="lbMemberCount">0</span>
+                    </div>
+                    <div class="{style.stat_item}">
+                        <span>当前进度</span>
+                        <span class="{style.stat_value}" ui:field="lbProgress">0%</span>
+                    </div>
+                </g:HTMLPanel>
+                <g:HorizontalPanel ui:field="tools">
+                    <buttons:AiButton ui:field="btnEdit">编辑项目信息</buttons:AiButton>
+                </g:HorizontalPanel>
+            </g:VerticalPanel>
         </g:HTMLPanel>
         <div class="{style.title_row}">
             <g:HTMLPanel styleName="{style.title}" ui:field="pnlName"/>

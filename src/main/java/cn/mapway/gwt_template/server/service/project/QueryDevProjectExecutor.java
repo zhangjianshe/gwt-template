@@ -9,6 +9,7 @@ import cn.mapway.gwt_template.shared.db.DevProjectEntity;
 import cn.mapway.gwt_template.shared.db.DevWorkspaceFolderEntity;
 import cn.mapway.gwt_template.shared.rpc.project.QueryDevProjectRequest;
 import cn.mapway.gwt_template.shared.rpc.project.QueryDevProjectResponse;
+import cn.mapway.gwt_template.shared.rpc.project.module.CommonPermission;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
 import lombok.extern.slf4j.Slf4j;
 import org.nutz.dao.Dao;
@@ -67,8 +68,10 @@ public class QueryDevProjectExecutor extends AbstractBizExecutor<QueryDevProject
             if (project != null) {
                 boolean isAdmin = projectService.isWorkspaceAdmin(currentUserId, project.getWorkspaceId());
                 boolean isMember = projectService.isMemberOfProject(currentUserId, projectId);
+                CommonPermission permission = projectService.findUserPermissionInProject(currentUserId, projectId);
                 if (isAdmin || isMember) {
                     projects = Lang.list(project);
+                    project.setCurrentUserPermission(permission.toString());
                 } else {
                     return BizResult.error(503, "您没有权限查看该项目");
                 }
@@ -127,7 +130,7 @@ public class QueryDevProjectExecutor extends AbstractBizExecutor<QueryDevProject
 
         //统计项目信息
         for (DevProjectEntity project : projects) {
-            projectService.fillProjectExtraInformation(project,currentUserId);
+            projectService.fillProjectExtraInformation(project, currentUserId);
         }
 
         response.setProjects(projects);

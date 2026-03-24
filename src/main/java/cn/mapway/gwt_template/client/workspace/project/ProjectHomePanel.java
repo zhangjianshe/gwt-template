@@ -16,10 +16,7 @@ import cn.mapway.ui.shared.rpc.RpcResult;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.RequiresResize;
-import com.google.gwt.user.client.ui.TabLayoutPanel;
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.*;
 
 import static cn.mapway.gwt_template.client.workspace.project.ProjectHomePanel.MODULE_CODE;
 
@@ -57,13 +54,16 @@ public class ProjectHomePanel extends BaseAbstractModule implements IToolsProvid
     ProjectRepoPanel repoPanel;
     @UiField
     ProjectCalendarWidget projectCalendar;
+    @UiField
+    HTMLPanel toolbar;
+    @UiField
+    LayoutPanel root;
     private DevProjectEntity project;
     private boolean teamDataLoaded = false; // 懒加载标志位
 
     public ProjectHomePanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
         initHandlers();
-        // mainTab.addStyleName(AppResource.INSTANCE.styles().mainBackground());
     }
 
     @Override
@@ -93,6 +93,7 @@ public class ProjectHomePanel extends BaseAbstractModule implements IToolsProvid
     private void initHandlers() {
         mainTab.addSelectionHandler(event -> {
             Integer index = event.getSelectedItem();
+            toolbar.clear();
             if (index == TAB_TEAM) {
                 loadTeamData();
             } else if (index == TAB_TASK) {
@@ -105,6 +106,8 @@ public class ProjectHomePanel extends BaseAbstractModule implements IToolsProvid
             } else if (index == TAB_CALENDAR) {
                 projectCalendar.setData(project.getId());
                 projectCalendar.setFocus(true);
+            } else if (index == TAB_OVERVIEW) {
+                toolbar.add(projectCard.getTools());
             }
         });
     }
@@ -137,12 +140,16 @@ public class ProjectHomePanel extends BaseAbstractModule implements IToolsProvid
     private void toUI() {
         if (project != null) {
             projectCard.setData(project.getId());
+            if (mainTab.getSelectedIndex() == TAB_OVERVIEW) {
+                toolbar.clear();
+                toolbar.add(projectCard.getTools());
+            }
         }
     }
 
     @Override
     public void onResize() {
-        mainTab.onResize();
+        root.onResize();
     }
 
     @Override
@@ -155,6 +162,6 @@ public class ProjectHomePanel extends BaseAbstractModule implements IToolsProvid
         return MODULE_CODE;
     }
 
-    interface ProjectHomePanelUiBinder extends UiBinder<TabLayoutPanel, ProjectHomePanel> {
+    interface ProjectHomePanelUiBinder extends UiBinder<LayoutPanel, ProjectHomePanel> {
     }
 }

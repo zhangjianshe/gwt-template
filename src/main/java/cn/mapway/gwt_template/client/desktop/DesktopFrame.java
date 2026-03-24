@@ -172,6 +172,7 @@ public class DesktopFrame extends BaseAbstractModule implements RequiresResize {
             AiLabel label = new AiLabel();
             label.setText(project.getName());
             label.setStyleName(AppResource.INSTANCE.styles().box());
+            label.getElement().getStyle().setColor(project.getColor());
             label.addClickHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {

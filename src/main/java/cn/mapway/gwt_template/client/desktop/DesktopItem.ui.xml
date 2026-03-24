@@ -17,10 +17,12 @@
             overflow: hidden;
             text-overflow: ellipsis;
             font-size: 18px;
-            color: #1a2138; /* 深色字体 */
+            color: #1a2138;
             margin: 0;
             transition: color 0.3s ease;
             font-weight: bold;
+            height: 26px;
+            white-space: nowrap;
         }
 
         .name:hover {

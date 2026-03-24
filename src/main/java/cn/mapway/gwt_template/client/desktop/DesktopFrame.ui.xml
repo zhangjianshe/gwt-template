@@ -33,6 +33,15 @@
             font-size: 1.1rem;
             font-weight: bold;
         }
+
+        .box2 {
+            gap: 1rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            grid-gap: 26px 30px;
+            justify-items: center;
+            padding: 30px;
+        }
     </ui:style>
     <g:TabLayoutPanel barHeight="50" ui:field="root">
         <g:tab>
@@ -44,7 +53,7 @@
                             <g:HTMLPanel addStyleNames="{style.title}">
                                 <g:Label addStyleNames="{style.header}">常用项目</g:Label>
                             </g:HTMLPanel>
-                            <g:HTMLPanel ui:field="panelProjects" addStyleNames="{style.box}">
+                            <g:HTMLPanel ui:field="panelProjects" addStyleNames="{style.box2}">
                             </g:HTMLPanel>
                             <g:HTMLPanel addStyleNames="{style.title}">
                                 <g:Label addStyleNames="{style.header}">快捷方式</g:Label>
