@@ -41,6 +41,7 @@
             min-height: 100%;
             position: relative;
             overflow: hidden;
+            margin: auto;
         }
 
         /* 2. 毛玻璃层与遮罩层：位于背景之上，内容之下 */

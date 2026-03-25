@@ -3,15 +3,17 @@ package cn.mapway.gwt_template.client.workspace.res;
 import cn.mapway.ui.client.fonts.Fonts;
 import cn.mapway.ui.client.tools.IData;
 import cn.mapway.ui.client.widget.CommonEventComposite;
+import cn.mapway.ui.shared.CommonEvent;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 
-public class ResourceItem extends Composite implements IData<Object> {
+public class ResourceItem extends CommonEventComposite implements IData<Object> {
     private static final ResourceItemUiBinder ourUiBinder = GWT.create(ResourceItemUiBinder.class);
     Object data;
     @UiField
@@ -27,6 +29,22 @@ public class ResourceItem extends Composite implements IData<Object> {
 
     public ResourceItem() {
         initWidget(ourUiBinder.createAndBindUi(this));
+        lbName.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                event.stopPropagation();
+                event.preventDefault();
+                fireEvent(CommonEvent.selectEvent(data));
+            }
+        });
+        right.addDomHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                event.stopPropagation();
+                event.preventDefault();
+                fireEvent(CommonEvent.clickEvent(data));
+            }
+        },ClickEvent.getType());
     }
 
     @Override

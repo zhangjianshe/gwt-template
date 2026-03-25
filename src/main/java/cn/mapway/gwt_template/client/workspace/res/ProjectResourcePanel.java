@@ -44,7 +44,16 @@ public class ProjectResourcePanel extends CommonEventComposite implements Requir
         if (event.isSelect()) {
             Object data = event.getValue();
             if (data instanceof DevProjectResourceEntity) {
-                list.loadRootDir(((DevProjectResourceEntity) data).getId());
+                DevProjectResourceEntity entity= (DevProjectResourceEntity) data;
+                CommonPermission permission = CommonPermission.from(entity.getPermission());
+                if(permission.isSuper() || permission.canRead())
+                {
+                    list.loadRootDir(entity.getId());
+                }
+                else {
+                    String message="<div><img src='img/archive.svg'/><p>您没有授权访问该档案</p></div>";
+                    filePreview.previewEmpty(message);
+                }
             } else if (data instanceof ResItem) {
                 list.loadDir(((ResItem) data).getPathName());
             }

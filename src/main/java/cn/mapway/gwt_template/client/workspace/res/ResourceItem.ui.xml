@@ -17,6 +17,10 @@
             overflow: hidden; /* 隐藏超出部分 */
             text-overflow: ellipsis; /* 显示省略号 */
             min-width: 0; /* 关键：允许 Flex/Grid 子项收缩到比内容更小 */
+            display: inline;
+        }
+        .nameStyle:HOVER{
+            text-decoration: underline;
         }
 
 
@@ -42,7 +46,7 @@
         }</ui:style>
     <g:HTMLPanel ui:field="root" addStyleNames="{style.box}">
         <g:Label ui:field="lbIcon" addStyleNames="{style.icon}"/>
-        <g:Label ui:field="lbName" addStyleNames="{style.nameStyle}"/>
+            <g:Label ui:field="lbName" addStyleNames="{style.nameStyle}"/>
         <g:HTMLPanel ui:field="right" addStyleNames="{style.size}">
             <g:Label ui:field="lbSize" addStyleNames="{style.size}"/>
         </g:HTMLPanel>

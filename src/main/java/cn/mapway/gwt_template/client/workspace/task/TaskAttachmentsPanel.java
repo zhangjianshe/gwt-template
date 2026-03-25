@@ -53,7 +53,7 @@ public class TaskAttachmentsPanel extends CommonEventComposite implements ITools
         taskId = obj;
         btnUpload.setEnabled(StringUtil.isNotBlank(taskId));
         list.load(taskId, enableEditable);
-        filePreview.previewEmpty();
+        filePreview.previewEmpty("附件预览");
     }
 
     @UiHandler("btnUpload")
@@ -90,8 +90,7 @@ public class TaskAttachmentsPanel extends CommonEventComposite implements ITools
                     list.load(taskId, enableEditable);
                 }
             });
-        }else if(event.isSelect())
-        {
+        } else if (event.isSelect()) {
             ResItem item = event.getValue();
             filePreview.previewAttachment(taskId, item.getPathName());
         }

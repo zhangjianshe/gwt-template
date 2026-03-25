@@ -244,9 +244,12 @@ public class FilePreview extends CommonEventComposite implements RequiresResize 
         root.onResize();
     }
 
-    public void previewEmpty() {
+    public void previewEmpty(String message) {
         lbName.setText("");
-        switchMessage("", "附件预览");
+        if (StringUtil.isNotBlank(message)) {
+            message = "附件预览";
+        }
+        switchMessage("", message);
     }
 
     interface FilePreviewUiBinder extends UiBinder<DockLayoutPanel, FilePreview> {

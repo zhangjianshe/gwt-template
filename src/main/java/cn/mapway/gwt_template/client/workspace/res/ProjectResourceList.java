@@ -67,6 +67,28 @@ public class ProjectResourceList extends CommonEventComposite implements IData<S
     };
     private String projectId;
     private String currentResourceId = "";
+    private final CommonEventHandler archiveItemHandler = commonEvent -> {
+        if (commonEvent.isSelect()) {
+            DevProjectResourceEntity data = commonEvent.getValue();
+            currentResourceId = data.getId();
+            navInfo.setResource(data);
+            fireEvent(CommonEvent.selectEvent(data));
+        }
+
+    };
+    private CommonEventHandler folderFileHandler= commonEvent -> {
+        if (commonEvent.isSelect()) {
+            ResourceItem source = (ResourceItem) commonEvent.getSource();
+            selectItem(source);
+            ResItem data = (ResItem) source.getData();
+            if (!data.getIsDir()) {
+                navInfo.setFile(data.getPathName());
+                fireEvent(CommonEvent.viewEvent(navInfo));
+            } else {
+                loadDir(data.getPathName());
+            }
+        }
+    };
 
     public ProjectResourceList() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -253,9 +275,9 @@ public class ProjectResourceList extends CommonEventComposite implements IData<S
             actionResource = resource;
             actionItem = null;
             if (ClientContext.get().isCurrentUser(resource.getUserId())) {
-                allMenu.addItem("📁 创建分类", ActionMenuKind.AMK_CREATE_RESOURCE, true);
+                allMenu.addItem("📁 创建档案袋", ActionMenuKind.AMK_CREATE_RESOURCE, true);
                 allMenu.addSeparator();
-                allMenu.addItem("❌ 删除分类: " + resource.getName(), ActionMenuKind.AMK_DELETE_RESOURCE, true);
+                allMenu.addItem("❌ 删除档案袋: " + resource.getName(), ActionMenuKind.AMK_DELETE_RESOURCE, true);
                 hasMenu = true;
             }
         } else if (data instanceof ResItem) {
@@ -289,7 +311,7 @@ public class ProjectResourceList extends CommonEventComposite implements IData<S
         allMenu.clear();
         if (navInfo.getResource() == null) {
             if (ClientContext.get().isCurrentUser(navInfo.getProject().getUserId())) {
-                allMenu.addItem("📁 创建分类", ActionMenuKind.AMK_CREATE_RESOURCE);
+                allMenu.addItem("📁 创建档案袋", ActionMenuKind.AMK_CREATE_RESOURCE);
             } else {
                 allMenu.addItem("无权限创建", ActionMenuKind.AMK_TIP);
             }
@@ -376,22 +398,14 @@ public class ProjectResourceList extends CommonEventComposite implements IData<S
                         showConfig(resource);
                     }
                 });
-                item.setValue(Fonts.FOLDER, resource.getName(), config);
+                item.setValue(Fonts.ARCHIVE, resource.getName(), config);
             } else {
-                item.setValue(Fonts.FOLDER, resource.getName(), "");
+                item.setValue(Fonts.ARCHIVE, resource.getName(), "");
             }
             item.updateNameColor(resource.getName(), resource.getColor());
-            item.addDomHandler(new ClickHandler() {
-                @Override
-                public void onClick(ClickEvent event) {
-                    DevProjectResourceEntity data = (DevProjectResourceEntity) item.getData();
-                    currentResourceId = data.getId();
-                    navInfo.setResource(data);
-                    fireEvent(CommonEvent.selectEvent(resource));
-                }
-            }, ClickEvent.getType());
-
+            item.addCommonHandler(archiveItemHandler);
             item.addDomHandler(itemDownHandler, MouseDownEvent.getType());
+
             list.add(item);
         }
         if (resources.isEmpty()) {
@@ -488,7 +502,7 @@ public class ProjectResourceList extends CommonEventComposite implements IData<S
                                 StringUtil.extractName(resItem.getPathName()), StringUtil.formatFileSize(resItem.getFileSize().longValue()));
                         list.add(item);
                         item.addDomHandler(itemDownHandler, MouseDownEvent.getType());
-                        item.addDomHandler(resItemHandler, ClickEvent.getType());
+                        item.addCommonHandler(folderFileHandler);
                     }
                     if (result.getData().getResources().isEmpty()) {
                         MessagePanel messagePanel = new MessagePanel();
@@ -552,17 +566,6 @@ public class ProjectResourceList extends CommonEventComposite implements IData<S
     interface ProjectResourceListUiBinder extends UiBinder<DockLayoutPanel, ProjectResourceList> {
     }
 
-    ClickHandler resItemHandler = event -> {
-        ResourceItem source = (ResourceItem) event.getSource();
-        selectItem(source);
-        ResItem data = (ResItem) source.getData();
-        if (!data.getIsDir()) {
-            navInfo.setFile(data.getPathName());
-            fireEvent(CommonEvent.viewEvent(navInfo));
-        } else {
-            loadDir(data.getPathName());
-        }
-    };
 
 
 }

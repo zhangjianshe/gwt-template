@@ -17,7 +17,7 @@
         <g:layer>
             <g:TabLayoutPanel ui:field="mainTab" barHeight="50">
                 <g:tab>
-                    <g:header>项目概况</g:header>
+                    <g:header>📊 项目概况</g:header>
                     <g:LayoutPanel>
                         <g:layer top="15px" bottom="15px" left="15px" right="15px">
                             <project:ProjectCard ui:field="projectCard"/>
@@ -25,7 +25,7 @@
                     </g:LayoutPanel>
                 </g:tab>
                 <g:tab>
-                    <g:header>任务甘特图</g:header>
+                    <g:header>📅 任务甘特图</g:header>
                     <g:DockLayoutPanel>
                         <g:center>
                             <gantt:GanttWidget ui:field="gantt"/>
@@ -33,24 +33,24 @@
                     </g:DockLayoutPanel>
                 </g:tab>
                 <g:tab>
-                    <g:header>项目日历</g:header>
+                    <g:header>🗓️ 项目日历</g:header>
                     <milestone:ProjectCalendarWidget ui:field="projectCalendar"/>
                 </g:tab>
                 <g:tab>
-                    <g:header>项目问题</g:header>
+                    <g:header>🐞 项目问题</g:header>
                     <g:HTMLPanel/>
                 </g:tab>
 
                 <g:tab>
-                    <g:header>项目资源</g:header>
+                    <g:header>🗄️ 项目档案</g:header>
                     <res:ProjectResourcePanel ui:field="projectResource"/>
                 </g:tab>
                 <g:tab>
-                    <g:header>代码仓库</g:header>
+                    <g:header>📦 代码仓库</g:header>
                     <repo:ProjectRepoPanel ui:field="repoPanel"/>
                 </g:tab>
                 <g:tab>
-                    <g:header>项目人员</g:header>
+                    <g:header>👥 项目人员</g:header>
                     <project:ProjectTeamMemberPanel ui:field="teamPanel"/>
                 </g:tab>
             </g:TabLayoutPanel>
