@@ -814,7 +814,8 @@ public class GanttDocument {
 
         task.setId(taskId);
         task.setRank(newRank);
-        task.setParentId(newParentId);
+        //如果为null 就会不更新该字段
+        task.setParentId(newParentId==null?"":newParentId);
         // 关键修正：projectId 必须是任务所属的项目 ID，不能是任务自己的 ID
         task.setProjectId(item.getEntity().getProjectId());
 
