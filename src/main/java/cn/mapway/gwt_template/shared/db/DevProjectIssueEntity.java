@@ -1,7 +1,6 @@
 package cn.mapway.gwt_template.shared.db;
 
 import cn.mapway.document.annotation.Doc;
-import cn.mapway.gwt_template.shared.rpc.project.module.DevProjectAttachment;
 import com.google.gwt.user.client.rpc.IsSerializable;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,7 +8,6 @@ import org.nutz.dao.entity.annotation.*;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
-import java.util.List;
 
 /**
  * 项目的问题 (Issue)
@@ -19,7 +17,6 @@ import java.util.List;
 @Comment("项目的问题")
 @Getter
 @Setter
-@PK(value = {"projectId", "id"})
 public class DevProjectIssueEntity implements Serializable, IsSerializable {
 
     /* 表名常量 */
@@ -38,13 +35,15 @@ public class DevProjectIssueEntity implements Serializable, IsSerializable {
     public static final String FLD_ESTIMATE_TIME = "estimate_time";
     public static final String FLD_END_TIME = "end_time";
     public static final String FLD_PRIORITY = "priority";
-    public static final String FLD_CLOSED = "closed";
+    public static final String FLD_STATE = "state";
     public static final String FLD_TASK_ID = "task_id";
     public static final String FLD_ATTACHMENTS = "attachments";
+    public static final String FLD_COMMENTS = "comments";
 
     @Column(FLD_ID)
     @Comment("问题ID")
     @ColDefine(width = 64, notNull = true)
+    @Name
     String id;
 
     @Column(FLD_PROJECT_ID)
@@ -97,10 +96,10 @@ public class DevProjectIssueEntity implements Serializable, IsSerializable {
     @Default("0")
     Integer priority;
 
-    @Column(FLD_CLOSED)
-    @Comment("是否关闭")
-    @Default("false")
-    Boolean closed;
+    @Column(FLD_STATE)
+    @Comment("状态")
+    @Default("0")
+    Integer state;
 
     @Column(FLD_TASK_ID)
     @Comment("关联的任务")
@@ -109,7 +108,15 @@ public class DevProjectIssueEntity implements Serializable, IsSerializable {
 
     @Column(FLD_ATTACHMENTS)
     @Comment("关联的附件")
-    @ColDefine(type = ColType.PSQL_JSON)
-    List<DevProjectAttachment> attachments;
+    @ColDefine(type = ColType.TEXT)
+    String attachments;
 
+
+    @Column(FLD_COMMENTS)
+    @Comment("回复数")
+    @Default("0")
+    Integer comments;
+
+    String chargeAvatar;
+    String chargeUserName;
 }

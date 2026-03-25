@@ -4,7 +4,8 @@
              xmlns:gantt="urn:import:cn.mapway.gwt_template.client.workspace.gantt"
              xmlns:res="urn:import:cn.mapway.gwt_template.client.workspace.res"
              xmlns:repo="urn:import:cn.mapway.gwt_template.client.workspace.repo"
-             xmlns:milestone="urn:import:cn.mapway.gwt_template.client.workspace.calendar">
+             xmlns:milestone="urn:import:cn.mapway.gwt_template.client.workspace.calendar"
+             xmlns:issue="urn:import:cn.mapway.gwt_template.client.workspace.issue">
     <ui:style>
         .toolbar {
             display: flex;
@@ -38,7 +39,7 @@
                 </g:tab>
                 <g:tab>
                     <g:header>🐞 项目问题</g:header>
-                    <g:HTMLPanel/>
+                    <issue:ProjectIssueFrame ui:field="issuePanel"/>
                 </g:tab>
 
                 <g:tab>

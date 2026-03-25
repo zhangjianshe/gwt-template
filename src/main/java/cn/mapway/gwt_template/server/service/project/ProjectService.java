@@ -23,10 +23,8 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 项目服务类
@@ -690,5 +688,34 @@ public class ProjectService {
         String s = FileCustomUtils.concatPath(systemConfigService.getProjectResourceRootPath(), projectPath, taskPath);
         Files.createDirIfNoExists(s);
         return s;
+    }
+
+    public void fillIssueExtraInfo(List<DevProjectIssueEntity> issues) {
+        // 优化后的逻辑
+        if (!issues.isEmpty()) {
+            // 1. 收集所有不重复的负责人 ID
+            Set<Long> userIds = issues.stream()
+                    .map(DevProjectIssueEntity::getCharger)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toSet());
+
+            if (!userIds.isEmpty()) {
+                // 2. 一次性查出这些用户
+                List<RbacUserEntity> users = dao.query(RbacUserEntity.class, Cnd.where(RbacUserEntity.FLD_USER_ID, "in", userIds));
+
+                // 3. 转换为 Map 方便检索
+                Map<Long, RbacUserEntity> userMap = users.stream()
+                        .collect(Collectors.toMap(RbacUserEntity::getUserId, u -> u));
+
+                // 4. 填充数据
+                for (DevProjectIssueEntity issue : issues) {
+                    RbacUserEntity u = userMap.get(issue.getCharger());
+                    if (u != null) {
+                        issue.setChargeAvatar(u.getAvatar());
+                        issue.setChargeUserName(u.getUserName());
+                    }
+                }
+            }
+        }
     }
 }

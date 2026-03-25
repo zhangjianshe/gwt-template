@@ -2,7 +2,6 @@ package cn.mapway.gwt_template.client.workspace.widget;
 
 import cn.mapway.ui.client.widget.CommonEventComposite;
 import cn.mapway.ui.client.widget.buttons.AiButton;
-import cn.mapway.ui.shared.CommonEvent;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -53,7 +52,7 @@ public class SingleCheck extends CommonEventComposite implements HasValue<Object
         if (selected != null) {
             selected.setSelect(true);
             if (fireEvent) {
-                fireEvent(CommonEvent.selectEvent(selected.getData()));
+                ValueChangeEvent.fire(this, selected.getData());
             }
         }
     }

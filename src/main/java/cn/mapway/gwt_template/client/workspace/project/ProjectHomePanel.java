@@ -4,6 +4,7 @@ import cn.mapway.gwt_template.client.rpc.AppProxy;
 import cn.mapway.gwt_template.client.rpc.AsyncAdaptor;
 import cn.mapway.gwt_template.client.workspace.calendar.ProjectCalendarWidget;
 import cn.mapway.gwt_template.client.workspace.gantt.GanttWidget;
+import cn.mapway.gwt_template.client.workspace.issue.ProjectIssueFrame;
 import cn.mapway.gwt_template.client.workspace.repo.ProjectRepoPanel;
 import cn.mapway.gwt_template.client.workspace.res.ProjectResourcePanel;
 import cn.mapway.gwt_template.shared.db.DevProjectEntity;
@@ -58,6 +59,8 @@ public class ProjectHomePanel extends BaseAbstractModule implements IToolsProvid
     HTMLPanel toolbar;
     @UiField
     LayoutPanel root;
+    @UiField
+    ProjectIssueFrame issuePanel;
     private DevProjectEntity project;
     private boolean teamDataLoaded = false; // 懒加载标志位
 
@@ -108,6 +111,8 @@ public class ProjectHomePanel extends BaseAbstractModule implements IToolsProvid
                 projectCalendar.setFocus(true);
             } else if (index == TAB_OVERVIEW) {
                 toolbar.add(projectCard.getTools());
+            } else if (index == TAB_ISSUE) {
+                issuePanel.setData(project.getId());
             }
         });
     }

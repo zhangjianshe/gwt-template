@@ -1,0 +1,123 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:buttons="urn:import:cn.mapway.ui.client.widget.buttons"
+             xmlns:widget="urn:import:cn.mapway.gwt_template.client.workspace.widget"
+             xmlns:issue="urn:import:cn.mapway.gwt_template.client.workspace.issue">
+    <ui:style type="cn.mapway.gwt_template.client.workspace.issue.ProjectIssueFrame.SStyle">
+
+        .table {
+            /* 改为 separate */
+            border-collapse: separate;
+            /* 确保单元格之间没有缝隙 */
+            border-spacing: 0;
+            border: solid 1px #e0e0e0;
+        }
+
+        .table th {
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            background-color: #f0f0f0;
+            padding: 8px 10px !important;
+
+        }
+
+        .table td {
+            background-color: white;
+            padding: 8px 10px !important;
+            border: 1px solid #eee;
+            height: 45px;
+
+        }
+
+        .table tr:first-child td {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background-color: #f8f8f8; /* 稍微浅一点的灰色 */
+            font-weight: bold;
+            height: 45px;
+        }
+
+        /* 最后一个单元格去掉右边框 */
+        .table td:last-child {
+            border-right: none;
+        }
+
+        .selectedRow td {
+            background-color: #d1eaff !important; /* 选中的淡蓝色 */
+            border-bottom: 1px solid #99c9ff;
+        }
+
+        .dataRow:hover td {
+            background-color: #fff9c4 !important;
+        }
+
+        /* 3. 只有当鼠标真正落在 editable 单元格上时，才显示黄色 */
+        .table td[contenteditable="true"]:hover {
+            background-color: #fff9c4 !important;
+        }
+
+        .filter_label {
+            font-size: 12px;
+            color: #666;
+            margin-left: 15px;
+        }
+
+        .pager_box {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 0 20px;
+            gap: 10px;
+            height: 100%;
+        }
+
+        .top {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start; /* 改为左对齐 */
+            padding: 0 15px;
+            gap: 10px;
+        }
+
+        .item {
+            display: inline-flex;
+            align-items: center;
+            justify-content: flex-start;
+        }</ui:style>
+    <g:DockLayoutPanel>
+        <g:east size="450">
+            <g:Label addStyleNames="ai-border-left">ISSUE DETAIL</g:Label>
+        </g:east>
+        <g:north size="70">
+            <g:HTMLPanel addStyleNames="ai-border-bottom {style.top}">
+                <g:HTMLPanel addStyleNames="ai-border-bottom {style.top}">
+                    <buttons:AiButton ui:field="btnCreate">创建Issue</buttons:AiButton>
+
+                    <g:InlineLabel addStyleNames="{style.filter_label}">状态:</g:InlineLabel>
+                    <issue:IssueStateDropdown width="180px" ui:field="ddlState"/>
+
+                    <g:InlineLabel addStyleNames="{style.filter_label}">优先级:</g:InlineLabel>
+                    <widget:TaskPriorityDropdown ui:field="ddlPriority"/>
+
+                    <buttons:AiCheckBox ui:field="chkMyIssue">只看我的</buttons:AiCheckBox>
+                </g:HTMLPanel>
+            </g:HTMLPanel>
+        </g:north>
+        <g:south size="60">
+            <g:HTMLPanel addStyleNames="ai-border-top {style.pager_box}">
+                <g:Label ui:field="lblPageInfo">共 0 条</g:Label>
+                <buttons:AiButton ui:field="btnPrev">上一页</buttons:AiButton>
+                <g:Label ui:field="lblCurrentPage">1</g:Label>
+                <buttons:AiButton ui:field="btnNext">下一页</buttons:AiButton>
+            </g:HTMLPanel>
+        </g:south>
+        <g:center>
+            <g:ScrollPanel>
+                <g:FlexTable width="100%" addStyleNames="{style.table}"
+                             ui:field="table"/>
+            </g:ScrollPanel>
+        </g:center>
+    </g:DockLayoutPanel>
+</ui:UiBinder>
