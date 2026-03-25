@@ -19,5 +19,6 @@ public class QueryProjectIssueRequest implements Serializable, IsSerializable {
     Integer page;
     Integer state;
     Integer priority;
-    Long chargeId;
+    Boolean createdByMe;
+    Boolean assignedToMe;
 }

@@ -33,6 +33,9 @@ public interface AppResource extends ClientBundle {
     @Source("./images/info.png")
     ImageResource info();
 
+    @Source("./images/icon-right.png")
+    ImageResource rightArrow();
+
     @Source("app.css")
     AppCss styles();
 

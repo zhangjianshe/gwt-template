@@ -18,11 +18,14 @@ import cn.mapway.ui.client.util.StringUtil;
 import cn.mapway.ui.client.widget.CommonEventComposite;
 import cn.mapway.ui.client.widget.buttons.AiButton;
 import cn.mapway.ui.client.widget.buttons.AiCheckBox;
+import cn.mapway.ui.client.widget.panel.MessagePanel;
 import cn.mapway.ui.shared.rpc.RpcResult;
 import com.google.gwt.core.client.Callback;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ErrorEvent;
+import com.google.gwt.event.dom.client.ErrorHandler;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -53,6 +56,8 @@ public class ProjectIssueFrame extends CommonEventComposite implements IData<Str
     TaskPriorityDropdown ddlPriority;
     @UiField
     IssueStateDropdown ddlState;
+    @UiField
+    AiCheckBox chkToMe;
     private int currentPage = 1;
     private String projectId;
     // 定义一个变量记录当前选中行
@@ -66,6 +71,7 @@ public class ProjectIssueFrame extends CommonEventComposite implements IData<Str
 
     private void initFilters() {
         ddlState.init(true);
+        ddlPriority.init(true);
     }
 
     @Override
@@ -105,6 +111,7 @@ public class ProjectIssueFrame extends CommonEventComposite implements IData<Str
         });
         ddlPriority.addValueChangeHandler(event -> reloadAll(1));
         chkMyIssue.addValueChangeHandler(event -> reloadAll(1));
+        chkToMe.addValueChangeHandler(event -> reloadAll(1));
 
         // 分页按钮
         btnPrev.addClickHandler(event -> {
@@ -179,10 +186,9 @@ public class ProjectIssueFrame extends CommonEventComposite implements IData<Str
         // 设置过滤条件
         request.setState(DataCastor.castToInteger(ddlState.getValue()));
         request.setPriority(DataCastor.castToInteger(ddlPriority.getValue()));
+        request.setAssignedToMe(chkToMe.getValue());
+        request.setCreatedByMe(chkMyIssue.getValue());
 
-        if (chkMyIssue.getValue()) {
-            request.setChargeId(Long.parseLong(ClientContext.get().getUserInfo().getId()));
-        }
 
         AppProxy.get().queryProjectIssue(request, new AsyncAdaptor<RpcResult<QueryProjectIssueResponse>>() {
             @Override
@@ -212,7 +218,7 @@ public class ProjectIssueFrame extends CommonEventComposite implements IData<Str
         formatter.setWidth(1, "120px"); // 状态
         formatter.setWidth(2, "100px"); // 优先级
         formatter.setWidth(4, "120px"); // 负责人
-        formatter.setWidth(5, "180px"); // 时间
+        formatter.setWidth(5, "140px"); // 时间
 
         // 标题列不设宽度，利用 Flex 特性自适应
     }
@@ -223,7 +229,7 @@ public class ProjectIssueFrame extends CommonEventComposite implements IData<Str
         selectedRowIndex = -1; // 重置选中状态
 
         // 1. 渲染表头 (Row 0)
-        String[] headers = {"#", "状态", "优先级", "标题", "负责人", "创建时间"};
+        String[] headers = {"#", "状态", "优先级", "标题", "创建->执行", "创建时间"};
         for (int i = 0; i < headers.length; i++) {
             table.setText(0, i, headers[i]);
         }
@@ -231,7 +237,10 @@ public class ProjectIssueFrame extends CommonEventComposite implements IData<Str
 
         // 2. 渲染数据行
         if (data.getIssues() == null || data.getIssues().isEmpty()) {
-            table.setWidget(1, 0, new Label("暂无数据"));
+            MessagePanel messagePanel = new MessagePanel();
+            messagePanel.setText("暂无数据");
+            messagePanel.setHeight("300px");
+            table.setWidget(1, 0, messagePanel);
             table.getFlexCellFormatter().setColSpan(1, 0, headers.length);
             return;
         }
@@ -258,26 +267,44 @@ public class ProjectIssueFrame extends CommonEventComposite implements IData<Str
             //负责人
             // 在 renderTable 的循环中修改负责人列
             String avatarUrl = issue.getChargeAvatar();
-            ImageResource defaultAvatar = AppResource.INSTANCE.avatar();
 
             // 如果有头像 URL 则用 URL，否则用资源文件里的默认头像
-            Widget chargerWidget;
-            if (StringUtil.isNotBlank(avatarUrl)) {
-                Image avatar = new Image(avatarUrl);
-                avatar.setPixelSize(24, 24);
-                // 简单的圆角样式
-                avatar.getElement().getStyle().setProperty("borderRadius", "50%");
-                chargerWidget = createIconTextFromImage(avatar, issue.getChargeUserName());
-            } else {
-                chargerWidget = createIconText(AppResource.INSTANCE.emptyAvatar(), issue.getChargeUserName());
-            }
-            table.setWidget(row, col++, chargerWidget);
+            HTMLPanel iconPanel = new HTMLPanel("");
+            iconPanel.addStyleName(style.item());
+            iconPanel.add(createAvatar(issue.getCreateAvatar()));
 
-            table.setText(row, col++, StringUtil.formatDate(issue.getCreateTime()));
+            Image arrow = new Image(AppResource.INSTANCE.rightArrow());
+            arrow.setPixelSize(32, 22);
+            iconPanel.add(arrow);
+            iconPanel.add(createAvatar(avatarUrl));
+
+
+            table.setWidget(row, col++, iconPanel);
+
+            double timeSpan = (System.currentTimeMillis() - issue.getCreateTime().getTime()) / 1000.;
+            table.setText(row, col++, StringUtil.formatTimeSpan((long) timeSpan));
 
             // 将 Entity 绑定到 Row 上（可选，方便后续获取数据）
             table.getRowFormatter().getElement(row).setPropertyObject("data", issue);
         }
+    }
+
+    Image createAvatar(String url) {
+        Image avatar = new Image();
+        avatar.setPixelSize(24, 24);
+        avatar.getElement().getStyle().setProperty("borderRadius", "50%");
+        avatar.addErrorHandler(new ErrorHandler() {
+            @Override
+            public void onError(ErrorEvent event) {
+                avatar.setUrl(AppResource.INSTANCE.avatar().getSafeUri());
+            }
+        });
+        if (StringUtil.isNotBlank(url)) {
+            avatar.setUrl(url);
+        } else {
+            avatar.setUrl(AppResource.INSTANCE.noData().getSafeUri());
+        }
+        return avatar;
     }
 
     /**
@@ -309,15 +336,6 @@ public class ProjectIssueFrame extends CommonEventComposite implements IData<Str
         }
     }
 
-    // 重载一个辅助方法支持直接传入 Image 对象
-    private Widget createIconTextFromImage(Image img, String text) {
-        HTMLPanel panel = new HTMLPanel("");
-        panel.setStyleName(style.item());
-        img.getElement().getStyle().setMarginRight(8, Style.Unit.PX);
-        panel.add(img);
-        panel.add(new Label(text));
-        return panel;
-    }
 
     /**
      * 辅助方法：创建一个水平居中对齐的 [图标 + 文字] 组件

@@ -87,11 +87,10 @@
             justify-content: flex-start;
         }</ui:style>
     <g:DockLayoutPanel>
-        <g:east size="450">
+        <g:east size="500">
             <g:Label addStyleNames="ai-border-left">ISSUE DETAIL</g:Label>
         </g:east>
         <g:north size="70">
-            <g:HTMLPanel addStyleNames="ai-border-bottom {style.top}">
                 <g:HTMLPanel addStyleNames="ai-border-bottom {style.top}">
                     <buttons:AiButton ui:field="btnCreate">创建Issue</buttons:AiButton>
 
@@ -99,10 +98,10 @@
                     <issue:IssueStateDropdown width="180px" ui:field="ddlState"/>
 
                     <g:InlineLabel addStyleNames="{style.filter_label}">优先级:</g:InlineLabel>
-                    <widget:TaskPriorityDropdown ui:field="ddlPriority"/>
+                    <widget:TaskPriorityDropdown width="180px" ui:field="ddlPriority"/>
 
-                    <buttons:AiCheckBox ui:field="chkMyIssue">只看我的</buttons:AiCheckBox>
-                </g:HTMLPanel>
+                    <buttons:AiCheckBox ui:field="chkMyIssue">我创建的</buttons:AiCheckBox>
+                    <buttons:AiCheckBox ui:field="chkToMe">分配给我的</buttons:AiCheckBox>
             </g:HTMLPanel>
         </g:north>
         <g:south size="60">

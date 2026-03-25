@@ -117,6 +117,8 @@ public class DevProjectIssueEntity implements Serializable, IsSerializable {
     @Default("0")
     Integer comments;
 
+    String createAvatar;
+    String createUserName;
     String chargeAvatar;
     String chargeUserName;
 }

@@ -53,11 +53,15 @@ public class QueryProjectIssueExecutor extends AbstractBizExecutor<QueryProjectI
         if (issueState != IssueState.IS_UNKNOWN) {
             where.and(DevProjectIssueEntity.FLD_STATE, "=", issueState.getCode());
         }
-        if (request.getChargeId() != null) {
-            where.and(DevProjectIssueEntity.FLD_CHARGER, "=", request.getChargeId());
+        DevTaskPriority priority = DevTaskPriority.fromCode(request.getPriority());
+        if (priority != DevTaskPriority.NONE) {
+            where.and(DevProjectIssueEntity.FLD_PRIORITY, "=", priority.getCode());
         }
-        if (request.getPriority() != null) {
-            where.and(DevProjectIssueEntity.FLD_PRIORITY, "=", DevTaskPriority.fromCode(request.getPriority()).getCode());
+        if (request.getCreatedByMe()){
+            where.and(DevProjectIssueEntity.FLD_CREATE_USER_ID, "=", operatorUserId);
+        }
+        if(request.getAssignedToMe()){
+            where.and(DevProjectIssueEntity.FLD_CHARGER, "=", operatorUserId);
         }
         where.desc(DevProjectIssueEntity.FLD_CREATE_TIME);
         Pager pager = new Pager();

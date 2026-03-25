@@ -1,6 +1,6 @@
 package cn.mapway.gwt_template.client.workspace.widget;
 
-import cn.mapway.ui.client.widget.CommonEventComposite;
+import cn.mapway.ui.client.mvc.window.IEnabled;
 import cn.mapway.ui.client.widget.buttons.AiButton;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -11,12 +11,13 @@ import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.HasValue;
 
 import java.util.Objects;
 
-public class SingleCheck extends CommonEventComposite implements HasValue<Object> {
+public class SingleCheck extends Composite implements HasValue<Object> {
     private static final SingleCheckUiBinder ourUiBinder = GWT.create(SingleCheckUiBinder.class);
     @UiField
     SStyle style;
@@ -97,8 +98,8 @@ public class SingleCheck extends CommonEventComposite implements HasValue<Object
         }
     }
 
-    @Override
     public void setEnabled(boolean enabled) {
+        getElement().setAttribute(IEnabled.ENABLED_ATTRIBUTE, String.valueOf(enabled));
         this.enabled = enabled;
     }
 

@@ -25,6 +25,7 @@ import javax.annotation.Resource;
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * 项目服务类
@@ -691,29 +692,39 @@ public class ProjectService {
     }
 
     public void fillIssueExtraInfo(List<DevProjectIssueEntity> issues) {
-        // 优化后的逻辑
-        if (!issues.isEmpty()) {
-            // 1. 收集所有不重复的负责人 ID
-            Set<Long> userIds = issues.stream()
-                    .map(DevProjectIssueEntity::getCharger)
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toSet());
+        if (issues == null || issues.isEmpty()) {
+            return;
+        }
 
-            if (!userIds.isEmpty()) {
-                // 2. 一次性查出这些用户
-                List<RbacUserEntity> users = dao.query(RbacUserEntity.class, Cnd.where(RbacUserEntity.FLD_USER_ID, "in", userIds));
+        // 1. 同时收集 Charger 和 CreateUserId，放入同一个 Set 中去重
+        Set<Long> allUserIds = issues.stream()
+                .flatMap(issue -> Stream.of(issue.getCharger(), issue.getCreateUserId())) // 提取两个字段
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
 
-                // 3. 转换为 Map 方便检索
-                Map<Long, RbacUserEntity> userMap = users.stream()
-                        .collect(Collectors.toMap(RbacUserEntity::getUserId, u -> u));
+        if (!allUserIds.isEmpty()) {
+            // 2. 一次性查询所有涉及到的用户（包括负责人和创建者）
+            List<RbacUserEntity> users = dao.query(RbacUserEntity.class,
+                    Cnd.where(RbacUserEntity.FLD_USER_ID, "in", allUserIds));
 
-                // 4. 填充数据
-                for (DevProjectIssueEntity issue : issues) {
-                    RbacUserEntity u = userMap.get(issue.getCharger());
-                    if (u != null) {
-                        issue.setChargeAvatar(u.getAvatar());
-                        issue.setChargeUserName(u.getUserName());
-                    }
+            // 3. 转换为 Map 方便检索
+            Map<Long, RbacUserEntity> userMap = users.stream()
+                    .collect(Collectors.toMap(RbacUserEntity::getUserId, u -> u, (v1, v2) -> v1));
+
+            // 4. 遍历列表，分别填充负责人和创建者的信息
+            for (DevProjectIssueEntity issue : issues) {
+                // 填充负责人信息
+                RbacUserEntity charger = userMap.get(issue.getCharger());
+                if (charger != null) {
+                    issue.setChargeAvatar(charger.getAvatar());
+                    issue.setChargeUserName(charger.getUserName());
+                }
+
+                // 填充创建者信息（假设你的 Entity 有对应的 setter）
+                RbacUserEntity creator = userMap.get(issue.getCreateUserId());
+                if (creator != null) {
+                    issue.setCreateUserName(creator.getUserName());
+                    issue.setCreateAvatar(creator.getAvatar());
                 }
             }
         }

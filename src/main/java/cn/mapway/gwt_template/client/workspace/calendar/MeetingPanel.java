@@ -21,7 +21,6 @@ import cn.mapway.ui.client.widget.CommonEventComposite;
 import cn.mapway.ui.client.widget.buttons.AiButton;
 import cn.mapway.ui.client.widget.dialog.Popup;
 import cn.mapway.ui.shared.CommonEvent;
-import cn.mapway.ui.shared.CommonEventHandler;
 import cn.mapway.ui.shared.rpc.RpcResult;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -112,12 +111,10 @@ public class MeetingPanel extends CommonEventComposite implements IData<DevProje
                 }
             }
         });
-        ddlPriority.addCommonHandler(new CommonEventHandler() {
+        ddlPriority.addValueChangeHandler(new ValueChangeHandler<Object>() {
             @Override
-            public void onCommonEvent(CommonEvent event) {
-                if (event.isSelect()) {
-                    btnSaveClick(null);
-                }
+            public void onValueChange(ValueChangeEvent<Object> event) {
+                btnSaveClick(null);
             }
         });
         tabs.addSelectionHandler(new SelectionHandler<Integer>() {
