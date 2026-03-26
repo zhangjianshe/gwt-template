@@ -219,7 +219,7 @@ public class IssuePanel extends CommonEventComposite implements IData<DevProject
     public void chargerCommon(CommonEvent event) {
         if (event.isSelect()) {
             ProjectMember projectMember = event.getValue();
-            issue.setCharger(projectMember.getUserId());
+            assignToUser(projectMember);
         }
     }
 
@@ -230,7 +230,6 @@ public class IssuePanel extends CommonEventComposite implements IData<DevProject
         }
         issue.setPriority((Integer) ddlPriority.getValue());
         issue.setName(txtName.getValue());
-        issue.setState((Integer) ddlState.getValue());
         issue.setSummary(markdownBox.getValue());
         UpdateProjectIssueRequest request = new UpdateProjectIssueRequest();
         request.setIssue(issue);
@@ -311,12 +310,16 @@ public class IssuePanel extends CommonEventComposite implements IData<DevProject
     public void assignToCommon(CommonEvent event) {
         if (event.isSelect()) {
             ProjectMember projectMember = event.getValue();
-            DevProjectIssueCommentEntity comment = new DevProjectIssueCommentEntity();
-            comment.setContent(projectMember.getUserId() + "");
-            comment.setKind(IssueCommentKind.ICK_REASSIGN.getCode());
-            comment.setIssueId(issue.getId());
-            createComment(comment);
+          assignToUser(projectMember);
         }
+    }
+
+    private void assignToUser(ProjectMember projectMember) {
+        DevProjectIssueCommentEntity comment = new DevProjectIssueCommentEntity();
+        comment.setContent(projectMember.getUserId() + "");
+        comment.setKind(IssueCommentKind.ICK_REASSIGN.getCode());
+        comment.setIssueId(issue.getId());
+        createComment(comment);
     }
 
     @UiHandler("btnReopen")

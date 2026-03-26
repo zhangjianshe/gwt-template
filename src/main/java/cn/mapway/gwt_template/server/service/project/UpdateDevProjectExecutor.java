@@ -99,7 +99,9 @@ public class UpdateDevProjectExecutor extends AbstractBizExecutor<UpdateDevProje
             if (templateProject.getIsTemplate() == null || !templateProject.getIsTemplate()) {
                 return BizResult.error(500, "项目模板不符合要求");
             }
-            if (!templateProject.getUserId().equals(user.getId()) && templateProject.getUserId().equals(RbacConstant.SUPER_USER_ID)) {
+            boolean canUserTempalte=templateProject.getUserId().equals(RbacConstant.SUPER_USER_ID);
+            canUserTempalte = canUserTempalte || templateProject.getUserId().equals(currentUserId);
+            if (!canUserTempalte) {
                 return BizResult.error(500, "没有权限使用该模板");
             }
             List<DevProjectTeamEntity> teams = dao.query(DevProjectTeamEntity.class, Cnd.where(DevProjectTeamEntity.FLD_PROJECT_ID, "=", templateProject.getId()));
