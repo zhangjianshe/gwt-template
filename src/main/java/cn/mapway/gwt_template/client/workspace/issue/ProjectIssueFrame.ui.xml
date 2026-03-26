@@ -2,7 +2,8 @@
              xmlns:g='urn:import:com.google.gwt.user.client.ui'
              xmlns:buttons="urn:import:cn.mapway.ui.client.widget.buttons"
              xmlns:widget="urn:import:cn.mapway.gwt_template.client.workspace.widget"
-             xmlns:issue="urn:import:cn.mapway.gwt_template.client.workspace.issue">
+             xmlns:issue="urn:import:cn.mapway.gwt_template.client.workspace.issue"
+             xmlns:widget2="urn:import:cn.mapway.ui.client.widget">
     <ui:style type="cn.mapway.gwt_template.client.workspace.issue.ProjectIssueFrame.SStyle">
 
         .table {
@@ -67,7 +68,7 @@
         .pager_box {
             display: flex;
             align-items: center;
-            justify-content: flex-end;
+            justify-content: flex-start;
             padding: 0 20px;
             gap: 10px;
             height: 100%;
@@ -85,23 +86,29 @@
             display: inline-flex;
             align-items: center;
             justify-content: flex-start;
-        }</ui:style>
+        }
+
+        .right {
+            background-color: white;
+        }
+    </ui:style>
     <g:DockLayoutPanel>
         <g:east size="500">
-            <g:Label addStyleNames="ai-border-left">ISSUE DETAIL</g:Label>
+            <issue:IssuePanel ui:field="issuePanel" addStyleNames="ai-border-left {style.right}"/>
         </g:east>
         <g:north size="70">
-                <g:HTMLPanel addStyleNames="ai-border-bottom {style.top}">
-                    <buttons:AiButton ui:field="btnCreate">创建Issue</buttons:AiButton>
+            <g:HTMLPanel addStyleNames="ai-border-bottom {style.top}">
+                <buttons:AiButton ui:field="btnCreate">创建Issue</buttons:AiButton>
 
-                    <g:InlineLabel addStyleNames="{style.filter_label}">状态:</g:InlineLabel>
-                    <issue:IssueStateDropdown width="180px" ui:field="ddlState"/>
+                <g:InlineLabel addStyleNames="{style.filter_label}">状态:</g:InlineLabel>
+                <issue:IssueStateDropdown width="180px" ui:field="ddlState"/>
 
-                    <g:InlineLabel addStyleNames="{style.filter_label}">优先级:</g:InlineLabel>
-                    <widget:TaskPriorityDropdown width="180px" ui:field="ddlPriority"/>
+                <g:InlineLabel addStyleNames="{style.filter_label}">优先级:</g:InlineLabel>
+                <widget:TaskPriorityDropdown width="180px" ui:field="ddlPriority"/>
 
-                    <buttons:AiCheckBox ui:field="chkMyIssue">我创建的</buttons:AiCheckBox>
-                    <buttons:AiCheckBox ui:field="chkToMe">分配给我的</buttons:AiCheckBox>
+                <buttons:AiCheckBox ui:field="chkMyIssue">我创建的</buttons:AiCheckBox>
+                <buttons:AiCheckBox ui:field="chkToMe">分配给我的</buttons:AiCheckBox>
+                <widget2:SearchBox width="120px" ui:field="searchBox"/>
             </g:HTMLPanel>
         </g:north>
         <g:south size="60">

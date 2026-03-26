@@ -1,10 +1,8 @@
 package cn.mapway.gwt_template.client.workspace.calendar;
 
-import cn.mapway.ace.client.AceEditor;
-import cn.mapway.ace.client.AceEditorMode;
 import cn.mapway.gwt_template.client.ClientContext;
 import cn.mapway.gwt_template.client.rpc.AppProxy;
-import cn.mapway.gwt_template.client.rpc.AsyncAdaptor;
+import cn.mapway.gwt_template.client.workspace.issue.MarkdownBox;
 import cn.mapway.gwt_template.client.workspace.task.TaskAttachmentsPanel;
 import cn.mapway.gwt_template.client.workspace.widget.EditableLabel;
 import cn.mapway.gwt_template.client.workspace.widget.TaskPriorityDropdown;
@@ -12,8 +10,6 @@ import cn.mapway.gwt_template.shared.db.DevProjectTaskEntity;
 import cn.mapway.gwt_template.shared.rpc.project.UpdateProjectTaskRequest;
 import cn.mapway.gwt_template.shared.rpc.project.UpdateProjectTaskResponse;
 import cn.mapway.gwt_template.shared.rpc.project.module.Meeting;
-import cn.mapway.gwt_template.shared.rpc.tools.MarkdownToHtmlRequest;
-import cn.mapway.gwt_template.shared.rpc.tools.MarkdownToHtmlResponse;
 import cn.mapway.ui.client.mvc.Size;
 import cn.mapway.ui.client.tools.IData;
 import cn.mapway.ui.client.util.StringUtil;
@@ -52,8 +48,6 @@ public class MeetingPanel extends CommonEventComposite implements IData<DevProje
     @UiField
     Label lbDuration;
     @UiField
-    AceEditor editor;
-    @UiField
     DockLayoutPanel root;
     @UiField
     TaskAttachmentsPanel attachmentPanel;
@@ -62,26 +56,17 @@ public class MeetingPanel extends CommonEventComposite implements IData<DevProje
     @UiField
     HTMLPanel toolsPanel;
     @UiField
-    Button btnSave;
-    @UiField
-    HTMLPanel markdownBody;
-    @UiField
-    LayoutPanel markdownPanel;
-    @UiField
-    ScrollPanel htmlPanel;
+    AiButton btnSave;
     @UiField
     HorizontalPanel editTools;
-    @UiField
-    Button btnEdit;
-    @UiField
-    AiButton btnCancel;
     @UiField
     TaskPriorityDropdown ddlPriority;
     @UiField
     HTMLPanel masker;
     @UiField
     LayoutPanel allLayers;
-    boolean initialzied = false;
+    @UiField
+    MarkdownBox markdownBox;
     boolean enabledEdit = false;
     Meeting content;
 
@@ -174,16 +159,10 @@ public class MeetingPanel extends CommonEventComposite implements IData<DevProje
         enabledEdit = enable;
         if (enabledEdit) {
             btnSave.setEnabled(true);
-            btnEdit.setEnabled(true);
             btnSave.setVisible(false);
-            btnCancel.setVisible(false);
         } else {
             btnSave.setEnabled(false);
-            btnEdit.setEnabled(false);
-            btnCancel.setVisible(false);
-
             btnSave.setVisible(false);
-            btnEdit.setVisible(false);
         }
         lbName.setEditable(enable);
         lbLocation.setEditable(enable);
@@ -222,42 +201,11 @@ public class MeetingPanel extends CommonEventComposite implements IData<DevProje
     }
 
     private void renderMarkdown(String bodyHtml) {
-        markdownPanel.setWidgetVisible(htmlPanel, true);
-        markdownPanel.setWidgetVisible(editor, false);
         if (enabledEdit) {
-            btnEdit.setVisible(true);
-            btnCancel.setVisible(false);
-            btnSave.setVisible(false);
+            btnSave.setVisible(true);
         }
-        MarkdownToHtmlRequest request = new MarkdownToHtmlRequest();
-        request.setMarkdown(bodyHtml);
-        AppProxy.get().markdownToHtml(request, new AsyncAdaptor<RpcResult<MarkdownToHtmlResponse>>() {
-            @Override
-            public void onData(RpcResult<MarkdownToHtmlResponse> result) {
-                markdownBody.clear();
-                markdownBody.add(new HTML(result.getData().getHtml()));
-            }
-        });
-    }
-
-    @Override
-    protected void onLoad() {
-        super.onLoad();
-        initEditor();
-    }
-
-    private void initEditor() {
-        if (!initialzied) {
-            initialzied = true;
-            editor.startEditor();
-            editor.setShowPrintMargin(false);
-            editor.setUseWorker(true);
-            editor.setShowGutter(false);
-            editor.setUseWrapMode(true);
-            editor.setFontSize("1.2rem");
-            editor.setMode(AceEditorMode.MARKDOWN);
-        }
-        editor.redisplay();
+        markdownBox.setEnabled(enabledEdit);
+        markdownBox.setValue(bodyHtml);
     }
 
 
@@ -271,7 +219,7 @@ public class MeetingPanel extends CommonEventComposite implements IData<DevProje
         Meeting newMeeting = Meeting.create();
         newMeeting.participant = lbParticipate.getValue();
         newMeeting.location = lbLocation.getValue();
-        newMeeting.body = editor.getValue();
+        newMeeting.body = markdownBox.getValue();
         meeting.setSummary(newMeeting.toJson());
         meeting.setStartTime(null);
         meeting.setEstimateTime(null);
@@ -294,22 +242,6 @@ public class MeetingPanel extends CommonEventComposite implements IData<DevProje
                 }
             }
         });
-    }
-
-    @UiHandler("btnEdit")
-    public void btnEditClick(ClickEvent event) {
-        btnSave.setVisible(true);
-        btnCancel.setVisible(true);
-        btnEdit.setVisible(false);
-        markdownPanel.setWidgetVisible(htmlPanel, false);
-        markdownPanel.setWidgetVisible(editor, true);
-        editor.setValue(content.body);
-    }
-
-    @UiHandler("btnCancel")
-    public void btnCancelClick(ClickEvent event) {
-        //取消编辑
-        setData(meeting);
     }
 
     interface MeetingPanelUiBinder extends UiBinder<LayoutPanel, MeetingPanel> {

@@ -4,6 +4,7 @@
              xmlns:ace="urn:import:cn.mapway.ace.client"
              xmlns:task="urn:import:cn.mapway.gwt_template.client.workspace.task"
              xmlns:buttons="urn:import:cn.mapway.ui.client.widget.buttons"
+             xmlns:issue="urn:import:cn.mapway.gwt_template.client.workspace.issue"
 >
 
     <ui:import field="cn.mapway.gwt_template.client.workspace.team.BaseNode.*"/>
@@ -124,10 +125,7 @@
                 </g:north>
                 <g:south size="0">
                     <g:HorizontalPanel ui:field="editTools">
-                        <g:Button ui:field="btnEdit" addStyleNames="ai-small">编辑</g:Button>
-                        <buttons:AiButton type="warning" ui:field="btnCancel" addStyleNames="ai-small">取消
-                        </buttons:AiButton>
-                        <g:Button ui:field="btnSave" addStyleNames="ai-small">保存</g:Button>
+                        <buttons:AiButton ui:field="btnSave" type="warning" addStyleNames="ai-small">保存</buttons:AiButton>
                     </g:HorizontalPanel>
                 </g:south>
                 <g:center>
@@ -136,19 +134,7 @@
                             <g:TabLayoutPanel ui:field="tabs" barHeight="50">
                                 <g:tab>
                                     <g:header>会议纪要</g:header>
-                                    <g:LayoutPanel ui:field="markdownPanel">
-                                        <g:layer>
-                                            <g:ScrollPanel ui:field="htmlPanel">
-                                                <g:HTMLPanel addStyleNames="markdown-body {style.content}"
-                                                             ui:field="markdownBody">
-
-                                                </g:HTMLPanel>
-                                            </g:ScrollPanel>
-                                        </g:layer>
-                                        <g:layer>
-                                            <ace:AceEditor width="100%" height="100%" ui:field="editor"/>
-                                        </g:layer>
-                                    </g:LayoutPanel>
+                                    <issue:MarkdownBox ui:field="markdownBox"/>
                                 </g:tab>
                                 <g:tab>
                                     <g:header>会议附件</g:header>

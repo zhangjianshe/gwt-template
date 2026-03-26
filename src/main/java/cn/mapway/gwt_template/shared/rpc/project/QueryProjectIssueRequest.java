@@ -14,6 +14,7 @@ import java.io.Serializable;
 @Data
 @Doc("QueryProjectIssueRequest")
 public class QueryProjectIssueRequest implements Serializable, IsSerializable {
+    String issueId;
     String projectId;
     Integer pageSize;
     Integer page;
@@ -21,4 +22,5 @@ public class QueryProjectIssueRequest implements Serializable, IsSerializable {
     Integer priority;
     Boolean createdByMe;
     Boolean assignedToMe;
+    String  searchText;
 }

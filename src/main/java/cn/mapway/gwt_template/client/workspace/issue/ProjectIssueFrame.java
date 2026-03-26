@@ -16,16 +16,16 @@ import cn.mapway.ui.client.mvc.attribute.DataCastor;
 import cn.mapway.ui.client.tools.IData;
 import cn.mapway.ui.client.util.StringUtil;
 import cn.mapway.ui.client.widget.CommonEventComposite;
+import cn.mapway.ui.client.widget.SearchBox;
 import cn.mapway.ui.client.widget.buttons.AiButton;
 import cn.mapway.ui.client.widget.buttons.AiCheckBox;
 import cn.mapway.ui.client.widget.panel.MessagePanel;
+import cn.mapway.ui.shared.CommonEvent;
 import cn.mapway.ui.shared.rpc.RpcResult;
 import com.google.gwt.core.client.Callback;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ErrorEvent;
-import com.google.gwt.event.dom.client.ErrorHandler;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -58,6 +58,10 @@ public class ProjectIssueFrame extends CommonEventComposite implements IData<Str
     IssueStateDropdown ddlState;
     @UiField
     AiCheckBox chkToMe;
+    @UiField
+    SearchBox searchBox;
+    @UiField
+    IssuePanel issuePanel;
     private int currentPage = 1;
     private String projectId;
     // 定义一个变量记录当前选中行
@@ -112,7 +116,7 @@ public class ProjectIssueFrame extends CommonEventComposite implements IData<Str
         ddlPriority.addValueChangeHandler(event -> reloadAll(1));
         chkMyIssue.addValueChangeHandler(event -> reloadAll(1));
         chkToMe.addValueChangeHandler(event -> reloadAll(1));
-
+        searchBox.addValueChangeHandler(event -> reloadAll(1));
         // 分页按钮
         btnPrev.addClickHandler(event -> {
             if (currentPage > 1) reloadAll(currentPage - 1);
@@ -121,18 +125,24 @@ public class ProjectIssueFrame extends CommonEventComposite implements IData<Str
     }
 
     private void selectRow(int rowIndex) {
+        HTMLTable.RowFormatter rowFormatter = table.getRowFormatter();
         // 移除旧的选中样式
         if (selectedRowIndex != -1) {
-            table.getRowFormatter().removeStyleName(selectedRowIndex, style.selectedRow());
+            rowFormatter.removeStyleName(selectedRowIndex, style.selectedRow());
         }
 
         // 添加新的选中样式
         selectedRowIndex = rowIndex;
-        table.getRowFormatter().addStyleName(selectedRowIndex, style.selectedRow());
+        rowFormatter.addStyleName(selectedRowIndex, style.selectedRow());
 
-        // 这里可以触发右侧详情页的刷新
-        // String issueId = table.getText(rowIndex, 0);
-        // fireDetailEvent(issueId);
+        //     table.getRowFormatter().getElement(row).setPropertyObject("data", issue);
+        Object object = rowFormatter.getElement(rowIndex).getPropertyObject("data");
+        if (object instanceof DevProjectIssueEntity) {
+            DevProjectIssueEntity issue = (DevProjectIssueEntity) object;
+            issuePanel.setData(issue);
+        } else {
+            issuePanel.setData(null);
+        }
     }
 
     @UiHandler("btnCreate")
@@ -153,6 +163,33 @@ public class ProjectIssueFrame extends CommonEventComposite implements IData<Str
                     }
                 });
     }
+
+
+    @UiHandler("issuePanel")
+    public void issuePanelCommon(CommonEvent event) {
+        if (event.isUpdate()) {
+            DevProjectIssueEntity issue = event.getValue();
+            updateTableRow(issue);
+        }
+    }
+
+    private void updateTableRow(DevProjectIssueEntity issue) {
+        // 将 Entity 绑定到 Row 上（可选，方便后续获取数据）
+        HTMLTable.RowFormatter rowFormatter = table.getRowFormatter();
+        for (int i = 1; i < table.getRowCount(); i++) {
+            // 将 Entity 绑定到 Row 上（可选，方便后续获取数据）
+            Object data = rowFormatter.getElement(i).getPropertyObject("data");
+            if (data instanceof DevProjectIssueEntity) {
+                DevProjectIssueEntity issue2 = (DevProjectIssueEntity) data;
+                if (issue2.getId().equals(issue.getId())) {
+                    renderRow(i, issue);
+                    break;
+                }
+            }
+        }
+
+    }
+
 
     private void doCreate(String title) {
         UpdateProjectIssueRequest request = new UpdateProjectIssueRequest();
@@ -188,6 +225,7 @@ public class ProjectIssueFrame extends CommonEventComposite implements IData<Str
         request.setPriority(DataCastor.castToInteger(ddlPriority.getValue()));
         request.setAssignedToMe(chkToMe.getValue());
         request.setCreatedByMe(chkMyIssue.getValue());
+        request.setSearchText(searchBox.getValue());
 
 
         AppProxy.get().queryProjectIssue(request, new AsyncAdaptor<RpcResult<QueryProjectIssueResponse>>() {
@@ -249,63 +287,39 @@ public class ProjectIssueFrame extends CommonEventComposite implements IData<Str
             DevProjectIssueEntity issue = data.getIssues().get(i);
             int row = i + 1; // 数据从第一行开始
 
-            // 设置行样式以激活 Hover 效果
-            table.getRowFormatter().addStyleName(row, style.dataRow());
-            // 填充数据
-            int col = 0;
-            table.setText(row, col++, issue.getCode() == null ? "-" : issue.getCode().toString());
-            table.getColumnFormatter().setWidth(0, "60px");
-            table.getCellFormatter().setHorizontalAlignment(row, 0, HasHorizontalAlignment.ALIGN_CENTER);
-
-            IssueState stateEnum = IssueState.fromCode(issue.getState());
-            table.setWidget(row, col++, createIconText(getStateIcon(stateEnum), stateEnum.getName()));
-            // 2. 处理优先级图标列 (假设第2列)
-            DevTaskPriority priorityEnum = DevTaskPriority.fromCode(issue.getPriority());
-            table.setWidget(row, col++, createIconText(getPriorityIcon(priorityEnum), priorityEnum.getName()));
-            table.setText(row, col++, issue.getName());
-
-            //负责人
-            // 在 renderTable 的循环中修改负责人列
-            String avatarUrl = issue.getChargeAvatar();
-
-            // 如果有头像 URL 则用 URL，否则用资源文件里的默认头像
-            HTMLPanel iconPanel = new HTMLPanel("");
-            iconPanel.addStyleName(style.item());
-            iconPanel.add(createAvatar(issue.getCreateAvatar()));
-
-            Image arrow = new Image(AppResource.INSTANCE.rightArrow());
-            arrow.setPixelSize(32, 22);
-            iconPanel.add(arrow);
-            iconPanel.add(createAvatar(avatarUrl));
-
-
-            table.setWidget(row, col++, iconPanel);
-
-            double timeSpan = (System.currentTimeMillis() - issue.getCreateTime().getTime()) / 1000.;
-            table.setText(row, col++, StringUtil.formatTimeSpan((long) timeSpan));
-
-            // 将 Entity 绑定到 Row 上（可选，方便后续获取数据）
-            table.getRowFormatter().getElement(row).setPropertyObject("data", issue);
+            renderRow(row, issue);
         }
     }
 
-    Image createAvatar(String url) {
-        Image avatar = new Image();
-        avatar.setPixelSize(24, 24);
-        avatar.getElement().getStyle().setProperty("borderRadius", "50%");
-        avatar.addErrorHandler(new ErrorHandler() {
-            @Override
-            public void onError(ErrorEvent event) {
-                avatar.setUrl(AppResource.INSTANCE.avatar().getSafeUri());
-            }
-        });
-        if (StringUtil.isNotBlank(url)) {
-            avatar.setUrl(url);
-        } else {
-            avatar.setUrl(AppResource.INSTANCE.noData().getSafeUri());
-        }
-        return avatar;
+    private void renderRow(int row, DevProjectIssueEntity issue) {
+
+        // 设置行样式以激活 Hover 效果
+        table.getRowFormatter().addStyleName(row, style.dataRow());
+        // 填充数据
+        int col = 0;
+        table.setText(row, col++, issue.getCode() == null ? "-" : issue.getCode().toString());
+        table.getColumnFormatter().setWidth(0, "60px");
+        table.getCellFormatter().setHorizontalAlignment(row, 0, HasHorizontalAlignment.ALIGN_CENTER);
+
+        IssueState stateEnum = IssueState.fromCode(issue.getState());
+        table.setWidget(row, col++, createIconText(getStateIcon(stateEnum), stateEnum.getName()));
+        // 2. 处理优先级图标列 (假设第2列)
+        DevTaskPriority priorityEnum = DevTaskPriority.fromCode(issue.getPriority());
+        table.setWidget(row, col++, createIconText(getPriorityIcon(priorityEnum), priorityEnum.getName()));
+        table.setText(row, col++, issue.getName());
+
+        //负责人
+        AssignUserPanel assignUserPanel = new AssignUserPanel();
+        assignUserPanel.setAvatar(issue.getCreateAvatar(), issue.getChargeAvatar());
+        table.setWidget(row, col++, assignUserPanel);
+
+        double timeSpan = (System.currentTimeMillis() - issue.getCreateTime().getTime()) / 1000.;
+        table.setText(row, col++, StringUtil.formatTimeSpan((long) timeSpan));
+
+        // 将 Entity 绑定到 Row 上（可选，方便后续获取数据）
+        table.getRowFormatter().getElement(row).setPropertyObject("data", issue);
     }
+
 
     /**
      * 辅助方法：根据状态码获取对应的 ImageResource

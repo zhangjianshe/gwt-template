@@ -21,6 +21,7 @@ import org.nutz.lang.Strings;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -41,6 +42,11 @@ public class QueryProjectIssueExecutor extends AbstractBizExecutor<QueryProjectI
         QueryProjectIssueRequest request = bizParam.getData();
         log.info("QueryProjectIssueExecutor {}", Json.toJson(request, JsonFormat.compact()));
         LoginUser user = (LoginUser) context.get(AppConstant.KEY_LOGIN_USER);
+
+        if (Strings.isNotBlank(request.getIssueId())) {
+            return querySingleIssue(user.getUser().getUserId(), request.getIssueId());
+        }
+
         assertTrue(Strings.isNotBlank(request.getProjectId()), "没有指定项目ID");
 
         Long operatorUserId = user.getUser().getUserId();
@@ -57,11 +63,14 @@ public class QueryProjectIssueExecutor extends AbstractBizExecutor<QueryProjectI
         if (priority != DevTaskPriority.NONE) {
             where.and(DevProjectIssueEntity.FLD_PRIORITY, "=", priority.getCode());
         }
-        if (request.getCreatedByMe()){
+        if (request.getCreatedByMe()) {
             where.and(DevProjectIssueEntity.FLD_CREATE_USER_ID, "=", operatorUserId);
         }
-        if(request.getAssignedToMe()){
+        if (request.getAssignedToMe()) {
             where.and(DevProjectIssueEntity.FLD_CHARGER, "=", operatorUserId);
+        }
+        if (Strings.isNotBlank(request.getSearchText())) {
+            where.and(DevProjectIssueEntity.FLD_NAME, "like", "%" + request.getSearchText() + "%");
         }
         where.desc(DevProjectIssueEntity.FLD_CREATE_TIME);
         Pager pager = new Pager();
@@ -85,6 +94,22 @@ public class QueryProjectIssueExecutor extends AbstractBizExecutor<QueryProjectI
         response.setPageSize(pager.getPageSize());
 
         projectService.fillIssueExtraInfo(issues);
+        return BizResult.success(response);
+    }
+
+    private BizResult<QueryProjectIssueResponse> querySingleIssue(Long userId, String issueId) {
+
+        DevProjectIssueEntity issue = dao.fetch(DevProjectIssueEntity.class, issueId);
+        if (issue == null) {
+            return BizResult.error(500, "没有问题" + issueId);
+        }
+        boolean isMemberOfProject = projectService.isMemberOfProject(userId, issue.getProjectId());
+        assertTrue(isMemberOfProject, "没有权限查询");
+        List<DevProjectIssueEntity> issues = new ArrayList<>();
+        issues.add(issue);
+        projectService.fillIssueExtraInfo(issues);
+        QueryProjectIssueResponse response = new QueryProjectIssueResponse();
+        response.setIssues(issues);
         return BizResult.success(response);
     }
 }

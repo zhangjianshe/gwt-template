@@ -14,4 +14,5 @@ import java.io.Serializable;
 @Data
 @Doc("QueryProjectIssueCommentRequest")
 public class QueryProjectIssueCommentRequest implements Serializable, IsSerializable {
+    String issueId;
 }

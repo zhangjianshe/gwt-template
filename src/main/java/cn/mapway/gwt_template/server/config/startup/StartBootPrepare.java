@@ -36,11 +36,10 @@ import java.util.regex.Pattern;
 @Service
 @Slf4j
 public class StartBootPrepare implements ApplicationContextAware {
-    public final static String DB_VERSION = "2026-09-12";
+    public final static String DB_VERSION = "2026-07-12";
     @Resource
     Dao dao;
     ApplicationContext context;
-
 
     /**
      * 启动控制流程
@@ -237,7 +236,7 @@ public class StartBootPrepare implements ApplicationContextAware {
         checkAndCreate(DevProjectEntity.class);
         checkAndCreate(DevProjectTaskCaseEntity.class);
         checkAndCreate(DevProjectIssueEntity.class);
-        checkAndCreate(DevProjectIssueEntity.class);
+        checkAndCreate(DevProjectIssueCommentEntity.class);
         checkAndCreate(DevProjectTaskEntity.class);
         checkAndCreate(DevProjectTaskCommentEntity.class);
         checkAndCreate(DevProjectTeamEntity.class);

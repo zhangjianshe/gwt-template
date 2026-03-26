@@ -1,0 +1,62 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+    <ui:style>
+        .comment-box {
+            border: 1px solid #d0d7de;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica;
+        }
+
+        .header {
+            background-color: #f6f8fa;
+            border-bottom: 1px solid #d0d7de;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            border-top-left-radius: 6px;
+            border-top-right-radius: 6px;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: #1f2328;
+            margin-right: 8px;
+        }
+
+        .date {
+            color: #656d76;
+            font-size: 12px;
+        }
+
+        .content {
+            padding: 12px;
+            color: #1f2328;
+            line-height: 1.5;
+            font-size: 14px;
+            background: white;
+            border-bottom-left-radius: 6px;
+            border-bottom-right-radius: 6px;
+            min-height: 30px;
+        }
+
+        /* 也可以添加一个简单的头像样式 */
+        .avatar {
+            width: 24px;
+            height: 24px;
+            background: #eee;
+            border-radius: 50%;
+            margin-right: 10px;
+            display: inline-block;
+        }
+    </ui:style>
+
+    <g:HTMLPanel addStyleNames="{style.comment-box}">
+        <g:HTMLPanel addStyleNames="{style.header}">
+            <g:SimplePanel addStyleNames="{style.avatar}" /> <g:Label ui:field="lbUser" addStyleNames="{style.user-name}"/>
+            <g:Label ui:field="lbDate" addStyleNames="{style.date}"/>
+        </g:HTMLPanel>
+
+        <g:HTML ui:field="htmlContent" addStyleNames="{style.content}"/>
+    </g:HTMLPanel>
+</ui:UiBinder>

@@ -19,7 +19,6 @@ import java.util.List;
 @Comment("项目问题的回复")
 @Getter
 @Setter
-@PK(value = {"projectId", "id"})
 public class DevProjectIssueCommentEntity implements Serializable, IsSerializable {
 
     /* 表名常量 */
@@ -33,11 +32,14 @@ public class DevProjectIssueCommentEntity implements Serializable, IsSerializabl
     public static final String FLD_CONTENT = "content";
     public static final String FLD_CREATE_TIME = "create_time";
     public static final String FLD_CREATE_USER_ID = "create_user_id";
+    public static final String FLD_CREATE_USER_NAME = "user_name";
+    public static final String FLD_KIND = "kind";
     public static final String FLD_ATTACHMENTS = "attachments";
 
     @Column(FLD_ID)
     @Comment("回复ID")
     @ColDefine(width = 64, notNull = true)
+    @Name
     String id;
 
     @Column(FLD_PROJECT_ID)
@@ -71,8 +73,17 @@ public class DevProjectIssueCommentEntity implements Serializable, IsSerializabl
     @Comment("创建用户ID")
     Long createUserId;
 
+    @Column(FLD_CREATE_USER_NAME)
+    @Comment("创建用户名")
+    String userName;
+
+    @Column(FLD_KIND)
+    @Comment("评论类型")
+    @Default("0")
+    Integer kind;
+
     @Column(FLD_ATTACHMENTS)
     @Comment("回复的附件")
-    @ColDefine(type = ColType.PSQL_JSON)
+    @ColDefine(type = ColType.TEXT)
     List<DevProjectAttachment> attachments;
 }

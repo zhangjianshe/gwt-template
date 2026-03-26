@@ -39,6 +39,7 @@ public class DevProjectIssueEntity implements Serializable, IsSerializable {
     public static final String FLD_TASK_ID = "task_id";
     public static final String FLD_ATTACHMENTS = "attachments";
     public static final String FLD_COMMENTS = "comments";
+    public static final String FLD_SUMMARY = "summary";
 
     @Column(FLD_ID)
     @Comment("问题ID")
@@ -116,6 +117,13 @@ public class DevProjectIssueEntity implements Serializable, IsSerializable {
     @Comment("回复数")
     @Default("0")
     Integer comments;
+
+    @Column(FLD_SUMMARY)
+    @Comment("介绍")
+    @ColDefine(type = ColType.VARCHAR)
+    @Default("")
+    String summary;
+
 
     String createAvatar;
     String createUserName;

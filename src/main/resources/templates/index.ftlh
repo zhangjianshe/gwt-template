@@ -8,6 +8,7 @@
     <script src="/js/app/app.nocache.js?r=${timestamp}"></script>
     <link rel="stylesheet" href="/css/main.css"/>
     <link rel="stylesheet" href="/css/markdown.css"/>
+    <script src="/js/markdown.js"></script>
     <style>
         @font-face {
             font-family: 'Iosevka';
