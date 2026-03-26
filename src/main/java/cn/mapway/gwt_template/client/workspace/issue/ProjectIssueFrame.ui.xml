@@ -92,38 +92,42 @@
             background-color: white;
         }
     </ui:style>
-    <g:DockLayoutPanel>
+    <g:SplitLayoutPanel>
         <g:east size="500">
-            <issue:IssuePanel ui:field="issuePanel" addStyleNames="ai-border-left {style.right}"/>
+            <issue:IssuePanel ui:field="issuePanel" addStyleNames="{style.right}"/>
         </g:east>
-        <g:north size="70">
-            <g:HTMLPanel addStyleNames="ai-border-bottom {style.top}">
-                <buttons:AiButton ui:field="btnCreate">创建Issue</buttons:AiButton>
-
-                <g:InlineLabel addStyleNames="{style.filter_label}">状态:</g:InlineLabel>
-                <issue:IssueStateDropdown width="180px" ui:field="ddlState"/>
-
-                <g:InlineLabel addStyleNames="{style.filter_label}">优先级:</g:InlineLabel>
-                <widget:TaskPriorityDropdown width="180px" ui:field="ddlPriority"/>
-
-                <buttons:AiCheckBox ui:field="chkMyIssue">我创建的</buttons:AiCheckBox>
-                <buttons:AiCheckBox ui:field="chkToMe">分配给我的</buttons:AiCheckBox>
-                <widget2:SearchBox width="120px" ui:field="searchBox"/>
-            </g:HTMLPanel>
-        </g:north>
-        <g:south size="60">
-            <g:HTMLPanel addStyleNames="ai-border-top {style.pager_box}">
-                <g:Label ui:field="lblPageInfo">共 0 条</g:Label>
-                <buttons:AiButton ui:field="btnPrev">上一页</buttons:AiButton>
-                <g:Label ui:field="lblCurrentPage">1</g:Label>
-                <buttons:AiButton ui:field="btnNext">下一页</buttons:AiButton>
-            </g:HTMLPanel>
-        </g:south>
         <g:center>
-            <g:ScrollPanel>
-                <g:FlexTable width="100%" addStyleNames="{style.table}"
-                             ui:field="table"/>
-            </g:ScrollPanel>
+            <g:DockLayoutPanel>
+                <g:north size="70">
+                    <g:HTMLPanel addStyleNames="ai-border-bottom {style.top}">
+                        <buttons:AiButton ui:field="btnCreate">创建Issue</buttons:AiButton>
+
+                        <g:InlineLabel addStyleNames="{style.filter_label}">状态:</g:InlineLabel>
+                        <issue:IssueStateDropdown width="180px" ui:field="ddlState"/>
+
+                        <g:InlineLabel addStyleNames="{style.filter_label}">优先级:</g:InlineLabel>
+                        <widget:TaskPriorityDropdown width="180px" ui:field="ddlPriority"/>
+
+                        <buttons:AiCheckBox ui:field="chkMyIssue">我创建的</buttons:AiCheckBox>
+                        <buttons:AiCheckBox ui:field="chkToMe">分配给我的</buttons:AiCheckBox>
+                        <widget2:SearchBox width="120px" ui:field="searchBox"/>
+                    </g:HTMLPanel>
+                </g:north>
+                <g:south size="60">
+                    <g:HTMLPanel addStyleNames="ai-border-top {style.pager_box}">
+                        <g:Label ui:field="lblPageInfo">共 0 条</g:Label>
+                        <buttons:AiButton ui:field="btnPrev">上一页</buttons:AiButton>
+                        <g:Label ui:field="lblCurrentPage">1</g:Label>
+                        <buttons:AiButton ui:field="btnNext">下一页</buttons:AiButton>
+                    </g:HTMLPanel>
+                </g:south>
+                <g:center>
+                    <g:ScrollPanel>
+                        <g:FlexTable width="100%" addStyleNames="{style.table}"
+                                     ui:field="table"/>
+                    </g:ScrollPanel>
+                </g:center>
+            </g:DockLayoutPanel>
         </g:center>
-    </g:DockLayoutPanel>
+    </g:SplitLayoutPanel>
 </ui:UiBinder>

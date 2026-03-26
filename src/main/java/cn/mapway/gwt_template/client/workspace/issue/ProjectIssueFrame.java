@@ -380,8 +380,10 @@ public class ProjectIssueFrame extends CommonEventComposite implements IData<Str
         String filter_label();
 
         String pager_box();
+
+        String right();
     }
 
-    interface ProjectIssueFrameUiBinder extends UiBinder<DockLayoutPanel, ProjectIssueFrame> {
+    interface ProjectIssueFrameUiBinder extends UiBinder<SplitLayoutPanel, ProjectIssueFrame> {
     }
 }

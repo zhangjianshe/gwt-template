@@ -1,10 +1,12 @@
 package cn.mapway.gwt_template.client.workspace.issue;
 
 import cn.mapway.gwt_template.client.ClientContext;
+import cn.mapway.gwt_template.client.desktop.SmartEditor;
 import cn.mapway.gwt_template.client.js.markdown.MarkdownConvert;
 import cn.mapway.gwt_template.client.rpc.AppProxy;
 import cn.mapway.gwt_template.client.rpc.AsyncAdaptor;
 import cn.mapway.gwt_template.client.workspace.widget.EditableLabel;
+import cn.mapway.gwt_template.client.workspace.widget.MarkdownBox;
 import cn.mapway.gwt_template.client.workspace.widget.TaskPriorityDropdown;
 import cn.mapway.gwt_template.shared.db.DevProjectIssueCommentEntity;
 import cn.mapway.gwt_template.shared.db.DevProjectIssueEntity;
@@ -12,6 +14,7 @@ import cn.mapway.gwt_template.shared.rpc.project.*;
 import cn.mapway.gwt_template.shared.rpc.project.module.IssueCommentKind;
 import cn.mapway.gwt_template.shared.rpc.project.module.IssueState;
 import cn.mapway.gwt_template.shared.rpc.project.module.ProjectMember;
+import cn.mapway.ui.client.mvc.Size;
 import cn.mapway.ui.client.tools.IData;
 import cn.mapway.ui.client.util.StringUtil;
 import cn.mapway.ui.client.widget.CommonEventComposite;
@@ -21,6 +24,7 @@ import cn.mapway.ui.shared.CommonEvent;
 import cn.mapway.ui.shared.rpc.RpcResult;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
@@ -55,19 +59,17 @@ public class IssuePanel extends CommonEventComposite implements IData<DevProject
     @UiField
     AssignUserPanel assignTo;
     @UiField
-    TextArea txtComment;
-    @UiField
     AiButton btnClose;
-    @UiField
-    AiButton btnComment;
-    @UiField
-    VerticalPanel commentPanel;
     @UiField
     ScrollPanel scroller;
     @UiField
     AiButton btnReopen;
     @UiField
     Label tip;
+    @UiField
+    HTMLPanel inputTools;
+    @UiField
+    SmartEditor editor;
     MarkdownConvert convert;
     private DevProjectIssueEntity issue;
 
@@ -77,6 +79,7 @@ public class IssuePanel extends CommonEventComposite implements IData<DevProject
         ddlState.init(false);
         convert = new MarkdownConvert();
         assignTo.setEnabled(true);
+        editor.appendTool(inputTools);
     }
 
     @Override
@@ -90,12 +93,6 @@ public class IssuePanel extends CommonEventComposite implements IData<DevProject
         toUI();
     }
 
-    boolean canEdit() {
-        if (issue == null) {
-            return false;
-        }
-        return ClientContext.get().isCurrentUser(issue.getCreateUserId());
-    }
 
     private void toUI() {
         boolean renderData = updateUI();
@@ -119,7 +116,7 @@ public class IssuePanel extends CommonEventComposite implements IData<DevProject
         tip.setText("");
         if (isClosed) {
             //关闭的项目　不允许变更
-            main.setWidgetSize(commentPanel, 0);
+            root.setWidgetVisible(editor, false);
             txtName.setEditable(false);
             ddlPriority.setEnabled(false);
             ddlState.setEnabled(false);
@@ -147,12 +144,12 @@ public class IssuePanel extends CommonEventComposite implements IData<DevProject
                 markdownBox.setEnabled(true);
                 tip.setText("点击开始编辑 Ctrl+s 退出编辑");
 
-                main.setWidgetSize(commentPanel, 150);
+                root.setWidgetVisible(editor, true);
                 assignTo.setAvatar(issue.getCreateAvatar(), issue.getChargeAvatar());
 
             } else if (isCharge) {
                 main.setWidgetSize(saveBar, 0);
-                main.setWidgetSize(commentPanel, 150);
+                root.setWidgetVisible(editor, true);
                 txtName.setEditable(false);
                 ddlPriority.setEnabled(false);
                 ddlState.setEnabled(false);
@@ -160,7 +157,7 @@ public class IssuePanel extends CommonEventComposite implements IData<DevProject
                 markdownBox.setEnabled(false);
             } else {
                 main.setWidgetSize(saveBar, 0);
-                main.setWidgetSize(commentPanel, 0);
+                root.setWidgetVisible(editor, false);
                 txtName.setEditable(false);
                 ddlPriority.setEnabled(false);
                 ddlState.setEnabled(false);
@@ -192,12 +189,8 @@ public class IssuePanel extends CommonEventComposite implements IData<DevProject
                     messagePanel.setHeight("300px");
                     commentContainer.add(messagePanel);
                 }
-                Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-                    @Override
-                    public void execute() {
-                        scroller.scrollToBottom();
-                    }
-                });
+                adjustToDefaultSize(null);
+
             }
         });
     }
@@ -254,20 +247,6 @@ public class IssuePanel extends CommonEventComposite implements IData<DevProject
     public void markdownBoxCommon(CommonEvent event) {
     }
 
-    @UiHandler("btnComment")
-    public void btnCommentClick(ClickEvent event) {
-        //发表评论
-        String comment = txtComment.getValue();
-        if (StringUtil.isBlank(comment)) {
-            ClientContext.get().confirm("请输入评论内容");
-            return;
-        }
-        DevProjectIssueCommentEntity commentEntity = new DevProjectIssueCommentEntity();
-        commentEntity.setKind(IssueCommentKind.ICK_COMMENT.getCode());
-        commentEntity.setContent(comment);
-        commentEntity.setIssueId(issue.getId());
-        createComment(commentEntity);
-    }
 
     private void createComment(DevProjectIssueCommentEntity commentEntity) {
         UpdateProjectIssueCommentRequest request = new UpdateProjectIssueCommentRequest();
@@ -280,7 +259,8 @@ public class IssuePanel extends CommonEventComposite implements IData<DevProject
                 } else {
                     loadComments(issue.getId());
                 }
-                txtComment.setValue("");
+                editor.setData("");
+                adjustToDefaultSize(null);
             }
         });
     }
@@ -300,7 +280,7 @@ public class IssuePanel extends CommonEventComposite implements IData<DevProject
     @UiHandler("btnClose")
     public void btnCloseClick(ClickEvent event) {
         DevProjectIssueCommentEntity comment = new DevProjectIssueCommentEntity();
-        comment.setContent(txtComment.getValue());
+        comment.setContent(editor.getData());
         comment.setKind(IssueCommentKind.ICK_CLOSE.getCode());
         comment.setIssueId(issue.getId());
         createComment(comment);
@@ -310,7 +290,7 @@ public class IssuePanel extends CommonEventComposite implements IData<DevProject
     public void assignToCommon(CommonEvent event) {
         if (event.isSelect()) {
             ProjectMember projectMember = event.getValue();
-          assignToUser(projectMember);
+            assignToUser(projectMember);
         }
     }
 
@@ -329,6 +309,42 @@ public class IssuePanel extends CommonEventComposite implements IData<DevProject
         comment.setKind(IssueCommentKind.ICK_REPOEN.getCode());
         comment.setIssueId(issue.getId());
         createComment(comment);
+    }
+
+    @UiHandler("editor")
+    public void editorCommon(CommonEvent event) {
+        if (event.isOk()) {
+            String comment = event.getValue();
+            if (StringUtil.isBlank(comment)) {
+                ClientContext.get().confirm("请输入评论内容");
+                return;
+            }
+            DevProjectIssueCommentEntity commentEntity = new DevProjectIssueCommentEntity();
+            commentEntity.setKind(IssueCommentKind.ICK_COMMENT.getCode());
+            commentEntity.setContent(comment);
+            commentEntity.setIssueId(issue.getId());
+            createComment(commentEntity);
+        } else if (event.isResize()) {
+            Size size = event.getValue();
+            int height = size.getYAsInt();
+            adjustToDefaultSize(height);
+        }
+    }
+
+    private void adjustToDefaultSize(Integer needHeight) {
+        int DEFAULT_HEIGHT = 150;
+        if (needHeight != null && needHeight > DEFAULT_HEIGHT) {
+            DEFAULT_HEIGHT = needHeight;
+        }
+        Style style = scroller.getElement().getStyle();
+        style.setPaddingBottom(DEFAULT_HEIGHT + 10, Style.Unit.PX);
+        root.setWidgetBottomHeight(editor, 0, Style.Unit.PX, DEFAULT_HEIGHT, Style.Unit.PX);
+        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+            @Override
+            public void execute() {
+                scroller.scrollToBottom();
+            }
+        });
     }
 
     interface IssuePanelUiBinder extends UiBinder<LayoutPanel, IssuePanel> {

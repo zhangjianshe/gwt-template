@@ -4,7 +4,8 @@
              xmlns:issue="urn:import:cn.mapway.gwt_template.client.workspace.issue"
              xmlns:panel="urn:import:cn.mapway.ui.client.widget.panel"
              xmlns:widget2="urn:import:cn.mapway.ui.client.widget"
-             xmlns:buttons="urn:import:cn.mapway.ui.client.widget.buttons">
+             xmlns:buttons="urn:import:cn.mapway.ui.client.widget.buttons"
+             xmlns:desktop="urn:import:cn.mapway.gwt_template.client.desktop">
     <ui:style>
         .row {
             display: flex;
@@ -62,10 +63,7 @@
             gap: 10px;
         }
 
-        .commentPanel {
-            padding: 10px;
-            border-top: solid 1px #e0e0e0;
-        }
+
 
         .container {
             padding: 10px;
@@ -89,7 +87,7 @@
                             </g:HorizontalPanel>
                             <issue:AssignUserPanel ui:field="charger"/>
                         </g:HTMLPanel>
-                        <issue:MarkdownBox ui:field="markdownBox" addStyleNames="{style.body}"/>
+                        <widget:MarkdownBox ui:field="markdownBox" addStyleNames="{style.body}"/>
                     </g:HTMLPanel>
                 </g:north>
                 <g:north size="0">
@@ -99,17 +97,14 @@
                         <buttons:AiButton ui:field="btnSave" type="warning">更新</buttons:AiButton>
                     </g:HTMLPanel>
                 </g:north>
-                <g:south size="100">
-                    <g:VerticalPanel spacing="4" width="100%" ui:field="commentPanel"
-                                     addStyleNames="{style.commentPanel}">
-                        <g:TextArea ui:field="txtComment" addStyleNames="ai-input" height="70px"/>
-                        <g:HTMLPanel addStyleNames="{style.commentBottom}">
+                <g:south size="0">
+                    <g:HTMLPanel>
+                        <g:HTMLPanel ui:field="inputTools" addStyleNames="{style.commentBottom}">
                             <widget2:Header>重新分配任务</widget2:Header>
                             <issue:AssignUserPanel ui:field="assignTo"/>
                             <buttons:AiButton type="success" ui:field="btnClose">关闭问题</buttons:AiButton>
-                            <buttons:AiButton type="warning" ui:field="btnComment">发表评论</buttons:AiButton>
                         </g:HTMLPanel>
-                    </g:VerticalPanel>
+                    </g:HTMLPanel>
                 </g:south>
                 <g:center>
                     <g:ScrollPanel addStyleNames="ai-border-top" ui:field="scroller">
@@ -117,6 +112,9 @@
                     </g:ScrollPanel>
                 </g:center>
             </g:DockLayoutPanel>
+        </g:layer>
+        <g:layer left="0" right="0" bottom="0" height="150">
+            <desktop:SmartEditor ui:field="editor"/>
         </g:layer>
         <g:layer>
             <panel:MessagePanel ui:field="messagePanel"/>

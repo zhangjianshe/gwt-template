@@ -12,7 +12,9 @@ import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.HTMLPanel;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.TextArea;
+import com.google.gwt.user.client.ui.Widget;
 
 /**
  * 智能编辑器
@@ -25,7 +27,8 @@ public class SmartEditor extends CommonEventComposite implements IData<String> {
     TextArea editor;
     @UiField
     HTMLPanel tools;
-
+    @UiField
+    HorizontalPanel toolbar;
 
     public SmartEditor() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -51,6 +54,11 @@ public class SmartEditor extends CommonEventComposite implements IData<String> {
                 }
             }
         });
+    }
+
+    public void appendTool(Widget tools) {
+        toolbar.clear();
+        toolbar.add(tools);
     }
 
     public void reset() {

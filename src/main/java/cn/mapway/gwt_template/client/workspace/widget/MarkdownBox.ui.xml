@@ -4,10 +4,12 @@
         .box {
             overflow: auto;
             padding: 0;
+            position: relative;
         }
 
         .content {
-            padding: 10px;
+            position: absolute;
+            inset: 10px;
         }</ui:style>
     <g:HTMLPanel ui:field="root" addStyleNames="{style.box}">
         <g:HTML ui:field="body" addStyleNames="markdown-body {style.content}">

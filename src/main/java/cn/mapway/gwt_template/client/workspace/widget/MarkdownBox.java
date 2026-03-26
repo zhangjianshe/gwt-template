@@ -1,4 +1,4 @@
-package cn.mapway.gwt_template.client.workspace.issue;
+package cn.mapway.gwt_template.client.workspace.widget;
 
 import cn.mapway.ace.client.AceCommandDescription;
 import cn.mapway.ace.client.AceEditor;
@@ -8,6 +8,7 @@ import cn.mapway.gwt_template.client.js.markdown.MarkdownConvert;
 import cn.mapway.ui.client.widget.CommonEventComposite;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
@@ -18,8 +19,6 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.HasValue;
-import elemental2.dom.HTMLElement;
-import jsinterop.base.Js;
 
 public class MarkdownBox extends CommonEventComposite implements HasValue<String> {
     private static final MarkdownViewerUiBinder ourUiBinder = GWT.create(MarkdownViewerUiBinder.class);
@@ -85,9 +84,8 @@ public class MarkdownBox extends CommonEventComposite implements HasValue<String
             initEditor();
             aceEditor.setVisible(true);
             aceEditor.setValue(data);
-            HTMLElement rootElement = Js.uncheckedCast(root.getElement());
-            int width = rootElement.clientWidth;
-            int height = rootElement.clientHeight;
+            int width = root.getOffsetWidth() - 20;
+            int height = root.getOffsetHeight() - 20;
             aceEditor.setPixelSize(width, height);
             aceEditor.redisplay();
         }
@@ -97,6 +95,9 @@ public class MarkdownBox extends CommonEventComposite implements HasValue<String
         if (!initialized) {
             initialized = true;
             aceEditor = new AceEditor();
+            Style style = aceEditor.getElement().getStyle();
+            style.setPosition(Style.Position.ABSOLUTE);
+            style.setProperty("inset", "10px");
             aceEditor.startEditor();
             aceEditor.setMode(AceEditorMode.MARKDOWN);
             aceEditor.setFontSize("1.2rem");
@@ -116,8 +117,8 @@ public class MarkdownBox extends CommonEventComposite implements HasValue<String
                 }
             });
             root.add(aceEditor);
-            int width = body.getOffsetWidth();
-            int height = body.getOffsetHeight();
+            int width = root.getOffsetWidth() - 20;
+            int height = root.getOffsetHeight() - 20;
             aceEditor.setPixelSize(width, height);
             aceEditor.redisplay();
         }

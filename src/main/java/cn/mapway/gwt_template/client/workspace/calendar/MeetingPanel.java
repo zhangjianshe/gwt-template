@@ -2,7 +2,7 @@ package cn.mapway.gwt_template.client.workspace.calendar;
 
 import cn.mapway.gwt_template.client.ClientContext;
 import cn.mapway.gwt_template.client.rpc.AppProxy;
-import cn.mapway.gwt_template.client.workspace.issue.MarkdownBox;
+import cn.mapway.gwt_template.client.workspace.widget.MarkdownBox;
 import cn.mapway.gwt_template.client.workspace.task.TaskAttachmentsPanel;
 import cn.mapway.gwt_template.client.workspace.widget.EditableLabel;
 import cn.mapway.gwt_template.client.workspace.widget.TaskPriorityDropdown;

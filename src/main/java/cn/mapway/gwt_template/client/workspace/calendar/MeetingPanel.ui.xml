@@ -134,7 +134,7 @@
                             <g:TabLayoutPanel ui:field="tabs" barHeight="50">
                                 <g:tab>
                                     <g:header>会议纪要</g:header>
-                                    <issue:MarkdownBox ui:field="markdownBox"/>
+                                    <widget:MarkdownBox ui:field="markdownBox"/>
                                 </g:tab>
                                 <g:tab>
                                     <g:header>会议附件</g:header>
