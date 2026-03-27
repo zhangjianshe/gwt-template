@@ -15,6 +15,7 @@ import cn.mapway.gwt_template.shared.rpc.file.CommonFileUploadRequest;
 import cn.mapway.gwt_template.shared.rpc.file.CommonFileUploadResponse;
 import cn.mapway.gwt_template.shared.rpc.project.*;
 import cn.mapway.gwt_template.shared.rpc.project.module.CommonPermission;
+import cn.mapway.gwt_template.shared.rpc.project.module.DevTaskCatalog;
 import cn.mapway.gwt_template.shared.rpc.project.res.*;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
 import cn.mapway.gwt_template.shared.rpc.workspace.ExportDevProjectTaskRequest;
@@ -583,6 +584,7 @@ public class DevProjectController extends ApiBaseController {
         ExportDevProjectTaskRequest request = new ExportDevProjectTaskRequest();
         request.setProjectId(projectId);
         request.setType(type);
+        request.setCatalog(DevTaskCatalog.DTC_TASK.getCode());
         BizResult<ExportDevProjectTaskResponse> execute = exportDevProjectTaskExecutor.execute(getBizContext(), BizRequest.wrap("", request));
 
         if (execute.isSuccess()) {

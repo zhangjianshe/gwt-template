@@ -8,6 +8,7 @@ import cn.mapway.gwt_template.server.service.git.MarkdownService;
 import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.db.DevProjectEntity;
 import cn.mapway.gwt_template.shared.db.DevProjectTaskEntity;
+import cn.mapway.gwt_template.shared.rpc.project.module.DevTaskCatalog;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
 import cn.mapway.gwt_template.shared.rpc.workspace.ExportDevProjectTaskRequest;
 import cn.mapway.gwt_template.shared.rpc.workspace.ExportDevProjectTaskResponse;
@@ -59,6 +60,7 @@ public class ExportDevProjectTaskExecutor extends AbstractBizExecutor<ExportDevP
         // 1. 查询该项目下的所有任务，按优先级和编号排序
         List<DevProjectTaskEntity> allTasks = dao.query(DevProjectTaskEntity.class,
                 Cnd.where(DevProjectTaskEntity.FLD_PROJECT_ID, "=", projectId)
+                        .and(DevProjectTaskEntity.FLD_CATALOG, "=", DevTaskCatalog.fromCode(request.getCatalog()).getCode())
                         .asc(DevProjectTaskEntity.FLD_RANK));
 
         // 2. 内存组装树形结构
@@ -109,11 +111,19 @@ public class ExportDevProjectTaskExecutor extends AbstractBizExecutor<ExportDevP
                     "<head>" +
                     "<meta charset=\"utf-8\">" +
                     "<link rel=\"stylesheet\" type=\"text/css\" href=\"/css/markdown.css\">" +
+                    "<style>"+
+                    "body {"+
+                    "font-family: 'Courier New';"+
+                    "font-size: 16px;"+
+                    "padding: 20px;"+
+                    "text-decoration: none;"+
+                    "}</style>" +
                     "</head>" +
                     "<body>" +
                     "<div> <a href='export?type=markdown&projectId=" + project.getId() + "'>原始markdown文件</a></div>" +
+                    "<div class='markdown-body'>" +
                     html +
-                    "</body>";
+                    "</div></body>";
             response.setBody(body);
             response.setMimeType("text/html");
             extension = ".html";
@@ -135,14 +145,13 @@ public class ExportDevProjectTaskExecutor extends AbstractBizExecutor<ExportDevP
         // 1. 头部信息
         sb.append("# 项目名称: ").append(project.getName()).append("\n\n");
         if (Strings.isNotBlank(project.getSummary())) {
-            sb.append("> ").append(project.getSummary()).append("\n\n");
+            sb.append(project.getSummary()).append("\n\n");
         }
-
-        sb.append("## 任务列表\n\n");
+        sb.append("\n\n");
 
         // 2. 递归生成树
         for (DevProjectTaskEntity task : rootTasks) {
-            buildTaskTree(sb, task, 0);
+            buildTaskTree(sb, task, 1);
         }
 
         sb.append("\n---\n");
@@ -153,32 +162,11 @@ public class ExportDevProjectTaskExecutor extends AbstractBizExecutor<ExportDevP
 
     private void buildTaskTree(StringBuilder sb, DevProjectTaskEntity task, int depth) {
         // 根据深度添加缩进 (Markdown 列表通常使用 2 或 4 个空格)
-        String indent = Strings.dup("  ", depth);
-
-        // 状态映射：假设 100 代表已完成
-        boolean isDone = task.getStatus() != null && task.getStatus() >= 100;
-        String statusBox = isDone ? "[x] " : "[ ] ";
-
-        sb.append(indent).append("- ").append(statusBox);
-
-        // 任务编号和名称
-        if (task.getCode() != null) {
-            sb.append("`").append(task.getCode()).append("` ");
+        String indent = Strings.dup("#", depth);
+        sb.append(indent).append(" ").append(task.getName()).append("\n\n");
+        if (Strings.isNotBlank(task.getSummary())) {
+            sb.append(task.getSummary()).append("\n\n");
         }
-        sb.append("**").append(task.getName()).append("**");
-
-        // 附加信息：工期或起止时间
-        if (task.getStartTime() != null || task.getEstimateTime() != null) {
-            sb.append(" (");
-            if (task.getStartTime() != null) sb.append(org.nutz.lang.Times.format("yyyy-MM-dd", task.getStartTime()));
-            sb.append(" ~ ");
-            if (task.getEstimateTime() != null)
-                sb.append(org.nutz.lang.Times.format("yyyy-MM-dd", task.getEstimateTime()));
-            sb.append(")");
-        }
-
-        sb.append("\n");
-
         // 递归处理子任务
         if (task.getChildren() != null && !task.getChildren().isEmpty()) {
             for (DevProjectTaskEntity child : task.getChildren()) {

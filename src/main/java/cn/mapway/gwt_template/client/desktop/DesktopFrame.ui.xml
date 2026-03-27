@@ -42,11 +42,26 @@
             justify-items: center;
             padding: 30px;
         }
-    </ui:style>
+
+        .right {
+            background-color: whitesmoke;
+        }</ui:style>
     <g:TabLayoutPanel barHeight="50" ui:field="root">
         <g:tab>
             <g:header>🖥️ 桌面</g:header>
             <g:DockLayoutPanel ui:field="desktop">
+                <g:east size="520">
+                    <g:ScrollPanel addStyleNames="{style.right}">
+                        <g:HTMLPanel addStyleNames="{style.box1}">
+                            <g:HTMLPanel addStyleNames="{style.title}">
+                                <g:Label addStyleNames="{style.header}">快捷方式</g:Label>
+                            </g:HTMLPanel>
+                            <g:HTMLPanel ui:field="panel" addStyleNames="{style.box}">
+                                <desktop:DesktopItem ui:field="btnAdd"/>
+                            </g:HTMLPanel>
+                        </g:HTMLPanel>
+                    </g:ScrollPanel>
+                </g:east>
                 <g:center>
                     <g:ScrollPanel ui:field="content">
                         <g:HTMLPanel addStyleNames="{style.box1}">
@@ -55,12 +70,7 @@
                             </g:HTMLPanel>
                             <g:HTMLPanel ui:field="panelProjects" addStyleNames="{style.box2}">
                             </g:HTMLPanel>
-                            <g:HTMLPanel addStyleNames="{style.title}">
-                                <g:Label addStyleNames="{style.header}">快捷方式</g:Label>
-                            </g:HTMLPanel>
-                            <g:HTMLPanel ui:field="panel" addStyleNames="{style.box}">
-                                <desktop:DesktopItem ui:field="btnAdd"/>
-                            </g:HTMLPanel>
+
                             <g:HTMLPanel addStyleNames="{style.title}">
                                 <g:Label addStyleNames="{style.header}">我的项目空间</g:Label>
                             </g:HTMLPanel>

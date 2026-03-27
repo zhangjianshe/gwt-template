@@ -16,4 +16,5 @@ import java.io.Serializable;
 public class ExportDevProjectTaskRequest implements Serializable, IsSerializable {
     String projectId;
     String type;
+    Integer catalog;
 }
