@@ -691,6 +691,25 @@ public class ProjectService {
         return s;
     }
 
+    /**
+     * ISSUE附件的目录
+     *
+     * @param issue
+     * @return
+     */
+    public String getIssueAttachmentRoot(DevProjectIssueEntity issue) {
+
+        String projectId = issue.getProjectId();
+        String issueId = issue.getId();
+        //项目资源的路径为 projectId/
+        String projectPath = FileCustomUtils.concatPath(projectId.substring(0, 3), projectId.substring(3), "issue");
+        String issuePath = FileCustomUtils.concatPath(issueId.substring(0, 3), issueId.substring(3));
+
+        String s = FileCustomUtils.concatPath(systemConfigService.getProjectResourceRootPath(), projectPath, issuePath);
+        Files.createDirIfNoExists(s);
+        return s;
+    }
+
     public void fillIssueExtraInfo(List<DevProjectIssueEntity> issues) {
         if (issues == null || issues.isEmpty()) {
             return;
@@ -728,5 +747,9 @@ public class ProjectService {
                 }
             }
         }
+    }
+
+    public DevProjectIssueEntity findIssue(String issueId) {
+        return dao.fetch(DevProjectIssueEntity.class, issueId);
     }
 }

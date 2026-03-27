@@ -40,6 +40,12 @@
             min-height: 30px;
         }
 
+        .content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+        }
+
         /* 也可以添加一个简单的头像样式 */
         .avatar {
             width: 24px;
@@ -53,7 +59,8 @@
 
     <g:HTMLPanel addStyleNames="{style.comment-box}">
         <g:HTMLPanel addStyleNames="{style.header}">
-            <g:SimplePanel addStyleNames="{style.avatar}" /> <g:Label ui:field="lbUser" addStyleNames="{style.user-name}"/>
+            <g:SimplePanel addStyleNames="{style.avatar}"/>
+            <g:Label ui:field="lbUser" addStyleNames="{style.user-name}"/>
             <g:Label ui:field="lbDate" addStyleNames="{style.date}"/>
         </g:HTMLPanel>
 

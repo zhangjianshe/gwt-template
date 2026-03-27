@@ -7,6 +7,7 @@ import cn.mapway.biz.core.BizRequest;
 import cn.mapway.biz.core.BizResult;
 import cn.mapway.gwt_template.server.service.project.ProjectService;
 import cn.mapway.gwt_template.shared.AppConstant;
+import cn.mapway.gwt_template.shared.db.DevProjectIssueEntity;
 import cn.mapway.gwt_template.shared.db.DevProjectResourceEntity;
 import cn.mapway.gwt_template.shared.db.DevProjectTaskEntity;
 import cn.mapway.gwt_template.shared.rpc.file.CommonFileUploadRequest;
@@ -64,6 +65,10 @@ public class CommonFileUploadExecutor extends AbstractBizExecutor<CommonFileUplo
             String relativePath = split[1];
 
             return uploadToProjectResourceDirectory(user.getUser().getUserId(), resourceId, relativePath, request);
+        } else if (request.getPath().startsWith(AppConstant.UPLOAD_PREFIX_ISSUE_ATTACHMENT)) {
+            //  issueId
+            String issueId = request.getPath().substring(AppConstant.UPLOAD_PREFIX_ISSUE_ATTACHMENT.length());
+            return uploadToIssueAttachmentDir(user.getUser().getUserId(), issueId, request);
         } else if (request.getPath().startsWith(AppConstant.UPLOAD_PREFIX_TASK_ATTACHMENT)) {
             //  taskId
             String taskId = request.getPath().substring(AppConstant.UPLOAD_PREFIX_TASK_ATTACHMENT.length());
@@ -100,7 +105,49 @@ public class CommonFileUploadExecutor extends AbstractBizExecutor<CommonFileUplo
         CommonFileUploadResponse response1 = new CommonFileUploadResponse();
         response1.setSha256("");
         response1.setMd5("");
+        response1.setFileName(Files.getName(targetFile));
+        try {
+            response1.setMime(java.nio.file.Files.probeContentType(target.toPath()));
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
         response1.setRelPath(Files.getName(targetFile));
+        return BizResult.success(response1);
+
+    }
+
+    private BizResult<CommonFileUploadResponse> uploadToIssueAttachmentDir(Long userId, String issueId, CommonFileUploadRequest request) {
+        DevProjectIssueEntity issue = projectService.findIssue(issueId);
+        if (issue == null) {
+            return BizResult.error(500, "没有找到Issue目标位置");
+        }
+        String path = projectService.getIssueAttachmentRoot(issue);
+
+        String targetFile = FileCustomUtils.concatPath(path, request.getFile().getOriginalFilename());
+
+        File target = new File(targetFile);
+        boolean isMemberOfProject = projectService.isMemberOfProject(userId, issue.getProjectId());
+        if (!isMemberOfProject) {
+            return BizResult.error(500, "您没有授权操作");
+        }
+
+        Files.createFileIfNoExists(target);
+        log.info("WRITE TO " + targetFile);
+        try {
+            Streams.writeAndClose(Streams.fileOut(targetFile), request.getFile().getInputStream());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        CommonFileUploadResponse response1 = new CommonFileUploadResponse();
+        response1.setSha256("");
+        response1.setMd5("");
+        response1.setFileName(Files.getName(targetFile));
+        try {
+            response1.setMime(java.nio.file.Files.probeContentType(target.toPath()));
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
+        response1.setRelPath("/api/v1/project/issue/" + issueId + "/" + Files.getName(targetFile));
         return BizResult.success(response1);
 
     }
@@ -141,6 +188,12 @@ public class CommonFileUploadExecutor extends AbstractBizExecutor<CommonFileUplo
         CommonFileUploadResponse response1 = new CommonFileUploadResponse();
         response1.setSha256("");
         response1.setMd5("");
+        response1.setFileName(Files.getName(targetFile));
+        try {
+            response1.setMime(java.nio.file.Files.probeContentType(target.toPath()));
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
         response1.setRelPath(relativePath);
         return BizResult.success(response1);
 

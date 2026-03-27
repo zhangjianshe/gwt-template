@@ -1,0 +1,71 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:buttons="urn:import:cn.mapway.ui.client.widget.buttons">
+    <ui:style>
+        .box {
+            margin: 15px;
+            border-radius: 8px;
+            border: solid 1px #d0d0d0;
+            display: grid;
+            grid-template-rows: 1fr 50px;
+            flex-flow: column;
+            box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+            background-color: white;
+        }
+
+        .editor {
+            padding: 12px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 16px;
+            resize: none; /* Only allow vertical resizing to prevent layout breaking */
+            outline: none;
+            transition: border-color 0.3s;
+            line-height: 100%;
+            margin: 6px;
+        }
+
+        .tools {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 12px 8px;
+            background-color: hsla(195, 100%, 50%, 0.35);
+            border-radius: 0 0 8px 8px;
+        }
+
+        .attachment-container {
+            padding: 0 10px;
+            white-space: nowrap; /* 强制子元素不换行 */
+            overflow-x: auto; /* 开启横向滚动条 */
+            background-color: #ecf5ff;
+        }
+
+        .uploader {
+            border-radius: 50%;
+            padding: 8px;
+        }
+
+        .uploader:HOVER {
+            background-color: #95d475;
+            color: white;
+        }
+
+    </ui:style>
+    <g:DockLayoutPanel addStyleNames="{style.box}" ui:field="root">
+        <g:south size="50">
+            <g:HTMLPanel width="100%" ui:field="tools" addStyleNames="{style.tools}">
+                <buttons:PlusButton addStyleNames="{style.uploader}" ui:field="btnUpload"/>
+                <g:HorizontalPanel ui:field="toolbar"/>
+            </g:HTMLPanel>
+        </g:south>
+        <g:south size="0">
+            <g:HTMLPanel ui:field="bottomPanel">
+                <g:FlowPanel ui:field="attachmentPanel" addStyleNames="{style.attachment-container}"/>
+            </g:HTMLPanel>
+        </g:south>
+        <g:center>
+            <g:TextArea addStyleNames="{style.editor}" ui:field="editor"/>
+        </g:center>
+    </g:DockLayoutPanel>
+</ui:UiBinder>

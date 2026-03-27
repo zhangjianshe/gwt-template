@@ -12,7 +12,6 @@
     <inherits name="cn.mapway.rbac.MapwayRbac"/>
     <source path="shared"/>
     <source path="client"/>
-
     <generate-with
             class="cn.mapway.ui.server.mvc.ModuleFactoryGenerator">
         <when-type-assignable

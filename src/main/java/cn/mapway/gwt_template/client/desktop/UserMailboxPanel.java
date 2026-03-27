@@ -5,6 +5,7 @@ import cn.mapway.gwt_template.client.rpc.AppProxy;
 import cn.mapway.gwt_template.client.rpc.AsyncAdaptor;
 import cn.mapway.gwt_template.client.user.ClientWebSocket;
 import cn.mapway.gwt_template.client.user.MailboxMessage;
+import cn.mapway.gwt_template.client.widget.SmartEditor;
 import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.db.MailboxEntity;
 import cn.mapway.gwt_template.shared.db.MailboxMessageEntity;
@@ -253,7 +254,7 @@ public class UserMailboxPanel extends CommonEventComposite {
     }
 
     private void adjustToDefaultSize(Integer needHeight) {
-        int DEFAULT_HEIGHT = 130;
+        int DEFAULT_HEIGHT = 160;
         if (needHeight != null && needHeight > DEFAULT_HEIGHT) {
             DEFAULT_HEIGHT = needHeight;
         }

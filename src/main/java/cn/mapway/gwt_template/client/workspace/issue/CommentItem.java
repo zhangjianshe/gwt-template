@@ -14,7 +14,7 @@ import com.google.gwt.user.client.ui.Label;
 
 public class CommentItem extends Composite implements IData<DevProjectIssueCommentEntity> {
     private static final CommonItemUiBinder ourUiBinder = GWT.create(CommonItemUiBinder.class);
-    private final MarkdownConvert convert;
+    private final static MarkdownConvert convert=new MarkdownConvert();
     @UiField
     Label lbDate;
     @UiField
@@ -25,7 +25,6 @@ public class CommentItem extends Composite implements IData<DevProjectIssueComme
 
     public CommentItem() {
         initWidget(ourUiBinder.createAndBindUi(this));
-        convert = new MarkdownConvert();
     }
 
     @Override
@@ -54,8 +53,8 @@ public class CommentItem extends Composite implements IData<DevProjectIssueComme
         if (rawContent == null || rawContent.isEmpty()) {
             htmlContent.setHTML("<i style='color:#999'>No description provided.</i>");
         } else {
-            // 这里调用你的 MarkdownConvert
-            htmlContent.setHTML(convert.makeHtml(rawContent));
+            String html = convert.makeHtml(rawContent);
+            htmlContent.setHTML(html);
         }
     }
 

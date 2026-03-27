@@ -5,12 +5,13 @@
              xmlns:panel="urn:import:cn.mapway.ui.client.widget.panel"
              xmlns:widget2="urn:import:cn.mapway.ui.client.widget"
              xmlns:buttons="urn:import:cn.mapway.ui.client.widget.buttons"
-             xmlns:desktop="urn:import:cn.mapway.gwt_template.client.desktop">
+             xmlns:widget3="urn:import:cn.mapway.gwt_template.client.widget">
     <ui:style>
         .row {
             display: flex;
             align-items: center;
             justify-content: space-between;
+            gap: 8px;
         }
 
         .title {
@@ -34,8 +35,10 @@
         .toolbar {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            padding: 10px;
+            justify-content: flex-end;
+            gap: 10px;
+            padding: 0 10px;
+            margin-bottom: 10px;
         }
 
         .tip {
@@ -47,7 +50,7 @@
             margin-top: 10px;
             padding: 10px;
             border-radius: 6px;
-            border: solid 1px #e0e0e0;
+          /*border: solid 1px #e0e0e0;*/
             height: 180px;
             overflow: auto;
         }
@@ -64,28 +67,22 @@
         }
 
 
-
         .container {
             padding: 10px;
+        }
+
+        .scroller {
+            padding: 15px 0 0 0;
+            border-top: solid 1px #d0d0d0;
         }</ui:style>
     <g:LayoutPanel ui:field="root">
         <g:layer>
             <g:DockLayoutPanel visible="false" ui:field="main">
-                <g:north size="300">
+                <g:north size="240">
                     <g:HTMLPanel addStyleNames="{style.top}">
                         <g:HTMLPanel addStyleNames="{style.row}">
+                            <g:Image ui:field="iconState" width="28px" height="28px"/>
                             <widget:EditableLabel addStyleNames="{style.title}" ui:field="txtName"/>
-                        </g:HTMLPanel>
-                        <g:HTMLPanel addStyleNames="{style.row}">
-                            <g:HorizontalPanel spacing="4" verticalAlignment="middle">
-                                <widget2:Header>状态</widget2:Header>
-                                <issue:IssueStateDropdown ui:field="ddlState"/>
-                            </g:HorizontalPanel>
-                            <g:HorizontalPanel spacing="4" verticalAlignment="middle">
-                                <widget2:Header>优先级</widget2:Header>
-                                <widget:TaskPriorityDropdown ui:field="ddlPriority"/>
-                            </g:HorizontalPanel>
-                            <issue:AssignUserPanel ui:field="charger"/>
                         </g:HTMLPanel>
                         <widget:MarkdownBox ui:field="markdownBox" addStyleNames="{style.body}"/>
                     </g:HTMLPanel>
@@ -93,6 +90,7 @@
                 <g:north size="0">
                     <g:HTMLPanel ui:field="saveBar" addStyleNames="{style.toolbar}">
                         <g:Label ui:field="tip" addStyleNames="{style.tip}"/>
+                        <widget:TaskPriorityDropdown ui:field="ddlPriority"/>
                         <buttons:AiButton ui:field="btnReopen" type="danger">重新打开</buttons:AiButton>
                         <buttons:AiButton ui:field="btnSave" type="warning">更新</buttons:AiButton>
                     </g:HTMLPanel>
@@ -100,21 +98,22 @@
                 <g:south size="0">
                     <g:HTMLPanel>
                         <g:HTMLPanel ui:field="inputTools" addStyleNames="{style.commentBottom}">
-                            <widget2:Header>重新分配任务</widget2:Header>
-                            <issue:AssignUserPanel ui:field="assignTo"/>
+                            <widget2:Header>转移任务</widget2:Header>
+                            <issue:AssignUserPanel addStyleNames="ai-button--success" ui:field="assignTo"/>
                             <buttons:AiButton type="success" ui:field="btnClose">关闭问题</buttons:AiButton>
+                            <buttons:AiButton type="warning" ui:field="btnPublish">发布</buttons:AiButton>
                         </g:HTMLPanel>
                     </g:HTMLPanel>
                 </g:south>
                 <g:center>
-                    <g:ScrollPanel addStyleNames="ai-border-top" ui:field="scroller">
+                    <g:ScrollPanel addStyleNames="{style.scroller}" ui:field="scroller">
                         <g:HTMLPanel ui:field="commentContainer" addStyleNames="{style.container}"/>
                     </g:ScrollPanel>
                 </g:center>
             </g:DockLayoutPanel>
         </g:layer>
-        <g:layer left="0" right="0" bottom="0" height="150">
-            <desktop:SmartEditor ui:field="editor"/>
+        <g:layer left="0" right="0" bottom="0" height="0">
+            <widget3:SmartEditor ui:field="editor"/>
         </g:layer>
         <g:layer>
             <panel:MessagePanel ui:field="messagePanel"/>

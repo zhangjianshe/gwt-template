@@ -1,11 +1,20 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
              xmlns:g='urn:import:com.google.gwt.user.client.ui'>
     <ui:style>
+        @eval BORDER_RADIUS "var(--border-radius)";
         .box {
             display: flex;
             align-items: center;
             justify-content: flex-start;
             gap: 4px;
+            border-radius: BORDER_RADIUS;
+            padding: 4px;
+            border: solid 1px transparent;
+        }
+
+        .box:HOVER {
+            border: solid 1px #e0e0e0;
+
         }
 
         .box[enabled="true"] {
