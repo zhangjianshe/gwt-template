@@ -8,32 +8,6 @@
             background-color: white;
         }
 
-        /* 背景层：柔和的渐变引导 */
-        .back {
-            position: absolute;
-            left: 0;
-            top: 0;
-            right: 0;
-            height: 150px;
-            z-index: -1;
-            transition: background 0.4s ease;
-        }
-
-        .main_content {
-            position: relative;
-            z-index: 1;
-            padding: 24px;
-            display: flex;
-            height: 100%;
-        }
-
-        /* 左侧主编辑区 */
-        .left_panel {
-            flex: 1;
-            margin-right: 24px;
-            display: flex;
-            flex-direction: column;
-        }
 
         /* 右侧属性面板：谈谈的灰背景 */
         .right_sidebar {
@@ -45,14 +19,11 @@
         }
 
         .summary_area {
-            flex: 1;
-            border: 1px solid #e0e0e0 !important;
-            border-radius: 6px;
-            padding: 12px;
-            font-size: 14px;
-            line-height: 1.6;
-            resize: none;
-            background: white;
+            margin: 15px;
+            border: solid 1px #e0e0e0;
+            border-radius: 8px;
+            padding: 10px;
+            background-color: white;
         }
 
         /* 侧边栏条目布局 */
@@ -96,39 +67,12 @@
             background: white;
         }
 
+        .content {
+            padding: 15px;
+        }
     </ui:style>
 
     <g:DockLayoutPanel addStyleNames="{style.body}" ui:field="root">
-        <g:center>
-            <g:HTMLPanel ui:field="editor" styleName="{style.main_content}">
-                <div class="{style.back}" ui:field="back"/>
-                <g:HTMLPanel addStyleNames="{style.left_panel}">
-                    <g:TextBox ui:field="txtName" styleName="{style.title-input-style}"/>
-                    <g:TextArea ui:field="txtSummary" styleName="{style.summary_area}"/>
-                </g:HTMLPanel>
-
-                <g:HTMLPanel addStyleNames="{style.right_sidebar}">
-                    <div class="{style.property_group}">
-                        <span class="{style.property_label}">负责人</span>
-                        <task:ProjectMemberWidget imageWidth="130" ui:field="member"/>
-                    </div>
-                    <div class="{style.property_group}">
-                        <span class="{style.property_label}">任务状态</span>
-                        <widget2:TaskStatusDropdown ui:field="ddlStatus" width="100%"/>
-                    </div>
-                    <div class="{style.property_group}">
-                        <span class="{style.property_label}">优先级</span>
-                        <widget2:TaskPriorityDropdown ui:field="ddlPriority" width="100%"/>
-                    </div>
-
-                    <div class="{style.property_group}">
-                        <span class="{style.property_label}">任务类型</span>
-                        <widget2:TaskKindDropdown ui:field="ddlKind" width="100%"/>
-                    </div>
-                </g:HTMLPanel>
-            </g:HTMLPanel>
-        </g:center>
-
         <g:south size="64">
             <g:HTMLPanel addStyleNames="{style.bar}">
                 <g:Label styleName="ai-message">Ctrl+S(保存退出) Esc(退出不保存)</g:Label>
@@ -138,5 +82,34 @@
                 </g:HorizontalPanel>
             </g:HTMLPanel>
         </g:south>
+        <g:east size="300">
+            <g:HTMLPanel addStyleNames="{style.right_sidebar}">
+                <div class="{style.property_group}">
+                    <span class="{style.property_label}">负责人</span>
+                    <task:ProjectMemberWidget imageWidth="130" ui:field="member"/>
+                </div>
+                <div class="{style.property_group}">
+                    <span class="{style.property_label}">任务状态</span>
+                    <widget2:TaskStatusDropdown ui:field="ddlStatus" width="100%"/>
+                </div>
+                <div class="{style.property_group}">
+                    <span class="{style.property_label}">优先级</span>
+                    <widget2:TaskPriorityDropdown ui:field="ddlPriority" width="100%"/>
+                </div>
+
+                <div class="{style.property_group}">
+                    <span class="{style.property_label}">任务类型</span>
+                    <widget2:TaskKindDropdown ui:field="ddlKind" width="100%"/>
+                </div>
+            </g:HTMLPanel>
+        </g:east>
+        <g:north size="60">
+            <g:HTMLPanel addStyleNames="{style.content}">
+                <g:TextBox ui:field="txtName" styleName="{style.title-input-style}"/>
+            </g:HTMLPanel>
+        </g:north>
+        <g:center>
+            <widget2:MarkdownBox  ui:field="txtSummary" styleName="{style.summary_area}"/>
+        </g:center>
     </g:DockLayoutPanel>
 </ui:UiBinder>

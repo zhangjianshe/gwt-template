@@ -355,18 +355,15 @@ public class GanttMouseActionDefault implements IMouseHandler<GanttHitResult> {
                 // 切换展开/收起状态
                 GanttItem item = result.getGanttItem();
                 if (item != null) {
-                    // 这里的逻辑已经在上一条回复中建议实现在 Document 里
                     chart.getDocument().toggleExpand(item);
                 }
                 break;
 
             case HIT_GANTT_ITEM:
-                // 原有的点击选中逻辑
                 chart.getDocument().appendSelect(result.getGanttItem(), true);
                 break;
 
             case HIT_GANTT_ITEM_TASK:
-                // 如果点击的是任务条主体，也可以触发选中
                 chart.getDocument().appendSelect(result.getGanttItem(), true);
                 break;
 

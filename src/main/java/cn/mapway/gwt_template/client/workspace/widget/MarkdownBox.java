@@ -103,6 +103,7 @@ public class MarkdownBox extends CommonEventComposite implements HasValue<String
             aceEditor.setFontSize("1.2rem");
             aceEditor.setUseWorker(true);
             aceEditor.setShowGutter(false);
+            aceEditor.setUseWrapMode(true);
             AceCommandDescription ctrlSaveCommand =
                     new AceCommandDescription("save", aceEditor -> {
                         doSave();

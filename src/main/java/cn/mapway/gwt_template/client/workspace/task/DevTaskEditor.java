@@ -2,6 +2,7 @@ package cn.mapway.gwt_template.client.workspace.task;
 
 import cn.mapway.gwt_template.client.ClientContext;
 import cn.mapway.gwt_template.client.rpc.AppProxy;
+import cn.mapway.gwt_template.client.workspace.widget.MarkdownBox;
 import cn.mapway.gwt_template.client.workspace.widget.TaskKindDropdown;
 import cn.mapway.gwt_template.client.workspace.widget.TaskPriorityDropdown;
 import cn.mapway.gwt_template.client.workspace.widget.TaskStatusDropdown;
@@ -21,7 +22,6 @@ import cn.mapway.ui.shared.rpc.RpcResult;
 import com.google.gwt.core.client.Callback;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.dom.client.DivElement;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
@@ -30,7 +30,9 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.DockLayoutPanel;
+import com.google.gwt.user.client.ui.RequiresResize;
+import com.google.gwt.user.client.ui.TextBox;
 import lombok.Setter;
 
 /**
@@ -46,17 +48,13 @@ public class DevTaskEditor extends CommonEventComposite implements RequiresResiz
     @UiField
     TaskKindDropdown ddlKind;
     @UiField
-    DivElement back;
-    @UiField
-    HTMLPanel editor;
-    @UiField
     AiButton btnSave;
     @UiField
     AiButton btnClose;
     @UiField
     DockLayoutPanel root;
     @UiField
-    TextArea txtSummary;
+    MarkdownBox txtSummary;
     @UiField
     TaskStatusDropdown ddlStatus;
     boolean initialize = false;
@@ -168,7 +166,7 @@ public class DevTaskEditor extends CommonEventComposite implements RequiresResiz
     private void updateBackground(DevTaskKind kind) {
         if (kind == null) return;
         // 使用 15% 的透明度 (26)，既能看出类型颜色，又不至于刺眼
-        back.getStyle().setProperty("background",
+        root.getElement().getStyle().setProperty("background",
                 "linear-gradient(180deg, " + kind.getColor() + "26 0%, rgba(255,255,255,0) 100%)");
     }
 
@@ -198,7 +196,7 @@ public class DevTaskEditor extends CommonEventComposite implements RequiresResiz
         temp.setName(txtName.getValue());
         temp.setKind((Integer) ddlKind.getValue());
         temp.setStatus((Integer) ddlStatus.getValue());
-        temp.setSummary(txtSummary.getText());
+        temp.setSummary(txtSummary.getValue());
         temp.setPriority((Integer) ddlPriority.getValue());
         temp.setCharger(task.getCharger());
 
@@ -263,8 +261,8 @@ public class DevTaskEditor extends CommonEventComposite implements RequiresResiz
         if (task == null) return;
 
         // 基本信息
-        txtName.setText(task.getName());
-        txtSummary.setText(task.getSummary());
+        txtName.setValue(task.getName());
+        txtSummary.setValue(task.getSummary());
 
         // 侧边栏属性
         ddlKind.setValue(task.getKind());
@@ -281,8 +279,6 @@ public class DevTaskEditor extends CommonEventComposite implements RequiresResiz
     }
 
     private void updateButtons(DevTaskKind kind) {
-
-        editor.setVisible(true);
 
         if (task.getId() == null) {
             btnSave.setEnabled(true);

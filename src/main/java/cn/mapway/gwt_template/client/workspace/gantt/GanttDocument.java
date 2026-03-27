@@ -745,9 +745,10 @@ public class GanttDocument {
 
         // 重新计算坐标（Y轴会发生变化）
         reLayout();
-
-        // sync to database
-        syncExpandToDb(item.getEntity());
+        if (ClientContext.get().isCurrentUser(item.getEntity().getCreateUserId())
+                || ClientContext.get().isCurrentUser(item.getEntity().getCharger())) {
+            syncExpandToDb(item.getEntity());
+        }
     }
 
     private void syncExpandToDb(DevProjectTaskEntity entity) {
@@ -815,7 +816,7 @@ public class GanttDocument {
         task.setId(taskId);
         task.setRank(newRank);
         //如果为null 就会不更新该字段
-        task.setParentId(newParentId==null?"":newParentId);
+        task.setParentId(newParentId == null ? "" : newParentId);
         // 关键修正：projectId 必须是任务所属的项目 ID，不能是任务自己的 ID
         task.setProjectId(item.getEntity().getProjectId());
 
