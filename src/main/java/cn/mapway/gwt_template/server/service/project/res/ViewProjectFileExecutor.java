@@ -74,6 +74,7 @@ public class ViewProjectFileExecutor extends AbstractBizExecutor<ViewProjectFile
         PreviewData previewData = null;
         try {
             previewData = FileCustomUtils.processFilePreviewData(file, url);
+            previewData.setResourceId(request.getResourceId());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
