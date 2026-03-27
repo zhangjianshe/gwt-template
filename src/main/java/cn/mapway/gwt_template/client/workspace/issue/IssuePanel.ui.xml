@@ -12,6 +12,8 @@
             align-items: center;
             justify-content: space-between;
             gap: 8px;
+            height: 45px;
+            overflow: hidden;
         }
 
         .title {
@@ -19,18 +21,18 @@
             font-weight: bold;
             border: solid 1px transparent;
             border-radius: 6px;
-            padding: 6px 4px;
+            padding: 6px 6px;
             width: 100%;
         }
 
-        .title:HOVER {
-            border: solid 1px #eee;
-            background-color: #f0f0f0;
+        .title[contenteditable=true] {
+            border: dashed 1px deepskyblue;
         }
 
-        .title:focus {
-            outline: solid 1px brown;
+        .title[contenteditable=true]:HOVER {
+            border: dashed 1px green;
         }
+
 
         .toolbar {
             display: flex;
@@ -50,9 +52,12 @@
             margin-top: 10px;
             padding: 10px;
             border-radius: 6px;
-          /*border: solid 1px #e0e0e0;*/
             height: 180px;
             overflow: auto;
+        }
+
+        .body[enabled=true] {
+            border: dashed 1px deepskyblue;
         }
 
         .top {
@@ -84,7 +89,7 @@
                             <g:Image ui:field="iconState" width="28px" height="28px"/>
                             <widget:EditableLabel addStyleNames="{style.title}" ui:field="txtName"/>
                         </g:HTMLPanel>
-                        <widget:MarkdownBox ui:field="markdownBox" addStyleNames="{style.body}"/>
+                        <widget:MarkdownBox tip="点击编辑" ui:field="markdownBox" addStyleNames="{style.body}"/>
                     </g:HTMLPanel>
                 </g:north>
                 <g:north size="0">

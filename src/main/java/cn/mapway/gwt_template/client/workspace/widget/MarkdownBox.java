@@ -5,6 +5,7 @@ import cn.mapway.ace.client.AceEditor;
 import cn.mapway.ace.client.AceEditorCallback;
 import cn.mapway.ace.client.AceEditorMode;
 import cn.mapway.gwt_template.client.js.markdown.MarkdownConvert;
+import cn.mapway.ui.client.util.StringUtil;
 import cn.mapway.ui.client.widget.CommonEventComposite;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
@@ -19,6 +20,7 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.HasValue;
+import lombok.Setter;
 
 public class MarkdownBox extends CommonEventComposite implements HasValue<String> {
     private static final MarkdownViewerUiBinder ourUiBinder = GWT.create(MarkdownViewerUiBinder.class);
@@ -31,6 +33,8 @@ public class MarkdownBox extends CommonEventComposite implements HasValue<String
     HTMLPanel root;
     MarkdownConvert convert;
     boolean initialized = false;
+    @Setter
+    String tip = "";
 
     public MarkdownBox() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -58,9 +62,17 @@ public class MarkdownBox extends CommonEventComposite implements HasValue<String
 
     private void toUI() {
         if (viewMode) {
-            body.setHTML(convert.makeHtml(data));
+            viewData();
         } else {
             aceEditor.setValue(data);
+        }
+    }
+
+    private void viewData() {
+        if (StringUtil.isBlank(data) && StringUtil.isNotBlank(tip) && getEnabled()) {
+            body.setHTML("<p style='padding:20px;color:#f0f0f0;font-size:2rem;text-align:center;'>" + tip + "</p>");
+        } else {
+            body.setHTML(convert.makeHtml(data));
         }
     }
 
@@ -77,7 +89,7 @@ public class MarkdownBox extends CommonEventComposite implements HasValue<String
                 aceEditor.setVisible(false);
             }
             body.setVisible(true);
-            body.setHTML(convert.makeHtml(data));
+            viewData();
             ValueChangeEvent.fire(this, getValue());
         } else {
             body.setVisible(false);

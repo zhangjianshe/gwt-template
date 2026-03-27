@@ -5,8 +5,8 @@ import lombok.Getter;
 
 public enum IssueState {
     IS_UNKNOWN(-1, "全部", Fonts.GROUP, true),
-    IS_OPEN(1, "打开中", Fonts.PROCESS, false),
-    IS_CLOSED(2, "关闭中", Fonts.FINISH, false);
+    IS_OPEN(1, "打开", Fonts.PROCESS, false),
+    IS_CLOSED(2, "关闭", Fonts.FINISH, false);
 
     @Getter
     final Integer code;

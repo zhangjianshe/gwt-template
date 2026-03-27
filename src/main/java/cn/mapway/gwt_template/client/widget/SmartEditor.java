@@ -15,12 +15,15 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.TextArea;
+import elemental2.core.JsArray;
 import elemental2.dom.*;
 import jsinterop.base.Js;
+import jsinterop.base.JsArrayLike;
 import lombok.Setter;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * 智能编辑器
@@ -52,6 +55,7 @@ public class SmartEditor extends CommonEventComposite implements IData<String> {
         initWidget(ourUiBinder.createAndBindUi(this));
         initUploadFeature();
         initPasteSupport();
+        initDragAndDropSupport();
         editor.getElement().setAttribute("contenteditable", "true");
         editor.getElement().setAttribute("placeholder", "写点什么? Shift+Enter 换行编写");
         editor.addKeyDownHandler(event -> {
@@ -104,6 +108,41 @@ public class SmartEditor extends CommonEventComposite implements IData<String> {
             return null;
         };
     }
+    private void initDragAndDropSupport() {
+        // 将 GWT Element 转为 Elemental2 的 HTMLElement
+        elemental2.dom.HTMLElement el = Js.uncheckedCast(editor.getElement());
+
+        // 1. 必须监听 dragover 并阻止默认行为，否则 drop 事件不会触发
+        el.addEventListener("dragover", evt -> {
+            evt.stopPropagation();
+            evt.preventDefault();
+
+            // 可选：添加一个视觉反馈，比如改变边框颜色
+            el.style.backgroundColor = "rgba(0,0,0,0.05)";
+        });
+
+        // 2. 监听 dragleave 恢复样式
+        el.addEventListener("dragleave", evt -> {
+            el.style.backgroundColor = "";
+        });
+
+        // 3. 处理放置事件
+        el.addEventListener("drop", evt -> {
+            elemental2.dom.DragEvent dragEvt = (elemental2.dom.DragEvent) evt;
+
+            evt.stopPropagation();
+            evt.preventDefault();
+            el.style.backgroundColor = ""; // 恢复样式
+
+            if (dragEvt.dataTransfer != null && dragEvt.dataTransfer.files.length > 0) {
+                FileList files = dragEvt.dataTransfer.files;
+
+                // 注意：handleFiles 接收的是 JsArrayLike<File>
+                // FileList 原生兼容 JsArrayLike，所以可以直接传入
+                handleFiles(files);
+            }
+        });
+    }
 
     private void initPasteSupport() {
         // 将 GWT 的 Element 转为 Elemental2 的 HTMLElement
@@ -113,20 +152,24 @@ public class SmartEditor extends CommonEventComposite implements IData<String> {
             elemental2.dom.ClipboardEvent cbEvent = (elemental2.dom.ClipboardEvent) evt;
             elemental2.dom.DataTransferItemList items = cbEvent.clipboardData.items;
 
+            JsArray<File> files = new JsArray<>();
             for (int i = 0; i < items.length; i++) {
                 elemental2.dom.DataTransferItem item = items.getAt(i);
-                if (item.type.contains("image")) {
-                    File file = item.getAsFile();
-                    DomGlobal.console.log("检测到粘贴图片: " + file.name);
-                    // 执行上传逻辑...
+                if (Objects.equals(item.kind.toLowerCase(), "file")) {
+                    files.push(item.getAsFile());
                 }
+            }
+            if (files.length > 0) {
+                evt.stopPropagation();
+                evt.preventDefault();
+                handleFiles(files);
             }
         });
     }
 
-    private void handleFiles(FileList files) {
-        for (int i = 0; i < files.length; i++) {
-            File file = files.item(i);
+    private void handleFiles(JsArrayLike<File> files) {
+        for (int i = 0; i < files.getLength(); i++) {
+            File file = files.getAt(i);
             DomGlobal.console.log("准备上传文件: " + file.name + " (" + file.size + " bytes)");
             btnUpload.setEnabled(false); // 简单处理：上传期间禁用按钮
             // 1. 立即创建一个预览卡片并加入 UI
@@ -143,7 +186,7 @@ public class SmartEditor extends CommonEventComposite implements IData<String> {
             doUploadWithProgress(file, card);
         }
 
-        if (files.length > 0) {
+        if (files.getLength() > 0) {
             attachmentPanel.setHeight(ATTACHMENT_HEIGHT + "px");
             int height = root.getOffsetHeight() + ATTACHMENT_HEIGHT + 80;
             root.setWidgetSize(bottomPanel, ATTACHMENT_HEIGHT);
