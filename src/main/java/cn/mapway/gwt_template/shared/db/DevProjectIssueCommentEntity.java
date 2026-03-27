@@ -35,6 +35,7 @@ public class DevProjectIssueCommentEntity implements Serializable, IsSerializabl
     public static final String FLD_CREATE_USER_NAME = "user_name";
     public static final String FLD_KIND = "kind";
     public static final String FLD_ATTACHMENTS = "attachments";
+    public static final String FLD_CREATE_USER_AVATAR = "user_avatar";
 
     @Column(FLD_ID)
     @Comment("回复ID")
@@ -76,6 +77,11 @@ public class DevProjectIssueCommentEntity implements Serializable, IsSerializabl
     @Column(FLD_CREATE_USER_NAME)
     @Comment("创建用户名")
     String userName;
+
+    @Column(FLD_CREATE_USER_AVATAR)
+    @Comment("创建用户头像")
+    @ColDefine(type = ColType.VARCHAR, width = 512)
+    String userAvatar;
 
     @Column(FLD_KIND)
     @Comment("评论类型")

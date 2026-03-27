@@ -63,6 +63,7 @@ public class UpdateProjectIssueCommentExecutor extends AbstractBizExecutor<Updat
         comment.setCreateTime(new Timestamp(System.currentTimeMillis()));
         comment.setCreateUserId(currentOperator);
         comment.setUserName(user.getUserName());
+        comment.setUserAvatar(user.getAvatar());
         comment.setId(R.UU16());
         comment.setProjectId(issue.getProjectId());
         UpdateProjectIssueCommentResponse response = new UpdateProjectIssueCommentResponse();
