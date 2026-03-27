@@ -349,12 +349,22 @@ public class IssuePanel extends CommonEventComposite implements IData<DevProject
         Style style = scroller.getElement().getStyle();
         style.setPaddingBottom(DEFAULT_HEIGHT + 10, Style.Unit.PX);
         root.setWidgetBottomHeight(editor, 0, Style.Unit.PX, DEFAULT_HEIGHT, Style.Unit.PX);
-        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+
+        // 使用多次延迟确保在图片加载和布局完成后滚动
+        scheduleScrollToBottom();
+    }
+
+    private void scheduleScrollToBottom() {
+        // 第一次尝试：立即排期
+        Scheduler.get().scheduleDeferred(() -> scroller.scrollToBottom());
+
+        // 第二次尝试：稍作延迟，处理图片异步撑开高度的情况
+        new com.google.gwt.user.client.Timer() {
             @Override
-            public void execute() {
+            public void run() {
                 scroller.scrollToBottom();
             }
-        });
+        }.schedule(300); // 300ms 通常足以让浏览器计算出新加入图片的初始布局
     }
 
     interface IssuePanelUiBinder extends UiBinder<LayoutPanel, IssuePanel> {
