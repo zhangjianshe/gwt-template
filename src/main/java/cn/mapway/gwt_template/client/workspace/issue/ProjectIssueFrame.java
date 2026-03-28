@@ -35,7 +35,6 @@ import com.google.gwt.user.client.ui.*;
 
 public class ProjectIssueFrame extends CommonEventComposite implements IData<String> {
     private static final ProjectIssueFrameUiBinder ourUiBinder = GWT.create(ProjectIssueFrameUiBinder.class);
-    private final int pageSize = 20;
     @UiField
     FlexTable table;
     @UiField
@@ -62,6 +61,7 @@ public class ProjectIssueFrame extends CommonEventComposite implements IData<Str
     SearchBox searchBox;
     @UiField
     IssuePanel issuePanel;
+    private int pageSize = 20;
     private int currentPage = 1;
     private String projectId;
     // 定义一个变量记录当前选中行
@@ -133,13 +133,13 @@ public class ProjectIssueFrame extends CommonEventComposite implements IData<Str
 
         // 添加新的选中样式
         selectedRowIndex = rowIndex;
-        rowFormatter.addStyleName(selectedRowIndex, style.selectedRow());
 
         //     table.getRowFormatter().getElement(row).setPropertyObject("data", issue);
         Object object = rowFormatter.getElement(rowIndex).getPropertyObject("data");
         if (object instanceof DevProjectIssueEntity) {
             DevProjectIssueEntity issue = (DevProjectIssueEntity) object;
             issuePanel.setData(issue);
+            rowFormatter.addStyleName(selectedRowIndex, style.selectedRow());
         } else {
             issuePanel.setData(null);
         }
@@ -242,11 +242,12 @@ public class ProjectIssueFrame extends CommonEventComposite implements IData<Str
     private void updatePager(QueryProjectIssueResponse data) {
         lblCurrentPage.setText("第 " + currentPage + " 页");
         // 假设后端返回了总数数据（如果没有，请在 Response 中增加 totalCount）
-        // lblPageInfo.setText("共 " + data.getTotalCount() + " 条");
-
+        lblPageInfo.setText("共 " + data.getTotal() + " 条");
+        currentPage = data.getPage();
+        pageSize = data.getPageSize();
         // 简单控制按钮状态
         btnPrev.setEnabled(currentPage > 1);
-        // btnNext.setEnabled(data.getIssues().size() == pageSize);
+        btnNext.setEnabled(currentPage < ((int) (data.getTotal() * 1.0 / pageSize)) + 1);
     }
 
     private void initTableHeader() {
@@ -276,8 +277,12 @@ public class ProjectIssueFrame extends CommonEventComposite implements IData<Str
         // 2. 渲染数据行
         if (data.getIssues() == null || data.getIssues().isEmpty()) {
             MessagePanel messagePanel = new MessagePanel();
-            messagePanel.setText("暂无数据");
-            messagePanel.setHeight("300px");
+            HTMLPanel panel = new HTMLPanel("");
+            panel.setStyleName("ai-flex-panel");
+            panel.add(new Image("/img/nodata.svg"));
+            panel.add(new Label("暂无数据"));
+            messagePanel.appendWidget(panel);
+            messagePanel.setHeight("400px");
             table.setWidget(1, 0, messagePanel);
             table.getFlexCellFormatter().setColSpan(1, 0, headers.length);
             return;

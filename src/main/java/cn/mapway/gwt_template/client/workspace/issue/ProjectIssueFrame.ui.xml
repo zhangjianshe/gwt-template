@@ -37,7 +37,7 @@
             z-index: 10;
             background-color: #f8f8f8; /* 稍微浅一点的灰色 */
             font-weight: bold;
-            height: 45px;
+            height: 52px;
         }
 
         /* 最后一个单元格去掉右边框 */
@@ -48,6 +48,7 @@
         .selectedRow td {
             background-color: #d1eaff !important; /* 选中的淡蓝色 */
             border-bottom: 1px solid #99c9ff;
+            border-top: 1px solid #99c9ff;
         }
 
         .dataRow:hover td {

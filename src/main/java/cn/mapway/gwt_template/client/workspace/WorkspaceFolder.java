@@ -137,7 +137,6 @@ public class WorkspaceFolder extends CommonEventComposite implements IData<DevWo
         AppCss appCss = AppResource.INSTANCE.styles();
         // 设置表头样式
         table.addStyleName(appCss.table());
-        table.getRowFormatter().addStyleName(0, appCss.tableHeader());
 
         int col = 0;
         table.setText(0, col++, "项目名称");
@@ -147,10 +146,14 @@ public class WorkspaceFolder extends CommonEventComposite implements IData<DevWo
         table.setText(0, col++, "创建人");
         table.setText(0, col++, "添加到桌面");
         table.setText(0, col++, "操作");
+        HTMLTable.RowFormatter rowFormatter = table.getRowFormatter();
+        rowFormatter.addStyleName(0, appCss.tableHeader());
+
 
 
         FlexTable.FlexCellFormatter formatter = table.getFlexCellFormatter();
         formatter.getElement(0, 0).getStyle().setProperty("width", "40%"); // 名称占 40%
+        formatter.getElement(0, 0).getStyle().setProperty("height", "60px"); // 名称占 40%
         formatter.getElement(0, 1).getStyle().setProperty("width", "120px"); // 时间
         formatter.getElement(0, 2).getStyle().setProperty("width", "120px"); // 进度
 

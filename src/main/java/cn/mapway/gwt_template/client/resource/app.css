@@ -156,7 +156,7 @@
     color: #1890ff; /* 品牌蓝 */
     font-weight: 600; /* 加粗 */
     cursor: pointer; /* 提示可点击 */
-    font-size: 14px;
+    font-size: 1rem;
     transition: color 0.2s ease;
 }
 
@@ -225,7 +225,7 @@
     height: 100%;
 }
 
-.projectItem{
+.projectItem {
     line-height: 200%;
 }
 
