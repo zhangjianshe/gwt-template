@@ -112,7 +112,7 @@
         <g:layer>
             <g:HTMLPanel addStyleNames="{style.box1}" ui:field="page">
                 <div class="{style.login-container}">
-                    <h2>系统登录</h2>
+                    <h2>苍灵开发平台</h2>
                     <form method="POST" class="{style.box}">
                         <div class="{style.input-group}">
                             <label for="txtName">用户名</label>
