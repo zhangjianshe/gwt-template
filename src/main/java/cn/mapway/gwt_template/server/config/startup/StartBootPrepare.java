@@ -36,7 +36,7 @@ import java.util.regex.Pattern;
 @Service
 @Slf4j
 public class StartBootPrepare implements ApplicationContextAware {
-    public final static String DB_VERSION = "2026-09-12";
+    public final static String DB_VERSION = "2026-06-12";
     @Resource
     Dao dao;
     ApplicationContext context;
@@ -245,6 +245,10 @@ public class StartBootPrepare implements ApplicationContextAware {
         checkAndCreate(DevProjectActionEntity.class);
         checkAndCreate(DevProjectResourceEntity.class);
         checkAndCreate(DevProjectResourceMemberEntity.class);
+        // WIKI
+        checkAndCreate(DevProjectPageEntity.class);
+        checkAndCreate(DevProjectPageCommitEntity.class);
+        checkAndCreate(DevProjectPageSectionEntity.class);
 
 
         log.info("[DB] 完成数据库表的初始化");

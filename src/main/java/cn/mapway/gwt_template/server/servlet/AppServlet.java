@@ -132,6 +132,56 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
     ///CODE_GEN_INSERT_POINT///
 	
     @Resource
+    QueryPageSectionExecutor queryPageSectionExecutor;
+    @Override
+    public RpcResult<QueryPageSectionResponse> queryPageSection(QueryPageSectionRequest request) {
+        BizResult<QueryPageSectionResponse> bizResult = queryPageSectionExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    UpdatePageSectionExecutor updatePageSectionExecutor;
+    @Override
+    public RpcResult<UpdatePageSectionResponse> updatePageSection(UpdatePageSectionRequest request) {
+        BizResult<UpdatePageSectionResponse> bizResult = updatePageSectionExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    LoadPageExecutor loadPageExecutor;
+    @Override
+    public RpcResult<LoadPageResponse> loadPage(LoadPageRequest request) {
+        BizResult<LoadPageResponse> bizResult = loadPageExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    QueryPageExecutor queryPageExecutor;
+    @Override
+    public RpcResult<QueryPageResponse> queryPage(QueryPageRequest request) {
+        BizResult<QueryPageResponse> bizResult = queryPageExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    UpdatePageExecutor updatePageExecutor;
+    @Override
+    public RpcResult<UpdatePageResponse> updatePage(UpdatePageRequest request) {
+        BizResult<UpdatePageResponse> bizResult = updatePageExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
     ViewAttachmentFileExecutor viewAttachmentFileExecutor;
     @Override
     public RpcResult<ViewAttachmentFileResponse> viewAttachmentFile(ViewAttachmentFileRequest request) {

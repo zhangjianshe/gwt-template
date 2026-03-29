@@ -26,6 +26,16 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public interface IAppServerAsync {
 
     ///CODE_GEN_INSERT_POINT///
+	void queryPageSection(QueryPageSectionRequest request, AsyncCallback<RpcResult<QueryPageSectionResponse>> async);
+
+	void updatePageSection(UpdatePageSectionRequest request, AsyncCallback<RpcResult<UpdatePageSectionResponse>> async);
+
+	void loadPage(LoadPageRequest request, AsyncCallback<RpcResult<LoadPageResponse>> async);
+
+	void queryPage(QueryPageRequest request, AsyncCallback<RpcResult<QueryPageResponse>> async);
+
+	void updatePage(UpdatePageRequest request, AsyncCallback<RpcResult<UpdatePageResponse>> async);
+
 	void viewAttachmentFile(ViewAttachmentFileRequest request, AsyncCallback<RpcResult<ViewAttachmentFileResponse>> async);
 
 	void markdownToHtml(MarkdownToHtmlRequest request, AsyncCallback<RpcResult<MarkdownToHtmlResponse>> async);

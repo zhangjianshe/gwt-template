@@ -8,6 +8,7 @@ import cn.mapway.gwt_template.server.service.file.CommonFileUploadExecutor;
 import cn.mapway.gwt_template.server.service.file.FileCustomUtils;
 import cn.mapway.gwt_template.server.service.project.*;
 import cn.mapway.gwt_template.server.service.project.res.*;
+import cn.mapway.gwt_template.server.service.project.wiki.*;
 import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.db.DevProjectIssueEntity;
 import cn.mapway.gwt_template.shared.db.DevProjectTaskEntity;
@@ -17,6 +18,7 @@ import cn.mapway.gwt_template.shared.rpc.project.*;
 import cn.mapway.gwt_template.shared.rpc.project.module.CommonPermission;
 import cn.mapway.gwt_template.shared.rpc.project.module.DevTaskCatalog;
 import cn.mapway.gwt_template.shared.rpc.project.res.*;
+import cn.mapway.gwt_template.shared.rpc.project.wiki.*;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
 import cn.mapway.gwt_template.shared.rpc.workspace.ExportDevProjectTaskRequest;
 import cn.mapway.gwt_template.shared.rpc.workspace.ExportDevProjectTaskResponse;
@@ -165,6 +167,83 @@ public class DevProjectController extends ApiBaseController {
     DeleteTaskAttachmentsExecutor deleteTaskAttachmentsExecutor;
     @Resource
     UpdateFavoriteProjectExecutor updateFavoriteProjectExecutor;
+
+
+    @Resource
+    UpdatePageExecutor updatePageExecutor;
+    @Resource
+    QueryPageExecutor queryPageExecutor;
+    @Resource
+    LoadPageExecutor loadPageExecutor;
+    @Resource
+    UpdatePageSectionExecutor updatePageSectionExecutor;
+    @Resource
+    QueryPageSectionExecutor queryPageSectionExecutor;
+
+    /**
+     * UpdatePage
+     *
+     * @param request request
+     * @return data
+     */
+    @Doc(value = "UpdatePage", retClazz = {UpdatePageResponse.class})
+    @RequestMapping(value = "/updatePage", method = RequestMethod.POST)
+    public RpcResult<UpdatePageResponse> updatePage(@RequestBody UpdatePageRequest request) {
+        BizResult<UpdatePageResponse> bizResult = updatePageExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toApiResult(bizResult);
+    }
+
+    /**
+     * QueryPage
+     *
+     * @param request request
+     * @return data
+     */
+    @Doc(value = "QueryPage", retClazz = {QueryPageResponse.class})
+    @RequestMapping(value = "/queryPage", method = RequestMethod.POST)
+    public RpcResult<QueryPageResponse> queryPage(@RequestBody QueryPageRequest request) {
+        BizResult<QueryPageResponse> bizResult = queryPageExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toApiResult(bizResult);
+    }
+
+    /**
+     * LoadPage
+     *
+     * @param request request
+     * @return data
+     */
+    @Doc(value = "LoadPage", retClazz = {LoadPageResponse.class})
+    @RequestMapping(value = "/loadPage", method = RequestMethod.POST)
+    public RpcResult<LoadPageResponse> loadPage(@RequestBody LoadPageRequest request) {
+        BizResult<LoadPageResponse> bizResult = loadPageExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toApiResult(bizResult);
+    }
+
+    /**
+     * UpdatePageSection
+     *
+     * @param request request
+     * @return data
+     */
+    @Doc(value = "UpdatePageSection", retClazz = {UpdatePageSectionResponse.class})
+    @RequestMapping(value = "/updatePageSection", method = RequestMethod.POST)
+    public RpcResult<UpdatePageSectionResponse> updatePageSection(@RequestBody UpdatePageSectionRequest request) {
+        BizResult<UpdatePageSectionResponse> bizResult = updatePageSectionExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toApiResult(bizResult);
+    }
+
+    /**
+     * QueryPageSection
+     *
+     * @param request request
+     * @return data
+     */
+    @Doc(value = "QueryPageSection", retClazz = {QueryPageSectionResponse.class})
+    @RequestMapping(value = "/queryPageSection", method = RequestMethod.POST)
+    public RpcResult<QueryPageSectionResponse> queryPageSection(@RequestBody QueryPageSectionRequest request) {
+        BizResult<QueryPageSectionResponse> bizResult = queryPageSectionExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toApiResult(bizResult);
+    }
 
     /**
      * QueryTaskAttachments
@@ -334,8 +413,8 @@ public class DevProjectController extends ApiBaseController {
         resp.setHeader("Content-Disposition", "inline; filename=\"" + URLEncoder.encode(target.getName(), StandardCharsets.UTF_8) + "\"");
 
         // 设置缓存策略：这里设置缓存 1 天，且允许协商缓存
-        Long cacheAge=7*86400L;
-        resp.setHeader("Cache-Control", "public, max-age="+cacheAge);
+        Long cacheAge = 7 * 86400L;
+        resp.setHeader("Cache-Control", "public, max-age=" + cacheAge);
         resp.setDateHeader("Last-Modified", lastModified);
         resp.setHeader("X-Frame-Options", "SAMEORIGIN");
 
