@@ -6,6 +6,7 @@ import cn.mapway.gwt_template.client.resource.AppResource;
 import cn.mapway.gwt_template.client.rpc.AppProxy;
 import cn.mapway.gwt_template.client.rpc.AsyncAdaptor;
 import cn.mapway.gwt_template.client.widget.SmartEditor;
+import cn.mapway.gwt_template.client.widget.Uploader;
 import cn.mapway.gwt_template.client.widget.file.CommonFileUploadResult;
 import cn.mapway.gwt_template.client.widget.file.UploadData;
 import cn.mapway.gwt_template.client.workspace.widget.EditableLabel;
@@ -46,7 +47,7 @@ public class IssuePanel extends CommonEventComposite implements IData<DevProject
     @UiField
     LayoutPanel root;
     @UiField
-    DockLayoutPanel main;
+    SplitLayoutPanel main;
     @UiField
     MessagePanel messagePanel;
     @UiField
@@ -77,6 +78,10 @@ public class IssuePanel extends CommonEventComposite implements IData<DevProject
     AiButton btnPublish;
     @UiField
     Image iconState;
+    @UiField
+    Uploader btnUploader;
+    @UiField
+    DockLayoutPanel top;
     MarkdownConvert convert;
     private DevProjectIssueEntity issue;
 
@@ -123,21 +128,24 @@ public class IssuePanel extends CommonEventComposite implements IData<DevProject
             txtName.setEditable(false);
             ddlPriority.setEnabled(false);
             markdownBox.setEnabled(false);
-            main.setWidgetSize(saveBar, ADMIN_BAR_HEIGHT);
+            top.setWidgetSize(saveBar, ADMIN_BAR_HEIGHT);
             if (isCreator) {
                 btnReopen.setVisible(true);
                 btnSave.setVisible(false);
+                btnUploader.setVisible(false);
             } else {
                 btnReopen.setVisible(false);
                 btnSave.setVisible(false);
+                btnUploader.setVisible(false);
             }
         } else {
             //打开的问题
             iconState.setResource(AppResource.INSTANCE.statusOpen());
             btnReopen.setVisible(false);
             if (isCreator) {
-                main.setWidgetSize(saveBar, ADMIN_BAR_HEIGHT);
+                top.setWidgetSize(saveBar, ADMIN_BAR_HEIGHT);
                 btnSave.setVisible(true);
+                btnUploader.setVisible(true);
                 txtName.setEditable(true);
                 ddlPriority.setEnabled(true);
                 markdownBox.setEnabled(true);
@@ -146,13 +154,13 @@ public class IssuePanel extends CommonEventComposite implements IData<DevProject
                 assignTo.setAvatar(issue.getCreateAvatar(), issue.getChargeAvatar());
 
             } else if (isCharge) {
-                main.setWidgetSize(saveBar, 0);
+                top.setWidgetSize(saveBar, 0);
                 root.setWidgetVisible(editor, true);
                 txtName.setEditable(false);
                 ddlPriority.setEnabled(false);
                 markdownBox.setEnabled(false);
             } else {
-                main.setWidgetSize(saveBar, 0);
+                top.setWidgetSize(saveBar, 0);
                 root.setWidgetVisible(editor, false);
                 txtName.setEditable(false);
                 ddlPriority.setEnabled(false);
@@ -160,9 +168,10 @@ public class IssuePanel extends CommonEventComposite implements IData<DevProject
             }
         }
 
+        String path = AppConstant.UPLOAD_PREFIX_ISSUE_ATTACHMENT + issue.getId();
+        btnUploader.setActionAndPath(AppConstant.DEFAULT_UPLOAD_LOCATION, path);
 
-        editor.setUploadUrl("/api/v1/project/upload");
-        editor.clearUploadData().appendUploadData("path", AppConstant.UPLOAD_PREFIX_ISSUE_ATTACHMENT + issue.getId());
+        editor.setActionAndPath(AppConstant.DEFAULT_UPLOAD_LOCATION,path);
         assignTo.setProjectId(issue.getProjectId());
         loadComments(issue.getId());
     }
@@ -339,6 +348,21 @@ public class IssuePanel extends CommonEventComposite implements IData<DevProject
     @UiHandler("btnPublish")
     public void btnPublishClick(ClickEvent event) {
         publishComment();
+    }
+
+    @UiHandler("btnUploader")
+    public void btnUploaderCommon(CommonEvent event) {
+        if (event.isUpload()) {
+            UploadData result = Js.uncheckedCast(event.getValue());
+            String data = markdownBox.getValue();
+            String link = "";
+            if (result.mime != null && result.mime.startsWith("image/")) {
+                link = "\n\n![" + result.fileName + "](<" + result.relPath + ">)";
+            } else {
+                link = "\n\n[" + result.fileName + "](<" + result.relPath + ">)";
+            }
+            markdownBox.setValue(data + link);
+        }
     }
 
     private void adjustToDefaultSize(Integer needHeight) {

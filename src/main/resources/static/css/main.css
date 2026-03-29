@@ -816,6 +816,11 @@ body {
     background-color: var(--color-aux-green);
 }
 
+.gwt-SplitLayoutPanel .gwt-SplitLayoutPanel-VDragger{
+    border-top: solid 1px var(--color-text-tip);
+    background-color: white;
+    cursor: row-resize;
+}
 .gwt-SplitLayoutPanel .gwt-SplitLayoutPanel-HDragger {
     border-left: solid 1px var(--color-text-tip);
     background-color: white;

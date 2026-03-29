@@ -12,6 +12,7 @@
             align-items: center;
             justify-content: space-between;
             gap: 8px;
+            padding: 0 10px;
             height: 45px;
             overflow: hidden;
         }
@@ -49,10 +50,9 @@
         }
 
         .body {
-            margin-top: 10px;
+            margin: 10px;
             padding: 10px;
             border-radius: 6px;
-            height: 180px;
             overflow: auto;
         }
 
@@ -78,44 +78,49 @@
 
         .scroller {
             padding: 15px 0 0 0;
-            border-top: solid 1px #d0d0d0;
-        }</ui:style>
+        }
+    </ui:style>
     <g:LayoutPanel ui:field="root">
         <g:layer>
-            <g:DockLayoutPanel visible="false" ui:field="main">
-                <g:north size="240">
-                    <g:HTMLPanel addStyleNames="{style.top}">
-                        <g:HTMLPanel addStyleNames="{style.row}">
-                            <g:Image ui:field="iconState" width="28px" height="28px"/>
-                            <widget:EditableLabel addStyleNames="{style.title}" ui:field="txtName"/>
-                        </g:HTMLPanel>
-                        <widget:MarkdownBox tip="点击编辑" ui:field="markdownBox" addStyleNames="{style.body}"/>
-                    </g:HTMLPanel>
+            <g:SplitLayoutPanel visible="false" ui:field="main">
+                <g:north size="320">
+                    <g:DockLayoutPanel ui:field="top">
+                        <g:north size="45">
+                            <g:HTMLPanel addStyleNames="{style.row}">
+                                <g:Image ui:field="iconState" width="28px" height="28px"/>
+                                <widget:EditableLabel addStyleNames="{style.title}" ui:field="txtName"/>
+                            </g:HTMLPanel>
+                        </g:north>
+                        <g:south size="0">
+                            <g:HTMLPanel ui:field="saveBar" addStyleNames="{style.toolbar}">
+                                <g:Label ui:field="tip" addStyleNames="{style.tip}"/>
+                                <widget:TaskPriorityDropdown ui:field="ddlPriority"/>
+                                <buttons:AiButton ui:field="btnReopen" type="danger">重新打开</buttons:AiButton>
+                                <widget3:Uploader ui:field="btnUploader"/>
+                                <buttons:AiButton ui:field="btnSave" type="warning">更新</buttons:AiButton>
+                            </g:HTMLPanel>
+                        </g:south>
+                        <g:south size="0">
+                            <g:HTMLPanel>
+                                <g:HTMLPanel ui:field="inputTools" addStyleNames="{style.commentBottom}">
+                                    <widget2:Header>转移任务</widget2:Header>
+                                    <issue:AssignUserPanel addStyleNames="ai-button--success" ui:field="assignTo"/>
+                                    <buttons:AiButton type="success" ui:field="btnClose">关闭问题</buttons:AiButton>
+                                    <buttons:AiButton type="warning" ui:field="btnPublish">发布</buttons:AiButton>
+                                </g:HTMLPanel>
+                            </g:HTMLPanel>
+                        </g:south>
+                        <g:center>
+                            <widget:MarkdownBox tip="点击编辑" ui:field="markdownBox" addStyleNames="{style.body}"/>
+                        </g:center>
+                    </g:DockLayoutPanel>
                 </g:north>
-                <g:north size="0">
-                    <g:HTMLPanel ui:field="saveBar" addStyleNames="{style.toolbar}">
-                        <g:Label ui:field="tip" addStyleNames="{style.tip}"/>
-                        <widget:TaskPriorityDropdown ui:field="ddlPriority"/>
-                        <buttons:AiButton ui:field="btnReopen" type="danger">重新打开</buttons:AiButton>
-                        <buttons:AiButton ui:field="btnSave" type="warning">更新</buttons:AiButton>
-                    </g:HTMLPanel>
-                </g:north>
-                <g:south size="0">
-                    <g:HTMLPanel>
-                        <g:HTMLPanel ui:field="inputTools" addStyleNames="{style.commentBottom}">
-                            <widget2:Header>转移任务</widget2:Header>
-                            <issue:AssignUserPanel addStyleNames="ai-button--success" ui:field="assignTo"/>
-                            <buttons:AiButton type="success" ui:field="btnClose">关闭问题</buttons:AiButton>
-                            <buttons:AiButton type="warning" ui:field="btnPublish">发布</buttons:AiButton>
-                        </g:HTMLPanel>
-                    </g:HTMLPanel>
-                </g:south>
                 <g:center>
                     <g:ScrollPanel addStyleNames="{style.scroller}" ui:field="scroller">
                         <g:HTMLPanel ui:field="commentContainer" addStyleNames="{style.container}"/>
                     </g:ScrollPanel>
                 </g:center>
-            </g:DockLayoutPanel>
+            </g:SplitLayoutPanel>
         </g:layer>
         <g:layer left="0" right="0" bottom="0" height="0">
             <widget3:SmartEditor ui:field="editor"/>

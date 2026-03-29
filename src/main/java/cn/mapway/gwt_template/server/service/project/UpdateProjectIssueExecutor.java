@@ -75,7 +75,6 @@ public class UpdateProjectIssueExecutor extends AbstractBizExecutor<UpdateProjec
             }
             issue.setStartTime(new Timestamp(System.currentTimeMillis()));
             issue.setEstimateTime(new Timestamp(System.currentTimeMillis() + 2 * 24 * 60 * 60 * 1000));
-            issue.setAttachments("[]");
             issue.setPriority(DevTaskPriority.MEDIUM.getCode());
             issue.setTaskId("");
             issue.setComments(0);

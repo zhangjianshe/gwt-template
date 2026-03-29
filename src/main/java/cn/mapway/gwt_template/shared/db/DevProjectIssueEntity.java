@@ -37,7 +37,6 @@ public class DevProjectIssueEntity implements Serializable, IsSerializable {
     public static final String FLD_PRIORITY = "priority";
     public static final String FLD_STATE = "state";
     public static final String FLD_TASK_ID = "task_id";
-    public static final String FLD_ATTACHMENTS = "attachments";
     public static final String FLD_COMMENTS = "comments";
     public static final String FLD_SUMMARY = "summary";
 
@@ -107,11 +106,6 @@ public class DevProjectIssueEntity implements Serializable, IsSerializable {
     @Default("")
     String taskId;
 
-    @Column(FLD_ATTACHMENTS)
-    @Comment("关联的附件")
-    @ColDefine(type = ColType.TEXT)
-    String attachments;
-
 
     @Column(FLD_COMMENTS)
     @Comment("回复数")
@@ -120,7 +114,7 @@ public class DevProjectIssueEntity implements Serializable, IsSerializable {
 
     @Column(FLD_SUMMARY)
     @Comment("介绍")
-    @ColDefine(type = ColType.VARCHAR)
+    @ColDefine(type = ColType.TEXT)
     @Default("")
     String summary;
 

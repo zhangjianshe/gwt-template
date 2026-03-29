@@ -1,6 +1,7 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
              xmlns:g='urn:import:com.google.gwt.user.client.ui'
-             xmlns:buttons="urn:import:cn.mapway.ui.client.widget.buttons">
+             xmlns:buttons="urn:import:cn.mapway.ui.client.widget.buttons"
+             xmlns:widget="urn:import:cn.mapway.gwt_template.client.widget">
     <ui:style>
         .box {
             margin: 15px;
@@ -41,27 +42,13 @@
             background-color: #ecf5ff;
         }
 
-        .uploader {
-            border-radius: 50%;
-            padding: 8px;
-        }
-
-        .uploader:HOVER {
-            background-color: #95d475;
-            color: white;
-        }
 
     </ui:style>
     <g:DockLayoutPanel addStyleNames="{style.box}" ui:field="root">
         <g:south size="50">
             <g:HTMLPanel width="100%" ui:field="tools" addStyleNames="{style.tools}">
-                <buttons:PlusButton addStyleNames="{style.uploader}" ui:field="btnUpload"/>
+                <widget:Uploader ui:field="btnUpload"/>
                 <g:HorizontalPanel ui:field="toolbar"/>
-            </g:HTMLPanel>
-        </g:south>
-        <g:south size="0">
-            <g:HTMLPanel ui:field="bottomPanel">
-                <g:FlowPanel ui:field="attachmentPanel" addStyleNames="{style.attachment-container}"/>
             </g:HTMLPanel>
         </g:south>
         <g:center>

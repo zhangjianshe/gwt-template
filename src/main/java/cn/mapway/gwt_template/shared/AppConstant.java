@@ -11,7 +11,7 @@ public class AppConstant {
     public static final String KEY_DB_VERSION = "db_version";
     public static final String KEY_CLOUDFLARE_TOKEN = "cloudflare_token";
     public static final String SYS_CODE = "SYS_SOFTWARE";
-    public static final String DEFAULT_UPLOAD_LOCATION = "DEFAULT_UPLOAD_LOCATION";
+    public static final String DEFAULT_UPLOAD_LOCATION = "/api/v1/project/upload";
     public static final String TOPIC_GIT_IMPORT = "topic_git_import";
     public static final String URL_WEBSOCKET = "/ws/git/USER_ID";
     public static final String MESSAGE_PHASE_IMPORT = "IMPORT";
