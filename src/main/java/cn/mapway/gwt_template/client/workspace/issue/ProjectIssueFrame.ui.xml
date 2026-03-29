@@ -25,10 +25,9 @@
 
         .table td {
             background-color: white;
-            padding: 8px 10px !important;
+            padding: 2px 10px !important;
             border: 1px solid #eee;
-            height: 45px;
-
+            vertical-align: middle;
         }
 
         .table tr:first-child td {
@@ -37,7 +36,7 @@
             z-index: 10;
             background-color: #f8f8f8; /* 稍微浅一点的灰色 */
             font-weight: bold;
-            height: 52px;
+            height: 40px;
         }
 
         /* 最后一个单元格去掉右边框 */
@@ -92,16 +91,19 @@
         .right {
             background-color: white;
         }
-    </ui:style>
+
+        .scroller {
+            padding: 4px 10px;
+        }</ui:style>
     <g:SplitLayoutPanel>
         <g:east size="500">
             <issue:IssuePanel ui:field="issuePanel" addStyleNames="{style.right}"/>
         </g:east>
         <g:center>
             <g:DockLayoutPanel>
-                <g:north size="70">
-                    <g:HTMLPanel addStyleNames="ai-border-bottom {style.top}">
-                        <buttons:AiButton ui:field="btnCreate">创建Issue</buttons:AiButton>
+                <g:north size="60">
+                    <g:HTMLPanel addStyleNames=" {style.top}">
+                        <buttons:AiButton ui:field="btnCreate" type="warning">创建Issue</buttons:AiButton>
 
                         <g:InlineLabel addStyleNames="{style.filter_label}">状态:</g:InlineLabel>
                         <issue:IssueStateDropdown width="180px" ui:field="ddlState"/>
@@ -123,7 +125,7 @@
                     </g:HTMLPanel>
                 </g:south>
                 <g:center>
-                    <g:ScrollPanel>
+                    <g:ScrollPanel addStyleNames="{style.scroller}">
                         <g:FlexTable width="100%" addStyleNames="{style.table}"
                                      ui:field="table"/>
                     </g:ScrollPanel>

@@ -6,6 +6,7 @@ import cn.mapway.gwt_template.client.rpc.AppProxy;
 import cn.mapway.gwt_template.client.workspace.DevWorkspaceFrame;
 import cn.mapway.gwt_template.client.workspace.home.WorkspaceCard;
 import cn.mapway.gwt_template.client.workspace.project.ProjectHomePanel;
+import cn.mapway.gwt_template.client.workspace.wiki.PageEditor;
 import cn.mapway.gwt_template.shared.db.DesktopItemEntity;
 import cn.mapway.gwt_template.shared.db.DevProjectEntity;
 import cn.mapway.gwt_template.shared.db.DevWorkspaceEntity;
@@ -58,6 +59,8 @@ public class DesktopFrame extends BaseAbstractModule implements RequiresResize {
     DockLayoutPanel desktop;
     @UiField
     HTMLPanel panelProjects;
+    @UiField
+    PageEditor pageEditor;
     Widget currentWidget = content;
 
 
@@ -77,6 +80,10 @@ public class DesktopFrame extends BaseAbstractModule implements RequiresResize {
                     break;
                 case 1:
                     break;
+                case 2:
+                    pageEditor.setData(null);
+                    break;
+
             }
         });
     }

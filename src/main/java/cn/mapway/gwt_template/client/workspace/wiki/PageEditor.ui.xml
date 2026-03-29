@@ -1,0 +1,13 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+    <ui:style>
+        .page {
+            position: relative;
+            min-height: 100vh;
+            padding: 15px 70px;
+        }
+    </ui:style>
+    <g:FlowPanel ui:field="page" addStyleNames="{style.page}">
+
+    </g:FlowPanel>
+</ui:UiBinder>
