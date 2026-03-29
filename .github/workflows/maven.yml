@@ -68,5 +68,5 @@ jobs:
             harbor.cangling.cn:22002/cangling/gwt-template:latest
           platforms: linux/amd64,linux/arm64
       - name: trigger server to reload changes
-        run: curl https://webhook.soft.cangling.cn:22002/hooks/update-dev?token=${{secrets.WEBHOOK_TOKEN}}
-
+        run: |
+          curl -i -f -X POST "https://webhook.soft.cangling.cn:22002/hooks/update-dev?token=${{secrets.WEBHOOK_TOKEN}}"
