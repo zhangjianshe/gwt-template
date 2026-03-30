@@ -23,6 +23,7 @@ import cn.mapway.gwt_template.server.service.message.ReadMessageExecutor;
 import cn.mapway.gwt_template.server.service.message.SendMessageExecutor;
 import cn.mapway.gwt_template.server.service.project.*;
 import cn.mapway.gwt_template.server.service.project.res.*;
+import cn.mapway.gwt_template.server.service.project.wiki.*;
 import cn.mapway.gwt_template.server.service.repository.*;
 import cn.mapway.gwt_template.server.service.soft.CreateSoftwareExecutor;
 import cn.mapway.gwt_template.server.service.soft.DeleteSoftwareExecutor;
@@ -44,6 +45,7 @@ import cn.mapway.gwt_template.shared.rpc.ldap.*;
 import cn.mapway.gwt_template.shared.rpc.message.*;
 import cn.mapway.gwt_template.shared.rpc.project.*;
 import cn.mapway.gwt_template.shared.rpc.project.res.*;
+import cn.mapway.gwt_template.shared.rpc.project.wiki.*;
 import cn.mapway.gwt_template.shared.rpc.repository.*;
 import cn.mapway.gwt_template.shared.rpc.soft.*;
 import cn.mapway.gwt_template.shared.rpc.tools.MarkdownToHtmlRequest;
@@ -130,107 +132,27 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
     QueryConfigExecutor queryConfigExecutor;
 
     ///CODE_GEN_INSERT_POINT///
-	
+
     @Resource
     QueryPageSectionExecutor queryPageSectionExecutor;
-    @Override
-    public RpcResult<QueryPageSectionResponse> queryPageSection(QueryPageSectionRequest request) {
-        BizResult<QueryPageSectionResponse> bizResult = queryPageSectionExecutor.execute(getBizContext(), BizRequest.wrap("", request));
-        return toRpcResult(bizResult);
-    }
-
-
-	
     @Resource
     UpdatePageSectionExecutor updatePageSectionExecutor;
-    @Override
-    public RpcResult<UpdatePageSectionResponse> updatePageSection(UpdatePageSectionRequest request) {
-        BizResult<UpdatePageSectionResponse> bizResult = updatePageSectionExecutor.execute(getBizContext(), BizRequest.wrap("", request));
-        return toRpcResult(bizResult);
-    }
-
-
-	
     @Resource
     LoadPageExecutor loadPageExecutor;
-    @Override
-    public RpcResult<LoadPageResponse> loadPage(LoadPageRequest request) {
-        BizResult<LoadPageResponse> bizResult = loadPageExecutor.execute(getBizContext(), BizRequest.wrap("", request));
-        return toRpcResult(bizResult);
-    }
-
-
-	
     @Resource
     QueryPageExecutor queryPageExecutor;
-    @Override
-    public RpcResult<QueryPageResponse> queryPage(QueryPageRequest request) {
-        BizResult<QueryPageResponse> bizResult = queryPageExecutor.execute(getBizContext(), BizRequest.wrap("", request));
-        return toRpcResult(bizResult);
-    }
-
-
-	
     @Resource
     UpdatePageExecutor updatePageExecutor;
-    @Override
-    public RpcResult<UpdatePageResponse> updatePage(UpdatePageRequest request) {
-        BizResult<UpdatePageResponse> bizResult = updatePageExecutor.execute(getBizContext(), BizRequest.wrap("", request));
-        return toRpcResult(bizResult);
-    }
-
-
-	
     @Resource
     ViewAttachmentFileExecutor viewAttachmentFileExecutor;
-    @Override
-    public RpcResult<ViewAttachmentFileResponse> viewAttachmentFile(ViewAttachmentFileRequest request) {
-        BizResult<ViewAttachmentFileResponse> bizResult = viewAttachmentFileExecutor.execute(getBizContext(), BizRequest.wrap("", request));
-        return toRpcResult(bizResult);
-    }
-
-
-	
     @Resource
     MarkdownToHtmlExecutor markdownToHtmlExecutor;
-    @Override
-    public RpcResult<MarkdownToHtmlResponse> markdownToHtml(MarkdownToHtmlRequest request) {
-        BizResult<MarkdownToHtmlResponse> bizResult = markdownToHtmlExecutor.execute(getBizContext(), BizRequest.wrap("", request));
-        return toRpcResult(bizResult);
-    }
-
-
-	
     @Resource
     DeleteTaskAttachmentsExecutor deleteTaskAttachmentsExecutor;
-    @Override
-    public RpcResult<DeleteTaskAttachmentsResponse> deleteTaskAttachments(DeleteTaskAttachmentsRequest request) {
-        BizResult<DeleteTaskAttachmentsResponse> bizResult = deleteTaskAttachmentsExecutor.execute(getBizContext(), BizRequest.wrap("", request));
-        return toRpcResult(bizResult);
-    }
-
-
-	
     @Resource
     UploadTaskAttachmentsExecutor uploadTaskAttachmentsExecutor;
-    @Override
-    public RpcResult<UploadTaskAttachmentsResponse> uploadTaskAttachments(UploadTaskAttachmentsRequest request) {
-        BizResult<UploadTaskAttachmentsResponse> bizResult = uploadTaskAttachmentsExecutor.execute(getBizContext(), BizRequest.wrap("", request));
-        return toRpcResult(bizResult);
-    }
-
-
-	
     @Resource
     QueryTaskAttachmentsExecutor queryTaskAttachmentsExecutor;
-    @Override
-    public RpcResult<QueryTaskAttachmentsResponse> queryTaskAttachments(QueryTaskAttachmentsRequest request) {
-        BizResult<QueryTaskAttachmentsResponse> bizResult = queryTaskAttachmentsExecutor.execute(getBizContext(), BizRequest.wrap("", request));
-        return toRpcResult(bizResult);
-    }
-
-
-
     @Resource
     AddProjectRepoExecutor addProjectRepoExecutor;
     @Resource
@@ -405,6 +327,66 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
     UpdateFavoriteProjectExecutor updateFavoriteProjectExecutor;
     @Resource
     QueryFavoriteProjectExecutor queryFavoriteProjectExecutor;
+
+    @Override
+    public RpcResult<QueryPageSectionResponse> queryPageSection(QueryPageSectionRequest request) {
+        BizResult<QueryPageSectionResponse> bizResult = queryPageSectionExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<UpdatePageSectionResponse> updatePageSection(UpdatePageSectionRequest request) {
+        BizResult<UpdatePageSectionResponse> bizResult = updatePageSectionExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<LoadPageResponse> loadPage(LoadPageRequest request) {
+        BizResult<LoadPageResponse> bizResult = loadPageExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<QueryPageResponse> queryPage(QueryPageRequest request) {
+        BizResult<QueryPageResponse> bizResult = queryPageExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<UpdatePageResponse> updatePage(UpdatePageRequest request) {
+        BizResult<UpdatePageResponse> bizResult = updatePageExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<ViewAttachmentFileResponse> viewAttachmentFile(ViewAttachmentFileRequest request) {
+        BizResult<ViewAttachmentFileResponse> bizResult = viewAttachmentFileExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<MarkdownToHtmlResponse> markdownToHtml(MarkdownToHtmlRequest request) {
+        BizResult<MarkdownToHtmlResponse> bizResult = markdownToHtmlExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<DeleteTaskAttachmentsResponse> deleteTaskAttachments(DeleteTaskAttachmentsRequest request) {
+        BizResult<DeleteTaskAttachmentsResponse> bizResult = deleteTaskAttachmentsExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<UploadTaskAttachmentsResponse> uploadTaskAttachments(UploadTaskAttachmentsRequest request) {
+        BizResult<UploadTaskAttachmentsResponse> bizResult = uploadTaskAttachmentsExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<QueryTaskAttachmentsResponse> queryTaskAttachments(QueryTaskAttachmentsRequest request) {
+        BizResult<QueryTaskAttachmentsResponse> bizResult = queryTaskAttachmentsExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
 
     @Override
     public RpcResult<UpdateFavoriteProjectResponse> updateFavoriteProject(UpdateFavoriteProjectRequest request) {

@@ -7,6 +7,7 @@ import cn.mapway.gwt_template.client.workspace.gantt.GanttWidget;
 import cn.mapway.gwt_template.client.workspace.issue.ProjectIssueFrame;
 import cn.mapway.gwt_template.client.workspace.repo.ProjectRepoPanel;
 import cn.mapway.gwt_template.client.workspace.res.ProjectResourcePanel;
+import cn.mapway.gwt_template.client.workspace.wiki.WikiFrame;
 import cn.mapway.gwt_template.shared.db.DevProjectEntity;
 import cn.mapway.gwt_template.shared.rpc.project.QueryDevProjectRequest;
 import cn.mapway.gwt_template.shared.rpc.project.QueryDevProjectResponse;
@@ -37,9 +38,10 @@ public class ProjectHomePanel extends BaseAbstractModule implements IToolsProvid
     public static final int TAB_TASK = 1;
     public static final int TAB_CALENDAR = 2;
     public static final int TAB_ISSUE = 3;
-    public static final int TAB_RESOURCE = 4;
-    public static final int TAB_REPO = 5;
-    public static final int TAB_TEAM = 6;
+    public static final int TAB_WIKI = 4;
+    public static final int TAB_RESOURCE = 5;
+    public static final int TAB_REPO = 6;
+    public static final int TAB_TEAM = 7;
     private static final ProjectHomePanelUiBinder ourUiBinder = GWT.create(ProjectHomePanelUiBinder.class);
     @UiField
     ProjectTeamMemberPanel teamPanel;
@@ -61,6 +63,8 @@ public class ProjectHomePanel extends BaseAbstractModule implements IToolsProvid
     LayoutPanel root;
     @UiField
     ProjectIssueFrame issuePanel;
+    @UiField
+    WikiFrame wikiFrame;
     private DevProjectEntity project;
     private boolean teamDataLoaded = false; // 懒加载标志位
 
@@ -113,6 +117,8 @@ public class ProjectHomePanel extends BaseAbstractModule implements IToolsProvid
                 toolbar.add(projectCard.getTools());
             } else if (index == TAB_ISSUE) {
                 issuePanel.setData(project.getId());
+            } else if (index == TAB_WIKI) {
+                wikiFrame.setData(project.getId());
             }
         });
     }

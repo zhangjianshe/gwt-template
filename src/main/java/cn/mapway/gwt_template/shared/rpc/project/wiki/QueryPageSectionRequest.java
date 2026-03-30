@@ -14,4 +14,6 @@ import java.io.Serializable;
 @Data
 @Doc("QueryPageSectionRequest")
 public class QueryPageSectionRequest implements Serializable, IsSerializable {
+    String pageId;
+    String commitId;
 }

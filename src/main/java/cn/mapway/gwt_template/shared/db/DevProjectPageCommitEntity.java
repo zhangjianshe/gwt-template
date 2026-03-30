@@ -9,8 +9,6 @@ import org.nutz.dao.entity.annotation.*;
 import java.io.Serializable;
 import java.sql.Timestamp;
 
-import static cn.mapway.gwt_template.shared.db.DevProjectPageCommitEntity.*;
-
 /**
  * 项目部的Wiki页面
  */
@@ -21,8 +19,8 @@ import static cn.mapway.gwt_template.shared.db.DevProjectPageCommitEntity.*;
 @Setter
 @TableIndexes({
         // 复合索引：先过滤 Page，再按时间倒序排（B-Tree 索引对范围查询极快）
-        @Index(name = "idx_commit_history", fields = {FLD_PAGE_ID, FLD_CREATE_TIME}, unique = false),
-        @Index(name = "idx_commit_prev", fields = {FLD_PARENT_ID}, unique = false)
+        @Index(name = "idx_commit_history", fields = {"pageId", "createTime"}, unique = false),
+        @Index(name = "idx_commit_prev", fields = {"parentId"}, unique = false)
 })
 public class DevProjectPageCommitEntity implements Serializable, IsSerializable {
 

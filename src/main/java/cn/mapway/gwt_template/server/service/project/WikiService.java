@@ -22,16 +22,17 @@ public class WikiService {
      * 根据 CommitId 一次性加载整个页面的所有内容
      */
     public List<DevProjectPageSectionEntity> loadFullPage(String commitId) {
-        // 使用 PostgreSQL 的 jsonb_to_recordset 展开清单并关联内容表
         String sqlStr = "SELECT s.* FROM " + DevProjectPageSectionEntity.TBL_NAME + " s " +
-                "JOIN (SELECT * FROM jsonb_to_recordset((SELECT " + DevProjectPageCommitEntity.FLD_MANIFEST +
-                "->'sections' FROM " + DevProjectPageCommitEntity.TBL_NAME + " WHERE " + DevProjectPageCommitEntity.FLD_ID + " = @id)) " +
-                "AS x(sectionId text, version text)) m " +
+                "JOIN (SELECT * FROM jsonb_to_recordset(" +
+                "  (SELECT (manifest->'sections')::jsonb " + // 【关键】这里增加 ::jsonb 强制转换
+                "   FROM " + DevProjectPageCommitEntity.TBL_NAME +
+                "   WHERE " + DevProjectPageCommitEntity.FLD_ID + " = @id)" +
+                ") AS x(sectionId text, version text)) m " +
                 "ON s." + DevProjectPageSectionEntity.FLD_VERSION + " = m.version " +
-                "ORDER BY array_position(ARRAY(SELECT (jsonb_array_elements(" +
-                DevProjectPageCommitEntity.FLD_MANIFEST + "->'sections')->>'sectionId') " +
-                "FROM " + DevProjectPageCommitEntity.TBL_NAME + " WHERE id = @id), s." +
-                DevProjectPageSectionEntity.FLD_SECTION_ID + ")";
+                "ORDER BY array_position(ARRAY(" +
+                "  SELECT (jsonb_array_elements((manifest->'sections')::jsonb)->>'sectionId') " + // 【关键】这里也增加转换
+                "  FROM " + DevProjectPageCommitEntity.TBL_NAME +
+                "  WHERE id = @id), s." + DevProjectPageSectionEntity.FLD_SECTION_ID + ")";
 
         Sql sql = Sqls.create(sqlStr);
         sql.params().set("id", commitId);

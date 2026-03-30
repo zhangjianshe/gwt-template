@@ -8,6 +8,7 @@ import org.nutz.dao.entity.annotation.*;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.List;
 
 /**
  * 项目部的Wiki页面
@@ -18,7 +19,7 @@ import java.sql.Timestamp;
 @Getter
 @Setter
 @TableIndexes({
-        @Index(name = "idx_page_parent", fields = {DevProjectPageEntity.FLD_PARENT_ID}, unique = false)
+        @Index(name = "idx_page_parent", fields = {"parentId"}, unique = false)
 })
 public class DevProjectPageEntity implements Serializable, IsSerializable {
 
@@ -33,6 +34,10 @@ public class DevProjectPageEntity implements Serializable, IsSerializable {
     public static final String FLD_CREATE_TIME = "create_time";
     public static final String FLD_LAST_COMMIT = "last_commit";
     public static final String FLD_VIEW_COUNT = "view_count";
+    public static final String FLD_RANK = "rank";
+    public static final String FLD_CREATE_USER_NAME = "create_user_name";
+    public static final String FLD_CREATE_USER_ID = "create_user_id";
+    public static final String FLD_CREATE_USER_AVATAR = "create_user_avatar";
 
     @Column(FLD_ID)
     @Comment("页面ID")
@@ -71,5 +76,26 @@ public class DevProjectPageEntity implements Serializable, IsSerializable {
     @ColDefine(notNull = true)
     @Default("0")
     Integer viewCount;
+
+    @Column(FLD_RANK)
+    @Comment("排序")
+    @ColDefine(notNull = true)
+    @Default("0")
+    Double rank;
+
+    @Column(FLD_CREATE_USER_ID)
+    @Comment("create user id")
+    @ColDefine()
+    Long userId;
+
+    @Column(FLD_CREATE_USER_NAME)
+    @Comment("create user avatar")
+    @ColDefine(width = 128)
+    String userName;
+    @Column(FLD_CREATE_USER_AVATAR)
+    String userAvatar;
+
+    @Readonly
+    List<DevProjectPageEntity> children;
 
 }

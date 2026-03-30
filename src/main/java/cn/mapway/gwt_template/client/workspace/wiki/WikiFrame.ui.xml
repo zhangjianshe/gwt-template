@@ -1,0 +1,30 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:buttons="urn:import:cn.mapway.ui.client.widget.buttons"
+             xmlns:tree="urn:import:cn.mapway.ui.client.widget.tree"
+             xmlns:wiki="urn:import:cn.mapway.gwt_template.client.workspace.wiki">
+    <ui:style>
+
+    </ui:style>
+    <g:DockLayoutPanel>
+        <g:west size="350">
+            <g:DockLayoutPanel addStyleNames="ai-border-right">
+                <g:north size="50">
+                    <g:HorizontalPanel addStyleNames="ai-flex-panel">
+                        <buttons:AiButton ui:field="btnCreate" type="warning">创建页面</buttons:AiButton>
+                    </g:HorizontalPanel>
+                </g:north>
+                <g:center>
+                    <g:ScrollPanel>
+                        <tree:Tree width="100%" ui:field="pageTree"/>
+                    </g:ScrollPanel>
+                </g:center>
+            </g:DockLayoutPanel>
+        </g:west>
+        <g:center>
+            <g:ScrollPanel>
+                <wiki:PageEditor ui:field="pageEditor"/>
+            </g:ScrollPanel>
+        </g:center>
+    </g:DockLayoutPanel>
+</ui:UiBinder>

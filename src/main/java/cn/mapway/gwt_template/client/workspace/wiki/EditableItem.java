@@ -1,6 +1,6 @@
 package cn.mapway.gwt_template.client.workspace.wiki;
 
-import cn.mapway.gwt_template.shared.doc.PageSection;
+import cn.mapway.gwt_template.shared.db.DevProjectPageSectionEntity;
 import cn.mapway.gwt_template.shared.doc.SectionKind;
 import cn.mapway.ui.client.tools.IData;
 import cn.mapway.ui.client.util.StringUtil;
@@ -16,12 +16,12 @@ import elemental2.dom.DomGlobal;
 import elemental2.dom.Range;
 import elemental2.dom.Selection;
 
-public class EditableItem extends CommonEventComposite implements IData<PageSection> {
+public class EditableItem extends CommonEventComposite implements IData<DevProjectPageSectionEntity> {
     private static final EditableItemUiBinder ourUiBinder = GWT.create(EditableItemUiBinder.class);
     @UiField
     HTMLPanel root;
     String oldName = "";
-    private PageSection section;
+    private DevProjectPageSectionEntity section;
 
     public EditableItem() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -37,7 +37,7 @@ public class EditableItem extends CommonEventComposite implements IData<PageSect
             @Override
             public void onKeyDown(KeyDownEvent event) {
                 if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
-                    SectionKind kind = SectionKind.fromInt(section.kind);
+                    SectionKind kind = SectionKind.fromInt(section.getKind());
                     switch (kind) {
                         case H1:
                         case H2:
@@ -54,6 +54,7 @@ public class EditableItem extends CommonEventComposite implements IData<PageSect
             }
         }, KeyDownEvent.getType());
     }
+
     private boolean isCursorAtStart() {
         Selection selection = DomGlobal.window.getSelection();
         if (selection != null && selection.rangeCount > 0) {
@@ -82,6 +83,7 @@ public class EditableItem extends CommonEventComposite implements IData<PageSect
         }
         return false;
     }
+
     public void setAbsoluteMode(boolean isAbsolute) {
         Style style = getElement().getStyle();
         if (isAbsolute) {
@@ -102,27 +104,25 @@ public class EditableItem extends CommonEventComposite implements IData<PageSect
     }
 
     @Override
-    public PageSection getData() {
+    public DevProjectPageSectionEntity getData() {
         return section;
     }
 
     @Override
-    public void setData(PageSection pageSection) {
+    public void setData(DevProjectPageSectionEntity pageSection) {
         section = pageSection;
-        if (pageSection == null) {
-            section = PageSection.create(SectionKind.TEXT.value);
-        }
+
         toUI();
     }
 
     private void toUI() {
-        SectionKind kind = section.getKind();
+        SectionKind kind = SectionKind.fromInt(section.getKind());
         if (StringUtil.isNotBlank(oldName)) {
             removeStyleName(oldName);
         }
         oldName = kind.getClassName();
         addStyleName(oldName);
-        root.getElement().setInnerText(section.content);
+        root.getElement().setInnerText(section.getContent());
     }
 
     interface EditableItemUiBinder extends UiBinder<HTMLPanel, EditableItem> {
