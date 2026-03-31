@@ -1,5 +1,6 @@
 package cn.mapway.gwt_template.client.workspace.wiki;
 
+import cn.mapway.gwt_template.client.resource.AppResource;
 import cn.mapway.gwt_template.client.workspace.widget.EditableLabel;
 import cn.mapway.gwt_template.shared.db.DevProjectPageEntity;
 import cn.mapway.gwt_template.shared.db.DevProjectPageSectionEntity;
@@ -30,11 +31,11 @@ public class PageHeaderItem extends Composite implements IData<DevProjectPageSec
     @UiField
     Label lbModify;
     @UiField
-    Image background;
-    @UiField
     HTMLPanel header;
     @UiField
     EditableLabel txtHeader;
+    @UiField
+    Image lbAvatar;
     private DevProjectPageSectionEntity section;
 
     public PageHeaderItem() {
@@ -55,10 +56,15 @@ public class PageHeaderItem extends Composite implements IData<DevProjectPageSec
     private void toUI() {
         PageMetadata metadata = Js.uncheckedCast(JSON.parse(section.getContent()));
         lbUserName.setText(page.getUserName());
-        lbVersion.setText(page.getLastCommit());
+        lbVersion.setText(StringUtil.isBlank(page.getLastCommit()) ? "" : StringUtil.brief(page.getLastCommit(), 6));
         lbModify.setText(StringUtil.formatDate(page.getCreateTime()));
         txtHeader.setEditable(true);
         txtHeader.setValue(page.getName());
+        if (StringUtil.isNotBlank(page.getUserAvatar())) {
+            lbAvatar.setUrl(page.getUserAvatar());
+        } else {
+            lbAvatar.setResource(AppResource.INSTANCE.emptyAvatar());
+        }
     }
 
     interface PageHeaderItemUiBinder extends UiBinder<HTMLPanel, PageHeaderItem> {

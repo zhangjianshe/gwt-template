@@ -86,7 +86,7 @@
             <g:Label>工作日历</g:Label>
         </g:tab>
         <g:tab>
-            <g:header>Page editor</g:header>
+            <g:header>✍️ Page editor</g:header>
             <g:ScrollPanel>
                 <wiki:PageEditor  ui:field="pageEditor"/>
             </g:ScrollPanel>

@@ -67,6 +67,9 @@ public class UpdatePageExecutor extends AbstractBizExecutor<UpdatePageResponse, 
             assertTrue(Strings.isNotBlank(page.getName()), "页面名称必须填写");
             page.setViewCount(0);
             page.setId(R.UU16());
+            page.setUserName(user.getUserName());
+            page.setUserAvatar(user.getAvatar());
+            page.setUserId(operatorUserId);
             // 初始化 Rank：获取当前层级的最大 Rank 确保新页面排在最后
             // 使用 SQL 获取当前父节点下的最大 Rank，如果为 NULL 则返回 0
             String sqlStr = "SELECT COALESCE(MAX(rank), 0) FROM " + DevProjectPageEntity.TBL_NAME +

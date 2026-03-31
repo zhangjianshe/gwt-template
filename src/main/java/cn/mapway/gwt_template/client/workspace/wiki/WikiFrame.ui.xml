@@ -5,7 +5,9 @@
              xmlns:wiki="urn:import:cn.mapway.gwt_template.client.workspace.wiki">
     <ui:style>
 
-    </ui:style>
+        .content {
+            padding: 10px 60px;
+        }</ui:style>
     <g:DockLayoutPanel>
         <g:west size="350">
             <g:DockLayoutPanel addStyleNames="ai-border-right">
@@ -22,7 +24,7 @@
             </g:DockLayoutPanel>
         </g:west>
         <g:center>
-            <g:ScrollPanel>
+            <g:ScrollPanel addStyleNames="{style.content}">
                 <wiki:PageEditor ui:field="pageEditor"/>
             </g:ScrollPanel>
         </g:center>

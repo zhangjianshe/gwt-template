@@ -43,7 +43,7 @@
                     <issue:ProjectIssueFrame ui:field="issuePanel"/>
                 </g:tab>
                 <g:tab>
-                    <g:header>🐞 项目WIKI</g:header>
+                    <g:header>✍️ 项目WIKI</g:header>
                     <wiki:WikiFrame ui:field="wikiFrame"/>
                 </g:tab>
 

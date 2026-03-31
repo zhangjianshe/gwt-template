@@ -87,7 +87,7 @@ public class WikiFrame extends CommonEventComposite implements IData<String> {
             @Override
             public void onSuccess(RpcResult<UpdatePageResponse> result) {
                 if (result.isSuccess()) {
-                    reloadAllPage();
+                    loadPages();
                 } else {
                     ClientContext.get().toast(0, 0, result.getMessage());
                 }
