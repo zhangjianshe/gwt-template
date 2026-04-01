@@ -5,6 +5,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 import lombok.Getter;
 import lombok.Setter;
 import org.nutz.dao.entity.annotation.*;
+import org.nutz.dao.impl.jdbc.psql.PsqlJsonAdaptor;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
@@ -82,7 +83,7 @@ public class DevProjectPageCommitEntity implements Serializable, IsSerializable 
 
     @Column(FLD_MANIFEST)
     @Comment("提交清单")
-    @ColDefine(type = ColType.PSQL_JSON)
+    @ColDefine(type = ColType.PSQL_JSON,adaptor = PsqlJsonAdaptor.class)
     PageManifest manifest;
 
 }

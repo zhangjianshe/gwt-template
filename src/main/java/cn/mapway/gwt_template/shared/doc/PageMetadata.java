@@ -11,6 +11,9 @@ public class PageMetadata {
     public String schema;
     public String emoji;
 
+    public PageMetadata() {
+    }
+
     @JsOverlay
     public static PageMetadata create() {
         PageMetadata pageMetadata = Js.uncheckedCast(JsPropertyMap.of());

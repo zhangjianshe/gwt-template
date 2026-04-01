@@ -56,14 +56,14 @@ public class QueryPageSectionExecutor extends AbstractBizExecutor<QueryPageSecti
 
         assertTrue(Strings.isNotBlank(targetCommitId), "该页面没有任何提交记录");
 
-// 如果是查询历史版本，多做一层 pageId 匹配校验
+        // 如果是查询历史版本，多做一层 pageId 匹配校验
         if (Strings.isNotBlank(request.getCommitId())) {
             DevProjectPageCommitEntity commit = dao.fetch(DevProjectPageCommitEntity.class, targetCommitId);
             assertNotNull(commit, "未找到指定的版本记录");
             assertTrue(commit.getPageId().equals(pageById.getId()), "版本记录与页面不匹配");
         }
 
-// 统一执行读取
+        // 统一执行读取
         List<DevProjectPageSectionEntity> sections = wikiService.loadFullPage(targetCommitId);
         QueryPageSectionResponse response = new QueryPageSectionResponse();
         response.setSections(sections);

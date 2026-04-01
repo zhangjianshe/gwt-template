@@ -1,8 +1,10 @@
 package cn.mapway.gwt_template.server.service.project;
 
+import cn.mapway.gwt_template.server.config.castor.PgObjectToPageManifest;
 import cn.mapway.gwt_template.shared.db.DevProjectPageCommitEntity;
 import cn.mapway.gwt_template.shared.db.DevProjectPageEntity;
 import cn.mapway.gwt_template.shared.db.DevProjectPageSectionEntity;
+import org.nutz.castor.Castors;
 import org.nutz.dao.Dao;
 import org.nutz.dao.Sqls;
 import org.nutz.dao.sql.Sql;
@@ -15,6 +17,11 @@ import java.util.List;
 
 @Service
 public class WikiService {
+    static {
+        // 强制告诉 Nutz：遇到 PGobject 且目标是 PageManifest 时，用 Json 序列化工具处理
+        Castors.me().addCastor(PgObjectToPageManifest.class);
+    }
+
     @Resource
     Dao dao;
 
@@ -43,7 +50,7 @@ public class WikiService {
         return sql.getList(DevProjectPageSectionEntity.class);
     }
 
-    public  String calculateId(DevProjectPageCommitEntity commit) {
+    public String calculateId(DevProjectPageCommitEntity commit) {
         // 1. 将关键信息拼接成一个唯一的字符串
         // 建议使用特定的分隔符防止碰撞
         StringBuilder sb = new StringBuilder();
@@ -63,7 +70,7 @@ public class WikiService {
     }
 
     public DevProjectPageEntity findPageById(String pageId) {
-        return dao.fetch(DevProjectPageEntity.class,pageId);
+        return dao.fetch(DevProjectPageEntity.class, pageId);
     }
 
     public String calculateVersionId(DevProjectPageSectionEntity pageSection) {
@@ -74,8 +81,8 @@ public class WikiService {
                 .append(pageSection.getKind()).append("|")
                 .append(pageSection.getSectionId()).append("|")
                 .append(pageSection.getContent()).append("|");
-        if(pageSection.getData() != null) {
-            String md5=Lang.md5(Streams.wrap(pageSection.getData()));
+        if (pageSection.getData() != null) {
+            String md5 = Lang.md5(Streams.wrap(pageSection.getData()));
             sb.append(md5);
         }
         return Lang.sha256(sb.toString());

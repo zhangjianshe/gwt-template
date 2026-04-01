@@ -1,0 +1,111 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+    <ui:style type='cn.mapway.gwt_template.client.workspace.wiki.WikiHistoryTimeline.SStyle'>
+        .wiki-timeline {
+            position: relative;
+            padding: 15px 15px 15px 30px;
+            border-left: 2px solid #eef2f6;
+            margin: 10px 0 10px 20px;
+            background: #fff;
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 20px;
+            padding: 8px 12px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .timeline-item:hover {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            transform: translateX(5px);
+        }
+        .timeline-item.active {
+            background: #f0f7ff;
+            border: 1px solid #bae0ff;
+            border-radius: 8px;
+        }
+
+        .timeline-item.active .timeline-marker {
+            background: #1890ff; /* 激活时颜色更深 */
+            box-shadow: 0 0 0 4px rgba(24, 144, 255, 0.2); /* 增加呼吸灯阴影 */
+        }
+
+        .timeline-marker {
+            position: absolute;
+            left: -37px;
+            top: 14px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #3b82f6;
+            border: 2px solid #fff;
+            box-shadow: 0 0 0 2px #3b82f6;
+            z-index: 2;
+        }
+
+        .timeline-content {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .timeline-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .avatar-sm {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #f1f5f9;
+        }
+
+        .message {
+            font-size: 14px;
+            color: #1e293b;
+            font-weight: 500;
+            word-break: break-all;
+        }
+
+        .commit-id {
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #8c8c8c;
+            font-family: monospace;
+        }
+        .author {
+            font-weight: 600;
+            color: #334155;
+            max-width: 100px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .time {
+            color: #94a3b8;
+            font-size: 11px;
+            flex-grow: 1;
+            text-align: right;
+        }
+
+        .message {
+            font-size: 13px;
+            color: #475569;
+            line-height: 1.4;
+            margin: 4px 0;
+        }
+    </ui:style>
+
+    <g:FlowPanel ui:field='root' styleName='{style.wikiTimeline}' />
+</ui:UiBinder>

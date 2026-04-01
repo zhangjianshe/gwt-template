@@ -27,6 +27,8 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public interface IAppServerAsync {
 
     ///CODE_GEN_INSERT_POINT///
+	void queryPageCommits(QueryPageCommitsRequest request, AsyncCallback<RpcResult<QueryPageCommitsResponse>> async);
+
 	void queryPageSection(QueryPageSectionRequest request, AsyncCallback<RpcResult<QueryPageSectionResponse>> async);
 
 	void updatePageSection(UpdatePageSectionRequest request, AsyncCallback<RpcResult<UpdatePageSectionResponse>> async);

@@ -128,7 +128,7 @@ public class UpdatePageExecutor extends AbstractBizExecutor<UpdatePageResponse, 
         commit.setAuthorAvatar(user.getAvatar());
         commit.setParentId("");
         PageManifest manifest = new PageManifest();
-        List<SectionIndex> indices = new ArrayList<>();
+        ArrayList<SectionIndex> indices = new ArrayList<>();
         if (sections != null) {
             for (DevProjectPageSectionEntity section : sections) {
                 SectionIndex index = new SectionIndex();

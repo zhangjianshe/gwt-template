@@ -29,7 +29,7 @@ public class SourceTools {
         String packageBean = "cn.mapway.gwt_template.shared.rpc.project.wiki";
         String packageService = "cn.mapway.gwt_template.server.service.project.wiki";
         ArrayList<String> methods = Lang.list(
-                "updatePage","queryPage","loadPage","updatePageSection","queryPageSection"
+                "queryPageCommits"
         );
         methods.stream().forEach(n -> {
             tools.gen(n, packageBean, packageService);

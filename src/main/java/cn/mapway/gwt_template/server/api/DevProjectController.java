@@ -180,6 +180,20 @@ public class DevProjectController extends ApiBaseController {
     @Resource
     QueryPageSectionExecutor queryPageSectionExecutor;
 
+    @Resource
+    QueryPageCommitsExecutor queryPageCommitsExecutor;
+    /**
+     * QueryPageCommits
+     *
+     * @param request request
+     * @return data
+     */
+    @Doc(value = "QueryPageCommits", retClazz = {QueryPageCommitsResponse.class})
+    @RequestMapping(value = "/queryPageCommits", method = RequestMethod.POST)
+    public RpcResult<QueryPageCommitsResponse> queryPageCommits(@RequestBody QueryPageCommitsRequest request) {
+        BizResult<QueryPageCommitsResponse> bizResult = queryPageCommitsExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toApiResult(bizResult);
+    }
     /**
      * UpdatePage
      *

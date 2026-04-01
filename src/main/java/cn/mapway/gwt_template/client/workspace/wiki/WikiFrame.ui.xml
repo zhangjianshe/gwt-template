@@ -4,6 +4,12 @@
              xmlns:tree="urn:import:cn.mapway.ui.client.widget.tree"
              xmlns:wiki="urn:import:cn.mapway.gwt_template.client.workspace.wiki">
     <ui:style>
+        .top {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 0 10px;
+        }
 
         .content {
             padding: 10px 60px;
@@ -12,7 +18,7 @@
         <g:west size="350">
             <g:DockLayoutPanel addStyleNames="ai-border-right">
                 <g:north size="50">
-                    <g:HorizontalPanel addStyleNames="ai-flex-panel">
+                    <g:HorizontalPanel addStyleNames="{style.top}">
                         <buttons:AiButton ui:field="btnCreate" type="warning">创建页面</buttons:AiButton>
                     </g:HorizontalPanel>
                 </g:north>
@@ -24,9 +30,25 @@
             </g:DockLayoutPanel>
         </g:west>
         <g:center>
-            <g:ScrollPanel addStyleNames="{style.content}">
-                <wiki:PageEditor ui:field="pageEditor"/>
-            </g:ScrollPanel>
+            <g:DockLayoutPanel ui:field="content">
+                <g:north size="50">
+                    <g:HTMLPanel addStyleNames="{style.top}">
+                        <buttons:AiButton ui:field="btnSave" type="warning" enabled="false">保存</buttons:AiButton>
+                        <buttons:AiButton ui:field="btnHistory" enabled="false" type="warning">历史记录
+                        </buttons:AiButton>
+                    </g:HTMLPanel>
+                </g:north>
+                <g:east size="0">
+                    <g:ScrollPanel ui:field="commitPanel" addStyleNames="ai-border-left">
+                        <wiki:WikiHistoryTimeline ui:field="commitHistory"/>
+                    </g:ScrollPanel>
+                </g:east>
+                <g:center>
+                    <g:ScrollPanel addStyleNames="{style.content}">
+                        <wiki:PageEditor ui:field="pageEditor"/>
+                    </g:ScrollPanel>
+                </g:center>
+            </g:DockLayoutPanel>
         </g:center>
     </g:DockLayoutPanel>
 </ui:UiBinder>

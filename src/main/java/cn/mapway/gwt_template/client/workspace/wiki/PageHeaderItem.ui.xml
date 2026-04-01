@@ -4,6 +4,7 @@
     <ui:style>
         .box {
             height: 140px;
+            padding-left: 45px;
         }
 
         .top {
@@ -39,16 +40,22 @@
             border-radius: 50%;;
         }
 
+        .flex {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 10px;
+        }
     </ui:style>
     <g:HTMLPanel addStyleNames="{style.box}">
         <g:HTMLPanel ui:field="header" addStyleNames="{style.top}">
             <widget:EditableLabel ui:field="txtHeader" addStyleNames="{style.header}"/>
-            <g:HorizontalPanel spacing="4" verticalAlignment="middle">
+            <g:HTMLPanel addStyleNames="{style.flex}">
                 <g:Image ui:field="lbAvatar" addStyleNames="{style.avatar}"/>
                 <g:Label ui:field="lbUserName"/>
                 <g:Label ui:field="lbModify"/>
                 <g:Label ui:field="lbVersion"/>
-            </g:HorizontalPanel>
+            </g:HTMLPanel>
         </g:HTMLPanel>
     </g:HTMLPanel>
 </ui:UiBinder>

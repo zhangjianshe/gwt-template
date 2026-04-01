@@ -2,6 +2,7 @@ package cn.mapway.gwt_template.client.workspace.wiki;
 
 import cn.mapway.gwt_template.client.ClientContext;
 import cn.mapway.gwt_template.client.rpc.AppProxy;
+import cn.mapway.gwt_template.shared.db.DevProjectPageCommitEntity;
 import cn.mapway.gwt_template.shared.db.DevProjectPageEntity;
 import cn.mapway.gwt_template.shared.rpc.project.wiki.QueryPageRequest;
 import cn.mapway.gwt_template.shared.rpc.project.wiki.QueryPageResponse;
@@ -9,6 +10,7 @@ import cn.mapway.gwt_template.shared.rpc.project.wiki.UpdatePageRequest;
 import cn.mapway.gwt_template.shared.rpc.project.wiki.UpdatePageResponse;
 import cn.mapway.ui.client.fonts.Fonts;
 import cn.mapway.ui.client.tools.IData;
+import cn.mapway.ui.client.util.IEachElement;
 import cn.mapway.ui.client.util.StringUtil;
 import cn.mapway.ui.client.widget.CommonEventComposite;
 import cn.mapway.ui.client.widget.buttons.AiButton;
@@ -26,6 +28,7 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
+import com.google.gwt.user.client.ui.ScrollPanel;
 
 import java.util.List;
 
@@ -37,6 +40,16 @@ public class WikiFrame extends CommonEventComposite implements IData<String> {
     PageEditor pageEditor;
     @UiField
     AiButton btnCreate;
+    @UiField
+    AiButton btnSave;
+    @UiField
+    AiButton btnHistory;
+    @UiField
+    WikiHistoryTimeline commitHistory;
+    @UiField
+    DockLayoutPanel content;
+    @UiField
+    ScrollPanel commitPanel;
     private String projectId;
     private final ClickHandler addChildPage = new ClickHandler() {
         @Override
@@ -96,10 +109,6 @@ public class WikiFrame extends CommonEventComposite implements IData<String> {
 
     }
 
-    private void reloadAllPage() {
-        setData(projectId);
-    }
-
     @Override
     public String getData() {
         return projectId;
@@ -124,15 +133,21 @@ public class WikiFrame extends CommonEventComposite implements IData<String> {
         AppProxy.get().queryPage(request, new AsyncCallback<RpcResult<QueryPageResponse>>() {
             @Override
             public void onFailure(Throwable caught) {
+                btnSave.setEnabled(false);
+                btnHistory.setEnabled(false);
                 pageTree.setMessage(caught.getMessage(), 160);
             }
 
             @Override
             public void onSuccess(RpcResult<QueryPageResponse> result) {
                 if (result.isSuccess()) {
+                    btnSave.setEnabled(true);
+                    btnHistory.setEnabled(true);
                     renderPages(result.getData());
 
                 } else {
+                    btnSave.setEnabled(false);
+                    btnHistory.setEnabled(false);
                     pageTree.setMessage(result.getMessage(), 160);
                 }
             }
@@ -152,7 +167,7 @@ public class WikiFrame extends CommonEventComposite implements IData<String> {
         if (pages == null) return;
         for (DevProjectPageEntity page : pages) {
             // 使用自定义图标或 Emoji (如果有)
-            TreeItem item = pageTree.addItem(parent, page.getName(), Fonts.PDF_2);
+            TreeItem item = pageTree.addItem(parent, page.getName(), Fonts.CAOZUORIZHI1);
             item.setData(page);
 
             // 快捷添加按钮
@@ -171,6 +186,28 @@ public class WikiFrame extends CommonEventComposite implements IData<String> {
 
     @UiHandler("pageEditor")
     public void pageEditorCommon(CommonEvent event) {
+        if (event.isUpdate()) {
+            DevProjectPageEntity page = event.getValue();
+            updateListPage(page);
+            if (content.getWidgetSize(commitPanel) > 0) {
+                commitHistory.loadPageHistory(page.getId());
+            }
+        }
+    }
+
+    private void updateListPage(DevProjectPageEntity page) {
+        pageTree.eachItem(new IEachElement<TreeItem>() {
+            @Override
+            public boolean each(TreeItem treeItem) {
+                DevProjectPageEntity oldPage = (DevProjectPageEntity) treeItem.getData();
+                if (oldPage.getId().equals(page.getId())) {
+                    treeItem.setData(page);
+                    treeItem.setText(page.getName());
+                    return false;
+                }
+                return true;
+            }
+        });
     }
 
     @UiHandler("pageTree")
@@ -185,6 +222,29 @@ public class WikiFrame extends CommonEventComposite implements IData<String> {
     @UiHandler("btnCreate")
     public void btnCreateClick(ClickEvent event) {
         confirm(null);
+    }
+
+    @UiHandler("btnSave")
+    public void btnSaveClick(ClickEvent event) {
+        pageEditor.save();
+    }
+
+    @UiHandler("btnHistory")
+    public void btnHistoryClick(ClickEvent event) {
+        if (content.getWidgetSize(commitPanel) > 0) {
+            content.setWidgetSize(commitPanel, 0);
+        } else {
+            content.setWidgetSize(commitPanel, 300);
+            commitHistory.loadPageHistory(pageEditor.pageEntity.getId());
+        }
+    }
+
+    @UiHandler("commitHistory")
+    public void commitHistoryCommon(CommonEvent event) {
+        if (event.isSelect()) {
+            DevProjectPageCommitEntity commit = event.getValue();
+            pageEditor.loadCommit(commit);
+        }
     }
 
     interface WikiFrameUiBinder extends UiBinder<DockLayoutPanel, WikiFrame> {
