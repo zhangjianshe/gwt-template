@@ -39,6 +39,7 @@ import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import javax.servlet.ServletContext;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -161,8 +162,10 @@ public class ServerStartedOnce extends ApplicationObjectSupport implements IServ
         applicationContext = event.getApplicationContext();
         AppConfig appConfig = applicationContext.getBean(AppConfig.class);
         log.info("[START] GIT ROOT 目录 {}", appConfig.getRepoRoot());
-
         //////////////////////////初始化插件子系统////////////////////////
+        ServletContext servletContext = event.getApplicationContext().getBean(ServletContext.class);
+        Scans.me().init(servletContext);
+
         dao = event.getApplicationContext().getBean(Dao.class);
         Map<String, IServerPlugin> plugins = event.getApplicationContext().getBeansOfType(IServerPlugin.class);
 

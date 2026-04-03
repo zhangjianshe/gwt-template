@@ -63,10 +63,14 @@ import cn.mapway.ui.server.CheckUserServlet;
 import cn.mapway.ui.shared.CommonConstant;
 import cn.mapway.ui.shared.rpc.RpcResult;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 @Component
@@ -1120,4 +1124,19 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
         methodList.add("registerUser");
 
     }
+
+    @Override
+    public InputStream findResource(HttpServletRequest request, String moduleBaseURL, String strongName) {
+        String path = strongName + ".gwt.rpc";
+        ClassPathResource resource = new ClassPathResource("/static/js/app/"+path);
+        if(resource.exists()){
+            try {
+                return resource.getInputStream();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return null;
+    }
+
 }

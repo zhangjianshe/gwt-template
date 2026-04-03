@@ -2,14 +2,18 @@ package cn.mapway.gwt_template.client.workspace.wiki;
 
 import cn.mapway.gwt_template.client.ClientContext;
 import cn.mapway.gwt_template.client.rpc.AppProxy;
+import cn.mapway.gwt_template.client.workspace.wiki.component.WikiContext;
 import cn.mapway.gwt_template.shared.db.DevProjectPageCommitEntity;
 import cn.mapway.gwt_template.shared.db.DevProjectPageEntity;
 import cn.mapway.gwt_template.shared.db.DevProjectPageSectionEntity;
-import cn.mapway.gwt_template.shared.doc.SectionKind;
 import cn.mapway.gwt_template.shared.rpc.project.wiki.QueryPageSectionRequest;
 import cn.mapway.gwt_template.shared.rpc.project.wiki.QueryPageSectionResponse;
 import cn.mapway.gwt_template.shared.rpc.project.wiki.UpdatePageSectionRequest;
 import cn.mapway.gwt_template.shared.rpc.project.wiki.UpdatePageSectionResponse;
+import cn.mapway.gwt_template.shared.wiki.WikiComponentManager;
+import cn.mapway.gwt_template.shared.wiki.component.IWikiComponent;
+import cn.mapway.gwt_template.shared.wiki.component.WikiBaseComponent;
+import cn.mapway.gwt_template.shared.wiki.component.WikiPageContext;
 import cn.mapway.ui.client.tools.IData;
 import cn.mapway.ui.client.util.StringUtil;
 import cn.mapway.ui.client.widget.CommonEventComposite;
@@ -22,7 +26,6 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Widget;
-import elemental2.dom.DomGlobal;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,21 +35,16 @@ import java.util.List;
  */
 public class PageEditor extends CommonEventComposite implements IData<DevProjectPageEntity> {
     private static final PageEditorUiBinder ourUiBinder = GWT.create(PageEditorUiBinder.class);
-    private final CommonEventHandler headerItemHandler = new CommonEventHandler() {
-        @Override
-        public void onCommonEvent(CommonEvent commonEvent) {
-            if (commonEvent.isUpdate()) {
-                DevProjectPageSectionEntity section = commonEvent.getValue();
-                updateSection(section);
-            }
-        }
-    };
+    WikiPageContext wikiPageContext;
+    List<IWikiComponent> sections;
     @UiField
     FlowPanel page;
     DevProjectPageEntity pageEntity;
 
     public PageEditor() {
         initWidget(ourUiBinder.createAndBindUi(this));
+        wikiPageContext = new WikiPageContext();
+        sections = new ArrayList<>();
     }
 
     private void updateSection(DevProjectPageSectionEntity section) {
@@ -93,35 +91,17 @@ public class PageEditor extends CommonEventComposite implements IData<DevProject
 
     private void renderDocument(QueryPageSectionResponse data) {
         page.clear();
+        sections.clear();
+        wikiPageContext.setPage(pageEntity);
         for (DevProjectPageSectionEntity section : data.getSections()) {
-            SectionKind kind = SectionKind.fromInt(section.getKind());
-            switch (kind) {
-                case PAGE:
-                    PageHeaderItem item = new PageHeaderItem();
-                    item.setPage(pageEntity);
-                    item.setData(section);
-                    item.addCommonHandler(headerItemHandler);
-                    page.add(item);
-                    break;
-                default:
-                    EditableItem sectionItem = new EditableItem();
-                    sectionItem.setData(section);
-                    sectionItem.addCommonHandler(itemHandler);
-                    page.add(sectionItem);
-            }
+            WikiComponentManager manager = WikiContext.get();
+            IWikiComponent component = manager.createComponent(section.getKind());
+            component.initComponent(wikiPageContext, section);
+            component.addCommonHandler(itemHandler);
+            sections.add(component);
+            Widget rootWidget = component.getRootWidget();
+            page.add(rootWidget);
         }
-        EditableItem sectionItem = new EditableItem();
-        DevProjectPageSectionEntity newAdd = new DevProjectPageSectionEntity();
-        newAdd.setPageId(pageEntity.getId());
-        newAdd.setSectionId(StringUtil.randomString(8));
-        newAdd.setKind(SectionKind.H2.value);
-        newAdd.setContent("点击编辑");
-        sectionItem.setData(newAdd);
-        sectionItem.setPlaceHolder("点击编辑");
-        sectionItem.addCommonHandler(itemHandler);
-        page.add(sectionItem);
-
-        DomGlobal.console.log("find sections ", data.getSections().size());
     }
 
     /**
@@ -131,10 +111,10 @@ public class PageEditor extends CommonEventComposite implements IData<DevProject
         List<DevProjectPageSectionEntity> updatedSectionList = new ArrayList<>();
         for (int i = 0; i < page.getWidgetCount(); i++) {
             Widget widget = page.getWidget(i);
-            if (widget instanceof EditableItem) {
-                EditableItem item = (EditableItem) widget;
+            if (widget instanceof WikiBaseComponent) {
+                WikiBaseComponent item = (WikiBaseComponent) widget;
                 if (item.isChanged()) {
-                    updatedSectionList.add(item.getData());
+                    updatedSectionList.add(item.getSection());
                 }
             }
         }
@@ -177,30 +157,25 @@ public class PageEditor extends CommonEventComposite implements IData<DevProject
         @Override
         public void onCommonEvent(CommonEvent commonEvent) {
             if (commonEvent.isCreate()) {
-                // 1. Identify the source and the requested kind
-                EditableItem source = (EditableItem) commonEvent.getSource();
-                SectionKind kind = commonEvent.getValue();
+                WikiBaseComponent source = (WikiBaseComponent) commonEvent.getSource();
+                String kind = commonEvent.getValue();
 
                 DevProjectPageSectionEntity section = new DevProjectPageSectionEntity();
                 section.setSectionId(StringUtil.randomString(8));
-                section.setKind(kind.value);
+                section.setKind(kind);
                 section.setPageId(pageEntity.getId());
                 section.setContent("");
-                // 2. Create the new Data and UI component
-                EditableItem newCreated = new EditableItem();
-                newCreated.setData(section);
-                newCreated.addCommonHandler(itemHandler); // Don't forget to attach the handler!
 
-                // 3. Find the current position
+                IWikiComponent component = WikiContext.get().createComponent(kind);
+                component.initComponent(wikiPageContext, section);
+                component.addCommonHandler(itemHandler); // Don't forget to attach the handler!
+                sections.add(component);
                 int sourceIndex = page.getWidgetIndex(source);
                 int insertIndex = sourceIndex + 1;
 
-                // 4. Update UI
-                page.insert(newCreated, insertIndex);
+                page.insert(component.getRootWidget(), insertIndex);
 
-
-                // 6. Optional: Set focus to the new item immediately
-                newCreated.focus();
+                component.focus();
             }
         }
     };

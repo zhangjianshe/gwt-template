@@ -4,12 +4,12 @@ import cn.mapway.biz.core.AbstractBizExecutor;
 import cn.mapway.biz.core.BizContext;
 import cn.mapway.biz.core.BizRequest;
 import cn.mapway.biz.core.BizResult;
+import cn.mapway.gwt_template.client.workspace.wiki.component.PageTitleComponent;
 import cn.mapway.gwt_template.server.service.project.ProjectService;
 import cn.mapway.gwt_template.server.service.project.WikiService;
 import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.db.*;
 import cn.mapway.gwt_template.shared.doc.PageMetadata;
-import cn.mapway.gwt_template.shared.doc.SectionKind;
 import cn.mapway.gwt_template.shared.rpc.project.wiki.UpdatePageRequest;
 import cn.mapway.gwt_template.shared.rpc.project.wiki.UpdatePageResponse;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
@@ -107,7 +107,7 @@ public class UpdatePageExecutor extends AbstractBizExecutor<UpdatePageResponse, 
     private DevProjectPageSectionEntity createPageSection(DevProjectPageEntity page) {
         DevProjectPageSectionEntity pageSection = new DevProjectPageSectionEntity();
         pageSection.setPageId(page.getId());
-        pageSection.setKind(SectionKind.PAGE.value);
+        pageSection.setKind(PageTitleComponent.KIND_PAGE);
 
         PageMetadata pageMetadata = new PageMetadata();
         pageMetadata.schema = "https://schema.cangling.cn/page/v1.xml";

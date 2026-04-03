@@ -53,7 +53,9 @@ public class DevProjectPageSectionEntity implements Serializable, IsSerializable
 
     @Column(FLD_KIND)
     @Comment("Kind")
-    Integer kind;
+    @ColDefine(type = ColType.VARCHAR, width = 64, notNull = true)
+    @Default("")
+    String kind;
 
 
     @Column(FLD_CONTENT)

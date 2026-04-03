@@ -58,6 +58,7 @@ public class ServletConfig {
     ServletRegistrationBean<RbacServlet> rbacServletRegistration(RbacServlet rbacServlet) {
 
         log.info("初始化Rbac Servlet");
+        rbacServlet.setPolicyFilePath("/static/js/app/");
         ServletRegistrationBean<RbacServlet> srb = new ServletRegistrationBean<RbacServlet>();
         srb.setServlet(rbacServlet);
         List<String> entryPoints = List.of("/" + RbacConstant.DEFAULT_SERVER_PATH);

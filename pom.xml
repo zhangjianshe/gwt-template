@@ -271,7 +271,7 @@
                         <arg>-bindAddress</arg>
                         <arg>127.0.0.1</arg>
                         <arg>-war</arg>
-                        <arg>src/main/resources/static/</arg>
+                        <arg>${project.build.directory}/classes/static/js</arg>
                     </codeserverArgs>
                     <compilerArgs>
                         <arg>-generateJsInteropExports</arg>
