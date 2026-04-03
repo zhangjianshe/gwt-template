@@ -6,18 +6,21 @@ package cn.mapway.gwt_template.shared.wiki.component;
 public @interface WikiComponent {
     /**
      * 名称　用于展示
+     *
      * @return
      */
     String name();
 
     /**
      * 图标　用于展示
+     *
      * @return
      */
     String unicode();
 
     /**
      * 类型　用于数据存储
+     *
      * @return
      */
     String kind();
@@ -25,5 +28,9 @@ public @interface WikiComponent {
     String summary();
 
     String catalog();
+
+    boolean select() default true;
+
+    String alias();
 
 }

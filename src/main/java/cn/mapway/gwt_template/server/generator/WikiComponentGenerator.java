@@ -69,6 +69,8 @@ public class WikiComponentGenerator extends Generator {
             sw.println("  info.setUnicode(\"" + ann.unicode() + "\");");
             sw.println("  info.setCatalog(\"" + ann.catalog() + "\");");
             sw.println("  info.setSummary(\"" + ann.summary() + "\");");
+            sw.println("  info.setSelect(" + ann.select() + ");");
+            sw.println("  info.setAlias(\"" + ann.alias() + "\");");
             sw.println("  getComponentsMetadata().add(info);");
             sw.println("}");
         }

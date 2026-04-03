@@ -2,6 +2,7 @@ package cn.mapway.gwt_template.client.workspace.wiki;
 
 import cn.mapway.gwt_template.client.ClientContext;
 import cn.mapway.gwt_template.client.rpc.AppProxy;
+import cn.mapway.gwt_template.client.workspace.wiki.component.TextComponent;
 import cn.mapway.gwt_template.client.workspace.wiki.component.WikiContext;
 import cn.mapway.gwt_template.shared.db.DevProjectPageCommitEntity;
 import cn.mapway.gwt_template.shared.db.DevProjectPageEntity;
@@ -10,15 +11,12 @@ import cn.mapway.gwt_template.shared.rpc.project.wiki.QueryPageSectionRequest;
 import cn.mapway.gwt_template.shared.rpc.project.wiki.QueryPageSectionResponse;
 import cn.mapway.gwt_template.shared.rpc.project.wiki.UpdatePageSectionRequest;
 import cn.mapway.gwt_template.shared.rpc.project.wiki.UpdatePageSectionResponse;
-import cn.mapway.gwt_template.shared.wiki.WikiComponentManager;
 import cn.mapway.gwt_template.shared.wiki.component.IWikiComponent;
 import cn.mapway.gwt_template.shared.wiki.component.WikiBaseComponent;
 import cn.mapway.gwt_template.shared.wiki.component.WikiPageContext;
 import cn.mapway.ui.client.tools.IData;
-import cn.mapway.ui.client.util.StringUtil;
 import cn.mapway.ui.client.widget.CommonEventComposite;
 import cn.mapway.ui.shared.CommonEvent;
-import cn.mapway.ui.shared.CommonEventHandler;
 import cn.mapway.ui.shared.rpc.RpcResult;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -36,15 +34,14 @@ import java.util.List;
 public class PageEditor extends CommonEventComposite implements IData<DevProjectPageEntity> {
     private static final PageEditorUiBinder ourUiBinder = GWT.create(PageEditorUiBinder.class);
     WikiPageContext wikiPageContext;
-    List<IWikiComponent> sections;
+
     @UiField
     FlowPanel page;
     DevProjectPageEntity pageEntity;
 
     public PageEditor() {
         initWidget(ourUiBinder.createAndBindUi(this));
-        wikiPageContext = new WikiPageContext();
-        sections = new ArrayList<>();
+        wikiPageContext = new WikiPageContext(page);
     }
 
     private void updateSection(DevProjectPageSectionEntity section) {
@@ -91,17 +88,28 @@ public class PageEditor extends CommonEventComposite implements IData<DevProject
 
     private void renderDocument(QueryPageSectionResponse data) {
         page.clear();
-        sections.clear();
-        wikiPageContext.setPage(pageEntity);
-        for (DevProjectPageSectionEntity section : data.getSections()) {
-            WikiComponentManager manager = WikiContext.get();
-            IWikiComponent component = manager.createComponent(section.getKind());
-            component.initComponent(wikiPageContext, section);
-            component.addCommonHandler(itemHandler);
-            sections.add(component);
-            Widget rootWidget = component.getRootWidget();
-            page.add(rootWidget);
+        wikiPageContext.resetContext(pageEntity);
+
+        List<DevProjectPageSectionEntity> sectionEntities = data.getSections();
+
+        // 如果是当前最新版且为空，或者明确处于编辑模式，才添加默认块
+        if (sectionEntities.size() == 1) {
+            DevProjectPageSectionEntity defaultSection = new DevProjectPageSectionEntity();
+            defaultSection.setKind(TextComponent.KIND_TEXT);
+            defaultSection.setContent("");
+            sectionEntities.add(defaultSection);
         }
+
+        for (DevProjectPageSectionEntity section : sectionEntities) {
+            IWikiComponent component = WikiContext.get().createComponent(section.getKind());
+            component.initComponent(wikiPageContext, section);
+
+            // 记录到 Context
+            wikiPageContext.getSections().add(component);
+            // 添加到 UI
+            page.add(component.getRootWidget());
+        }
+
     }
 
     /**
@@ -153,30 +161,4 @@ public class PageEditor extends CommonEventComposite implements IData<DevProject
     interface PageEditorUiBinder extends UiBinder<FlowPanel, PageEditor> {
     }
 
-    private final CommonEventHandler itemHandler = new CommonEventHandler() {
-        @Override
-        public void onCommonEvent(CommonEvent commonEvent) {
-            if (commonEvent.isCreate()) {
-                WikiBaseComponent source = (WikiBaseComponent) commonEvent.getSource();
-                String kind = commonEvent.getValue();
-
-                DevProjectPageSectionEntity section = new DevProjectPageSectionEntity();
-                section.setSectionId(StringUtil.randomString(8));
-                section.setKind(kind);
-                section.setPageId(pageEntity.getId());
-                section.setContent("");
-
-                IWikiComponent component = WikiContext.get().createComponent(kind);
-                component.initComponent(wikiPageContext, section);
-                component.addCommonHandler(itemHandler); // Don't forget to attach the handler!
-                sections.add(component);
-                int sourceIndex = page.getWidgetIndex(source);
-                int insertIndex = sourceIndex + 1;
-
-                page.insert(component.getRootWidget(), insertIndex);
-
-                component.focus();
-            }
-        }
-    };
 }

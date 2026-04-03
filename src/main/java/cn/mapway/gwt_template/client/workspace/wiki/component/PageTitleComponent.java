@@ -25,7 +25,9 @@ import com.google.gwt.user.client.ui.Widget;
         name = "页面头",
         unicode = Fonts.FILE,
         summary = "页面头",
-        catalog = "系统"
+        catalog = "系统",
+        select = false,
+        alias = ""
 )
 public class PageTitleComponent extends WikiBaseComponent {
     public static final String KIND_PAGE = "page";
@@ -46,6 +48,7 @@ public class PageTitleComponent extends WikiBaseComponent {
 
     public PageTitleComponent() {
         initWidget(ourUiBinder.createAndBindUi(this));
+        txtHeader.setEditable(true);
         txtHeader.addValueChangeHandler(event -> {
             DevProjectPageEntity page = getContext().getPage();
             if (txtHeader.getValue().equals(page.getName())) {

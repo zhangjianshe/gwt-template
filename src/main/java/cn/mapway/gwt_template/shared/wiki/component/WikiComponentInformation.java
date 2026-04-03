@@ -11,4 +11,6 @@ public class WikiComponentInformation {
     String unicode;
     String summary;
     String catalog;
+    String alias;
+    Boolean select;
 }

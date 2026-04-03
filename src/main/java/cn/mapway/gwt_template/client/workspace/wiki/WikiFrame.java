@@ -167,7 +167,7 @@ public class WikiFrame extends CommonEventComposite implements IData<String> {
         if (pages == null) return;
         for (DevProjectPageEntity page : pages) {
             // 使用自定义图标或 Emoji (如果有)
-            TreeItem item = pageTree.addItem(parent, page.getName(), Fonts.CAOZUORIZHI1);
+            TreeItem item = pageTree.addItem(parent, page.getName(), Fonts.ZHUANTIBAOGAOSHENGCHENG);
             item.setData(page);
 
             // 快捷添加按钮

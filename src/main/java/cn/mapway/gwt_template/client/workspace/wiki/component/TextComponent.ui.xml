@@ -1,0 +1,38 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+>
+    <ui:style>
+        .box {
+            padding-left: 45px;
+        }
+
+        .text {
+            font-size: 1rem;
+            line-height: 150%;
+        }
+
+        .text:focus {
+            outline: none !important;
+        }
+
+        .text img {
+            width: 1rem;
+            height: 1rem;
+        }
+        /* 当编辑器内容为空时显示 placeholder */
+        .text:empty::before {
+            content: attr(data-placeholder);
+            color: #94a3b8;
+            pointer-events: none; /* 确保点击 placeholder 也能聚焦编辑器 */
+            display: block;
+        }
+
+        /* 针对某些浏览器，即使里面有一个 也认为是空的处理（可选） */
+        .text:focus::before {
+            content: none;
+        }
+    </ui:style>
+    <g:HTMLPanel ui:field="root" addStyleNames="{style.box}">
+        <g:HTML ui:field="editor" addStyleNames="{style.text}"/>
+    </g:HTMLPanel>
+</ui:UiBinder>

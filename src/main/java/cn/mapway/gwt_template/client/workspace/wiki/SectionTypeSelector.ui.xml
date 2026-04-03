@@ -2,7 +2,7 @@
              xmlns:g='urn:import:com.google.gwt.user.client.ui'
              xmlns:dialog="urn:import:cn.mapway.ui.client.widget.dialog">
     <ui:style>
-        .box{
+        .box {
             display: flex;
             align-items: center;
             justify-content: flex-start;
@@ -12,10 +12,10 @@
     </ui:style>
     <g:DockLayoutPanel>
         <g:south size="60">
-            <dialog:SaveBar ui:field="saveBar" saveText="选择"/>
+            <dialog:SaveBar ui:field="saveBar" showSave="false" saveText="选择"/>
         </g:south>
         <g:center>
-            <g:ScrollPanel>
+            <g:ScrollPanel ui:field="scroller">
                 <g:HTMLPanel ui:field="content" addStyleNames="{style.box}">
 
                 </g:HTMLPanel>

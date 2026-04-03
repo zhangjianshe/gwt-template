@@ -84,4 +84,8 @@ public class EditableLabel extends Label implements HasValue<String> {
             element.removeAttribute("contentEditable");
         }
     }
+
+    public void focus() {
+        getElement().focus();
+    }
 }

@@ -11,11 +11,11 @@ import com.google.gwt.user.client.ui.Widget;
         name = "未知组件",
         unicode = Fonts.UNKNOWN,
         summary = "当组件类型无法识别时显示的占位符",
-        catalog = "系统"
+        catalog = "系统",
+        alias = ""
 )
 public class EmptyComponent extends WikiBaseComponent {
 
-    private String data = "";
     private final HTML widget;
 
     public EmptyComponent() {
