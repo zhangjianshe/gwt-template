@@ -3,6 +3,7 @@ package cn.mapway.gwt_template.client.workspace.wiki;
 import cn.mapway.gwt_template.client.workspace.wiki.component.WikiContext;
 import cn.mapway.gwt_template.shared.wiki.WikiComponentManager;
 import cn.mapway.gwt_template.shared.wiki.component.WikiComponentInformation;
+import cn.mapway.ui.client.mvc.Size;
 import cn.mapway.ui.client.widget.CommonEventComposite;
 import cn.mapway.ui.client.widget.dialog.Popup;
 import cn.mapway.ui.client.widget.dialog.SaveBar;
@@ -24,13 +25,10 @@ import java.util.List;
 public class SectionTypeSelector extends CommonEventComposite {
     private static final SectionTypeSelectorUiBinder ourUiBinder = GWT.create(SectionTypeSelectorUiBinder.class);
     private static Popup<SectionTypeSelector> dialog;
-    private final ClickHandler itemSelected = new ClickHandler() {
-        @Override
-        public void onClick(ClickEvent event) {
-            WikiComponentItem source = (WikiComponentItem) event.getSource();
-            WikiComponentInformation information = source.getData();
-            fireEvent(CommonEvent.selectEvent(information));
-        }
+    private final ClickHandler itemSelected = event -> {
+        WikiComponentItem source = (WikiComponentItem) event.getSource();
+        WikiComponentInformation information = source.getData();
+        fireEvent(CommonEvent.selectEvent(information));
     };
     @UiField
     HTMLPanel content;
@@ -40,6 +38,7 @@ public class SectionTypeSelector extends CommonEventComposite {
     ScrollPanel scroller;
 
     WikiComponentItem selectedItem = null;
+    String oldFilter = null;
 
     public SectionTypeSelector() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -61,13 +60,26 @@ public class SectionTypeSelector extends CommonEventComposite {
         return new Popup<>(selector);
     }
 
+    @Override
+    public Size requireDefaultSize() {
+        return new Size(300, 450);
+    }
+
     public void load(String filter) {
+        if (filter == null) {
+            filter = "";
+        }
+        if (filter.equals(oldFilter)) {
+            return;
+        }
+
+        oldFilter = filter;
         content.clear();
         selectedItem = null;
         WikiComponentManager manager = WikiContext.get();
         List<WikiComponentInformation> components = manager.getComponentsMetadata();
 
-        String query = (filter == null) ? "" : filter.toLowerCase();
+        String query = filter.toLowerCase();
 
         for (WikiComponentInformation component : components) {
             // 过滤逻辑：匹配名称、别名或目录

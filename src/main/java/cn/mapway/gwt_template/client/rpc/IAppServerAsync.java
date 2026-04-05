@@ -13,6 +13,8 @@ import cn.mapway.gwt_template.shared.rpc.repository.*;
 import cn.mapway.gwt_template.shared.rpc.soft.*;
 import cn.mapway.gwt_template.shared.rpc.tools.MarkdownToHtmlRequest;
 import cn.mapway.gwt_template.shared.rpc.tools.MarkdownToHtmlResponse;
+import cn.mapway.gwt_template.shared.rpc.tools.QueryImagesRequest;
+import cn.mapway.gwt_template.shared.rpc.tools.QueryImagesResponse;
 import cn.mapway.gwt_template.shared.rpc.user.*;
 import cn.mapway.gwt_template.shared.rpc.webhook.*;
 import cn.mapway.gwt_template.shared.rpc.workspace.ExportDevProjectTaskRequest;
@@ -27,6 +29,8 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public interface IAppServerAsync {
 
     ///CODE_GEN_INSERT_POINT///
+	void queryImages(QueryImagesRequest request, AsyncCallback<RpcResult<QueryImagesResponse>> async);
+
 	void queryPageCommits(QueryPageCommitsRequest request, AsyncCallback<RpcResult<QueryPageCommitsResponse>> async);
 
 	void queryPageSection(QueryPageSectionRequest request, AsyncCallback<RpcResult<QueryPageSectionResponse>> async);

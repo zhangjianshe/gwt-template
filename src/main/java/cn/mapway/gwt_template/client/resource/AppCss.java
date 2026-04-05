@@ -65,4 +65,12 @@ public interface AppCss extends CssResource {
     String projectItem();
 
     String box();
+
+    String h1();
+
+    String h2();
+    String h3();
+    String h4();
+    String h5();
+
 }

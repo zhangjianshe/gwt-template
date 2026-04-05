@@ -5,14 +5,14 @@ import cn.mapway.ui.client.widget.CommonEventComposite;
 import com.google.gwt.dom.client.Element;
 import elemental2.dom.HTMLElement;
 import jsinterop.base.Js;
-import lombok.Setter;
 
 public abstract class WikiBaseComponent extends CommonEventComposite implements IWikiComponent {
     WikiPageContext context;
     DevProjectPageSectionEntity section;
-    @Setter
     boolean changed = false;
-
+    public void setChanged(boolean changed) {
+        this.changed = changed;
+    }
     @Override
     public boolean isChanged() {
         return changed;
@@ -31,7 +31,11 @@ public abstract class WikiBaseComponent extends CommonEventComposite implements 
         return context;
     }
 
-    public DevProjectPageSectionEntity getSection() {
+    protected DevProjectPageSectionEntity getSection() {
+        return section;
+    }
+
+    public DevProjectPageSectionEntity fromUI() {
         return section;
     }
 

@@ -1,0 +1,37 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+    <ui:style type="cn.mapway.gwt_template.client.widget.IconGroup.SStyle">
+        .box {
+
+        }
+
+        .catalog {
+            font-size: 0.9rem;
+            color: #444;
+        }
+
+        .list {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+
+        .icon {
+            width: 36px;
+            height: 36px;
+            overflow: hidden;
+            padding: 4px;
+        }
+
+        .icon:HOVER {
+            background-color: skyblue;
+        }
+    </ui:style>
+    <g:HTMLPanel addStyleNames="{style.box}">
+        <g:Label ui:field="lbCatalog" addStyleNames="{style.catalog}"/>
+        <g:HTMLPanel ui:field="list" addStyleNames="{style.list}">
+
+        </g:HTMLPanel>
+    </g:HTMLPanel>
+</ui:UiBinder>

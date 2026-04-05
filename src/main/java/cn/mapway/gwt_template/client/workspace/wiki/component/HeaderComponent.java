@@ -1,50 +1,38 @@
 package cn.mapway.gwt_template.client.workspace.wiki.component;
 
-import cn.mapway.gwt_template.client.widget.IconSelector;
 import cn.mapway.gwt_template.client.workspace.wiki.SectionTypeSelector;
 import cn.mapway.gwt_template.shared.db.DevProjectPageSectionEntity;
 import cn.mapway.gwt_template.shared.wiki.component.WikiBaseComponent;
-import cn.mapway.gwt_template.shared.wiki.component.WikiComponent;
 import cn.mapway.gwt_template.shared.wiki.component.WikiComponentInformation;
 import cn.mapway.gwt_template.shared.wiki.component.WikiPageContext;
-import cn.mapway.ui.client.fonts.Fonts;
 import cn.mapway.ui.client.util.StringUtil;
 import cn.mapway.ui.client.widget.dialog.Popup;
+import cn.mapway.ui.shared.CommonEvent;
+import cn.mapway.ui.shared.CommonEventHandler;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.Widget;
+import lombok.Getter;
 
-import java.util.ArrayList;
-import java.util.List;
+import static cn.mapway.gwt_template.client.workspace.wiki.component.TextComponent.KIND_TEXT;
 
-@WikiComponent(
-        kind = TextComponent.KIND_TEXT,
-        name = "文本",
-        unicode = Fonts.PARAGRAPH,
-        summary = "正文文本",
-        catalog = "系统",
-        alias = "text"
-)
-public class TextComponent extends WikiBaseComponent {
-    public static final String KIND_TEXT = "TEXT";
-    private static final TextComponentUiBinder ourUiBinder = GWT.create(TextComponentUiBinder.class);
+public abstract class HeaderComponent extends WikiBaseComponent {
+    private static final HeaderComponentUiBinder ourUiBinder = GWT.create(HeaderComponentUiBinder.class);
     @UiField
     HTMLPanel root;
+    @Getter
     @UiField
     HTML editor;
-    List<String> lines = new ArrayList<>();
-    String oldQuery = "";
 
-    public TextComponent() {
+    public HeaderComponent() {
         initWidget(ourUiBinder.createAndBindUi(this));
         setElementEditable(editor.getElement(), true);
-        editor.getElement().setAttribute("data-placeholder", "按 '/' 插入组件，或者直接输入内容...");
+        editor.getElement().setAttribute("data-placeholder", "按 '/' 插入组件，或者直接输入标题...");
         editor.addDomHandler(new KeyDownHandler() {
             @Override
             public void onKeyDown(KeyDownEvent event) {
@@ -74,10 +62,8 @@ public class TextComponent extends WikiBaseComponent {
                         event.preventDefault();
                         event.stopPropagation();
 
-                        // 逻辑：向父容器发送事件，要求在当前组件下方插入一个新的 TextComponent
-                        // 这里可以调用 WikiPageContext 的方法
                         if (getContext() != null) {
-                            getContext().insertNewComponentAfter(TextComponent.this, KIND_TEXT);
+                            getContext().insertNewComponentAfter(HeaderComponent.this, KIND_TEXT);
                         }
                     }
                 }
@@ -114,21 +100,19 @@ public class TextComponent extends WikiBaseComponent {
         Popup<SectionTypeSelector> dialog = SectionTypeSelector.getDialog(true);
         if (dialog.isShowing()) {
             dialog.setPopupPosition((int) pos.x, (int) pos.y);
-            if (!oldQuery.equals(query)) {
-                oldQuery = query;
-                dialog.getContent().load(query);
-            }
+            dialog.getContent().load(query);
             return;
         }
-        dialog.addCommonHandler(event -> {
-            if (event.isSelect()) {
-                WikiComponentInformation information = event.getValue();
-                handleCommand(pos,information.getKind());
-                oldQuery = "";
-                dialog.hide();
-            } else if (event.isClose()) {
-                oldQuery = "";
-                dialog.hide();
+        dialog.addCommonHandler(new CommonEventHandler() {
+            @Override
+            public void onCommonEvent(CommonEvent event) {
+                if (event.isSelect()) {
+                    WikiComponentInformation information = event.getValue();
+                    handleCommand(information.getKind());
+                    dialog.hide();
+                } else if (event.isClose()) {
+                    dialog.hide();
+                }
             }
         });
         dialog.setPopupPositionAndShow(new PopupPanel.PositionCallback() {
@@ -141,7 +125,7 @@ public class TextComponent extends WikiBaseComponent {
 
     }
 
-    private void handleCommand(NativePoint pos, String kind) {
+    private void handleCommand(String kind) {
         String text = editor.getElement().getInnerText();
         // 找到最后一个斜杠的位置
         int slashIndex = text.lastIndexOf("/");
@@ -150,32 +134,14 @@ public class TextComponent extends WikiBaseComponent {
             String newText = text.substring(0, slashIndex);
             editor.getElement().setInnerText(newText);
         }
-        if (kind.equals(IconComponent.KIND_ICON)) {
-            showIconSelector(pos);
-        } else {
-            // 2. 检查是否为空，决定是“替换”还是“插入”
-            // 注意：innerText 去掉 '/' 后如果是空的，说明该块原本只有这一个字符
-            if (StringUtil.isBlank(editor.getElement().getInnerText())) {
-                getContext().replaceComponent(this, kind);
-            } else {
-                getContext().insertNewComponentAfter(this, kind);
-            }
-        }
-    }
 
-    private void showIconSelector(NativePoint pos) {
-        //插入图片
-        Popup<IconSelector> popup = IconSelector.getPopup(true);
-        popup.addCommonHandler(event -> {
-            popup.hide();
-        });
-        popup.setPopupPositionAndShow(new PopupPanel.PositionCallback() {
-            @Override
-            public void setPosition(int offsetWidth, int offsetHeight) {
-                popup.setPopupPosition((int) pos.x, (int) pos.y);
-            }
-        });
-        popup.getContent().init();
+        // 2. 检查是否为空，决定是“替换”还是“插入”
+        // 注意：innerText 去掉 '/' 后如果是空的，说明该块原本只有这一个字符
+        if (StringUtil.isBlank(editor.getElement().getInnerText())) {
+            getContext().replaceComponent(this, kind);
+        } else {
+            getContext().insertNewComponentAfter(this, kind);
+        }
     }
 
     // 这是一个简化的原生 JS 调用，用于获取光标位置
@@ -196,17 +162,11 @@ public class TextComponent extends WikiBaseComponent {
     @Override
     public void initComponent(WikiPageContext context, DevProjectPageSectionEntity section) {
         super.initComponent(context, section);
-        lines.clear();
         setChanged(false);
         if (StringUtil.isBlank(section.getContent())) {
             editor.setHTML("");
         } else {
-            lines = StringUtil.splitIgnoreBlank(section.getContent(), "\n");
-            StringBuilder html = new StringBuilder();
-            for (String line : lines) {
-                html.append("<div>").append(line).append("</div>");
-            }
-            editor.setHTML(html.toString());
+            editor.setHTML(section.getContent());
         }
     }
 
@@ -223,25 +183,7 @@ public class TextComponent extends WikiBaseComponent {
     @Override
     public DevProjectPageSectionEntity fromUI() {
         DevProjectPageSectionEntity section = super.getSection();
-        StringBuilder text = new StringBuilder();
-        Element element = editor.getElement();
-
-        // 遍历所有子节点（通常是 <div> 或 <br>）
-        for (int i = 0; i < element.getChildCount(); i++) {
-            com.google.gwt.dom.client.Element child = element.getChild(i).cast();
-            String content = child.getInnerText();
-            if (content != null) {
-                text.append(content).append("\n");
-            }
-        }
-
-        // 如果没有任何子节点（只有纯文本），直接取 innerText
-        if (text.length() == 0) {
-            text.append(element.getInnerText());
-        }
-
-        String content = text.toString().trim();
-        section.setContent(content);
+        section.setContent(editor.getHTML());
         return section;
     }
 
@@ -250,6 +192,6 @@ public class TextComponent extends WikiBaseComponent {
         editor.getElement().focus();
     }
 
-    interface TextComponentUiBinder extends UiBinder<HTMLPanel, TextComponent> {
+    interface HeaderComponentUiBinder extends UiBinder<HTMLPanel, HeaderComponent> {
     }
 }

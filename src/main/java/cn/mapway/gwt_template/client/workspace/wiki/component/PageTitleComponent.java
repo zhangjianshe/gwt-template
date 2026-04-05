@@ -11,7 +11,6 @@ import cn.mapway.gwt_template.shared.wiki.component.WikiPageContext;
 import cn.mapway.ui.client.fonts.Fonts;
 import cn.mapway.ui.client.tools.JSON;
 import cn.mapway.ui.client.util.StringUtil;
-import cn.mapway.ui.shared.CommonEvent;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
@@ -52,14 +51,21 @@ public class PageTitleComponent extends WikiBaseComponent {
         txtHeader.addValueChangeHandler(event -> {
             DevProjectPageEntity page = getContext().getPage();
             if (txtHeader.getValue().equals(page.getName())) {
-                return;
+                setChanged(false);
+            } else {
+                setChanged(true);
             }
-            metadata.title = txtHeader.getValue();
-            page.setName(metadata.title);
-            DevProjectPageSectionEntity section = getSection();
-            section.setContent(JSON.stringify(metadata));
-            fireEvent(CommonEvent.updateEvent(section));
         });
+    }
+
+    @Override
+    public DevProjectPageSectionEntity fromUI() {
+        DevProjectPageEntity page = getContext().getPage();
+        metadata.title = txtHeader.getValue();
+        page.setName(metadata.title);
+        DevProjectPageSectionEntity section = getSection();
+        section.setContent(JSON.stringify(metadata));
+        return section;
     }
 
     @Override

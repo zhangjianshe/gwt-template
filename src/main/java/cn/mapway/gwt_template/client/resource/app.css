@@ -257,3 +257,23 @@
     box-shadow: 0 12px 30px rgba(47, 84, 235, 0.15); /* 阴影变深并带有一点品牌色 */
     border: 1px solid rgba(47, 84, 235, 0.2); /* 边框变品牌色 */
 }
+
+.h1 {
+    font-size: 1.6rem;
+}
+
+.h2 {
+    font-size: 1.4rem;
+}
+
+.h3 {
+    font-size: 1.2rem;
+}
+
+.h4 {
+    font-size: 1.0rem;
+}
+
+.h5 {
+    font-size: 0.9rem;
+}

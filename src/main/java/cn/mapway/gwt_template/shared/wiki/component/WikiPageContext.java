@@ -3,6 +3,7 @@ package cn.mapway.gwt_template.shared.wiki.component;
 import cn.mapway.gwt_template.client.workspace.wiki.component.WikiContext;
 import cn.mapway.gwt_template.shared.db.DevProjectPageEntity;
 import cn.mapway.gwt_template.shared.db.DevProjectPageSectionEntity;
+import cn.mapway.ui.client.util.StringUtil;
 import com.google.gwt.user.client.ui.FlowPanel;
 import lombok.Getter;
 import lombok.Setter;
@@ -31,6 +32,7 @@ public class WikiPageContext {
         newSection.setPageId(page.getId());
         newSection.setKind(kind);
         newSection.setContent(""); // 初始内容为空
+        newSection.setSectionId(StringUtil.randomString(8));
         // 如果你有排序字段（如 sortIndex），在这里计算 index + 1 的值
 
         // 2. 通过 Manager 创建组件实例
@@ -49,7 +51,12 @@ public class WikiPageContext {
         int index = container.getWidgetIndex(oldComp.getRootWidget());
 
         IWikiComponent newComp = WikiContext.get().createComponent(newKind);
-        newComp.initComponent(this, new DevProjectPageSectionEntity());
+        DevProjectPageSectionEntity section = new DevProjectPageSectionEntity();
+        section.setSectionId(StringUtil.randomString(8));
+        section.setPageId(page.getId());
+        section.setKind(newKind);
+        section.setContent("");
+        newComp.initComponent(this, section);
 
         sections.set(index, newComp);
         container.remove(index);
@@ -62,6 +69,7 @@ public class WikiPageContext {
         page = pageEntity;
         sections.clear();
     }
+
     public void removeComponent(IWikiComponent component) {
         if (sections.size() <= 1) return; // 至少保留一个块
 
@@ -73,5 +81,18 @@ public class WikiPageContext {
         if (index > 0) {
             sections.get(index - 1).focus();
         }
+    }
+
+    public List<DevProjectPageSectionEntity> getChangedList() {
+        List<DevProjectPageSectionEntity> changedList = new ArrayList<>();
+        for (IWikiComponent component : sections) {
+            if (component instanceof WikiBaseComponent) {
+                WikiBaseComponent wikiBaseComponent = (WikiBaseComponent) component;
+                if (wikiBaseComponent.isChanged()) {
+                    changedList.add(wikiBaseComponent.fromUI());
+                }
+            }
+        }
+        return changedList;
     }
 }

@@ -12,7 +12,6 @@ import cn.mapway.gwt_template.shared.rpc.project.wiki.QueryPageSectionResponse;
 import cn.mapway.gwt_template.shared.rpc.project.wiki.UpdatePageSectionRequest;
 import cn.mapway.gwt_template.shared.rpc.project.wiki.UpdatePageSectionResponse;
 import cn.mapway.gwt_template.shared.wiki.component.IWikiComponent;
-import cn.mapway.gwt_template.shared.wiki.component.WikiBaseComponent;
 import cn.mapway.gwt_template.shared.wiki.component.WikiPageContext;
 import cn.mapway.ui.client.tools.IData;
 import cn.mapway.ui.client.widget.CommonEventComposite;
@@ -23,9 +22,7 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.Widget;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -42,12 +39,6 @@ public class PageEditor extends CommonEventComposite implements IData<DevProject
     public PageEditor() {
         initWidget(ourUiBinder.createAndBindUi(this));
         wikiPageContext = new WikiPageContext(page);
-    }
-
-    private void updateSection(DevProjectPageSectionEntity section) {
-        ArrayList<DevProjectPageSectionEntity> sections = new ArrayList<>();
-        sections.add(section);
-        doUpdate(sections);
     }
 
     @Override
@@ -116,16 +107,7 @@ public class PageEditor extends CommonEventComposite implements IData<DevProject
      * 保存变更的页面
      */
     public void save() {
-        List<DevProjectPageSectionEntity> updatedSectionList = new ArrayList<>();
-        for (int i = 0; i < page.getWidgetCount(); i++) {
-            Widget widget = page.getWidget(i);
-            if (widget instanceof WikiBaseComponent) {
-                WikiBaseComponent item = (WikiBaseComponent) widget;
-                if (item.isChanged()) {
-                    updatedSectionList.add(item.getSection());
-                }
-            }
-        }
+        List<DevProjectPageSectionEntity> updatedSectionList = wikiPageContext.getChangedList();
         if (!updatedSectionList.isEmpty()) {
             doUpdate(updatedSectionList);
         }
@@ -133,6 +115,9 @@ public class PageEditor extends CommonEventComposite implements IData<DevProject
 
     private void doUpdate(List<DevProjectPageSectionEntity> updatedSectionList) {
 
+        for (DevProjectPageSectionEntity section : updatedSectionList) {
+            section.setPageId(pageEntity.getId());
+        }
         UpdatePageSectionRequest request = new UpdatePageSectionRequest();
         request.setSections(updatedSectionList);
         AppProxy.get().updatePageSection(request, new AsyncCallback<RpcResult<UpdatePageSectionResponse>>() {

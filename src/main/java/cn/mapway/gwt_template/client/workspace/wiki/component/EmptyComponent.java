@@ -12,7 +12,8 @@ import com.google.gwt.user.client.ui.Widget;
         unicode = Fonts.UNKNOWN,
         summary = "当组件类型无法识别时显示的占位符",
         catalog = "系统",
-        alias = ""
+        alias = "",
+        select = false
 )
 public class EmptyComponent extends WikiBaseComponent {
 

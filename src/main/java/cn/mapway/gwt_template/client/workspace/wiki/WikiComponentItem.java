@@ -16,6 +16,8 @@ public class WikiComponentItem extends CommonEventComposite implements IData<Wik
     Label lbName;
     @UiField
     FontIcon icon;
+    @UiField
+    Label lbSummary;
     private WikiComponentInformation info;
 
     public WikiComponentItem() {
@@ -37,6 +39,7 @@ public class WikiComponentItem extends CommonEventComposite implements IData<Wik
         icon.setIconUnicode(info.getUnicode());
         lbName.setText(info.getName());
         lbName.setTitle(info.getSummary());
+        lbSummary.setText(info.getSummary());
     }
 
     interface WikiCOmponentItemUiBinder extends UiBinder<HTMLPanel, WikiComponentItem> {

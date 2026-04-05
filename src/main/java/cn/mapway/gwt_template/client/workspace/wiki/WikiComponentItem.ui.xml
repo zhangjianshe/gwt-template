@@ -2,23 +2,64 @@
              xmlns:g='urn:import:com.google.gwt.user.client.ui' xmlns:widget="urn:import:cn.mapway.ui.client.widget">
     <ui:style>
         .box {
-            display: flex;
+            display: grid;
+            /* 增加列间距 gap，避免 icon 和文字紧贴 */
+            grid-template-columns: 32px 1fr;
+            grid-template-areas:
+        "icon name"
+        "icon summary";
+            grid-column-gap: 8px;
             align-items: center;
-            justify-content: space-between;
-            padding: 4px 8px;
-            border-radius: 3px;
+            padding: 6px 8px; /* 略微增加内边距提升呼吸感 */
+            border-radius: 4px;
+            width: 100%;
+            cursor: pointer; /* 增加手型光标，暗示可点击 */
+            box-sizing: border-box; /* 确保 padding 不撑大 100% 的宽度 */
+            transition: background 0.2s ease; /* 让背景色切换更平滑 */
         }
 
-        .box:HOVER {
+        .box:hover {
             background: #f0f4f8;
         }
 
         .box[select="true"] {
-            background-color: skyblue;
+            background-color: #e0f2fe !important; /* 使用更柔和的蓝色 */
+        }
+
+        .icon {
+            grid-area: icon;
+            display: flex;
+            justify-content: center;
+            align-self: start; /* 建议对齐到顶部，防止文字多时 icon 漂浮在中间很怪 */
+            margin-top: 2px;
+        }
+
+        .name {
+            grid-area: name;
+            font-weight: 600;
+            color: #333;
+            /* 溢出隐藏并显示省略号 */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .summary {
+            grid-area: summary;
+            color: #666;
+            font-size: 0.85rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2; /* 显示两行 */
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            line-height: 1.4;
         }
     </ui:style>
     <g:HTMLPanel addStyleNames="{style.box}">
-        <widget:FontIcon ui:field="icon"/>
-        <g:Label ui:field="lbName"/>
+        <widget:FontIcon ui:field="icon" fontSize="36" addStyleNames="{style.icon}"/>
+        <g:Label ui:field="lbName" addStyleNames="{style.name}"/>
+        <g:Label ui:field="lbSummary" addStyleNames="{style.summary}"/>
     </g:HTMLPanel>
 </ui:UiBinder>
