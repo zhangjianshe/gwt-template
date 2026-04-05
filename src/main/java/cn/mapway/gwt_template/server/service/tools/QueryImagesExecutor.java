@@ -44,49 +44,57 @@ public class QueryImagesExecutor extends AbstractBizExecutor<QueryImagesResponse
         if (allImages == null) {
             allImages = new ArrayList<>();
             ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
+            java.util.Map<String, List<String>> catalogMap = new java.util.LinkedHashMap<>();
 
             try {
-                // 1. Use ** to find all files recursively in the icons directory
-                Resource[] resources = resolver.getResources("classpath:static/icons/**/*");
-
-                // Map to temporarily group images by catalog name
-                java.util.Map<String, SysImage> catalogMap = new java.util.LinkedHashMap<>();
+                // 使用通配符获取所有图片
+                Resource[] resources = resolver.getResources("classpath*:static/icons/**/*.*");
 
                 for (Resource resource : resources) {
-                    // Skip actual directory entries, we only want files
-                    if (resource.getFilename() == null || resource.getDescription().contains("directory")) {
+                    // 排除文件夹资源
+                    if (!resource.isReadable() || resource.contentLength() <= 0) {
                         continue;
                     }
 
-                    String uri = resource.getURI().toString();
-                    String filename = resource.getFilename();
+                    // 获取并解码 URI
+                    String uri = java.net.URLDecoder.decode(resource.getURI().toString(), "UTF-8");
 
-                    // 2. Logic to extract the folder name (catalog)
-                    // We look for the part between /icons/ and the filename
-                    String catalogName = "default";
-                    int iconsIndex = uri.indexOf("/icons/");
+                    // 统一路径分隔符为 /
+                    uri = uri.replace("\\", "/");
+
+                    String iconsMarker = "/static/icons/";
+                    int iconsIndex = uri.indexOf(iconsMarker);
+
                     if (iconsIndex != -1) {
-                        String subPath = uri.substring(iconsIndex + 7); // skip "/icons/"
+                        // 截取 icons 之后的路径： 例如 "分类/图片.png"
+                        String subPath = uri.substring(iconsIndex + iconsMarker.length());
+
+                        String catalogName = "default";
+                        String filename;
+
                         if (subPath.contains("/")) {
                             catalogName = subPath.substring(0, subPath.lastIndexOf("/"));
+                            filename = subPath.substring(subPath.lastIndexOf("/") + 1);
+                        } else {
+                            filename = subPath;
                         }
+
+                        // 填充结果
+                        catalogMap.computeIfAbsent(catalogName, k -> new ArrayList<>())
+                                .add("icons/" + catalogName + "/" + filename);
                     }
-
-                    // 3. Grouping into your SysImage structure
-                    SysImage sysImage = catalogMap.computeIfAbsent(catalogName, k -> {
-                        SysImage si = new SysImage();
-                        si.setCatalog(k);
-                        return si;
-                    });
-
-                    // Add the image path (relative to the static folder for GWT consumption)
-                    sysImage.getImages().add("icons/" + catalogName + "/" + filename);
                 }
 
-                allImages.addAll(catalogMap.values());
+                // 转换为 SysImage 列表
+                catalogMap.forEach((catalog, imgs) -> {
+                    SysImage si = new SysImage();
+                    si.setCatalog(catalog);
+                    si.setImages(imgs);
+                    allImages.add(si);
+                });
 
             } catch (IOException e) {
-                log.error("Error scanning icon resources", e);
+                log.error("扫描图标资源出错", e);
             }
         }
         return allImages;
