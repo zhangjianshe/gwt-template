@@ -752,4 +752,21 @@ public class ProjectService {
     public DevProjectIssueEntity findIssue(String issueId) {
         return dao.fetch(DevProjectIssueEntity.class, issueId);
     }
+
+    /**
+     * 判定用户是否是 TaskId 的执行者
+     *
+     * @param userId
+     * @param taskId
+     * @return
+     */
+    public boolean isChargerOfTask(Long userId, String taskId) {
+        if (userId == null || Strings.isBlank(taskId)) {
+            return false;
+        }
+        return dao.count(DevProjectTaskEntity.class,
+                Cnd.where(DevProjectTaskEntity.FLD_ID, "=", taskId)
+                        .and(DevProjectTaskEntity.FLD_CHARGER, "=", userId)
+        ) > 0;
+    }
 }

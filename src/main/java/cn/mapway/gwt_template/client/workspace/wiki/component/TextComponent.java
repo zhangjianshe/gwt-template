@@ -123,7 +123,7 @@ public class TextComponent extends WikiBaseComponent {
         dialog.addCommonHandler(event -> {
             if (event.isSelect()) {
                 WikiComponentInformation information = event.getValue();
-                handleCommand(pos,information.getKind());
+                handleCommand(pos, information.getKind());
                 oldQuery = "";
                 dialog.hide();
             } else if (event.isClose()) {
@@ -167,6 +167,10 @@ public class TextComponent extends WikiBaseComponent {
         //插入图片
         Popup<IconSelector> popup = IconSelector.getPopup(true);
         popup.addCommonHandler(event -> {
+            String img = "<img src=\"" + event.getValue() + "\" />";
+            String innerHTML = editor.getElement().getInnerHTML();
+            innerHTML += img;
+            editor.getElement().setInnerHTML(innerHTML);
             popup.hide();
         });
         popup.setPopupPositionAndShow(new PopupPanel.PositionCallback() {
