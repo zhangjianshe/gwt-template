@@ -1,0 +1,50 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+    <ui:style>
+        .box {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            flex-flow: column;
+        }
+
+        .name {
+            font-weight: bold;
+            padding: 0 0 10px 0;
+        }
+
+        .icon {
+            width: 22px;
+            height: 22px;
+        }
+
+        .userName {
+            color: #444;
+            font-size: 0.9rem;
+        }
+
+        .date {
+            font-size: 0.9rem;
+            color: #333;
+        }
+
+        .bottom {
+            display: flex;
+            align-items: center;
+            height: 40px;
+            justify-content: space-between;
+            padding: 10px 0 5px 0;
+            width: 100%;
+            border-top: solid 1px #f0f0f0;
+        }</ui:style>
+    <g:HTMLPanel addStyleNames="{style.box}">
+        <g:Label ui:field="lbName" addStyleNames="{style.name}"/>
+        <g:HTMLPanel addStyleNames="{style.bottom}">
+            <g:HorizontalPanel spacing="4" verticalAlignment="middle">
+                <g:Image addStyleNames="{style.icon}" ui:field="icon"/>
+                <g:Label ui:field="lbUserName" addStyleNames="{style.userName}"/>
+            </g:HorizontalPanel>
+            <g:Label ui:field="lbDate" addStyleNames="{style.date}"/>
+        </g:HTMLPanel>
+    </g:HTMLPanel>
+</ui:UiBinder>

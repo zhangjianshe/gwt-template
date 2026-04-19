@@ -50,7 +50,9 @@ public class QueryDesktopExecutor extends AbstractBizExecutor<QueryDesktopRespon
         projectService.fillWorkspaceInfo(workspaces, false);
         response.setItems(result);
         response.setWorkspaces(workspaces);
-        List<DevProjectEntity> projectEntities = projectService.queryFavoriteProjects(user.getUser().getUserId());
+
+        List<DevProjectEntity> projectEntities = projectService.queryMyProjects(user.getUser().getUserId());
+        log.info("user {} has {} projects", user.getUser().getUserId(), projectEntities.size());
         for (DevProjectEntity projectEntity : projectEntities) {
             projectService.fillProjectExtraInformation(projectEntity, user.getUser().getUserId());
         }

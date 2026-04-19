@@ -633,6 +633,32 @@ public class ProjectService {
         return BizResult.success(true);
     }
 
+    /**
+     * 查询所有我参与的项目
+     * @param userId
+     * @return
+     */
+    public List<DevProjectEntity> queryMyProjects(Long userId) {
+        // --- 优化后的 SQL 逻辑 ---
+        // 使用 EXISTS 子查询可以完美解决“多条记录”导致的重复问题
+        // 逻辑：查询所有项目 P，只要存在一条【该用户参与且标记为收藏】的成员记录即可
+        String sqlSb = "SELECT p.* FROM " + DevProjectEntity.TBL_DEV_PROJECT + " p " +
+                "WHERE EXISTS (" +
+                "  SELECT 1 FROM " + DevProjectTeamMemberEntity.TBL_DEV_PROJECT_TEAM_MEMBER + " m " +
+                "  WHERE m." + DevProjectTeamMemberEntity.FLD_PROJECT_ID + " = p.id " +
+                "  AND m." + DevProjectTeamMemberEntity.FLD_USER_ID + " = @uid " +
+                ") " +
+                "ORDER BY p.create_time DESC";
+
+        Sql sql = Sqls.create(sqlSb);
+        sql.setParam("uid", userId);
+
+        sql.setEntity(dao.getEntity(DevProjectEntity.class));
+        sql.setCallback(Sqls.callback.entities());
+        dao.execute(sql);
+
+        return sql.getList(DevProjectEntity.class);
+    }
     public List<DevProjectEntity> queryFavoriteProjects(Long userId) {
         // --- 优化后的 SQL 逻辑 ---
         // 使用 EXISTS 子查询可以完美解决“多条记录”导致的重复问题

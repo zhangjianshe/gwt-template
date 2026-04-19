@@ -41,7 +41,7 @@ public class QueryFavoriteProjectExecutor extends AbstractBizExecutor<QueryFavor
 
         QueryFavoriteProjectResponse response = new QueryFavoriteProjectResponse();
 
-        List<DevProjectEntity> projectEntities = projectService.queryFavoriteProjects(currentUserId);
+        List<DevProjectEntity> projectEntities = projectService.queryMyProjects(currentUserId);
 
         // 填充统计信息
         if (projectEntities != null) {

@@ -67,7 +67,7 @@
                     <g:ScrollPanel ui:field="content">
                         <g:HTMLPanel addStyleNames="{style.box1}">
                             <g:HTMLPanel addStyleNames="{style.title}">
-                                <g:Label addStyleNames="{style.header}">常用项目</g:Label>
+                                <g:Label addStyleNames="{style.header}">我参与的项目</g:Label>
                             </g:HTMLPanel>
                             <g:HTMLPanel ui:field="panelProjects" addStyleNames="{style.box2}">
                             </g:HTMLPanel>

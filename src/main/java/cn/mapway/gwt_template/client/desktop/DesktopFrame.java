@@ -17,7 +17,6 @@ import cn.mapway.gwt_template.shared.rpc.desktop.QueryDesktopResponse;
 import cn.mapway.ui.client.fonts.Fonts;
 import cn.mapway.ui.client.mvc.*;
 import cn.mapway.ui.client.util.StringUtil;
-import cn.mapway.ui.client.widget.AiLabel;
 import cn.mapway.ui.client.widget.dialog.Dialog;
 import cn.mapway.ui.shared.CommonEvent;
 import cn.mapway.ui.shared.CommonEventHandler;
@@ -30,6 +29,7 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
+import elemental2.dom.DomGlobal;
 import elemental2.promise.IThenable;
 import org.jspecify.annotations.Nullable;
 
@@ -62,7 +62,18 @@ public class DesktopFrame extends BaseAbstractModule implements RequiresResize {
     @UiField
     PageEditor pageEditor;
     Widget currentWidget = content;
+    ClickHandler projectHandler = new ClickHandler() {
 
+        @Override
+        public void onClick(ClickEvent event) {
+            ProjectItem sourceItem = (ProjectItem) event.getSource();
+            DevProjectEntity data1 = sourceItem.getData();
+            SwitchModuleData switchModuleData = new SwitchModuleData(ProjectHomePanel.MODULE_CODE, "");
+            switchModuleData.getParameters().put(data1);
+            fireModuleEvent(DesktopFrame.this, CommonEvent.switchEvent(switchModuleData));
+        }
+    };
+    boolean loading = false;
 
     public DesktopFrame() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -87,7 +98,6 @@ public class DesktopFrame extends BaseAbstractModule implements RequiresResize {
             }
         });
     }
-
 
     @Override
     public String getModuleCode() {
@@ -133,14 +143,19 @@ public class DesktopFrame extends BaseAbstractModule implements RequiresResize {
     }
 
     private void load() {
+        if (loading) return;
+        loading = true;
         AppProxy.get().queryDesktop(new QueryDesktopRequest(), new AsyncCallback<RpcResult<QueryDesktopResponse>>() {
             @Override
             public void onFailure(Throwable caught) {
+
+                loading = false;
                 ClientContext.get().toast(0, 0, caught.getMessage());
             }
 
             @Override
             public void onSuccess(RpcResult<QueryDesktopResponse> result) {
+                loading = false;
                 if (result.isSuccess()) {
                     renderItem(result.getData());
                 } else {
@@ -176,19 +191,12 @@ public class DesktopFrame extends BaseAbstractModule implements RequiresResize {
 
         panelProjects.clear();
         for (DevProjectEntity project : data.getFavoriteProjects()) {
-            AiLabel label = new AiLabel();
-            label.setText(project.getName());
-            label.setStyleName(AppResource.INSTANCE.styles().box());
-            label.getElement().getStyle().setColor(project.getColor());
-            label.addClickHandler(new ClickHandler() {
-                @Override
-                public void onClick(ClickEvent event) {
-                    SwitchModuleData switchModuleData = new SwitchModuleData(ProjectHomePanel.MODULE_CODE, "");
-                    switchModuleData.getParameters().put(project);
-                    fireModuleEvent(DesktopFrame.this, CommonEvent.switchEvent(switchModuleData));
-                }
-            });
-            panelProjects.add(label);
+            DomGlobal.console.log("project: " + project.getName());
+            ProjectItem item = new ProjectItem();
+            item.setData(project);
+            item.addStyleName(AppResource.INSTANCE.styles().box());
+            item.addDomHandler(projectHandler, ClickEvent.getType());
+            panelProjects.add(item);
         }
     }
 
