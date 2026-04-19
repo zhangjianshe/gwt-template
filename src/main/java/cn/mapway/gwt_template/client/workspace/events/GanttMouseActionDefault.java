@@ -115,7 +115,9 @@ public class GanttMouseActionDefault implements IMouseHandler<GanttHitResult> {
             msg += "# ------------------------------\r\n";
             msg += "# 本次导入 将会作为任务 " + ganttItem.getEntity().getName() + " 的子任务导入\r\n";
         }
+        dialog.setText("导入任务");
         dialog.center();
+
         //注意先显示对话框 然后在设置数据
         dialog.getContent().setTabIndent(true);
         dialog.getContent().setData(msg);

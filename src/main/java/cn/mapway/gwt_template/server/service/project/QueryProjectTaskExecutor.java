@@ -11,7 +11,6 @@ import cn.mapway.gwt_template.shared.rpc.project.QueryProjectTaskRequest;
 import cn.mapway.gwt_template.shared.rpc.project.QueryProjectTaskResponse;
 import cn.mapway.gwt_template.shared.rpc.project.module.DevTaskCatalog;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
-import cn.mapway.rbac.shared.db.postgis.RbacUserEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.nutz.dao.Cnd;
 import org.nutz.dao.Dao;
@@ -95,32 +94,9 @@ public class QueryProjectTaskExecutor extends AbstractBizExecutor<QueryProjectTa
         QueryProjectTaskResponse response = new QueryProjectTaskResponse();
         response.setRootTasks(rootTasks);
         response.setUserPermission(projectService.findUserPermissionInProject(currentUserId, request.getProjectId()).toString());
-        fillTaskUserInfo(request.getProjectId(), allTasks);
+        projectService.fillTaskUserInfo(allTasks);
         return BizResult.success(response);
     }
 
-    private void fillTaskUserInfo(String projectId, List<DevProjectTaskEntity> list) {
-        if (list.isEmpty()) {
-            return;
-        }
-        List<RbacUserEntity> users = projectService.queryProjectMember(projectId);
-        for (DevProjectTaskEntity task : list) {
-            fillTaskExtraInfo(task, users);
-        }
-    }
 
-    private void fillTaskExtraInfo(DevProjectTaskEntity task, List<RbacUserEntity> users) {
-        task.setChargeUserName("");
-        task.setChargeAvatar("");
-        if (task.getCharger() == null) {
-            return;
-        }
-        for (RbacUserEntity user : users) {
-            if (user.getUserId().equals(task.getCharger())) {
-                task.setChargeUserName(Strings.isBlank(user.getNickName()) ? user.getUserName() : user.getNickName());
-                task.setChargeAvatar(user.getAvatar());
-                break;
-            }
-        }
-    }
 }

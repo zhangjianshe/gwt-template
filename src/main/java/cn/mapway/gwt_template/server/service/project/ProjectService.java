@@ -16,6 +16,7 @@ import org.nutz.dao.sql.Sql;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Files;
+import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
 import org.nutz.trans.Trans;
@@ -527,19 +528,6 @@ public class ProjectService {
         return dao.query(RbacUserEntity.class, Cnd.where(RbacUserEntity.FLD_USER_ID, "in", userIds));
     }
 
-    public void fillTaskExtraInfo(DevProjectTaskEntity finalTask) {
-        finalTask.setChargeUserName("");
-        finalTask.setChargeAvatar("");
-        if (finalTask.getCharger() == null) {
-            return;
-        }
-        RbacUserEntity fetch = dao.fetch(RbacUserEntity.class, finalTask.getCharger());
-        if (fetch == null) {
-            return;
-        }
-        finalTask.setChargeUserName(fetch.getUserName());
-        finalTask.setChargeAvatar(fetch.getAvatar());
-    }
 
     public int getChildCountOfTask(String taskId) {
         return dao.count(DevProjectTaskEntity.class, Cnd.where(DevProjectTaskEntity.FLD_PARENT_ID, "=", taskId));
@@ -692,6 +680,25 @@ public class ProjectService {
     }
 
     /**
+     * 任务附件的目录
+     *
+     * @param task
+     * @return
+     */
+    public String getTaskCommentRoot(DevProjectTaskEntity task) {
+
+        String projectId = task.getProjectId();
+        String taskId = task.getId();
+        //项目资源的路径为 projectId/
+        String projectPath = FileCustomUtils.concatPath(projectId.substring(0, 3), projectId.substring(3), "comment");
+        String taskPath = FileCustomUtils.concatPath(taskId.substring(0, 3), taskId.substring(3));
+
+        String s = FileCustomUtils.concatPath(systemConfigService.getProjectResourceRootPath(), projectPath, taskPath);
+        Files.createDirIfNoExists(s);
+        return s;
+    }
+
+    /**
      * ISSUE附件的目录
      *
      * @param issue
@@ -768,5 +775,114 @@ public class ProjectService {
                 Cnd.where(DevProjectTaskEntity.FLD_ID, "=", taskId)
                         .and(DevProjectTaskEntity.FLD_CHARGER, "=", userId)
         ) > 0;
+    }
+
+    public List<RbacUserEntity> queryUserInfo(List<Long> userIds) {
+        if (Lang.isEmpty(userIds)) {
+            return Collections.emptyList();
+        }
+        List<RbacUserEntity> users = dao.query(RbacUserEntity.class,
+                Cnd.where(RbacUserEntity.FLD_USER_ID, "in", userIds));
+        return users;
+    }
+
+    public void fillTaskUserInfo(List<DevProjectTaskEntity> list) {
+        if (list == null || list.isEmpty()) {
+            return;
+        }
+
+        // 1. Collect all unique User IDs (Charger and CreateUserId)
+        // We use a Set to automatically handle duplicates
+        java.util.Set<Long> userIds = new java.util.HashSet<>();
+        for (DevProjectTaskEntity task : list) {
+            if (task.getCharger() != null) userIds.add(task.getCharger());
+            if (task.getCreateUserId() != null) userIds.add(task.getCreateUserId());
+        }
+
+        if (userIds.isEmpty()) {
+            return;
+        }
+
+        // 2. Batch query user info and convert to a Map for O(1) lookup
+        List<RbacUserEntity> users = queryUserInfo(new ArrayList<>(userIds));
+        Map<Long, RbacUserEntity> userMap = new HashMap<>();
+        for (RbacUserEntity u : users) {
+            userMap.put(u.getUserId(), u);
+        }
+
+        // 3. Fill the extra info using the Map
+        for (DevProjectTaskEntity task : list) {
+            fillTaskExtraInfo(task, userMap);
+        }
+    }
+
+    private void fillTaskExtraInfo(DevProjectTaskEntity task, Map<Long, RbacUserEntity> userMap) {
+        // Set default empty values
+        task.setChargeUserName("");
+        task.setChargeAvatar("");
+        task.setCreateUserName("");
+        task.setCreateAvatar("");
+
+        // Fill Charger Info
+        if (task.getCharger() != null) {
+            RbacUserEntity charger = userMap.get(task.getCharger());
+            if (charger != null) {
+                task.setChargeUserName(Strings.isBlank(charger.getNickName()) ? charger.getUserName() : charger.getNickName());
+                task.setChargeAvatar(charger.getAvatar());
+            }
+        }
+
+        // Fill Creator Info
+        if (task.getCreateUserId() != null) {
+            RbacUserEntity creator = userMap.get(task.getCreateUserId());
+            if (creator != null) {
+                task.setCreateUserName(Strings.isBlank(creator.getNickName()) ? creator.getUserName() : creator.getNickName());
+                task.setCreateAvatar(creator.getAvatar());
+            }
+        }
+    }
+
+    public void fillCommentUserInfo(List<DevProjectTaskCommentEntity> list) {
+        if (list == null || list.isEmpty()) {
+            return;
+        }
+
+        // 1. Collect all unique User IDs (Charger and CreateUserId)
+        // We use a Set to automatically handle duplicates
+        java.util.Set<Long> userIds = new java.util.HashSet<>();
+        for (DevProjectTaskCommentEntity task : list) {
+            if (task.getCreateUserId() != null) userIds.add(task.getCreateUserId());
+        }
+
+        if (userIds.isEmpty()) {
+            return;
+        }
+
+        // 2. Batch query user info and convert to a Map for O(1) lookup
+        List<RbacUserEntity> users = queryUserInfo(new ArrayList<>(userIds));
+        Map<Long, RbacUserEntity> userMap = new HashMap<>();
+        for (RbacUserEntity u : users) {
+            userMap.put(u.getUserId(), u);
+        }
+
+        // 3. Fill the extra info using the Map
+        for (DevProjectTaskCommentEntity task : list) {
+            fillCommentExtraInfo(task, userMap);
+        }
+    }
+
+    private void fillCommentExtraInfo(DevProjectTaskCommentEntity task, Map<Long, RbacUserEntity> userMap) {
+
+        task.setCreateUserAvatar("");
+        task.setCreateUserName("");
+
+        // Fill Charger Info
+        if (task.getCreateUserId() != null) {
+            RbacUserEntity creator = userMap.get(task.getCreateUserId());
+            if (creator != null) {
+                task.setCreateUserName(Strings.isBlank(creator.getNickName()) ? creator.getUserName() : creator.getNickName());
+                task.setCreateUserAvatar(creator.getAvatar());
+            }
+        }
     }
 }

@@ -1,9 +1,11 @@
 package cn.mapway.gwt_template.client.workspace.gantt;
 
 import cn.mapway.gwt_template.client.workspace.task.DevTaskEditor;
+import cn.mapway.gwt_template.client.workspace.task.TaskCommentPanel;
 import cn.mapway.gwt_template.shared.db.DevProjectTaskEntity;
 import cn.mapway.ui.client.tools.IData;
 import cn.mapway.ui.client.widget.CommonEventComposite;
+import cn.mapway.ui.client.widget.MySplitLayoutPanel;
 import cn.mapway.ui.client.widget.dialog.Popup;
 import cn.mapway.ui.shared.CommonEvent;
 import cn.mapway.ui.shared.CommonEventHandler;
@@ -11,7 +13,6 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
-import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.RequiresResize;
 
 /**
@@ -22,7 +23,9 @@ public class GanttWidget extends CommonEventComposite implements RequiresResize,
     @UiField
     GanttChart chart;
     @UiField
-    LayoutPanel root;
+    MySplitLayoutPanel root;
+    @UiField
+    TaskCommentPanel taskCommentPanel;
     private String projectId;
 
     public GanttWidget() {
@@ -45,11 +48,19 @@ public class GanttWidget extends CommonEventComposite implements RequiresResize,
     public void chartCommon(CommonEvent event) {
         if (event.isSelect()) {
             DevProjectTaskEntity task = event.getValue();
+            taskCommentPanel.setData(task);
         } else if (event.isEdit()) {
             DevProjectTaskEntity task = event.getValue();
             edit(task);
         }
+    }
 
+    @UiHandler("taskCommentPanel")
+    public void taskCommentPanelCommon(CommonEvent event) {
+        if (event.isUpdate()) {
+            DevProjectTaskEntity task = event.getValue();
+            chart.getDocument().updateEntity(task);
+        }
     }
 
     private void edit(DevProjectTaskEntity task) {
@@ -81,6 +92,6 @@ public class GanttWidget extends CommonEventComposite implements RequiresResize,
         chart.setFocus(b);
     }
 
-    interface GanttWidgetUiBinder extends UiBinder<LayoutPanel, GanttWidget> {
+    interface GanttWidgetUiBinder extends UiBinder<MySplitLayoutPanel, GanttWidget> {
     }
 }

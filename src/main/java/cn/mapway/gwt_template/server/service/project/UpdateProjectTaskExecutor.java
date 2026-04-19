@@ -15,6 +15,7 @@ import cn.mapway.gwt_template.shared.rpc.project.module.DevTaskStatus;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
 import lombok.extern.slf4j.Slf4j;
 import org.nutz.dao.Dao;
+import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
 import org.nutz.trans.Trans;
@@ -191,7 +192,7 @@ public class UpdateProjectTaskExecutor extends AbstractBizExecutor<UpdateProject
         // 4. 返回最新数据
         DevProjectTaskEntity finalTask = dao.fetch(DevProjectTaskEntity.class, task.getId());
         UpdateProjectTaskResponse response = new UpdateProjectTaskResponse();
-        projectService.fillTaskExtraInfo(finalTask);
+        projectService.fillTaskUserInfo(Lang.list(finalTask));
         response.setProjectTask(finalTask);
         return BizResult.success(response);
 

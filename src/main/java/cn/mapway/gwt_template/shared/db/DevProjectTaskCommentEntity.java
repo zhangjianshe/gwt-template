@@ -33,7 +33,6 @@ public class DevProjectTaskCommentEntity implements Serializable, IsSerializable
     public static final String FLD_CREATE_TIME = "create_time";
     public static final String FLD_UPDATE_TIME = "update_time";
     public static final String FLD_CREATE_USER_ID = "create_user_id";
-    public static final String FLD_ATTACHMENTS = "attachments";
 
     @Name
     @Comment("回复ID")
@@ -74,8 +73,10 @@ public class DevProjectTaskCommentEntity implements Serializable, IsSerializable
     @Comment("创建用户ID")
     Long createUserId;
 
-    @Column(FLD_ATTACHMENTS)
-    @Comment("回复的附件")
-    @ColDefine(type = ColType.PSQL_JSON)
-    List<DevProjectAttachment> attachments;
+
+
+    @Readonly
+    String createUserName;
+    @Readonly
+    String createUserAvatar;
 }

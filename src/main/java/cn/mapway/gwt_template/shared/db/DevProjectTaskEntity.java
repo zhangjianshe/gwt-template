@@ -140,6 +140,8 @@ public class DevProjectTaskEntity implements Serializable, IsSerializable {
 
     String chargeUserName;
     String chargeAvatar;
+    String createUserName;
+    String createAvatar;
 
     private List<DevProjectTaskEntity> children = new ArrayList<>();
 }

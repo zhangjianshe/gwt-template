@@ -1,0 +1,135 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:widget="urn:import:cn.mapway.gwt_template.client.workspace.widget"
+             xmlns:panel="urn:import:cn.mapway.ui.client.widget.panel"
+             xmlns:widget2="urn:import:cn.mapway.ui.client.widget"
+             xmlns:buttons="urn:import:cn.mapway.ui.client.widget.buttons"
+             xmlns:widget3="urn:import:cn.mapway.gwt_template.client.widget"
+             xmlns:issue="urn:import:cn.mapway.gwt_template.client.workspace.issue">
+    <ui:style>
+        .row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 0 10px;
+            overflow: hidden;
+        }
+
+        .title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            border: solid 1px transparent;
+            border-radius: 6px;
+            padding: 6px 6px;
+            width: 100%;
+        }
+
+        .title[contenteditable=true] {
+            border: dashed 1px deepskyblue;
+        }
+
+        .title[contenteditable=true]:HOVER {
+            border: dashed 1px green;
+        }
+
+
+        .toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 10px;
+            padding: 0 10px;
+            margin-bottom: 10px;
+        }
+
+        .tip {
+            color: #444;
+            font-size: 0.9rem;
+        }
+
+        .body {
+            margin: 10px;
+            padding: 10px;
+            border-radius: 6px;
+            overflow: auto;
+        }
+
+        .body[enabled=true] {
+            border: dashed 1px deepskyblue;
+        }
+
+        .top {
+            padding: 5px 15px;
+        }
+
+        .commentBottom {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+
+        .container {
+            padding: 10px;
+        }
+
+        .scroller {
+            padding: 15px 0 0 0;
+        }
+
+        .icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+        }
+    </ui:style>
+    <g:LayoutPanel ui:field="root">
+        <g:layer>
+            <g:SplitLayoutPanel visible="false" ui:field="main">
+                <g:north size="320">
+                    <g:DockLayoutPanel ui:field="top">
+                        <g:north size="45">
+                            <g:HTMLPanel addStyleNames="{style.row}">
+                                <g:Label ui:field="iconState" addStyleNames="{style.icon}"/>
+                                <widget:EditableLabel addStyleNames="{style.title}" ui:field="txtName"/>
+                            </g:HTMLPanel>
+                        </g:north>
+                        <g:south size="0">
+                            <g:HTMLPanel ui:field="saveBar" addStyleNames="{style.toolbar}">
+                                <g:Label ui:field="tip" addStyleNames="{style.tip}"/>
+                                <issue:AssignUserPanel ui:field="assignPanel"/>
+                                <widget:TaskPriorityDropdown ui:field="ddlPriority"/>
+                                <widget3:Uploader ui:field="btnUploader"/>
+                                <buttons:AiButton ui:field="btnSave" type="warning">更新</buttons:AiButton>
+                            </g:HTMLPanel>
+                        </g:south>
+                        <g:south size="0">
+                            <g:HTMLPanel>
+                                <g:HTMLPanel ui:field="inputTools" addStyleNames="{style.commentBottom}">
+                                    <buttons:AiButton type="warning" ui:field="btnPublish">发布</buttons:AiButton>
+                                </g:HTMLPanel>
+                            </g:HTMLPanel>
+                        </g:south>
+                        <g:center>
+                            <widget:MarkdownBox tip="点击编辑" ui:field="markdownBox" addStyleNames="{style.body}"/>
+                        </g:center>
+                    </g:DockLayoutPanel>
+                </g:north>
+                <g:center>
+                    <g:ScrollPanel addStyleNames="{style.scroller}" ui:field="scroller">
+                        <g:HTMLPanel ui:field="commentContainer" addStyleNames="{style.container}"/>
+                    </g:ScrollPanel>
+                </g:center>
+            </g:SplitLayoutPanel>
+        </g:layer>
+        <g:layer left="0" right="0" bottom="0" height="0">
+            <widget3:SmartEditor ui:field="editor"/>
+        </g:layer>
+        <g:layer>
+            <panel:MessagePanel ui:field="messagePanel"/>
+        </g:layer>
+    </g:LayoutPanel>
+</ui:UiBinder>

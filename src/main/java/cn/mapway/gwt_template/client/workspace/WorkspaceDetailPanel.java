@@ -110,13 +110,13 @@ public class WorkspaceDetailPanel extends CommonEventComposite implements ITools
 
         List<DevWorkspaceFolderEntity> responseFolders = response.getFolders();
         DevWorkspaceFolderEntity temp = new DevWorkspaceFolderEntity();
-        temp.setName("临时文件夹");
+        temp.setName("未分类项目");
         temp.setWorkspaceId(workspace.getId());
         temp.setChildren(new ArrayList<>());
         temp.setColor("");
         temp.setId(AppConstant.TEMP_WORKSPACE_FOLDER_ID);
         temp.setCreateTime(new Timestamp(System.currentTimeMillis()));
-        responseFolders.add(0, temp);
+        responseFolders.add(temp);
 
 
         for (DevWorkspaceFolderEntity folder : responseFolders) {

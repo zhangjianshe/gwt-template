@@ -12,6 +12,7 @@ import cn.mapway.gwt_template.shared.rpc.project.UpdateProjectTaskCommentRespons
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
 import lombok.extern.slf4j.Slf4j;
 import org.nutz.dao.Dao;
+import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
 import org.nutz.trans.Trans;
@@ -63,6 +64,8 @@ public class UpdateProjectTaskCommentExecutor extends AbstractBizExecutor<Update
                 comment.setId(R.UU16());
                 comment.setCreateTime(new Timestamp(System.currentTimeMillis()));
                 comment.setCreateUserId(currentUserId);
+                comment.setProjectId(task.getProjectId());
+                comment.setUpdateTime(new Timestamp(System.currentTimeMillis()));
                 // 默认设置父评论ID（用于回复功能），如果前端没传则为null
 
                 dao.insert(comment);
@@ -78,16 +81,23 @@ public class UpdateProjectTaskCommentExecutor extends AbstractBizExecutor<Update
 
                 // 仅允许修改内容，保护元数据
                 dbComment.setContent(comment.getContent());
+                dbComment.setCreateUserId(null);
+                dbComment.setCreateTime(null);
+                dbComment.setTaskId(null);
+                dbComment.setProjectId(null);
+                dbComment.setParentId(null);
                 dbComment.setUpdateTime(new Timestamp(System.currentTimeMillis()));
 
-                dao.update(dbComment);
+                dao.updateIgnoreNull(dbComment);
             }
         });
 
         // --- 3. 构造返回结果 ---
         DevProjectTaskCommentEntity finalComment = dao.fetch(DevProjectTaskCommentEntity.class, comment.getId());
         UpdateProjectTaskCommentResponse response = new UpdateProjectTaskCommentResponse();
+        projectService.fillCommentUserInfo(Lang.list(finalComment));
         response.setComment(finalComment);
+
 
         return BizResult.success(response);
     }

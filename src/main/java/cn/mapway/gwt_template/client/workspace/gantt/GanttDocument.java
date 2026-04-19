@@ -1056,4 +1056,13 @@ public class GanttDocument {
         // 确保这个 list 是有序的（你的 recursiveBuild 和 sortItems 应该已经保证了这一点）
         return list;
     }
+
+    public GanttItem findItemByTaskId(String taskId) {
+        for (GanttItem item : flatItems) {
+            if (item.getEntity().getId().equals(taskId)) {
+                return item;
+            }
+        }
+        return null;
+    }
 }

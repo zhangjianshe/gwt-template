@@ -34,8 +34,8 @@ public class ProjectHomePanel extends BaseAbstractModule implements IToolsProvid
     public static final String MODULE_CODE = "DevProjectHomePanel";
     // 定义 Tab 索引常量，提高可读性
     // 重新定义常量，确保与 XML 中的 Tab 顺序严格对应
-    public static final int TAB_OVERVIEW = 0;
-    public static final int TAB_TASK = 1;
+    public static final int TAB_GANTT = 0;
+    public static final int TAB_OVERVIEW = 1;
     public static final int TAB_CALENDAR = 2;
     public static final int TAB_ISSUE = 3;
     public static final int TAB_WIKI = 4;
@@ -103,7 +103,7 @@ public class ProjectHomePanel extends BaseAbstractModule implements IToolsProvid
             toolbar.clear();
             if (index == TAB_TEAM) {
                 loadTeamData();
-            } else if (index == TAB_TASK) {
+            } else if (index == TAB_GANTT) {
                 gantt.setData(project.getId());
                 gantt.setFocus(true);
             } else if (index == TAB_RESOURCE) {
@@ -150,7 +150,7 @@ public class ProjectHomePanel extends BaseAbstractModule implements IToolsProvid
 
     private void toUI() {
         if (project != null) {
-            projectCard.setData(project.getId());
+            gantt.setData(project.getId());
             if (mainTab.getSelectedIndex() == TAB_OVERVIEW) {
                 toolbar.clear();
                 toolbar.add(projectCard.getTools());

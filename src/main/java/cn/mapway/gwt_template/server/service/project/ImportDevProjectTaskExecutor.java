@@ -158,19 +158,31 @@ public class ImportDevProjectTaskExecutor extends AbstractBizExecutor<ImportDevP
 
     private DevProjectTaskEntity createFromLine(String projectId, Long userId, String line, int code) {
         line = Strings.trim(line);
+        int index = line.indexOf(":");
+        if (index == -1) {
+            index = line.indexOf("：");
+        }
+        String title = "";
+        String body = "";
+        if (index > 0) {
+            title = line.substring(0, index);
+            body = line.substring(index + 1);
+        } else {
+            title = line;
+        }
         DevProjectTaskEntity newTask = new DevProjectTaskEntity();
         newTask.setProjectId(projectId);
         newTask.setKind(DevTaskKind.DTK_TASK.getCode());
         newTask.setId(R.UU16());
-        newTask.setName(line);
+        newTask.setName(title);
         newTask.setCode(code);
+        newTask.setSummary(body);
         newTask.setPriority(DevTaskPriority.MEDIUM.getCode());
         newTask.setStartTime(new Timestamp(System.currentTimeMillis() + 24 * 60 * 60 * 1000));
         newTask.setEstimateTime(new Timestamp(System.currentTimeMillis() + 4 * 24 * 60 * 60 * 1000));
         newTask.setCreateUserId(userId);
         newTask.setStatus(DevTaskStatus.DTS_CREATED.getCode());
         newTask.setCreateTime(new Timestamp(System.currentTimeMillis()));
-        newTask.setSummary("");
         return newTask;
     }
 

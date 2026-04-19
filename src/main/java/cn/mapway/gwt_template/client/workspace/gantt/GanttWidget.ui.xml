@@ -1,11 +1,16 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
-             xmlns:g='urn:import:com.google.gwt.user.client.ui'
-             xmlns:gantt="urn:import:cn.mapway.gwt_template.client.workspace.gantt">
+             xmlns:gantt="urn:import:cn.mapway.gwt_template.client.workspace.gantt"
+             xmlns:task="urn:import:cn.mapway.gwt_template.client.workspace.task"
+             xmlns:widget="urn:import:cn.mapway.ui.client.widget">
     <ui:style>
-</ui:style>
-    <g:LayoutPanel ui:field="root">
-        <g:layer>
+    </ui:style>
+    <widget:MySplitLayoutPanel ui:field="root" splitterSize="2">
+        <widget:east size="400">
+            <task:TaskCommentPanel ui:field="taskCommentPanel"/>
+        </widget:east>
+        <widget:center>
             <gantt:GanttChart width="100%" height="100%" ui:field="chart"/>
-        </g:layer>
-    </g:LayoutPanel>
+        </widget:center>
+    </widget:MySplitLayoutPanel>
+
 </ui:UiBinder>

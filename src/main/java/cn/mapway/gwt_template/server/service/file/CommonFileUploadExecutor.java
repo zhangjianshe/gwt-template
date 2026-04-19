@@ -66,17 +66,54 @@ public class CommonFileUploadExecutor extends AbstractBizExecutor<CommonFileUplo
 
             return uploadToProjectResourceDirectory(user.getUser().getUserId(), resourceId, relativePath, request);
         } else if (request.getPath().startsWith(AppConstant.UPLOAD_PREFIX_ISSUE_ATTACHMENT)) {
-            //  issueId
             String issueId = request.getPath().substring(AppConstant.UPLOAD_PREFIX_ISSUE_ATTACHMENT.length());
             return uploadToIssueAttachmentDir(user.getUser().getUserId(), issueId, request);
         } else if (request.getPath().startsWith(AppConstant.UPLOAD_PREFIX_TASK_ATTACHMENT)) {
-            //  taskId
             String taskId = request.getPath().substring(AppConstant.UPLOAD_PREFIX_TASK_ATTACHMENT.length());
             return uploadToTaskAttachmentDir(user.getUser().getUserId(), taskId, request);
+        }else if (request.getPath().startsWith(AppConstant.UPLOAD_PREFIX_TASK_COMMENT)) {
+            String taskId = request.getPath().substring(AppConstant.UPLOAD_PREFIX_TASK_COMMENT.length());
+            return uploadToTaskCommentDir(user.getUser().getUserId(), taskId, request);
         } else {
             return BizResult.error(500, "目前、仅支持对项目资源的上传 project_resource:<resourceId>:<relativePath>");
         }
 
+
+    }
+
+    private BizResult<CommonFileUploadResponse> uploadToTaskCommentDir(Long userId, String taskId, CommonFileUploadRequest request) {
+
+        DevProjectTaskEntity task = projectService.findTask(taskId);
+        if (task == null) {
+            return BizResult.error(500, "没有找到TASK目标位置");
+        }
+        String path = projectService.getTaskCommentRoot(task);
+
+        String targetFile = FileCustomUtils.concatPath(path, request.getFile().getOriginalFilename());
+
+        File target = new File(targetFile);
+        boolean isMember=projectService.isMemberOfProject(userId, task.getProjectId());
+        if (!isMember) {
+            return BizResult.error(500, "只有项目组成员有权限操作");
+        }
+
+        Files.createFileIfNoExists(target);
+        log.info("WRITE TO " + targetFile);
+        try {
+            Streams.writeAndClose(Streams.fileOut(targetFile), request.getFile().getInputStream());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        CommonFileUploadResponse response1 = new CommonFileUploadResponse();
+        response1.setSha256("");
+        response1.setMd5("");
+        try {
+            response1.setMime(java.nio.file.Files.probeContentType(target.toPath()));
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
+        response1.setRelPath("/api/v1/project/comment/" + taskId + "/" + Files.getName(targetFile));
+        return BizResult.success(response1);
 
     }
 

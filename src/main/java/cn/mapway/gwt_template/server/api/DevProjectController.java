@@ -437,6 +437,78 @@ public class DevProjectController extends ApiBaseController {
 
     }
 
+    /**
+     * Read Content from resource file
+     *
+     * @return data
+     */
+    @Doc(value = "读取Comment附件资源数据")
+    @RequestMapping(value = "comment/{taskId}/**", method = RequestMethod.GET)
+    public void readCommentData(@PathVariable("taskId") String taskId, HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        LoginUser loginUser = (LoginUser) getBizContext().get(AppConstant.KEY_LOGIN_USER);
+        Long operatorId = loginUser.getUser().getUserId();
+        DevProjectTaskEntity task = projectService.findTask(taskId);
+
+        if (task == null) {
+            resp.setContentType("text/plain");
+            resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            resp.getWriter().println("没有问题信息" + taskId);
+            return;
+        }
+
+        boolean isMember = projectService.isMemberOfProject(operatorId, task.getProjectId());
+        if (!isMember) {
+            resp.setContentType("text/plain");
+            resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            resp.getWriter().println("没有权限");
+            return;
+        }
+
+        // Better way to extract the path variable from the wildcard (/**)
+        String urlPart = (String) req.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
+        urlPart = urlPart.substring(urlPart.indexOf(taskId) + taskId.length());
+        urlPart = URLDecoder.decode(urlPart, StandardCharsets.UTF_8);
+        if (urlPart.contains("..")) {
+            resp.setContentType("text/plain");
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().println("request path error");
+            return;
+        }
+        String commentRoot = projectService.getTaskCommentRoot(task);
+
+        String absPath = FileCustomUtils.concatPath(commentRoot, urlPart);
+        File target = new File(absPath);
+        if (!target.exists()) {
+            resp.setContentType("text/plain");
+            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            resp.getWriter().println("not found");
+            return;
+        }
+
+        // 1. 获取文件最后修改时间
+        long lastModified = target.lastModified();
+        // 2. 协商缓存检查
+        long ifModifiedSince = req.getDateHeader("If-Modified-Since");
+        if (ifModifiedSince != -1 && (ifModifiedSince / 1000 == lastModified / 1000)) {
+            resp.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
+            return;
+        }
+
+        // 3. 设置响应头
+        resp.setContentType(Files.probeContentType(target.toPath()));
+        resp.setContentLength((int) target.length());
+        resp.setHeader("Content-Disposition", "inline; filename=\"" + URLEncoder.encode(target.getName(), StandardCharsets.UTF_8) + "\"");
+
+        // 设置缓存策略：这里设置缓存 1 天，且允许协商缓存
+        Long cacheAge = 7 * 86400L;
+        resp.setHeader("Cache-Control", "public, max-age=" + cacheAge);
+        resp.setDateHeader("Last-Modified", lastModified);
+        resp.setHeader("X-Frame-Options", "SAMEORIGIN");
+
+        resp.setStatus(HttpServletResponse.SC_OK);
+        Streams.writeAndClose(resp.getOutputStream(), Streams.fileIn(target));
+
+    }
 
     /**
      * Read Content from resource file
