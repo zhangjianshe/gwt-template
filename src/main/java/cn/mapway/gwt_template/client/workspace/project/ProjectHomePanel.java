@@ -115,6 +115,7 @@ public class ProjectHomePanel extends BaseAbstractModule implements IToolsProvid
                 projectCalendar.setFocus(true);
             } else if (index == TAB_OVERVIEW) {
                 toolbar.add(projectCard.getTools());
+                projectCard.setData(project.getId());
             } else if (index == TAB_ISSUE) {
                 issuePanel.setData(project.getId());
             } else if (index == TAB_WIKI) {
