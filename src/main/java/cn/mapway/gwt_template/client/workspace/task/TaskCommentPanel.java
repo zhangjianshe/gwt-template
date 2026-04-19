@@ -145,7 +145,7 @@ public class TaskCommentPanel extends CommonEventComposite implements IData<DevP
             assignPanel.setVisible(false);
         } else {
             top.setWidgetSize(saveBar, 0);
-            root.setWidgetVisible(editor, false);
+            root.setWidgetVisible(editor, true);
             txtName.setEditable(false);
             ddlPriority.setEnabled(false);
             markdownBox.setEnabled(false);
