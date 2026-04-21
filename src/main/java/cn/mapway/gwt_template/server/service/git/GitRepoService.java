@@ -149,7 +149,8 @@ public class GitRepoService {
         File repoDir = new File(appConfig.getRepoRoot(), owner + "/" + finalRepoName);
 
         try (Repository repository = FileRepositoryBuilder.create(repoDir)) {
-            String revision = (ref == null || ref.isEmpty()) ? "HEAD" : ref;
+            String revision = Strings.isBlank(ref) ? "HEAD" : ref;
+
             ObjectId head = repository.resolve(revision);
             if (head == null) return response;
 
@@ -328,6 +329,9 @@ public class GitRepoService {
             for (Ref ref : call) {
                 GitRef gitRef = GitRef.branch(Repository.shortenRefName(ref.getName()));
                 refs.add(gitRef);
+            }
+            if (!refs.contains(defaultBranch) && !refs.isEmpty()) {
+                defaultBranch = refs.get(0).getName();
             }
             call = git.tagList().call();
             for (Ref ref : call) {

@@ -356,9 +356,9 @@ public class RepositoryCodeFrame extends CommonEventComposite implements IData<V
             case PS_UNKNOWN:
             case PS_ARCHIVE:
             default:
-                showFilesPanel();
                 files.clear();
                 btnClone.setData(repository);
+                showFilesPanel();
                 loadRefs();
         }
     }
@@ -477,6 +477,10 @@ public class RepositoryCodeFrame extends CommonEventComposite implements IData<V
         String box2();
 
         String files();
+
+        String editor();
+
+        String msgPanel();
     }
 
     interface RepositoryCodeFrameUiBinder extends UiBinder<DockLayoutPanel, RepositoryCodeFrame> {

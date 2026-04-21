@@ -109,9 +109,7 @@
                         <widget:Head ui:field="dirLastUser"/>
                         <g:Label addStyleNames="{style.msg}" ui:field="dirLastSummary"/>
                     </g:HorizontalPanel>
-                    <g:HorizontalPanel width="100%" horizontalAlignment="right" spacing="6">
-                        <g:Label addStyleNames="{style.msg}" ui:field="dirLastModify"/>
-                    </g:HorizontalPanel>
+                    <g:Label addStyleNames="{style.msg}" ui:field="dirLastModify"/>
                 </g:HTMLPanel>
             </g:HTMLPanel>
         </g:north>
