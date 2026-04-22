@@ -2,13 +2,13 @@
              xmlns:g='urn:import:com.google.gwt.user.client.ui' xmlns:ace="urn:import:cn.mapway.ace.client"
              xmlns:basic="urn:import:cn.mapway.gwt_template.client.repository.basic"
              xmlns:widget="urn:import:cn.mapway.gwt_template.client.widget"
-             xmlns:member="urn:import:cn.mapway.gwt_template.client.repository.member">
+             xmlns:member="urn:import:cn.mapway.gwt_template.client.repository.member"
+             xmlns:widget2="urn:import:cn.mapway.ui.client.widget">
     <ui:style type="cn.mapway.gwt_template.client.repository.basic.RepositoryCodeFrame.SStyle">
         .box {
-            display: grid;
+            display: flex;
             align-items: center;
-            justify-items: flex-start;
-            grid-template-columns: 1fr 100px;
+            justify-content: space-between;
             padding: 0 10px;
             border-bottom: solid 1px #e0e0e0;
             border-left: solid 1px #e0e0e0;
@@ -91,7 +91,9 @@
         .readme {
             padding: 8px 15px;
             margin-bottom: 30px;
-        }</ui:style>
+        }
+
+    </ui:style>
     <g:DockLayoutPanel ui:field="root">
         <g:east size="400">
             <g:ScrollPanel addStyleNames="ai-border-left">
@@ -128,8 +130,8 @@
             <g:HTMLPanel ui:field="pathBar" addStyleNames="{style.box}">
                 <g:HorizontalPanel ui:field="paths" spacing="4" verticalAlignment="middle">
                 </g:HorizontalPanel>
-                <g:HorizontalPanel>
-
+                <g:HorizontalPanel horizontalAlignment="right">
+                    <widget2:FontIcon visible="false" ui:field="btnView"/>
                 </g:HorizontalPanel>
             </g:HTMLPanel>
         </g:north>

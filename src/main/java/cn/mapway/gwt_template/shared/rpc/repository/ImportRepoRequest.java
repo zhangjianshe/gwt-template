@@ -18,4 +18,5 @@ public class ImportRepoRequest implements Serializable, IsSerializable {
     String repoUrl;
     String user;
     String tokenOrPassword;
+    String newRepositoryName;
 }

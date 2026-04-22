@@ -4,7 +4,9 @@ import cn.mapway.ace.client.AceCommandDescription;
 import cn.mapway.ace.client.AceEditor;
 import cn.mapway.ace.client.AceEditorMode;
 import cn.mapway.gwt_template.client.ClientContext;
+import cn.mapway.gwt_template.client.js.markdown.MarkdownConvert;
 import cn.mapway.gwt_template.client.repository.member.MemberList;
+import cn.mapway.gwt_template.client.resource.AppResource;
 import cn.mapway.gwt_template.client.rpc.AppProxy;
 import cn.mapway.gwt_template.client.widget.Head;
 import cn.mapway.gwt_template.client.widget.IconButton;
@@ -18,6 +20,7 @@ import cn.mapway.ui.client.tools.IData;
 import cn.mapway.ui.client.util.StringUtil;
 import cn.mapway.ui.client.widget.AiLabel;
 import cn.mapway.ui.client.widget.CommonEventComposite;
+import cn.mapway.ui.client.widget.FontIcon;
 import cn.mapway.ui.shared.CommonEvent;
 import cn.mapway.ui.shared.CommonEventHandler;
 import cn.mapway.ui.shared.rpc.RpcResult;
@@ -28,6 +31,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import elemental2.core.Global;
@@ -87,10 +91,14 @@ public class RepositoryCodeFrame extends CommonEventComposite implements IData<V
     ImportingPanel importPanel;
     @UiField
     HTML readme;
+    @UiField
+    FontIcon btnView;
     private VwRepositoryEntity repository;
 
     public RepositoryCodeFrame() {
         initWidget(ourUiBinder.createAndBindUi(this));
+        btnView.setIconUnicode(Fonts.PREVIEW);
+        btnView.addStyleName(AppResource.INSTANCE.styles().toolButton());
         format.put("py", AceEditorMode.PYTHON);
         format.put("java", AceEditorMode.JAVA);
         format.put("js", AceEditorMode.JAVASCRIPT);
@@ -181,6 +189,14 @@ public class RepositoryCodeFrame extends CommonEventComposite implements IData<V
                         editor.setReadOnly(true);
                         editor.setMode(guessFileMode(request.getFilePathName()));
                         editor.redisplay();
+
+                        if (repoItem.getPath().toLowerCase().endsWith(".md")) {
+                            btnView.setVisible(true);
+                            btnView.setData(result.getData());
+                        } else {
+                            btnView.setVisible(false);
+                            btnView.setData(null);
+                        }
                     }
                 } else {
                     ClientContext.get().toast(0, 0, result.getMessage());
@@ -254,10 +270,14 @@ public class RepositoryCodeFrame extends CommonEventComposite implements IData<V
         root.setWidgetSize(pathBar, 50);
         root.setWidgetSize(infoBar, 50);
         contentPanel.clear();
+        attachEditor();
+        initEditor();
+    }
+
+    private void attachEditor() {
         contentPanel.add(editor);
         contentPanel.setWidgetLeftRight(editor, 10, Style.Unit.PX, 10, Style.Unit.PX);
         contentPanel.setWidgetTopBottom(editor, 0, Style.Unit.PX, 10, Style.Unit.PX);
-        initEditor();
     }
 
     private void showFilesPanel() {
@@ -491,8 +511,8 @@ public class RepositoryCodeFrame extends CommonEventComposite implements IData<V
         // Create a URL to your raw file servlet (recommended approach)
         String imageUrl = GWT.getHostPageBaseURL() + "raw/" +
                 Global.encodeURIComponent(repository.getOwnerName()) + "/" +
-                Global.encodeURIComponent(repository.getName()) + "/"+
-                Global.encodeURIComponent(ddlRef.getValue())+"/" +
+                Global.encodeURIComponent(repository.getName()) + "/" +
+                Global.encodeURIComponent(ddlRef.getValue()) + "/" +
                 Global.encodeURI(repoItem.getPath());
 
 
@@ -501,6 +521,27 @@ public class RepositoryCodeFrame extends CommonEventComposite implements IData<V
 
         files.clear();
         files.add(image);
+    }
+
+    @UiHandler("btnView")
+    public void btnViewClick(ClickEvent event) {
+
+        if (messagePanel.isAttached()) {
+            contentPanel.clear();
+            attachEditor();
+        } else {
+            ReadRepoFileResponse response = (ReadRepoFileResponse) btnView.getData();
+            String text = response.getText();// this is markdown text
+            contentPanel.clear();
+            contentPanel.add(messagePanel);
+            contentPanel.setWidgetLeftRight(messagePanel, 0, Style.Unit.PX, 0, Style.Unit.PX);
+            contentPanel.setWidgetTopBottom(messagePanel, 0, Style.Unit.PX, 0, Style.Unit.PX);
+            msgContainer.clear();
+            MarkdownConvert convert = new MarkdownConvert();
+            HTML html = new HTML(convert.makeHtml(text));
+            html.addStyleName("markdown-body");
+            msgContainer.add(html);
+        }
     }
 
     interface SStyle extends CssResource {
@@ -524,6 +565,8 @@ public class RepositoryCodeFrame extends CommonEventComposite implements IData<V
         String editor();
 
         String msgPanel();
+
+        String readme();
     }
 
     interface RepositoryCodeFrameUiBinder extends UiBinder<DockLayoutPanel, RepositoryCodeFrame> {

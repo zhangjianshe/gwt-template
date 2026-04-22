@@ -1,6 +1,7 @@
 package cn.mapway.gwt_template.client.repository;
 
 import cn.mapway.gwt_template.client.ClientContext;
+import cn.mapway.gwt_template.client.repository.basic.CreateAndImportPanel;
 import cn.mapway.gwt_template.shared.db.VwRepositoryEntity;
 import cn.mapway.gwt_template.shared.rpc.user.ResourcePoint;
 import cn.mapway.ui.client.fonts.Fonts;
@@ -12,6 +13,7 @@ import cn.mapway.ui.client.widget.buttons.AiButton;
 import cn.mapway.ui.client.widget.dialog.Dialog;
 import cn.mapway.ui.client.widget.list.ListItem;
 import cn.mapway.ui.shared.CommonEvent;
+import cn.mapway.ui.shared.CommonEventHandler;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -95,6 +97,21 @@ public class RepositoryFrame extends SubsystemModule {
 
     @UiHandler("btnImport")
     public void btnImportClick(ClickEvent event) {
+        Dialog<CreateAndImportPanel> dialog = CreateAndImportPanel.getDialog(true);
+        dialog.addCommonHandler(new CommonEventHandler() {
+            @Override
+            public void onCommonEvent(CommonEvent event) {
+                if (event.isOk()) {
+                    dialog.hide();
+                    repositoryList.load();
+                }
+                if (event.isClose()) {
+                    dialog.hide();
+                }
+            }
+        });
+        dialog.center();
+
     }
 
 

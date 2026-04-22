@@ -73,4 +73,5 @@ public interface AppCss extends CssResource {
     String h4();
     String h5();
 
+    String toolButton();
 }
