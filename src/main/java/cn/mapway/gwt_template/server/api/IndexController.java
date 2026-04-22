@@ -27,6 +27,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.URLDecoder;
 
 @Controller
 public class IndexController extends ApiBaseController{
@@ -66,9 +67,10 @@ public class IndexController extends ApiBaseController{
         Streams.writeAndClose(response.getOutputStream(), Json.toJson(execute.getData()).getBytes());
     }
 
-    @RequestMapping(value = "/raw/{owner}/{projectName}/**", method = RequestMethod.GET)
+    @RequestMapping(value = "/raw/{owner}/{projectName}/{ref}/**", method = RequestMethod.GET)
     public void rawContent(@PathVariable String owner,
                            @PathVariable String projectName,
+                           @PathVariable String ref,
                            HttpServletRequest request,
                            HttpServletResponse response) throws IOException {
 
@@ -81,7 +83,7 @@ public class IndexController extends ApiBaseController{
             return;
         }
         CommonPermission permission = repositoryService.findUserPermissionInRepoByName(user.getUser().getUserId(), owner, projectName);
-        if (!permission.isAdmin() && !permission.canRead()) {
+        if (!permission.isSuper() && !permission.canRead()) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().println("请登录后获取内容");
             return;
@@ -89,8 +91,8 @@ public class IndexController extends ApiBaseController{
 
         // Extract the path from the URI (everything after /raw/owner/projectName/)
         String fullPath = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
-        String prefix = "/raw/" + owner + "/" + projectName + "/";
-        String gitPath = fullPath.substring(prefix.length());
+        String prefix = "/raw/" + owner + "/" + projectName + "/"+ref+"/";
+        String gitPath = URLDecoder.decode(fullPath.substring(prefix.length()));
 
         if (gitPath.endsWith(".png")) response.setContentType("image/png");
         else if (gitPath.endsWith(".jpg")) response.setContentType("image/jpeg");
@@ -101,6 +103,6 @@ public class IndexController extends ApiBaseController{
         String fileName = gitPath.contains("/") ? gitPath.substring(gitPath.lastIndexOf("/") + 1) : gitPath;
         response.setHeader("Content-Disposition", "inline; filename=\"" + fileName + "\"");
 
-        gitRepoService.writeFileContentToStream(owner, projectName, gitPath, response.getOutputStream());
+        gitRepoService.writeFileContentToStream(owner, projectName, gitPath,ref,response.getOutputStream());
     }
 }

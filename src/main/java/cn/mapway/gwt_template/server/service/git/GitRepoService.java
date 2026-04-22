@@ -287,12 +287,12 @@ public class GitRepoService {
         }
     }
 
-    public void writeFileContentToStream(String owner, String repoName, String path, OutputStream out) {
+    public void writeFileContentToStream(String owner, String repoName, String path,String ref, OutputStream out) {
         String finalRepoName = repoName.endsWith(".git") ? repoName : repoName + ".git";
         File repoDir = new File(appConfig.getRepoRoot(), owner + "/" + finalRepoName);
 
         try (Repository repository = FileRepositoryBuilder.create(repoDir)) {
-            ObjectId head = repository.resolve("HEAD");
+            ObjectId head = repository.resolve(ref);
             if (head == null) return;
 
             try (RevWalk revWalk = new RevWalk(repository);

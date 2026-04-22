@@ -30,6 +30,7 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
+import elemental2.core.Global;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -96,6 +97,8 @@ public class RepositoryCodeFrame extends CommonEventComposite implements IData<V
         format.put("jsm", AceEditorMode.JAVASCRIPT);
         format.put("md", AceEditorMode.MARKDOWN);
         format.put("c", AceEditorMode.C_CPP);
+        format.put("cpp", AceEditorMode.C_CPP);
+        format.put("h", AceEditorMode.C_CPP);
         format.put("json", AceEditorMode.JSON);
         format.put("yaml", AceEditorMode.YAML);
         format.put("yml", AceEditorMode.YAML);
@@ -157,6 +160,7 @@ public class RepositoryCodeFrame extends CommonEventComposite implements IData<V
         request.setToHtml(false);
         request.setRepositoryId(repository.getId());
         request.setFilePathName(repoItem.getPath());
+        request.setRefName(ddlRef.getValue());
         AppProxy.get().readRepoFile(request, new AsyncCallback<RpcResult<ReadRepoFileResponse>>() {
             @Override
             public void onFailure(Throwable caught) {
@@ -485,7 +489,12 @@ public class RepositoryCodeFrame extends CommonEventComposite implements IData<V
         // Hide editor
         showFilesPanel();
         // Create a URL to your raw file servlet (recommended approach)
-        String imageUrl = GWT.getHostPageBaseURL() + "raw/" + repository.getOwnerName() + "/" + repository.getName() + "/" + repoItem.getPath();
+        String imageUrl = GWT.getHostPageBaseURL() + "raw/" +
+                Global.encodeURIComponent(repository.getOwnerName()) + "/" +
+                Global.encodeURIComponent(repository.getName()) + "/"+
+                Global.encodeURIComponent(ddlRef.getValue())+"/" +
+                Global.encodeURI(repoItem.getPath());
+
 
         Image image = new Image(imageUrl);
         image.addStyleName(style.imagePreview()); // Add some CSS to center it and limit size
