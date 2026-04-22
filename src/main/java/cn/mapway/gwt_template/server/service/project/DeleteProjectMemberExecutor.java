@@ -66,11 +66,9 @@ public class DeleteProjectMemberExecutor extends AbstractBizExecutor<DeleteProje
 
         // --- 2. 核心保护逻辑：防止创建者被移出根管理组 ---
         boolean isRootTeam = Strings.isBlank(team.getParentId()); // 根节点 parentId 为空
-        boolean isTargetCreator = targetUserId.equals(project.getUserId());
+        boolean isTargetCreator = permission.isOwner();
 
-        if (isRootTeam && isTargetCreator) {
-            assertTrue(false, "不能将项目创建者从根管理组中移除");
-        }
+        assertTrue(isRootTeam && isTargetCreator, "不能将项目创建者从根管理组中移除");
 
         // 预检记录是否存在
         DevProjectTeamMemberEntity dbMember = dao.fetch(DevProjectTeamMemberEntity.class,

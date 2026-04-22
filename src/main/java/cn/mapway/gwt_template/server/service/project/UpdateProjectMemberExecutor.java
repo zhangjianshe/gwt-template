@@ -133,6 +133,8 @@ public class UpdateProjectMemberExecutor extends AbstractBizExecutor<UpdateProje
             log.error("[PROJECT] add user to project team, can not find user {}", request.getUserId());
             return BizResult.error(500, "用户不存在");
         }
+        CommonPermission memberPermission = CommonPermission.from(dbMember.getPermission());
+        assertTrue(!memberPermission.isOwner(), "不能移动项目创建者");
         final BizResult<UpdateProjectMemberResponse> result = new BizResult();
         Trans.exec(() -> {
             dao.deletex(DevProjectTeamMemberEntity.class, request.getSourceTeamId(), request.getUserId());
@@ -150,7 +152,7 @@ public class UpdateProjectMemberExecutor extends AbstractBizExecutor<UpdateProje
     private BizResult<UpdateProjectMemberResponse> doRemoveTeamMember(UpdateProjectMemberRequest request) {
 
         //检查成员是否是项目的创建者
-        CommonPermission permission = projectService.findUserPermissionInProject(request.getUserId(), request.getPermission());
+        CommonPermission permission = projectService.findUserPermissionInProject(request.getUserId(), request.getProjectId());
         if (permission.isOwner()) {
             return BizResult.error(500, "不能删删除项目创建者");
         }

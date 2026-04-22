@@ -23,7 +23,7 @@ import javax.annotation.Resource;
 import java.sql.Timestamp;
 
 /**
- * UpdateProjectExecutor
+ * UpdateRepositoryExecutor
  *
  * @author zhangjianshe <zhangjianshe@gmail.com>
  */
@@ -36,28 +36,32 @@ public class UpdateRepositoryExecutor extends AbstractBizExecutor<UpdateReposito
     @Override
     protected BizResult<UpdateRepositoryResponse> process(BizContext context, BizRequest<UpdateRepositoryRequest> bizParam) {
         UpdateRepositoryRequest request = bizParam.getData();
-        log.info("UpdateProjectExecutor {}", Json.toJson(request, JsonFormat.compact()));
+        log.info("UpdateRepositoryExecutor {}", Json.toJson(request, JsonFormat.compact()));
         LoginUser user = (LoginUser) context.get(AppConstant.KEY_LOGIN_USER);
-        DevRepositoryEntity project = request.getRepository();
-        assertNotNull(project, "没有项目信息");
-        if (Strings.isBlank(project.getId())) {
-            project.setUserId(user.getUser().getUserId());
-            project.setCreateTime(new Timestamp(System.currentTimeMillis()));
-            project.setDeployServer("");
-            if (Strings.isBlank(project.getFullName())) {
-                project.setFullName(project.getName());
+        DevRepositoryEntity repository = request.getRepository();
+        assertNotNull(repository, "没有项目信息");
+        if (Strings.isBlank(repository.getId())) {
+
+            //创建一个新的repository
+            repository.setUserId(user.getUser().getUserId());
+            repository.setCreateTime(new Timestamp(System.currentTimeMillis()));
+            repository.setDeployServer("");
+            if (Strings.isBlank(repository.getFullName())) {
+                repository.setFullName(repository.getName());
             }
-            assertTrue(Strings.isNotBlank(project.getName()), "没有项目名称");
-            project.setOwnerName(user.getUser().getUserName());
-            project.setOwnerKind(RepositoryOwnerKind.PWK_PERSONAL.getCode());
-            if (Strings.isBlank(project.getSummary())) {
-                project.setSummary(project.getFullName());
+            assertTrue(Strings.isNotBlank(repository.getName()), "没有项目名称");
+            repository.setOwnerName(user.getUser().getUserName());
+            repository.setOwnerKind(RepositoryOwnerKind.PWK_PERSONAL.getCode());
+            if (Strings.isBlank(repository.getSummary())) {
+                repository.setSummary(repository.getFullName());
             }
+
+
         } else {
-            CommonPermission permission = repositoryService.userPermissionInRepository(user.getUser().getUserId(), project.getId());
+            CommonPermission permission = repositoryService.userPermissionInRepository(user.getUser().getUserId(), repository.getId());
             assertNotNull(permission.canUpdate(), "没有更新权限");
         }
-        BizResult<DevRepositoryEntity> updateResult = repositoryService.saveOrUpdateProject(user.getUserName(), project);
+        BizResult<DevRepositoryEntity> updateResult = repositoryService.saveOrUpdateProject(user.getUserName(), repository);
         if (updateResult.isFailed()) {
             return updateResult.asBizResult();
         }
