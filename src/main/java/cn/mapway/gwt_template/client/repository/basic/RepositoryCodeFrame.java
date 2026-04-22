@@ -4,6 +4,7 @@ import cn.mapway.ace.client.AceCommandDescription;
 import cn.mapway.ace.client.AceEditor;
 import cn.mapway.ace.client.AceEditorMode;
 import cn.mapway.gwt_template.client.ClientContext;
+import cn.mapway.gwt_template.client.repository.member.MemberList;
 import cn.mapway.gwt_template.client.rpc.AppProxy;
 import cn.mapway.gwt_template.client.widget.Head;
 import cn.mapway.gwt_template.client.widget.IconButton;
@@ -75,10 +76,16 @@ public class RepositoryCodeFrame extends CommonEventComposite implements IData<V
     ScrollPanel fileContainer;
     @UiField
     HTMLPanel pathBar;
+    @UiField
+    RepositoryDetailPanel detailPanel;
+    @UiField
+    MemberList memberList;
     boolean initialize = false;
     Map<String, AceEditorMode> format = new HashMap<String, AceEditorMode>();
     ImportRepoPanel importRepoPanel;
     ImportingPanel importPanel;
+    @UiField
+    HTML readme;
     private VwRepositoryEntity repository;
 
     public RepositoryCodeFrame() {
@@ -107,6 +114,7 @@ public class RepositoryCodeFrame extends CommonEventComposite implements IData<V
         ddlRef.addValueChangeHandler(event -> {
             String ref = event.getValue();
             loadDir(ref, "");
+            loadReadme(repository.getId());
         });
     }
 
@@ -236,6 +244,7 @@ public class RepositoryCodeFrame extends CommonEventComposite implements IData<V
 
     }
 
+
     private void showEditor() {
         root.setWidgetSize(opBar, 60);
         root.setWidgetSize(pathBar, 50);
@@ -285,6 +294,28 @@ public class RepositoryCodeFrame extends CommonEventComposite implements IData<V
         HTML html1 = new HTML(html);
         html1.addStyleName("markdown-body");
         msgContainer.add(html1);
+    }
+
+    private void loadReadme(String repositoryId) {
+        readme.setHTML("loadding");
+        ReadRepoFileRequest request = new ReadRepoFileRequest();
+        request.setRepositoryId(repositoryId);
+        request.setFilePathName("README.md");
+        request.setToHtml(true);
+        request.setRefName(ddlRef.getValue());
+        AppProxy.get().readRepoFile(request, new AsyncCallback<RpcResult<ReadRepoFileResponse>>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                readme.setHTML("<div class='ai-message'>" + caught.getMessage() + "</div>");
+            }
+
+            @Override
+            public void onSuccess(RpcResult<ReadRepoFileResponse> result) {
+                if (result.isSuccess()) {
+                    readme.setHTML(result.getData().getText());
+                }
+            }
+        });
     }
 
     /**
@@ -342,6 +373,9 @@ public class RepositoryCodeFrame extends CommonEventComposite implements IData<V
 
     private void toUI() {
 
+        readme.setHTML("");
+        memberList.setData(repository.getId());
+        detailPanel.setData(repository);
         RepositoryStatus repositoryStatus = RepositoryStatus.fromCode(repository.getStatus());
         switch (repositoryStatus) {
             case PS_INIT:

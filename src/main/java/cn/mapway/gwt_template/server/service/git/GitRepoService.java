@@ -248,13 +248,14 @@ public class GitRepoService {
     /**
      * 获取文件内容
      */
-    public BizResult<String> getFileContent(String owner, String repoName, String path) {
+    public BizResult<String> getFileContent(String owner, String repoName, String path,String refName) {
+
         String finalRepoName = repoName.endsWith(".git") ? repoName : repoName + ".git";
         File repoDir = new File(appConfig.getRepoRoot(), owner + "/" + finalRepoName);
 
         try (Repository repository = FileRepositoryBuilder.create(repoDir)) {
-            ObjectId head = repository.resolve("HEAD");
-            if (head == null) return BizResult.error(404, "空仓库");
+            ObjectId head = repository.resolve(refName);
+            if (head == null) return BizResult.error(404, "分支不存在");
 
             try (RevWalk revWalk = new RevWalk(repository);
                  TreeWalk treeWalk = new TreeWalk(repository)) {

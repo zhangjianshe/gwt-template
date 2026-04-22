@@ -14,7 +14,6 @@
         <g:north size="50">
             <g:HTMLPanel addStyleNames="{style.top}">
                 <g:HorizontalPanel ui:field="buttons" spacing="0">
-                    <widget:IconButton height="50px" ui:field="btnBasic"/>
                     <widget:IconButton height="50px" ui:field="btnCode"/>
                 </g:HorizontalPanel>
                 <widget:IconButton height="50px" ui:field="btnSetting"/>

@@ -53,7 +53,7 @@ public class DeleteWebHookExecutor extends AbstractBizExecutor<DeleteWebHookResp
         }
 
         // Only repository admins should be able to delete hooks
-        CommonPermission permission = repositoryService.userRepoPermission(
+        CommonPermission permission = repositoryService.userPermissionInRepository(
                 user.getUser().getUserId(), hook.getSourceId());
 
         if (!permission.isAdmin()) {

@@ -44,7 +44,7 @@ public class ImportRepoExecutor extends AbstractBizExecutor<ImportRepoResponse, 
         assertTrue(permission.isAdmin(), "没有导入仓库的权限");
 
 
-        DevRepositoryEntity project = repositoryService.findProjectById(request.getRepositoryId());
+        DevRepositoryEntity project = repositoryService.findRepositoryById(request.getRepositoryId());
 
         if(!RepositoryStatus.PS_INIT.getCode().equals(project.getStatus())) {
             return BizResult.error(500,"项目状态目前不允许导入仓库");

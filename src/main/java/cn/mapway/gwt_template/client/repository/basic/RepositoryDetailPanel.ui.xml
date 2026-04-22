@@ -9,9 +9,13 @@
             font-size: 1rem;
             color: #444;
             padding: 10px 5px 20px 5px;
+        }
+
+        .top {
+            height: 30px;
         }</ui:style>
     <g:HTMLPanel>
-        <g:HTMLPanel addStyleNames="ai-bar">
+        <g:HTMLPanel addStyleNames="ai-bar {style.top}">
             <widget:Head>关于</widget:Head>
             <widget1:FontIcon ui:field="btnSetup"/>
         </g:HTMLPanel>

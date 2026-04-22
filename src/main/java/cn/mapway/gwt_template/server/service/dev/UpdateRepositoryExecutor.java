@@ -54,7 +54,7 @@ public class UpdateRepositoryExecutor extends AbstractBizExecutor<UpdateReposito
                 project.setSummary(project.getFullName());
             }
         } else {
-            CommonPermission permission = repositoryService.userRepoPermission(user.getUser().getUserId(), project.getId());
+            CommonPermission permission = repositoryService.userPermissionInRepository(user.getUser().getUserId(), project.getId());
             assertNotNull(permission.canUpdate(), "没有更新权限");
         }
         BizResult<DevRepositoryEntity> updateResult = repositoryService.saveOrUpdateProject(user.getUserName(), project);

@@ -44,8 +44,9 @@ public class ReadRepoFileExecutor extends AbstractBizExecutor<ReadRepoFileRespon
         assertTrue(Strings.isNotBlank(request.getFilePathName()), "没有文件");
         CommonPermission permission = repositoryService.findUserPermissionInRepository(user.getUser().getUserId(), request.getRepositoryId());
         assertTrue(permission.canRead(), "没有授权读取文件");
-        DevRepositoryEntity project = repositoryService.findProjectById(request.getRepositoryId());
-        BizResult<String> fileContent = gitRepoService.getFileContent(project.getOwnerName(), project.getName(), request.getFilePathName());
+        DevRepositoryEntity project = repositoryService.findRepositoryById(request.getRepositoryId());
+
+        BizResult<String> fileContent = gitRepoService.getFileContent(project.getOwnerName(), project.getName(), request.getFilePathName(),request.getRefName());
         if (fileContent.isSuccess()) {
             ReadRepoFileResponse response = new ReadRepoFileResponse();
             response.setText(fileContent.getData());

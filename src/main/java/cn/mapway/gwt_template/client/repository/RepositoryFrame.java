@@ -35,6 +35,8 @@ public class RepositoryFrame extends SubsystemModule {
     AiButton btnCreate;
     @UiField
     RepositoryView repositoryPanel;
+    @UiField
+    AiButton btnImport;
     VwRepositoryEntity currentRepository = null;
 
     public RepositoryFrame() {
@@ -89,6 +91,10 @@ public class RepositoryFrame extends SubsystemModule {
             VwRepositoryEntity repository = event.getValue();
             repositoryList.updateRepository(repository);
         }
+    }
+
+    @UiHandler("btnImport")
+    public void btnImportClick(ClickEvent event) {
     }
 
 

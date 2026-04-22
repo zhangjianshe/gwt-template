@@ -16,5 +16,6 @@ import java.io.Serializable;
 public class ReadRepoFileRequest implements Serializable, IsSerializable {
     String repositoryId;
     String filePathName;
+    String refName;
     Boolean toHtml=false;
 }

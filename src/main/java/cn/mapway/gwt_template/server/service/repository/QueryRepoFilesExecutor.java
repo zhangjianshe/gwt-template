@@ -41,7 +41,7 @@ public class QueryRepoFilesExecutor extends AbstractBizExecutor<QueryRepoFilesRe
 
         CommonPermission permission = repositoryService.findUserPermissionInRepository(user.getUser().getUserId(), request.getRepositoryId());
         assertTrue(permission.canRead(), "没有授权读取文件");
-        DevRepositoryEntity project = repositoryService.findProjectById(request.getRepositoryId());
+        DevRepositoryEntity project = repositoryService.findRepositoryById(request.getRepositoryId());
 
         try {
             if (Strings.isBlank(request.getPath())) {

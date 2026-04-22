@@ -10,7 +10,6 @@ import cn.mapway.ui.client.mvc.IModule;
 import cn.mapway.ui.client.mvc.ModuleMarker;
 import cn.mapway.ui.client.mvc.ModuleParameter;
 import cn.mapway.ui.client.tools.IData;
-import cn.mapway.ui.shared.CommonEvent;
 import cn.mapway.ui.shared.CommonEventHandler;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
@@ -40,8 +39,6 @@ public class RepositoryView extends BaseAbstractModule implements IData<VwReposi
     @UiField
     IconButton btnCode;
     @UiField
-    IconButton btnBasic;
-    @UiField
     LayoutPanel content;
     IconButton selected = null;
     RepositoryFlowPanel repositoryFlowPanel;
@@ -51,17 +48,13 @@ public class RepositoryView extends BaseAbstractModule implements IData<VwReposi
 
     public RepositoryView() {
         initWidget(ourUiBinder.createAndBindUi(this));
-        btnBasic.setValue(Fonts.BOOK, "项目看板").setData(Fonts.BOOK);
         btnCode.setValue(Fonts.CODE, "代码").setData(Fonts.CODE);
         btnSetting.setValue(Fonts.SETTING, "设置").setData(Fonts.SETTING);
 
         CommonEventHandler buttonClickHandler = event -> {
             if (event.isSelect()) {
                 String data = event.getValue();
-                if (data.equals(Fonts.BOOK)) {
-                    selectButton(btnBasic);
-                    gotoBasic();
-                } else if (data.equals(Fonts.CODE)) {
+                if (data.equals(Fonts.CODE)) {
                     selectButton(btnCode);
                     gotoCode();
                 } else if (data.equals(Fonts.SETTING)) {
@@ -70,7 +63,6 @@ public class RepositoryView extends BaseAbstractModule implements IData<VwReposi
                 }
             }
         };
-        btnBasic.addCommonHandler(buttonClickHandler);
         btnCode.addCommonHandler(buttonClickHandler);
         btnSetting.addCommonHandler(buttonClickHandler);
     }
@@ -84,24 +76,6 @@ public class RepositoryView extends BaseAbstractModule implements IData<VwReposi
         content.setWidgetLeftRight(repositorySettingPanel, 0, Style.Unit.PX, 0, Style.Unit.PX);
         content.setWidgetTopBottom(repositorySettingPanel, 0, Style.Unit.PX, 0, Style.Unit.PX);
         repositorySettingPanel.setData(vwRepository);
-    }
-
-    private void gotoBasic() {
-        if (repositoryFlowPanel == null) {
-            repositoryFlowPanel = new RepositoryFlowPanel();
-            repositoryFlowPanel.addCommonHandler(event -> {
-                if (event.isUpdate()) {
-                    VwRepositoryEntity vwRepositoryEntity = event.getValue();
-                    setData(vwRepositoryEntity);
-                    fireEvent(CommonEvent.updateEvent(vwRepositoryEntity));
-                }
-            });
-        }
-        content.clear();
-        content.add(repositoryFlowPanel);
-        content.setWidgetLeftRight(repositoryFlowPanel, 0, Style.Unit.PX, 0, Style.Unit.PX);
-        content.setWidgetTopBottom(repositoryFlowPanel, 0, Style.Unit.PX, 0, Style.Unit.PX);
-        repositoryFlowPanel.setData(vwRepository);
     }
 
 
@@ -138,7 +112,7 @@ public class RepositoryView extends BaseAbstractModule implements IData<VwReposi
     }
 
     private void toUI() {
-        btnBasic.select();
+        btnCode.select();
     }
 
     @Override

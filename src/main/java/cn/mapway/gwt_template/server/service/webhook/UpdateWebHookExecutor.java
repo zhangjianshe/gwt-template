@@ -53,7 +53,7 @@ public class UpdateWebHookExecutor extends AbstractBizExecutor<UpdateWebHookResp
 
     private BizResult<UpdateWebHookResponse> checkAndSaveProjectWebHook(Long userId, WebHookEntity webhook) {
 
-        CommonPermission permission = repositoryService.userRepoPermission(userId, webhook.getSourceId());
+        CommonPermission permission = repositoryService.userPermissionInRepository(userId, webhook.getSourceId());
         if (!permission.isAdmin()) {
             return BizResult.error(500, "没有授权操作");
         }

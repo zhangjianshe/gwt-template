@@ -73,7 +73,7 @@ public class RepositoryService {
                 devRepositoryMemberEntity.setUserId(repository.getUserId());
                 devRepositoryMemberEntity.setCreateTime(repository.getCreateTime());
                 devRepositoryMemberEntity.setOwner(true);
-                devRepositoryMemberEntity.setPermission(CommonPermission.owner().toString());
+                devRepositoryMemberEntity.setPermission(CommonPermission.all().toString());
 
                 txDao.insert(devRepositoryMemberEntity);
                 //创建这个用户的代码仓库
@@ -123,7 +123,7 @@ public class RepositoryService {
         }
     }
 
-    public CommonPermission userRepoPermission(Long userId, String repoId) {
+    public CommonPermission userPermissionInRepository(Long userId, String repoId) {
         DevRepositoryMemberEntity fetch = dao.fetch(DevRepositoryMemberEntity.class, Cnd.where(
                 DevRepositoryMemberEntity.FLD_USER_ID, "=", userId
         ).and(DevRepositoryMemberEntity.FLD_REPOSITORY_ID, "=", repoId));
@@ -182,7 +182,7 @@ public class RepositoryService {
         );
     }
 
-    public DevRepositoryEntity findProjectById(String projectId) {
+    public DevRepositoryEntity findRepositoryById(String projectId) {
         return dao.fetch(DevRepositoryEntity.class, Cnd.where(DevRepositoryEntity.FLD_ID, "=", projectId));
     }
 

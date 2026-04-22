@@ -25,7 +25,8 @@
                 <g:north size="50">
                     <g:HTMLPanel addStyleNames="{style.top}">
                         <widget:Head>我参与的代码</widget:Head>
-                        <buttons:AiButton ui:field="btnCreate">创建代码仓库</buttons:AiButton>
+                        <buttons:AiButton ui:field="btnImport">导入</buttons:AiButton>
+                        <buttons:AiButton ui:field="btnCreate">创建</buttons:AiButton>
                     </g:HTMLPanel>
                 </g:north>
                 <g:center>
