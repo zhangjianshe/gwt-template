@@ -51,7 +51,7 @@ public class UpdateProjectTaskExecutor extends AbstractBizExecutor<UpdateProject
         Long currentUserId = user.getUser().getUserId();
         DevProjectTaskEntity task = request.getProjectTask();
         //是否需要更新父节点的时间 因为需要递归 所以设置这个参数
-        boolean needUpdateTime= request.getSyncTime() != null && request.getSyncTime();
+        boolean needUpdateTime = request.getSyncTime() != null && request.getSyncTime();
         // 1. 基础校验
         assertNotNull(task, "任务对象不能为空");
         assertTrue(Strings.isNotBlank(task.getProjectId()), "必须指定所属项目ID");
@@ -91,7 +91,7 @@ public class UpdateProjectTaskExecutor extends AbstractBizExecutor<UpdateProject
             assertTrue(projectService.isMemberOfProject(task.getCharger(), task.getProjectId()), "指定的负责人不是该项目的成员");
         }
 
-        if (isNew && DevTaskCatalog.fromCode(task.getCatalog())==DevTaskCatalog.DTC_TASK) {
+        if (isNew && DevTaskCatalog.fromCode(task.getCatalog()) == DevTaskCatalog.DTC_TASK) {
             //创建合法性 1.如果是根节点只允许 项目创建人操作 否则 父任务是否是自己负责的 只有自己负责的才可以创建子任务
             BizResult<Boolean> result = projectService.isTaskManager(project.getId(), currentUserId, task.getParentId());
             if (!result.isSuccess() || !result.getData()) {
@@ -100,15 +100,15 @@ public class UpdateProjectTaskExecutor extends AbstractBizExecutor<UpdateProject
         }
 
 
-        final List<DevProjectTaskEntity> updatedTasks=new ArrayList<>();
+        final List<DevProjectTaskEntity> updatedTasks = new ArrayList<>();
         // 3. 执行核心事务
         Trans.exec(() -> {
             if (isNew) {
                 task.setId(R.UU16());
                 // --- 自动生成任务编号 ---
-                int nextCode = projectService.getNextTaskCode(task.getProjectId(),task.getCatalog());
+                int nextCode = projectService.getNextTaskCode(task.getProjectId(), task.getCatalog());
                 task.setCode(nextCode);
-                task.setRank(projectService.getNextRank(task.getProjectId(),task.getCatalog()));
+                task.setRank(projectService.getNextRank(task.getProjectId(), task.getCatalog()));
                 // ----------------------
                 task.setCreateUserId(currentUserId);
 
@@ -121,10 +121,9 @@ public class UpdateProjectTaskExecutor extends AbstractBizExecutor<UpdateProject
                     if (task.getEstimateTime() == null) {
                         task.setEstimateTime(new Timestamp(task.getStartTime().getTime() + AppConstant.DEFAULT_TASK_DURATION));
                     }
-                }
-                else {
+                } else {
                     task.setStartTime(now);
-                    task.setEstimateTime(new Timestamp(now.getTime()+AppConstant.ONE_DAY_DURATION));
+                    task.setEstimateTime(new Timestamp(now.getTime() + AppConstant.ONE_DAY_DURATION));
                 }
 
 
@@ -133,7 +132,7 @@ public class UpdateProjectTaskExecutor extends AbstractBizExecutor<UpdateProject
                         "创建[" + DevTaskKind.fromCode(task.getKind()).getName() + "]: " + task.getName(), task);
 
                 //需要更新他的所有父节点的时间段
-                if(needUpdateTime) {
+                if (needUpdateTime) {
                     List<DevProjectTaskEntity> tasks = updateParentTimespan(task.getParentId());
                     updatedTasks.addAll(tasks);
                 }
@@ -142,11 +141,12 @@ public class UpdateProjectTaskExecutor extends AbstractBizExecutor<UpdateProject
                 DevProjectTaskEntity dbTask = dao.fetch(DevProjectTaskEntity.class, task.getId());
                 assertNotNull(dbTask, "任务不存在或已被删除");
 
+                boolean isTaskCreator = dbTask.getCreateUserId().equals(currentUserId);
                 boolean isCreator = projectService.isCreatorOfProject(currentUserId, dbTask.getProjectId());
                 boolean isCharger = currentUserId.equals(dbTask.getCharger());
-                boolean parentCharger = projectService.isChargerOfTask(currentUserId,dbTask.getParentId());
+                boolean parentCharger = projectService.isChargerOfTask(currentUserId, dbTask.getParentId());
 
-                assertTrue(isCreator || isCharger || parentCharger, "只有项目创建者或任务负责人可以修改此任务");
+                assertTrue(isTaskCreator || isCreator || isCharger || parentCharger, "只有项目创建者或任务负责人可以修改此任务");
 
                 // 检查状态流转：如果状态变为 DTS_FINISHED，自动记录结束时间
                 if (task.getStatus() != null && task.getStatus().equals(DevTaskStatus.DTS_FINISHED.getCode())) {
@@ -174,19 +174,16 @@ public class UpdateProjectTaskExecutor extends AbstractBizExecutor<UpdateProject
                 task.setCreateTime(null);
                 task.setCode(null);
 
-                boolean updateParentProgress=false;
-                if(task.getProgress()!=null && !Objects.equals(dbTask.getProgress(), task.getProgress())){
-                    //需要更新进度
-                    updateParentProgress=true;
-                }
+                boolean updateParentProgress = task.getProgress() != null && !Objects.equals(dbTask.getProgress(), task.getProgress());
+                //需要更新进度
 
                 dao.updateIgnoreNull(task);
                 //需要更新他的所有父节点的时间段
-                if(needUpdateTime) {
+                if (needUpdateTime) {
                     List<DevProjectTaskEntity> tasks = updateParentTimespan(dbTask.getParentId());
                     updatedTasks.addAll(tasks);
                 }
-                if(updateParentProgress) {
+                if (updateParentProgress) {
                     updateAllParentProgress(dbTask.getParentId());
                 }
                 projectService.recordAction(dbTask.getProjectId(), currentUserId, "UPDATE_TASK",
@@ -208,6 +205,7 @@ public class UpdateProjectTaskExecutor extends AbstractBizExecutor<UpdateProject
      * 递归更新所有父任务的进度
      * 逻辑：父进度 = Σ(子任务进度 * 子任务工期) / Σ(子任务工期)
      * 如果子任务没有工期，则按子任务个数平摊
+     *
      * @param parentId
      */
     private void updateAllParentProgress(String parentId) {
@@ -261,6 +259,7 @@ public class UpdateProjectTaskExecutor extends AbstractBizExecutor<UpdateProject
      * 递归更新父节点的时间段
      * 逻辑：父节点的开始时间 = min(所有子节点开始时间)
      * 父节点的结束时间 = max(所有子节点结束时间)
+     *
      * @param parentId 父节点ID
      * @return 被更新过的任务列表
      */
