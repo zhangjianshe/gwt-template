@@ -11,6 +11,7 @@ import cn.mapway.gwt_template.client.widget.file.UploadData;
 import cn.mapway.gwt_template.client.workspace.issue.AssignUserPanel;
 import cn.mapway.gwt_template.client.workspace.widget.EditableLabel;
 import cn.mapway.gwt_template.client.workspace.widget.MarkdownBox;
+import cn.mapway.gwt_template.client.workspace.widget.ProgressSelector;
 import cn.mapway.gwt_template.client.workspace.widget.TaskPriorityDropdown;
 import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.db.DevProjectTaskCommentEntity;
@@ -80,6 +81,8 @@ public class TaskCommentPanel extends CommonEventComposite implements IData<DevP
     DockLayoutPanel top;
     @UiField
     AssignUserPanel assignPanel;
+    @UiField
+    ProgressSelector progressSelector;
     MarkdownConvert convert;
     private DevProjectTaskEntity taskEntity;
 
@@ -88,6 +91,7 @@ public class TaskCommentPanel extends CommonEventComposite implements IData<DevP
         ddlPriority.init(false);
         convert = new MarkdownConvert();
         editor.appendTool(inputTools);
+        progressSelector.setThemeColor("skyblue");
     }
 
     @Override
@@ -111,6 +115,7 @@ public class TaskCommentPanel extends CommonEventComposite implements IData<DevP
         ddlPriority.setValue(taskEntity.getPriority());
         markdownBox.setViewMode(true);
         markdownBox.setValue(taskEntity.getSummary());
+        progressSelector.setProgress(taskEntity.getProgress());
 
 
         tip.setText("");
@@ -134,6 +139,7 @@ public class TaskCommentPanel extends CommonEventComposite implements IData<DevP
             ddlPriority.setEnabled(true);
             markdownBox.setEnabled(true);
             assignPanel.setVisible(true);
+            progressSelector.setEnabled(true);
             root.setWidgetVisible(editor, true);
         } else if (isCharge) {
             top.setWidgetSize(saveBar, ADMIN_BAR_HEIGHT);
@@ -142,6 +148,7 @@ public class TaskCommentPanel extends CommonEventComposite implements IData<DevP
             btnUploader.setVisible(true);
             ddlPriority.setEnabled(false);
             markdownBox.setEnabled(true);
+            progressSelector.setEnabled(true);
             assignPanel.setVisible(false);
         } else {
             top.setWidgetSize(saveBar, 0);
@@ -151,6 +158,7 @@ public class TaskCommentPanel extends CommonEventComposite implements IData<DevP
             markdownBox.setEnabled(false);
             assignPanel.setVisible(false);
             btnUploader.setVisible(false);
+            progressSelector.setEnabled(false);
         }
 
         String path = AppConstant.UPLOAD_PREFIX_TASK_COMMENT + taskEntity.getId();
@@ -203,6 +211,7 @@ public class TaskCommentPanel extends CommonEventComposite implements IData<DevP
         taskEntity.setPriority((Integer) ddlPriority.getValue());
         taskEntity.setName(txtName.getValue());
         taskEntity.setSummary(markdownBox.getValue());
+        taskEntity.setProgress(progressSelector.getProgress());
         UpdateProjectTaskRequest request = new UpdateProjectTaskRequest();
         request.setProjectTask(taskEntity);
         AppProxy.get().updateProjectTask(request, new AsyncCallback<RpcResult<UpdateProjectTaskResponse>>() {
@@ -215,6 +224,7 @@ public class TaskCommentPanel extends CommonEventComposite implements IData<DevP
             public void onSuccess(RpcResult<UpdateProjectTaskResponse> result) {
                 if (result.isSuccess()) {
                     fireEvent(CommonEvent.updateEvent(result.getData().getProjectTask()));
+                    ClientContext.get().toast(0, 0, "更新成功");
                 } else {
                     ClientContext.get().toast(0, 0, result.getMessage());
                 }
@@ -300,6 +310,15 @@ public class TaskCommentPanel extends CommonEventComposite implements IData<DevP
         if (event.isSelect()) {
             ProjectMember member = event.getValue();
             taskEntity.setCharger(member.getUserId());
+        }
+    }
+
+    @UiHandler("progressSelector")
+    public void progressSelectorCommon(CommonEvent event) {
+        if (event.isValueChanged()) {
+            int progress = event.getValue();
+            taskEntity.setProgress(progress);
+            fireEvent(CommonEvent.progressEvent(taskEntity));
         }
     }
 

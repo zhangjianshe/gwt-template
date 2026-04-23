@@ -151,4 +151,35 @@ public class DevProjectTaskEntity implements Serializable, IsSerializable {
     String createAvatar;
 
     private List<DevProjectTaskEntity> children = new ArrayList<>();
+
+    public long getDuration()
+    {
+        return getEstimateTime().getTime() - getCreateTime().getTime();
+    }
+    /**
+     * 汇总任务进度
+     */
+    public void calculateSummaryProgress() {
+        if (children == null || children.isEmpty()) {
+            return;
+        }
+
+        double totalWeightedProgress = 0;
+        int totalDuration = 0;
+
+        for (DevProjectTaskEntity child : children) {
+            // 递归确保子节点的父节点也是最新的（或者确保层级是从底向上触发）
+            totalWeightedProgress += (child.getProgress() * child.getDuration());
+            totalDuration += child.getDuration();
+        }
+
+        if (totalDuration > 0) {
+            this.progress = (int) Math.round(totalWeightedProgress / totalDuration);
+        } else {
+            // 如果子任务都没有工期，退化为算术平均
+            int sum = 0;
+            for(DevProjectTaskEntity child : children) sum += child.getProgress();
+            this.progress = sum / children.size();
+        }
+    }
 }

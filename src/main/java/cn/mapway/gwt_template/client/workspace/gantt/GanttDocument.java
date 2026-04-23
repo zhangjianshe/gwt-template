@@ -1103,4 +1103,21 @@ public class GanttDocument {
         }
         return null;
     }
+
+    /**
+     * 更新任务的进度信息
+     * 需要递归更新父任务的进度 权重加权平均（最常用）
+     *
+     * @param task
+     */
+    public void updateProgress(DevProjectTaskEntity task) {
+        updateEntity(task);
+
+        GanttItem parent = findItemByTaskId(task.getParentId());
+        while (parent != null) {
+            parent.getEntity().calculateSummaryProgress();
+            parent = findItemByTaskId(parent.getEntity().getParentId());
+            updateEntity(parent.getEntity());
+        }
+    }
 }

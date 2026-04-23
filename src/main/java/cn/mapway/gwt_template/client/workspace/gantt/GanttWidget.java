@@ -60,6 +60,10 @@ public class GanttWidget extends CommonEventComposite implements RequiresResize,
         if (event.isUpdate()) {
             DevProjectTaskEntity task = event.getValue();
             chart.getDocument().updateEntity(task);
+        }else if(event.isProgress())
+        {
+            DevProjectTaskEntity task = event.getValue();
+            chart.getDocument().updateProgress(task);
         }
     }
 

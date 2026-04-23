@@ -14,6 +14,7 @@ import cn.mapway.gwt_template.shared.rpc.project.module.DevTaskKind;
 import cn.mapway.gwt_template.shared.rpc.project.module.DevTaskStatus;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
 import lombok.extern.slf4j.Slf4j;
+import org.nutz.dao.Cnd;
 import org.nutz.dao.Dao;
 import org.nutz.dao.Sqls;
 import org.nutz.dao.sql.Sql;
@@ -27,6 +28,7 @@ import javax.annotation.Resource;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * UpdateProjectTaskExecutor
@@ -172,11 +174,20 @@ public class UpdateProjectTaskExecutor extends AbstractBizExecutor<UpdateProject
                 task.setCreateTime(null);
                 task.setCode(null);
 
+                boolean updateParentProgress=false;
+                if(task.getProgress()!=null && !Objects.equals(dbTask.getProgress(), task.getProgress())){
+                    //需要更新进度
+                    updateParentProgress=true;
+                }
+
                 dao.updateIgnoreNull(task);
                 //需要更新他的所有父节点的时间段
                 if(needUpdateTime) {
                     List<DevProjectTaskEntity> tasks = updateParentTimespan(dbTask.getParentId());
                     updatedTasks.addAll(tasks);
+                }
+                if(updateParentProgress) {
+                    updateAllParentProgress(dbTask.getParentId());
                 }
                 projectService.recordAction(dbTask.getProjectId(), currentUserId, "UPDATE_TASK",
                         "更新任务信息: " + dbTask.getName(), task);
@@ -191,6 +202,59 @@ public class UpdateProjectTaskExecutor extends AbstractBizExecutor<UpdateProject
         response.setProjectTask(finalTask);
         return BizResult.success(response);
 
+    }
+
+    /**
+     * 递归更新所有父任务的进度
+     * 逻辑：父进度 = Σ(子任务进度 * 子任务工期) / Σ(子任务工期)
+     * 如果子任务没有工期，则按子任务个数平摊
+     * @param parentId
+     */
+    private void updateAllParentProgress(String parentId) {
+        if (Strings.isBlank(parentId)) {
+            return;
+        }
+
+        DevProjectTaskEntity parent = dao.fetch(DevProjectTaskEntity.class, parentId);
+        if (parent == null) {
+            return;
+        }
+
+        // 1. 查询子任务的汇总数据
+        // 我们需要：子任务总进度贡献(progress * duration) 和 总工期
+        // 注意：这里假设你的数据库中有字段能体现工期，如果没有，可以用 (estimate_time - start_time) 计算
+        Sql sql = Sqls.create("SELECT " +
+                "SUM(progress * (EXTRACT(DAY FROM (estimate_time - start_time)) + 1)) as weighted_progress, " +
+                "SUM(EXTRACT(DAY FROM (estimate_time - start_time)) + 1) as total_duration " +
+                "FROM dev_project_task WHERE parent_id = @pid");
+        sql.params().set("pid", parentId);
+        sql.setCallback(Sqls.callback.record());
+        dao.execute(sql);
+
+        org.nutz.dao.entity.Record record = sql.getObject(org.nutz.dao.entity.Record.class);
+        double weightedProgress = record.getDouble("weighted_progress");
+        double totalDuration = record.getDouble("total_duration");
+
+        int newProgress = 0;
+        if (totalDuration > 0) {
+            newProgress = (int) Math.round(weightedProgress / totalDuration);
+        } else {
+            // 如果子节点都没有时间设置，回退到算术平均
+            int count = dao.count(DevProjectTaskEntity.class, Cnd.where("parent_id", "=", parentId));
+            if (count > 0) {
+                int sumProgress = dao.func(DevProjectTaskEntity.class, "sum", "progress", Cnd.where("parent_id", "=", parentId));
+                newProgress = sumProgress / count;
+            }
+        }
+
+        // 2. 更新并递归
+        if (parent.getProgress() != newProgress) {
+            parent.setProgress(newProgress);
+            dao.update(parent, "^progress$"); // 只更新进度字段
+
+            // 递归向上
+            updateAllParentProgress(parent.getParentId());
+        }
     }
 
     /**

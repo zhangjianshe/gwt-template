@@ -84,7 +84,10 @@
             justify-content: center;
             font-size: 28px;
         }
-    </ui:style>
+
+        .progress {
+            border: solid 1px grey;
+        }</ui:style>
     <g:LayoutPanel ui:field="root">
         <g:layer>
             <g:SplitLayoutPanel visible="false" ui:field="main">
@@ -95,6 +98,10 @@
                                 <g:Label ui:field="iconState" addStyleNames="{style.icon}"/>
                                 <widget:EditableLabel addStyleNames="{style.title}" ui:field="txtName"/>
                             </g:HTMLPanel>
+                        </g:north>
+                        <g:north size="60">
+                            <widget:ProgressSelector  width="100%" height="100%"
+                                                     ui:field="progressSelector"/>
                         </g:north>
                         <g:south size="0">
                             <g:HTMLPanel ui:field="saveBar" addStyleNames="{style.toolbar}">
