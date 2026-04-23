@@ -36,7 +36,7 @@ public class GanttItem extends BaseNode {
     List<GanttItem> children;
     int level = 0;
     HTMLImageElement avatar = null;
-    HTMLImageElement createAvatar  = null;
+    HTMLImageElement createAvatar = null;
     GanttItemHoverPosition hoverPosition = GanttItemHoverPosition.GHIP_NONE;
     boolean selected = false;
     DevTaskKind kind;
@@ -46,6 +46,10 @@ public class GanttItem extends BaseNode {
         rect = new Rect();
         children = new ArrayList<GanttItem>();
         kind = DevTaskKind.DTK_SUMMARY;
+    }
+
+    public static double getDesiredHeight() {
+        return 40;
     }
 
     public void setEntity(DevProjectTaskEntity entity) {
@@ -67,10 +71,6 @@ public class GanttItem extends BaseNode {
         if (remove) {
             item.setParent(null);
         }
-    }
-
-    public double getDesiredHeight() {
-        return 40;
     }
 
     /**
@@ -144,13 +144,12 @@ public class GanttItem extends BaseNode {
         ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of(kind.getColor());
         ctx.setFont("22px mapway-font");
         ctx.textAlign = "left";
-        ctx.fillText(kind.getUnicode(), iconX+2, y + h / 2);
+        ctx.fillText(kind.getUnicode(), iconX + 2, y + h / 2);
 
         //绘制创建者头像
         double createUserIconX = currentIndent;
-        if (createAvatar!=null && createAvatar.complete)
-        {
-            createUserIconX += h+4;
+        if (createAvatar != null && createAvatar.complete) {
+            createUserIconX += h + 4;
             double finalCreateUserIconX = createUserIconX;
             withContext(ctx, () -> {
                 double avatarSize = h - 20;
@@ -328,6 +327,10 @@ public class GanttItem extends BaseNode {
             // 5. 文字渲染（内外自适应）
             ctx.textBaseline = "middle";
             String label = entity.getName();
+            if (!getChildren().isEmpty()) {
+                //容器 标题里显示进度
+                label += "-" + entity.getProgress() + "%";
+            }
             if (barWidth > 80) {
                 // --- 核心修改点：容器任务用深色字，普通任务用白字 ---
                 ctx.textAlign = "left";

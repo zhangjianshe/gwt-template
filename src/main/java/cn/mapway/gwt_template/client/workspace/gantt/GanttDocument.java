@@ -63,6 +63,8 @@ public class GanttDocument {
     private double dayWidth = 40.0; // 默认一天 40 像素
     @Getter
     private List<DevProjectTaskEntity> rootTasks;
+    @Getter
+    @Setter
     private double startTimeMillis = (double) System.currentTimeMillis();   // 视图起始时间戳
     private double leftPanelSize = 400;
     private Animation currentAnimation = null;
@@ -265,10 +267,7 @@ public class GanttDocument {
     }
 
     private double layoutItem(GanttItem item, double top, double left) {
-        double h = item.getDesiredHeight();
-
-        // 根据当前 level 自动计算缩进（如果你在绘图时使用了 level）
-        // item.setIndent(item.getLevel() * 16);
+        double h = GanttItem.getDesiredHeight();
 
         item.getRect().set(left, top - scrollTop, chart.getOffsetWidth(), h);
 
@@ -944,6 +943,30 @@ public class GanttDocument {
 
     }
 
+    /**
+     * 获取甘特图在当前折叠状态下的完整像素高度
+     */
+    public double getFullContentHeight() {
+        // 头部高度 + 可见任务数量 * 行高
+        return GANTT_HEAD_HEIGHT + (flatItems.size() * GanttItem.getDesiredHeight());
+    }
+
+    /**
+     * 获取时间轴的总像素宽度（从最早任务到最晚任务）
+     */
+    public double getTimelineFullWidth() {
+        if (flatItems.isEmpty()) return 800;
+
+        long min = Long.MAX_VALUE;
+        long max = Long.MIN_VALUE;
+        for (GanttItem item : flatItems) {
+            min = Math.min(min, item.getEntity().getStartTime().getTime());
+            max = Math.max(max, item.getEntity().getEstimateTime().getTime());
+        }
+        // 增加前后的缓冲空间（各 3 天）
+        return ((max - min) / (double) MS_PER_DAY + 6) * dayWidth;
+    }
+
     public void moveFirstSelectLevelDown() {
         if (selectedItems.isEmpty()) return;
         GanttItem item = selectedItems.get(0);
@@ -1120,4 +1143,5 @@ public class GanttDocument {
             updateEntity(parent.getEntity());
         }
     }
+
 }

@@ -22,6 +22,8 @@ import elemental2.dom.*;
 import jsinterop.base.Js;
 import lombok.Getter;
 
+import java.util.List;
+
 import static cn.mapway.gwt_template.client.workspace.gantt.CalendarTimes.MS_PER_DAY;
 
 /**
@@ -713,4 +715,140 @@ public class GanttChart extends CanvasWidget implements RequiresResize, IData<St
             popup.center();
         }
     }
+
+    /**
+     * 将当前甘特图导出为图片
+     * 逻辑：创建一个隐藏的离屏 Canvas，计算所有任务占用的总宽高，完整绘制后导出
+     */
+    public void exportPicture() {
+        if (!document.isValid() || document.getFlatItems().isEmpty()) {
+            DomGlobal.window.alert("没有可导出的任务数据");
+            return;
+        }
+
+        // 1. 计算导出范围
+        // 垂直方向：Header + 所有可见任务数量 * 行高
+        double fullHeight = GanttDocument.GANTT_HEAD_HEIGHT + (document.getFlatItems().size() * GanttItem.getDesiredHeight());
+
+        // 水平方向：我们要确定任务涉及的最早和最晚时间点
+        long minTime = Long.MAX_VALUE;
+        long maxTime = Long.MIN_VALUE;
+        for (GanttItem item : document.getFlatItems()) {
+            minTime = Math.min(minTime, item.getEntity().getStartTime().getTime());
+            maxTime = Math.max(maxTime, item.getEntity().getEstimateTime().getTime());
+        }
+
+        // 预留前后各 5 天的缓冲，并确保宽度涵盖左侧面板
+        double dayWidth = document.getDayWidth();
+        long paddingTime = (long) (5 * CalendarTimes.MS_PER_DAY);
+        minTime -= paddingTime;
+        maxTime += paddingTime;
+
+        // 计算时间轴像素宽度 (不包含左侧面板)
+        double timelineWidth = ((double) (maxTime - minTime) / CalendarTimes.MS_PER_DAY) * dayWidth;
+        double sidebarWidth = document.getLeftPanelWidth();
+        double fullWidth = sidebarWidth + timelineWidth;
+
+        // 限制：浏览器对 Canvas 尺寸有限制，这里做一个保护
+        if (fullHeight > 10000 || fullWidth > 10000) {
+            DomGlobal.window.alert("导出的图片过大，请尝试折叠部分任务或缩小缩放比例后再试。");
+            // 也可以选择强制缩小，或者只打印当前视图
+        }
+
+        // 2. 创建离屏画布
+        HTMLCanvasElement offCanvas = (HTMLCanvasElement) DomGlobal.document.createElement("canvas");
+        offCanvas.width = (int) fullWidth;
+        offCanvas.height = (int) fullHeight;
+        CanvasRenderingContext2D ctx = Js.uncheckedCast(offCanvas.getContext("2d"));
+
+        // 3. 准备渲染上下文（类似 onDraw，但不考虑滚动条 scrollTop）
+        // 我们需要临时“借用” document 的状态，或者在绘制时手动计算偏移
+        double originalStartTime = document.getStartTimeMillis();
+        double originalScrollTop = document.getScrollTop();
+
+        try {
+            // 将视图起始点临时移动到我们要打印的 minTime 处
+            // 注意：这里由于是导出完整图，我们让左侧面板边缘正好对准 minTime
+            double exportStartTime = minTime - (sidebarWidth / dayWidth * CalendarTimes.MS_PER_DAY);
+
+            // 绘制背景（白色）
+            ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("#ffffff");
+            ctx.fillRect(0, 0, fullWidth, fullHeight);
+
+            // 绘制网格
+            // 注意：这里需要稍微修改一下 document 的 getXByDate 逻辑的参数，
+            // 或者在这里手动计算。为了简单，我们临时修改 document 的状态。
+            document.setStartTimeMillis(exportStartTime);
+            document.setScrollTop(0); // 导出图中不考虑滚动偏移
+
+            // 绘制
+            drawGrid(ctx, fullWidth, fullHeight);
+
+            // 绘制任务条
+            // 这里有个细节：Item 的 Rect 是基于 UI 视图缓存的，导出时需要重新计算坐标
+            for (int i = 0; i < document.getFlatItems().size(); i++) {
+                GanttItem item = document.getFlatItems().get(i);
+                double y = GanttDocument.GANTT_HEAD_HEIGHT + i * GanttItem.getDesiredHeight();
+
+                // 绘制前临时保存原始位置
+                double oldY = item.getRect().y;
+                item.getRect().y = y;
+                item.draw(document, ctx);
+                item.getRect().y = oldY; // 还原，避免影响主界面
+            }
+
+            // 绘制表头
+            drawHeader(ctx, fullWidth);
+
+            // 绘制左侧面板
+            drawFloatingLeftPanelForExport(ctx, fullHeight, sidebarWidth);
+
+        } finally {
+            // 4. 彻底还原 Document 状态
+            document.setStartTimeMillis(originalStartTime);
+            document.setScrollTop(originalScrollTop);
+        }
+
+        // 5. 触发下载
+        String dataUrl = offCanvas.toDataURL("image/png");
+        HTMLAnchorElement link = (HTMLAnchorElement) DomGlobal.document.createElement("a");
+        link.download = "Gantt_" + projectId + "_" + new JsDate().toLocaleDateString() + ".png";
+        link.href = dataUrl;
+        link.click();
+    }
+
+    /**
+     * 专为导出设计的左侧面板绘制逻辑
+     */
+    private void drawFloatingLeftPanelForExport(CanvasRenderingContext2D ctx, double height, double width) {
+        withContext(ctx, () -> {
+            ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("#fafafa");
+            ctx.fillRect(0, GanttDocument.GANTT_HEAD_HEIGHT, width, height);
+
+            List<GanttItem> items = document.getFlatItems();
+            for (int i = 0; i < items.size(); i++) {
+                GanttItem item = items.get(i);
+                double y = GanttDocument.GANTT_HEAD_HEIGHT + i * GanttItem.getDesiredHeight();
+
+                double oldY = item.getRect().y;
+                item.getRect().y = y;
+
+                item.drawFixedInfo(document, ctx);
+                // 导出时 treeLines 的逻辑也需要一致
+                boolean isLast = (i == items.size() - 1) || (items.get(i + 1).getLevel() < item.getLevel());
+                drawTreeLines(ctx, item, 20, isLast);
+
+                item.getRect().y = oldY;
+            }
+
+            // 边界线
+            ctx.beginPath();
+            ctx.strokeStyle = BaseRenderingContext2D.StrokeStyleUnionType.of("#e0e0e0");
+            ctx.moveTo(width - 1, 0);
+            ctx.lineTo(width - 1, height);
+            ctx.stroke();
+        });
+    }
+
+
 }

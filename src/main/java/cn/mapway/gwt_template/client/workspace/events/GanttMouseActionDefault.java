@@ -64,6 +64,10 @@ public class GanttMouseActionDefault implements IMouseHandler<GanttHitResult> {
                                 + "&_t=" + System.currentTimeMillis();
                         Window.open(url, "_blank", "");
                         break;
+                    case AMK_EXPORT_PICTURE:
+                        //将屏幕上的内容输出到图片中
+                        chart.exportPicture();
+                        break;
                 }
                 if (ganttMenu.isShowing()) {
                     ganttMenu.hide();
@@ -105,7 +109,7 @@ public class GanttMouseActionDefault implements IMouseHandler<GanttHitResult> {
         dialog.getContent().setSaveText("导入");
         dialog.getContent().setToolbarVisible(false);
         String msg = "# 导入任务内容 每行一条记录 开始空格会创建子任务允许多个空格连续 以上一条任务为基准\r\n";
-        msg += "# 以#开头的行将会被忽略\r\n";
+        msg += "# 格式为 <内容>:<说明> 以#开头的行将会被忽略 :后面的内容作为任务的说明, :及后面的内容可以省略不写\r\n";
         if (ganttItem == null) {
             //导入根节点数据
             msg += "# ------------------------------\r\n";
@@ -324,6 +328,7 @@ public class GanttMouseActionDefault implements IMouseHandler<GanttHitResult> {
         ganttControlMenu.addItem(createUnicodeIcon("✚", "创建任务"), ActionMenuKind.AMK_CREATE_TASK);
         ganttControlMenu.addItem(createUnicodeIcon("📥", "导入任务"), ActionMenuKind.AMK_IMPORT_TASK);
         ganttControlMenu.addItem(createUnicodeIcon("📤", "导出任务"), ActionMenuKind.AMK_EXPORT_TASK);
+        ganttControlMenu.addItem(createUnicodeIcon("🖼️", "输出图片"), ActionMenuKind.AMK_EXPORT_PICTURE);
         ganttControlMenu.addCommonHandler(menuHandler);
     }
 
