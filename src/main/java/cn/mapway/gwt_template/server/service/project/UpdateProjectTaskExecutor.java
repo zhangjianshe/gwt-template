@@ -9,6 +9,7 @@ import cn.mapway.gwt_template.shared.db.DevProjectEntity;
 import cn.mapway.gwt_template.shared.db.DevProjectTaskEntity;
 import cn.mapway.gwt_template.shared.rpc.project.UpdateProjectTaskRequest;
 import cn.mapway.gwt_template.shared.rpc.project.UpdateProjectTaskResponse;
+import cn.mapway.gwt_template.shared.rpc.project.module.CommonPermission;
 import cn.mapway.gwt_template.shared.rpc.project.module.DevTaskCatalog;
 import cn.mapway.gwt_template.shared.rpc.project.module.DevTaskKind;
 import cn.mapway.gwt_template.shared.rpc.project.module.DevTaskStatus;
@@ -59,7 +60,7 @@ public class UpdateProjectTaskExecutor extends AbstractBizExecutor<UpdateProject
         DevProjectEntity project = dao.fetch(DevProjectEntity.class, task.getProjectId());
         assertNotNull(project, "没有项目信息");
 
-
+        CommonPermission operatorPermission=projectService.findUserPermissionInProject(currentUserId, task.getProjectId());
         // 2. 权限准入 (数据权限校验)
         // 只有项目成员才能创建或修改该项目的任务
         assertTrue(projectService.isMemberOfProject(currentUserId, task.getProjectId()), "您不是该项目的成员，无权操作任务");
@@ -76,6 +77,23 @@ public class UpdateProjectTaskExecutor extends AbstractBizExecutor<UpdateProject
             }
             if (task.getStatus() == null) {
                 task.setStatus(DevTaskStatus.DTS_CREATED.getCode());
+            }
+            if(task.getKind().equals(DevTaskKind.DTK_TASK.getCode())) {
+
+                if(Strings.isBlank(task.getParentId()))
+                {
+                    //创建任务 如果是根任务 只有 superUser才能操作
+                    assertTrue(operatorPermission.isSuper(),"只有管理员或者创建者有权限创建根任务");
+                }
+                else {
+                    //子任务 当前用户必须是父任务的创建者 或者 superUser 或者charger
+                    if (!operatorPermission.isSuper())
+                    {
+                        DevProjectTaskEntity parentTask = dao.fetch(DevProjectTaskEntity.class, task.getParentId());
+                        assertTrue(parentTask!=null,"任务的父任务不存在");
+                        assertTrue(parentTask.getCreateUserId().equals(currentUserId)||Objects.equals(currentUserId,parentTask.getCharger()),"你们没有授权创建子任务");
+                    }
+                }
             }
         } else {
             if (Strings.isBlank(task.getName())) {
