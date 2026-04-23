@@ -2,7 +2,6 @@
              xmlns:g='urn:import:com.google.gwt.user.client.ui'
              xmlns:widget="urn:import:cn.mapway.gwt_template.client.workspace.widget"
              xmlns:panel="urn:import:cn.mapway.ui.client.widget.panel"
-             xmlns:widget2="urn:import:cn.mapway.ui.client.widget"
              xmlns:buttons="urn:import:cn.mapway.ui.client.widget.buttons"
              xmlns:widget3="urn:import:cn.mapway.gwt_template.client.widget"
              xmlns:issue="urn:import:cn.mapway.gwt_template.client.workspace.issue">

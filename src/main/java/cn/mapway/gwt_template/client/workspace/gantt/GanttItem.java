@@ -36,6 +36,7 @@ public class GanttItem extends BaseNode {
     List<GanttItem> children;
     int level = 0;
     HTMLImageElement avatar = null;
+    HTMLImageElement createAvatar  = null;
     GanttItemHoverPosition hoverPosition = GanttItemHoverPosition.GHIP_NONE;
     boolean selected = false;
     DevTaskKind kind;
@@ -119,9 +120,6 @@ public class GanttItem extends BaseNode {
         double indentStep = 20; // 每级缩进宽度
         double currentIndent = treeBaseX + (level * indentStep);
 
-        // 1. 绘制 Code (保持不变)
-        ctx.fillText(document.formatTaskCode(entity.getCode()), codeX, y + h / 2, codeWidth);
-
         // 2. 绘制展开箭头 (将 currentIndent 作为箭头的中心或左侧固定位置)
         if (!children.isEmpty()) {
             // 这里传入 currentIndent
@@ -129,7 +127,7 @@ public class GanttItem extends BaseNode {
         }
 
         // 3. 绘制任务类型图标 (它的起始位置必须也是 currentIndent + 固定偏移)
-        double iconX = currentIndent + 18; // 这里的 20 是给箭头留出的固定槽位宽度
+        double iconX = currentIndent + 18; // 这里的 18 是给箭头留出的固定槽位宽度
 
         // 2. 绘制 Code (最左侧)
         ctx.textAlign = "left";
@@ -148,12 +146,28 @@ public class GanttItem extends BaseNode {
         ctx.textAlign = "left";
         ctx.fillText(kind.getUnicode(), iconX+2, y + h / 2);
 
+        //绘制创建者头像
+        double createUserIconX = currentIndent;
+        if (createAvatar!=null && createAvatar.complete)
+        {
+            createUserIconX += h+4;
+            double finalCreateUserIconX = createUserIconX;
+            withContext(ctx, () -> {
+                double avatarSize = h - 20;
+                double avatarY = y + 10;
+                ctx.beginPath();
+                ctx.arc(finalCreateUserIconX + avatarSize / 2, avatarY + avatarSize / 2, avatarSize / 2, 0, Math.PI * 2);
+                ctx.clip();
+                ctx.drawImage(createAvatar, finalCreateUserIconX, avatarY, avatarSize, avatarSize);
+            });
+        }
+
         // 5. 绘制名称 (Name)
-        double nameX = iconX + 26; // 图标右侧 26px
+        double nameX = createUserIconX + 30; // 图标右侧 26px
         ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("#333");
         ctx.setFont(selected ? BOLD_NORMAL_FONT : NORMAL_FONT);
 
-        // 头像位置：可以放在名称之后，或者靠面板最右侧
+        // 头像位置：靠面板最右侧
         double avatarSize = h - 10;
         double avatarX = panelWidth - avatarSize - 10;
 

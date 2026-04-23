@@ -101,6 +101,32 @@ public class GanttDocument {
 
     }
 
+    public void populateCreator(GanttItem item) {
+        String url = AppResource.INSTANCE.noData().getSafeUri().asString();
+        if (!StringUtil.isBlank(item.getEntity().getCreateAvatar())) {
+            url = item.getEntity().getCreateAvatar();
+        }
+        if (StringUtil.isBlank(url)) {
+            url = AppResource.INSTANCE.emptyAvatar().getSafeUri().asString();
+        }
+
+        // 简单的缓存判断
+        if (item.getCreateAvatar() != null && url.equals(item.getCreateAvatar().src)) {
+            return;
+        }
+        HTMLImageElement img = avatars.get(url);
+        if (img == null) {
+            img = (HTMLImageElement) DomGlobal.document.createElement("img");
+            avatars.put(url, img);
+            img.src = url;
+            img.onload = (e) -> {
+                chart.redraw();
+                return null;
+            };
+        }
+        item.setCreateAvatar(img);
+    }
+
     // 将日期转换为相对于左侧面板边缘的像素偏移
     public double getXByDate(double dateMillis) {
         return (dateMillis - startTimeMillis) / (double) MS_PER_DAY * dayWidth;
@@ -219,6 +245,7 @@ public class GanttDocument {
             // 我们统一在 buildTree 的最后通过 rebuildFlatItems 处理。
             //flatItems.add(item);
             populateCharge(item);
+            populateCreator(item);
             recursiveBuild(item, task.getChildren());
         }
     }
@@ -519,6 +546,7 @@ public class GanttDocument {
         // 3. 注册到全局索引
         items.put(entity.getId(), newItem);
         populateCharge(newItem); // 记得拉取头像
+        populateCreator(newItem);
 
         // 4. 更新 flatItems (最简单的方式是增量添加或局部重排，这里暂时沿用重排逻辑但保留状态)
         rebuildFlatList();
@@ -634,6 +662,7 @@ public class GanttDocument {
         copyData(taskEntity, item.getEntity());
         item.setEntity(item.getEntity());
         populateCharge(item);
+        populateCreator(item);
     }
 
     private void copyData(DevProjectTaskEntity updatedTask, DevProjectTaskEntity entity) {
