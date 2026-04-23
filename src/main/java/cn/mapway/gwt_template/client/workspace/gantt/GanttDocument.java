@@ -422,6 +422,7 @@ public class GanttDocument {
         temp.setProjectId(oldEntity.getProjectId());
         UpdateProjectTaskRequest req = new UpdateProjectTaskRequest();
         req.setProjectTask(temp);
+        req.setSyncTime(true);
         AppProxy.get().updateProjectTask(req, new AsyncCallback<RpcResult<UpdateProjectTaskResponse>>() {
             @Override
             public void onFailure(Throwable caught) {
@@ -432,7 +433,12 @@ public class GanttDocument {
 
             @Override
             public void onSuccess(RpcResult<UpdateProjectTaskResponse> result) {
-                if (result.isSuccess()) {
+                if (result.isSuccess() && result.getData().getUpdatedTasks() != null) {
+                    //时间修改后 变更了父节点的时间 所以需要更新父节点的信息
+                    DomGlobal.console.log("updated tasks count: " + result.getData().getUpdatedTasks().size());
+                    for (DevProjectTaskEntity task : result.getData().getUpdatedTasks()) {
+                        updateEntity(task);
+                    }
 
                 } else {
                     oldEntity.setStartTime(new Timestamp((long) oldStart));
@@ -671,6 +677,8 @@ public class GanttDocument {
         entity.setChargeUserName(updatedTask.getChargeUserName());
         entity.setChargeAvatar(updatedTask.getChargeAvatar());
         entity.setKind(updatedTask.getKind());
+        entity.setStartTime(updatedTask.getStartTime());
+        entity.setEstimateTime(updatedTask.getEstimateTime());
         entity.setSummary(updatedTask.getSummary());
     }
 
@@ -787,6 +795,7 @@ public class GanttDocument {
         temp.setInitExpand(entity.getInitExpand());
         UpdateProjectTaskRequest request = new UpdateProjectTaskRequest();
         request.setProjectTask(temp);
+        request.setSyncTime(false);
         AppProxy.get().updateProjectTask(request, new AsyncAdaptor<RpcResult<UpdateProjectTaskResponse>>() {
             @Override
             public void onData(RpcResult<UpdateProjectTaskResponse> result) {

@@ -15,6 +15,8 @@ import cn.mapway.gwt_template.shared.rpc.project.module.DevTaskStatus;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
 import lombok.extern.slf4j.Slf4j;
 import org.nutz.dao.Dao;
+import org.nutz.dao.Sqls;
+import org.nutz.dao.sql.Sql;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
@@ -23,7 +25,8 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.sql.Timestamp;
-import java.util.Calendar;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * UpdateProjectTaskExecutor
@@ -45,13 +48,15 @@ public class UpdateProjectTaskExecutor extends AbstractBizExecutor<UpdateProject
         LoginUser user = (LoginUser) context.get(AppConstant.KEY_LOGIN_USER);
         Long currentUserId = user.getUser().getUserId();
         DevProjectTaskEntity task = request.getProjectTask();
-
+        //是否需要更新父节点的时间 因为需要递归 所以设置这个参数
+        boolean needUpdateTime= request.getSyncTime() != null && request.getSyncTime();
         // 1. 基础校验
         assertNotNull(task, "任务对象不能为空");
         assertTrue(Strings.isNotBlank(task.getProjectId()), "必须指定所属项目ID");
 
         DevProjectEntity project = dao.fetch(DevProjectEntity.class, task.getProjectId());
         assertNotNull(project, "没有项目信息");
+
 
         // 2. 权限准入 (数据权限校验)
         // 只有项目成员才能创建或修改该项目的任务
@@ -93,7 +98,7 @@ public class UpdateProjectTaskExecutor extends AbstractBizExecutor<UpdateProject
         }
 
 
-
+        final List<DevProjectTaskEntity> updatedTasks=new ArrayList<>();
         // 3. 执行核心事务
         Trans.exec(() -> {
             if (isNew) {
@@ -103,53 +108,37 @@ public class UpdateProjectTaskExecutor extends AbstractBizExecutor<UpdateProject
                 task.setCode(nextCode);
                 task.setRank(projectService.getNextRank(task.getProjectId(),task.getCatalog()));
                 // ----------------------
-                task.setCreateTime(new Timestamp(System.currentTimeMillis()));
                 task.setCreateUserId(currentUserId);
 
+                Timestamp now = new Timestamp(System.currentTimeMillis());
+                task.setCreateTime(now);
+
                 DevTaskKind kind = DevTaskKind.fromCode(task.getKind());
-                if (kind == DevTaskKind.DTK_MILESTONE) {
-                    // 获取一个日历实例
-                    Calendar cal = Calendar.getInstance();
-
-                    // 如果任务原本没有开始时间，则以当前时间为准
-                    if (task.getStartTime() == null) {
-                        cal.setTimeInMillis(System.currentTimeMillis());
-                    } else {
-                        cal.setTime(task.getStartTime());
-                    }
-
-                    // 1. 设置开始时间为当天的 00:00:00
-                    cal.set(Calendar.HOUR_OF_DAY, 0);
-                    cal.set(Calendar.MINUTE, 0);
-                    cal.set(Calendar.SECOND, 0);
-                    cal.set(Calendar.MILLISECOND, 0);
-                    task.setStartTime(new Timestamp(cal.getTimeInMillis()));
-
-                    // 2. 设置结束时间为当天的 23:59:59
-                    cal.set(Calendar.HOUR_OF_DAY, 23);
-                    cal.set(Calendar.MINUTE, 59);
-                    cal.set(Calendar.SECOND, 0);
-                    cal.set(Calendar.MILLISECOND, 0);
-                    task.setEstimateTime(new Timestamp(cal.getTimeInMillis()));
-
-                } else {
-                    // 如果没有设置开始时间，默认为当前
-                    if (task.getStartTime() == null) {
-                        task.setStartTime(task.getCreateTime());
-                    }
-                    // 如果没有预估时间，默认当前+3天
+                if (kind != DevTaskKind.DTK_MILESTONE) {
+                    if (task.getStartTime() == null) task.setStartTime(now);
                     if (task.getEstimateTime() == null) {
-                        task.setEstimateTime(new Timestamp(System.currentTimeMillis() + 3 * 24 * 3600 * 1000L));
+                        task.setEstimateTime(new Timestamp(task.getStartTime().getTime() + AppConstant.DEFAULT_TASK_DURATION));
                     }
                 }
+                else {
+                    task.setStartTime(now);
+                    task.setEstimateTime(new Timestamp(now.getTime()+AppConstant.ONE_DAY_DURATION));
+                }
+
 
                 dao.insert(task);
                 projectService.recordAction(task.getProjectId(), currentUserId, "CREATE_TASK",
                         "创建[" + DevTaskKind.fromCode(task.getKind()).getName() + "]: " + task.getName(), task);
+
+                //需要更新他的所有父节点的时间段
+                if(needUpdateTime) {
+                    List<DevProjectTaskEntity> tasks = updateParentTimespan(task.getParentId());
+                    updatedTasks.addAll(tasks);
+                }
+
             } else {
                 DevProjectTaskEntity dbTask = dao.fetch(DevProjectTaskEntity.class, task.getId());
                 assertNotNull(dbTask, "任务不存在或已被删除");
-
 
                 boolean isCreator = projectService.isCreatorOfProject(currentUserId, dbTask.getProjectId());
                 boolean isCharger = currentUserId.equals(dbTask.getCharger());
@@ -184,6 +173,11 @@ public class UpdateProjectTaskExecutor extends AbstractBizExecutor<UpdateProject
                 task.setCode(null);
 
                 dao.updateIgnoreNull(task);
+                //需要更新他的所有父节点的时间段
+                if(needUpdateTime) {
+                    List<DevProjectTaskEntity> tasks = updateParentTimespan(dbTask.getParentId());
+                    updatedTasks.addAll(tasks);
+                }
                 projectService.recordAction(dbTask.getProjectId(), currentUserId, "UPDATE_TASK",
                         "更新任务信息: " + dbTask.getName(), task);
             }
@@ -193,8 +187,69 @@ public class UpdateProjectTaskExecutor extends AbstractBizExecutor<UpdateProject
         DevProjectTaskEntity finalTask = dao.fetch(DevProjectTaskEntity.class, task.getId());
         UpdateProjectTaskResponse response = new UpdateProjectTaskResponse();
         projectService.fillTaskUserInfo(Lang.list(finalTask));
+        response.setUpdatedTasks(updatedTasks);
         response.setProjectTask(finalTask);
         return BizResult.success(response);
 
+    }
+
+    /**
+     * 递归更新父节点的时间段
+     * 逻辑：父节点的开始时间 = min(所有子节点开始时间)
+     * 父节点的结束时间 = max(所有子节点结束时间)
+     * @param parentId 父节点ID
+     * @return 被更新过的任务列表
+     */
+    private List<DevProjectTaskEntity> updateParentTimespan(String parentId) {
+        List<DevProjectTaskEntity> updatedTasks = new ArrayList<>();
+        if (Strings.isBlank(parentId)) {
+            return updatedTasks;
+        }
+
+        // 1. 获取当前父节点
+        DevProjectTaskEntity parent = dao.fetch(DevProjectTaskEntity.class, parentId);
+        if (parent == null) {
+            return updatedTasks;
+        }
+
+        // 2. 查询该父节点下所有子节点的时间极值
+        // 使用 Sql 对象直接聚合查询效率更高
+        Sql sql = Sqls.create("SELECT MIN(start_time) as min_start, MAX(estimate_time) as max_end " +
+                "FROM dev_project_task WHERE parent_id = @pid");
+        sql.params().set("pid", parentId);
+        sql.setCallback(Sqls.callback.record());
+        dao.execute(sql);
+
+        org.nutz.dao.entity.Record record = sql.getObject(org.nutz.dao.entity.Record.class);
+        Timestamp minStart = record.getTimestamp("min_start");
+        Timestamp maxEnd = record.getTimestamp("max_end");
+
+        if (minStart == null || maxEnd == null) {
+            return updatedTasks;
+        }
+
+        // 3. 检查是否有变动，如果有变动则更新并继续向上递归
+        boolean changed = false;
+        if (parent.getStartTime() == null || !parent.getStartTime().equals(minStart)) {
+            parent.setStartTime(minStart);
+            changed = true;
+        }
+        if (parent.getEstimateTime() == null || !parent.getEstimateTime().equals(maxEnd)) {
+            parent.setEstimateTime(maxEnd);
+            changed = true;
+        }
+
+        if (changed) {
+            dao.updateIgnoreNull(parent);
+            updatedTasks.add(parent);
+            // 关键：递归向上更新更高级别的父节点
+            if (updatedTasks.size() > 10) { // 假设项目层级不会超过50层
+                log.error("Task hierarchy too deep or circular reference detected for parent: {}", parentId);
+                return updatedTasks;
+            }
+            updatedTasks.addAll(updateParentTimespan(parent.getParentId()));
+        }
+
+        return updatedTasks;
     }
 }
