@@ -249,28 +249,53 @@ public class GanttItem extends BaseNode {
             } else if (isContainer) {
                 drawContainerBar(ctx, startX, y, barWidth, barH);
             } else {
-                // --- 自动加深边框逻辑实现 ---
 
-                // A. 填充主背景色
                 ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of(baseColor);
                 drawRoundedRect(ctx, startX, y, barWidth, barH, 4);
                 ctx.fill();
 
-                // B. 绘制进度层 (使用自动加深蒙层)
+                // B. 绘制进度填充
                 if (kind.hasProgress() && entity.getStatus() != null) {
-                    double progress = entity.getStatus() / 100.0;
-                    // 叠加一层 15% 透明度的黑色，自动形成该色系下的深色进度条
-                    ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("rgba(0,0,0,0.15)");
-                    drawRoundedRect(ctx, startX, y, barWidth * progress, barH, 4);
-                    ctx.fill();
+                    // 限制进度在 0-100 之间
+                    double progressVal = Math.max(0, Math.min(100, entity.getProgress()));
+                    double progressRatio = progressVal / 100.0;
+                    double progressWidth = barWidth * progressRatio;
+
+                    if (progressWidth > 0) {
+                        // 使用稍深的颜色作为填充
+                        ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("rgba(0,0,0,0.4)");
+                        // 进度条也要考虑圆角，如果是中间切断，右侧不给圆角会更自然
+                        // 这里简单处理，依然使用 drawRoundedRect
+                        drawRoundedRect(ctx, startX, y, progressWidth, barH, 4);
+                        ctx.fill();
+
+                        // 关键视觉点：在进度条末尾画一条细细的白线或高亮线，模拟“进度头”
+                        if (progressRatio < 1.0 && progressWidth > 2) {
+                            ctx.strokeStyle = BaseRenderingContext2D.StrokeStyleUnionType.of("rgba(255,255,255,0.6)");
+                            ctx.lineWidth = 1.0;
+                            ctx.beginPath();
+                            ctx.moveTo(startX + progressWidth, y);
+                            ctx.lineTo(startX + progressWidth, y + barH);
+                            ctx.stroke();
+                        }
+                    }
                 }
 
-                // C. 绘制自动生成的深色边框 (Darken Border)
-                // 通过叠加 20% 透明度的黑色边框，使其看起来比背景色深一个色阶
-                ctx.strokeStyle = BaseRenderingContext2D.StrokeStyleUnionType.of("rgba(0,0,0,0.2)");
+                // C. 绘制整体边框 (Darken Border)
+                ctx.strokeStyle = BaseRenderingContext2D.StrokeStyleUnionType.of("rgba(0,0,0,0.1)");
                 ctx.lineWidth = 1;
                 drawRoundedRect(ctx, startX, y, barWidth, barH, 4);
                 ctx.stroke();
+
+                // D. 绘制进度文字百分比 (如果宽度足够)
+                if (barWidth > 120 && entity.getStatus() != null) {
+                    ctx.save();
+                    ctx.textAlign = "right";
+                    ctx.font = "10px sans-serif";
+                    ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("rgba(255,255,255,0.7)");
+                    ctx.fillText(entity.getProgress() + "%", startX + barWidth - 8, y + barH / 2);
+                    ctx.restore();
+                }
             }
 
             // 3. 交互反馈：Hover 状态下增加“光泽感”
@@ -404,10 +429,13 @@ public class GanttItem extends BaseNode {
         ctx.closePath();
         ctx.fill();
 
-        // 3. 绘制顶部的厚边框
-        //ctx.fillRect(x, y + h - bracketHeight - 2, w, 3);
-
-        // 恢复状态（关键：防止阴影影响到后续绘制的文字或其他元素）
+        // 绘制汇总进度（通常是一条 2px-3px 的深色细线）
+        if (entity.getProgress() != null && entity.getProgress() > 0) {
+            double pWidth = w * (entity.getProgress() / 100.0);
+            ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("#333333");
+            // 画在支架顶部的窄条
+            ctx.fillRect(x, y + h - 10, pWidth, 2);
+        }
         ctx.restore();
     }
 

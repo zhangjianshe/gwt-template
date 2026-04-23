@@ -42,6 +42,7 @@ public class DevProjectTaskEntity implements Serializable, IsSerializable {
     public static final String FLD_CODE = "code";
     public static final String FLD_RANK = "rank";
     public static final String FLD_INIT_EXPAND = "init_expand";
+    public static final String FLD_PROGRESS = "progress";
     public static final String FLD_CATALOG = "catalog";
 
     @Name
@@ -136,6 +137,12 @@ public class DevProjectTaskEntity implements Serializable, IsSerializable {
     @ColDefine(notNull = true)
     @Default("0")
     Integer catalog;
+
+    @Column(FLD_PROGRESS)
+    @Comment("任务的进度(0-100)")
+    @ColDefine(notNull = true)
+    @Default("0")
+    Integer progress;
 
 
     String chargeUserName;
