@@ -1,11 +1,13 @@
 package cn.mapway.gwt_template.client.repository.basic;
 
 import cn.mapway.gwt_template.client.rpc.AppProxy;
+import cn.mapway.gwt_template.client.user.ClientWebSocket;
 import cn.mapway.gwt_template.client.user.GitNotifyMessage;
 import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.rpc.repository.ImportRepoRequest;
 import cn.mapway.gwt_template.shared.rpc.repository.ImportRepoResponse;
 import cn.mapway.ui.client.mvc.Size;
+import cn.mapway.ui.client.tools.JSON;
 import cn.mapway.ui.client.util.StringUtil;
 import cn.mapway.ui.client.widget.AiTextBox;
 import cn.mapway.ui.client.widget.CommonEventComposite;
@@ -19,6 +21,7 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
+import elemental2.dom.DomGlobal;
 import jsinterop.base.Js;
 
 import java.util.Objects;
@@ -39,6 +42,7 @@ public class CreateAndImportPanel extends CommonEventComposite {
     AiTextBox txtToken;
     @UiField
     AiTextBox txtNewRepoName;
+    String sessionId = "";
 
     public CreateAndImportPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -46,6 +50,7 @@ public class CreateAndImportPanel extends CommonEventComposite {
             String name = StringUtil.extractBaseName(txtUrl.getValue());
             txtNewRepoName.setValue(name);
         });
+
     }
 
     public static Dialog<CreateAndImportPanel> getDialog(boolean reuse) {
@@ -79,12 +84,14 @@ public class CreateAndImportPanel extends CommonEventComposite {
     }
 
     private void doImport() {
-        registerBusEvent(AppConstant.TOPIC_GIT_IMPORT);
+
         ImportRepoRequest request = new ImportRepoRequest();
         request.setRepositoryId("");
         request.setRepoUrl(txtUrl.getValue());
         request.setUser(txtAuthorize.getValue());
         request.setTokenOrPassword(txtToken.getValue());
+        request.setSessionId(StringUtil.randomString(8));
+        sessionId = request.getSessionId();
         request.setNewRepositoryName(txtNewRepoName.getValue());
         saveBar.setEnableSave(false);
         AppProxy.get().importRepo(request, new AsyncCallback<RpcResult<ImportRepoResponse>>() {
@@ -107,18 +114,28 @@ public class CreateAndImportPanel extends CommonEventComposite {
     }
 
     @Override
+    protected void onLoad() {
+        super.onLoad();
+        ClientWebSocket.get().connectToServer();
+        registerBusEvent(AppConstant.TOPIC_GIT_IMPORT);
+    }
+
+    @Override
     public void onEvent(String topic, int type, Object event) {
         if (Objects.equals(topic, AppConstant.TOPIC_GIT_IMPORT)) {
             GitNotifyMessage info = Js.uncheckedCast(event);
-            if (info.phase.equals(AppConstant.MESSAGE_PHASE_IMPORT)) {
-                if (info.type.equals(AppConstant.MESSAGE_TYPE_SUCCESS)) {
-                    saveBar.setEnableSave(true);
-                    saveBar.message("导入完成");
-                    fireEvent(CommonEvent.okEvent(null));
-                } else if (info.type.equals(AppConstant.MESSAGE_TYPE_ERROR)) {
-                    saveBar.message(info.message);
-                } else if (info.type.equals(AppConstant.MESSAGE_TYPE_PROGRESS)) {
-                    saveBar.message("目前进度" + info.progress + "%" + " " + info.message);
+            DomGlobal.console.log(JSON.stringify(event));
+            if (info.repositoryId != null && info.repositoryId.equals(sessionId)) {
+                if (info.phase.equals(AppConstant.MESSAGE_PHASE_IMPORT)) {
+                    if (info.type.equals(AppConstant.MESSAGE_TYPE_SUCCESS)) {
+                        saveBar.setEnableSave(true);
+                        saveBar.message("导入完成");
+                        fireEvent(CommonEvent.okEvent(null));
+                    } else if (info.type.equals(AppConstant.MESSAGE_TYPE_ERROR)) {
+                        saveBar.message(info.message);
+                    } else if (info.type.equals(AppConstant.MESSAGE_TYPE_PROGRESS)) {
+                        saveBar.message("目前进度" + info.progress + "%" + " " + info.message);
+                    }
                 }
             }
         }

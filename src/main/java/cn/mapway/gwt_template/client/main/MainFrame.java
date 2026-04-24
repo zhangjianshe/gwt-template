@@ -1,6 +1,7 @@
 package cn.mapway.gwt_template.client.main;
 
 import cn.mapway.gwt_template.client.ClientContext;
+import cn.mapway.gwt_template.client.user.ClientWebSocket;
 import cn.mapway.ui.client.fonts.Fonts;
 import cn.mapway.ui.client.mvc.*;
 import cn.mapway.ui.shared.CommonEvent;
@@ -47,6 +48,7 @@ public class MainFrame extends BaseAbstractModule implements RequiresResize, IMo
     public boolean initialize(IModule parentModule, ModuleParameter parameter) {
         boolean b = super.initialize(parentModule, parameter);
         menuBar.reload();
+        ClientWebSocket.get().connectToServer();
         return b;
     }
 

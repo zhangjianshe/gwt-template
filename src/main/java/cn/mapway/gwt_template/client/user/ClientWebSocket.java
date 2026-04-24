@@ -113,11 +113,11 @@ public class ClientWebSocket {
         try {
             // 假设 CommonMessage 是一个 JsType 或者 Overlay 类型
             CommonMessage<?> message = Js.uncheckedCast(JSON.parse(data));
-
             if (message != null && StringUtil.isNotBlank(message.getTopic())) {
                 // DataBus 分发消息：Topic 为 key，Data 为 Payload
                 DataBus.get().fire(message.getTopic(), 0, message.getData());
             }
+
         } catch (Exception e) {
             DomGlobal.console.error("解析 WebSocket 消息失败: " + data, e);
         }

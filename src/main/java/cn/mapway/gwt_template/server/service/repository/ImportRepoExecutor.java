@@ -68,13 +68,13 @@ public class ImportRepoExecutor extends AbstractBizExecutor<ImportRepoResponse, 
         if (!RepositoryStatus.PS_INIT.getCode().equals(project.getStatus())) {
             return BizResult.error(500, "项目状态目前不允许导入仓库");
         }
-        DevRepositoryEntity temp = new DevRepositoryEntity();
-        temp.setId(project.getId());
-
 
         // Start the import in the background
-        gitRepoService.importRepo(project, request);
-
+        BizResult<ImportRepoResponse> bizResult = gitRepoService.importRepo(project, request);
+        if (bizResult.isFailed())
+        {
+            return bizResult.asBizResult();
+        }
         ImportRepoResponse importRepoResponse = new ImportRepoResponse();
         importRepoResponse.setMessage("开始导入");
         return BizResult.success(importRepoResponse);

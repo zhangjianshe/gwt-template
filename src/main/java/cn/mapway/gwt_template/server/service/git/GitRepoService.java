@@ -248,7 +248,7 @@ public class GitRepoService {
     /**
      * 获取文件内容
      */
-    public BizResult<String> getFileContent(String owner, String repoName, String path,String refName) {
+    public BizResult<String> getFileContent(String owner, String repoName, String path, String refName) {
 
         String finalRepoName = repoName.endsWith(".git") ? repoName : repoName + ".git";
         File repoDir = new File(appConfig.getRepoRoot(), owner + "/" + finalRepoName);
@@ -287,7 +287,7 @@ public class GitRepoService {
         }
     }
 
-    public void writeFileContentToStream(String owner, String repoName, String path,String ref, OutputStream out) {
+    public void writeFileContentToStream(String owner, String repoName, String path, String ref, OutputStream out) {
         String finalRepoName = repoName.endsWith(".git") ? repoName : repoName + ".git";
         File repoDir = new File(appConfig.getRepoRoot(), owner + "/" + finalRepoName);
 
@@ -457,7 +457,7 @@ public class GitRepoService {
         // 状态更新为：正在导入
         updateProjectStatus(project.getId(), RepositoryStatus.PS_IMPORTING, "正在连接远端仓库...");
         sendSocketNotify(project.getUserId(), AppConstant.MESSAGE_PHASE_IMPORT, AppConstant.MESSAGE_TYPE_START,
-                project.getId(), 0, "正在导入");
+                request.getSessionId(), 0, "正在导入");
         // 如果目录已存在（之前的失败残留），先清理
         if (repoDir.exists()) {
             FileSystemUtils.deleteRecursively(repoDir);
@@ -504,7 +504,7 @@ public class GitRepoService {
                         sendSocketNotify(project.getUserId(),
                                 AppConstant.MESSAGE_PHASE_IMPORT,
                                 AppConstant.MESSAGE_TYPE_PROGRESS,
-                                project.getId(),
+                                request.getSessionId(),
                                 percent,
                                 currentTask + ": " + percent + "%");
                     }
@@ -513,6 +513,12 @@ public class GitRepoService {
                 @Override
                 public void endTask() {
                     // Task finished, wait for next beginTask or final completion
+                    sendSocketNotify(project.getUserId(),
+                            AppConstant.MESSAGE_PHASE_IMPORT,
+                            AppConstant.MESSAGE_TYPE_END,
+                            request.getSessionId(),
+                            100,
+                            currentTask + "导入完毕");
                 }
 
                 @Override
@@ -530,7 +536,7 @@ public class GitRepoService {
                 log.info("[GIT-IMPORT] Project {} imported successfully", repoName);
                 updateProjectStatus(project.getId(), RepositoryStatus.PS_NORMAL, "导入完成");
                 sendSocketNotify(project.getUserId(), AppConstant.MESSAGE_PHASE_IMPORT,
-                        AppConstant.MESSAGE_TYPE_SUCCESS, project.getId(), 100, "导入完成");
+                        AppConstant.MESSAGE_TYPE_SUCCESS, request.getSessionId(), 100, "导入完成");
                 return BizResult.success(new ImportRepoResponse());
             }
         } catch (Exception e) {
@@ -542,7 +548,7 @@ public class GitRepoService {
             FileSystemUtils.deleteRecursively(repoDir);
             //TODO 改成当前登录用户
             sendSocketNotify(project.getUserId(), AppConstant.MESSAGE_PHASE_IMPORT,
-                    AppConstant.MESSAGE_TYPE_ERROR, project.getId(), 0, "导入失败: " + e.getMessage());
+                    AppConstant.MESSAGE_TYPE_ERROR, request.getSessionId(), 0, "导入失败: " + e.getMessage());
             return BizResult.error(500, "导入失败: " + e.getMessage());
         }
     }
@@ -566,12 +572,15 @@ public class GitRepoService {
     private void sendSocketNotify(Long userId, String phase, String type, String projectId, Integer progress, String msg) {
         CommonMessage<GitNotifyMessage> message = new CommonMessage<>();
         message.topic = AppConstant.TOPIC_GIT_IMPORT;
+
         GitNotifyMessage notify = new GitNotifyMessage();
         notify.phase = phase;
         notify.type = type;
         notify.repositoryId = projectId;
         notify.progress = progress.doubleValue();
         notify.message = msg;
-        GitNotifyWebSocket.sendMessage(userId, org.nutz.json.Json.toJson(notify));
+        message.data = notify;
+
+        GitNotifyWebSocket.sendMessage(userId, org.nutz.json.Json.toJson(message));
     }
 }

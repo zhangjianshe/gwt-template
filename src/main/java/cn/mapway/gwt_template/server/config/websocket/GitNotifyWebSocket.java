@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import javax.websocket.OnClose;
+import javax.websocket.OnError;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.PathParam;
@@ -21,20 +22,25 @@ public class GitNotifyWebSocket {
 
     public static void sendMessage(Long userId, String jsonMessage) {
         java.util.Set<Session> sessions = userSessions.get(userId);
-        if (sessions != null) {
-            for (Session s : sessions) {
-                if (s.isOpen()) {
-                    try {
-                        // Use synchronized to prevent overlapping writes to the same session
-                        synchronized (s) {
-                            s.getBasicRemote().sendText(jsonMessage);
-                        }
-                    } catch (IOException e) {
-                        log.error("Failed to send message to one of user {}'s clients", userId, e);
+        if (sessions == null || sessions.isEmpty()) {
+            log.info("User {} is offline, message not sent.", userId);
+            return;
+        }
+
+        int successCount = 0;
+        for (Session s : sessions) {
+            if (s.isOpen()) {
+                try {
+                    synchronized (s) {
+                        s.getBasicRemote().sendText(jsonMessage);
+                        successCount++;
                     }
+                } catch (IOException e) {
+                    log.error("IO Error sending to user {}", userId, e);
                 }
             }
         }
+        //log.info("Sent notification to user {} ({} active sessions)", userId, successCount);
     }
 
     @OnOpen
@@ -57,5 +63,11 @@ public class GitNotifyWebSocket {
             }
         }
         log.info("[SOCKET] User {} closed a client. Total active users: {}", userId, userSessions.size());
+    }
+
+    @OnError
+    public void onError(Session session, Throwable throwable, @PathParam("toUserId") Long userId) {
+        log.error("[SOCKET] Error for user {}: {}", userId, throwable.getMessage());
+        onClose(session, userId);
     }
 }
