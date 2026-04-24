@@ -141,6 +141,16 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
     ///CODE_GEN_INSERT_POINT///
 	
     @Resource
+    TransferRepositoryExecutor transferRepositoryExecutor;
+    @Override
+    public RpcResult<TransferRepositoryResponse> transferRepository(TransferRepositoryRequest request) {
+        BizResult<TransferRepositoryResponse> bizResult = transferRepositoryExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
     QueryUserPermissionInRepoExecutor queryUserPermissionInRepoExecutor;
     @Override
     public RpcResult<QueryUserPermissionInRepoResponse> queryUserPermissionInRepo(QueryUserPermissionInRepoRequest request) {

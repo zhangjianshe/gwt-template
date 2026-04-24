@@ -6,6 +6,7 @@ import cn.mapway.gwt_template.client.rpc.AppProxy;
 import cn.mapway.gwt_template.client.widget.IconButton;
 import cn.mapway.gwt_template.client.workspace.widget.GeneralInfoPanel;
 import cn.mapway.gwt_template.shared.db.VwRepositoryEntity;
+import cn.mapway.gwt_template.shared.rpc.project.module.CommonPermission;
 import cn.mapway.gwt_template.shared.rpc.repository.QueryUserPermissionInRepoRequest;
 import cn.mapway.gwt_template.shared.rpc.repository.QueryUserPermissionInRepoResponse;
 import cn.mapway.ui.client.fonts.Fonts;
@@ -15,6 +16,7 @@ import cn.mapway.ui.client.mvc.ModuleMarker;
 import cn.mapway.ui.client.mvc.ModuleParameter;
 import cn.mapway.ui.client.tools.IData;
 import cn.mapway.ui.client.widget.panel.MessagePanel;
+import cn.mapway.ui.shared.CommonEvent;
 import cn.mapway.ui.shared.CommonEventHandler;
 import cn.mapway.ui.shared.rpc.RpcResult;
 import com.google.gwt.core.client.GWT;
@@ -58,6 +60,14 @@ public class RepositoryView extends BaseAbstractModule implements IData<String> 
     RepositorySettingPanel repositorySettingPanel;
     String repositoryId;
     VwRepositoryEntity vwRepositoryEntity;
+    private final CommonEventHandler repositorySettingPanelHandler = new CommonEventHandler() {
+        @Override
+        public void onCommonEvent(CommonEvent event) {
+            if (event.isReload()) {
+                fireEvent(CommonEvent.reloadEvent(null));
+            }
+        }
+    };
 
 
     public RepositoryView() {
@@ -79,11 +89,13 @@ public class RepositoryView extends BaseAbstractModule implements IData<String> 
         };
         btnCode.addCommonHandler(buttonClickHandler);
         btnSetting.addCommonHandler(buttonClickHandler);
+        toolbar.remove(messagePanel);
     }
 
     private void gotoSetting() {
         if (repositorySettingPanel == null) {
             repositorySettingPanel = new RepositorySettingPanel();
+            repositorySettingPanel.addCommonHandler(repositorySettingPanelHandler);
         }
         content.clear();
         content.add(repositorySettingPanel);
@@ -152,17 +164,19 @@ public class RepositoryView extends BaseAbstractModule implements IData<String> 
     }
 
     private void changeToMessageView() {
-        root.setWidgetVisible(content, false);
-        root.setWidgetVisible(toolbar, false);
-        root.setWidgetVisible(messagePanel, true);
+        if (!messagePanel.isAttached()) {
+            root.add(messagePanel);
+            root.setWidgetTopBottom(messagePanel, 0, Style.Unit.PX, 0, Style.Unit.PX);
+            root.setWidgetLeftRight(messagePanel, 0, Style.Unit.PX, 0, Style.Unit.PX);
+        }
     }
 
     private void toUI() {
-        if (!content.isVisible()) {
-            root.setWidgetVisible(content, true);
-            root.setWidgetVisible(toolbar, true);
-            root.setWidgetVisible(messagePanel, false);
+        if (messagePanel.isAttached()) {
+            root.remove(messagePanel);
         }
+        CommonPermission commonPermission = CommonPermission.from(vwRepositoryEntity.getPermission());
+        btnSetting.setVisible(commonPermission.isSuper());
         btnCode.select();
     }
 

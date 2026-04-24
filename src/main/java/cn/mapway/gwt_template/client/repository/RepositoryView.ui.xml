@@ -18,14 +18,12 @@
                     <widget:IconButton height="50px" ui:field="btnCode"/>
                 </g:HorizontalPanel>
                 <widget:IconButton height="50px" ui:field="btnSetting"/>
+                <panel:MessagePanel  debugId="sadsad" ui:field="messagePanel"/>
             </g:HTMLPanel>
         </g:layer>
         <g:layer left="0" bottom="0" right="0" top="50">
             <g:LayoutPanel ui:field="content">
             </g:LayoutPanel>
-        </g:layer>
-        <g:layer>
-            <panel:MessagePanel ui:field="messagePanel" visible="false"/>
         </g:layer>
     </g:LayoutPanel>
 </ui:UiBinder>

@@ -61,7 +61,7 @@
                 </g:tab>
             </g:TabLayoutPanel>
         </g:layer>
-        <g:layer right="0" top="0" height="50" width="300px">
+        <g:layer right="0" top="0" height="50" width="350px">
             <g:HTMLPanel ui:field="toolbar" addStyleNames="{style.toolbar}"/>
         </g:layer>
     </g:LayoutPanel>

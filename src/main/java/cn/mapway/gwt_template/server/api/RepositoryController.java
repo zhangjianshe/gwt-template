@@ -68,6 +68,22 @@ public class RepositoryController extends ApiBaseController {
 
     @Resource
     ImportRepoExecutor importRepoExecutor;
+
+    @Resource
+    TransferRepositoryExecutor transferRepositoryExecutor;
+    /**
+     * TransferRepository
+     *
+     * @param request request
+     * @return data
+     */
+    @Doc(value = "TransferRepository", retClazz = {TransferRepositoryResponse.class})
+    @RequestMapping(value = "/transferRepository", method = RequestMethod.POST)
+    public RpcResult<TransferRepositoryResponse> transferRepository(@RequestBody TransferRepositoryRequest request) {
+        BizResult<TransferRepositoryResponse> bizResult = transferRepositoryExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toApiResult(bizResult);
+    }
+
     /**
      * ImportRepo
      *

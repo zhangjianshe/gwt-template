@@ -5,7 +5,8 @@ import lombok.Getter;
 
 @Getter
 public enum RepositoryConfigPageEnum {
-    CONFIG_WEBHOOK("WEB钩子", Fonts.OBJECT);
+    CONFIG_WEBHOOK("WEB钩子", Fonts.OBJECT),
+    CONFIG_OPERATION("仓库操作", Fonts.DEVELOPER);
     final String name;
     final String unicode;
 

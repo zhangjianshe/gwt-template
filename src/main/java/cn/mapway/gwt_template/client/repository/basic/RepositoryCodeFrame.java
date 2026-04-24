@@ -87,8 +87,6 @@ public class RepositoryCodeFrame extends CommonEventComposite implements IData<V
     MemberList memberList;
     boolean initialize = false;
     Map<String, AceEditorMode> format = new HashMap<String, AceEditorMode>();
-    ImportRepoPanel importRepoPanel;
-    ImportingPanel importPanel;
     @UiField
     HTML readme;
     @UiField
@@ -297,14 +295,7 @@ public class RepositoryCodeFrame extends CommonEventComposite implements IData<V
      * @param html
      */
     private void showEmptyRepoPanel(String html) {
-        if (importRepoPanel == null) {
-            importRepoPanel = new ImportRepoPanel();
-            importRepoPanel.addCommonHandler(event -> {
-                if (event.isUpdate()) {
-                    reload();
-                }
-            });
-        }
+
         root.setWidgetSize(opBar, 0);
         root.setWidgetSize(infoBar, 0);
         root.setWidgetSize(pathBar, 0);
@@ -313,8 +304,6 @@ public class RepositoryCodeFrame extends CommonEventComposite implements IData<V
         contentPanel.setWidgetLeftRight(messagePanel, 0, Style.Unit.PX, 0, Style.Unit.PX);
         contentPanel.setWidgetTopBottom(messagePanel, 0, Style.Unit.PX, 0, Style.Unit.PX);
         msgContainer.clear();
-        msgContainer.add(importRepoPanel);
-        importRepoPanel.setData(repository);
         HTML html1 = new HTML(html);
         html1.addStyleName("markdown-body");
         msgContainer.add(html1);
@@ -422,17 +411,7 @@ public class RepositoryCodeFrame extends CommonEventComposite implements IData<V
     }
 
     private void showImportingPanel() {
-        if (importPanel == null) {
-            importPanel = new ImportingPanel();
-            importPanel.addCommonHandler(new CommonEventHandler() {
-                @Override
-                public void onCommonEvent(CommonEvent event) {
-                    if (event.isReload()) {
-                        reload();
-                    }
-                }
-            });
-        }
+
         root.setWidgetSize(opBar, 0);
         root.setWidgetSize(infoBar, 0);
         root.setWidgetSize(pathBar, 0);
@@ -441,8 +420,6 @@ public class RepositoryCodeFrame extends CommonEventComposite implements IData<V
         contentPanel.setWidgetLeftRight(messagePanel, 0, Style.Unit.PX, 0, Style.Unit.PX);
         contentPanel.setWidgetTopBottom(messagePanel, 0, Style.Unit.PX, 0, Style.Unit.PX);
         msgContainer.clear();
-        msgContainer.add(importPanel);
-        importPanel.setData(repository);
     }
 
     private void renderPath(String path) {

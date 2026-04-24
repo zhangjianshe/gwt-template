@@ -29,7 +29,7 @@ public class SourceTools {
         String packageBean = "cn.mapway.gwt_template.shared.rpc.repository";
         String packageService = "cn.mapway.gwt_template.server.service.repository";
         ArrayList<String> methods = Lang.list(
-                "queryUserPermissionInRepo"
+                "transferRepository"
         );
         methods.stream().forEach(n -> {
             tools.gen(n, packageBean, packageService);

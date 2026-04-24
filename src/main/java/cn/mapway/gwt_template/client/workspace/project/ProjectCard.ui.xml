@@ -191,8 +191,6 @@
         }
 
         .btn {
-            margin-top: 8px;
-            padding: 4px;
         }
 
     </ui:style>

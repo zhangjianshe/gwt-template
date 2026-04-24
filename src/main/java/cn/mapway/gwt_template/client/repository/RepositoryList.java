@@ -17,8 +17,9 @@ import com.google.gwt.user.client.ui.Label;
  */
 public class RepositoryList extends List {
 
-    public void load() {
+    public void load(String filter) {
         QueryRepositoryRequest request = new QueryRepositoryRequest();
+        request.setNameFilter(filter);
         AppProxy.get().queryRepository(request, new AsyncAdaptor<RpcResult<QueryRepositoryResponse>>() {
             @Override
             public void onData(RpcResult<QueryRepositoryResponse> result) {

@@ -9,6 +9,7 @@ import cn.mapway.ui.client.frame.SubsystemModule;
 import cn.mapway.ui.client.mvc.IModule;
 import cn.mapway.ui.client.mvc.ModuleMarker;
 import cn.mapway.ui.client.mvc.ModuleParameter;
+import cn.mapway.ui.client.widget.SearchBox;
 import cn.mapway.ui.client.widget.buttons.AiButton;
 import cn.mapway.ui.client.widget.dialog.Dialog;
 import cn.mapway.ui.client.widget.list.ListItem;
@@ -16,11 +17,12 @@ import cn.mapway.ui.shared.CommonEvent;
 import cn.mapway.ui.shared.CommonEventHandler;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.ui.LayoutPanel;
-import com.google.gwt.user.client.ui.SimplePanel;
 
 @ModuleMarker(
         name = "开发仓库",
@@ -41,19 +43,25 @@ public class RepositoryFrame extends SubsystemModule {
     @UiField
     AiButton btnImport;
     @UiField
-    SimplePanel messagePanel;
-    @UiField
     LayoutPanel root;
+    @UiField
+    SearchBox searchBox;
     VwRepositoryEntity currentRepository = null;
 
     public RepositoryFrame() {
         initWidget(ourUiBinder.createAndBindUi(this));
+        searchBox.addValueChangeHandler(new ValueChangeHandler<String>() {
+            @Override
+            public void onValueChange(ValueChangeEvent<String> event) {
+                repositoryList.load(searchBox.getValue());
+            }
+        });
     }
 
     @Override
     public boolean initialize(IModule parentModule, ModuleParameter parameter) {
         boolean b = super.initialize(parentModule, parameter);
-        repositoryList.load();
+        repositoryList.load("");
         return b;
     }
 
@@ -97,6 +105,8 @@ public class RepositoryFrame extends SubsystemModule {
         if (event.isUpdate()) {
             VwRepositoryEntity repository = event.getValue();
             repositoryList.updateRepository(repository);
+        } else if (event.isReload()) {
+            repositoryList.load("");
         }
     }
 
@@ -108,7 +118,7 @@ public class RepositoryFrame extends SubsystemModule {
             public void onCommonEvent(CommonEvent event) {
                 if (event.isOk()) {
                     dialog.hide();
-                    repositoryList.load();
+                    repositoryList.load("");
                 }
                 if (event.isClose()) {
                     dialog.hide();
@@ -125,7 +135,7 @@ public class RepositoryFrame extends SubsystemModule {
         dialog.addCommonHandler(event -> {
             if (event.isOk()) {
                 dialog.hide();
-                repositoryList.load();
+                repositoryList.load("");
                 repositoryPanel.setData(event.getValue());
             } else if (event.isClose()) {
                 dialog.hide();

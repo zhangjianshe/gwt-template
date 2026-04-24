@@ -4,6 +4,7 @@ import cn.mapway.gwt_template.client.ClientContext;
 import cn.mapway.gwt_template.client.rpc.AppProxy;
 import cn.mapway.gwt_template.shared.db.VwRepositoryEntity;
 import cn.mapway.gwt_template.shared.db.WebHookEntity;
+import cn.mapway.gwt_template.shared.rpc.project.module.CommonPermission;
 import cn.mapway.gwt_template.shared.rpc.webhook.*;
 import cn.mapway.ui.client.tools.IData;
 import cn.mapway.ui.client.widget.CommonEventComposite;
@@ -55,22 +56,7 @@ public class WebHookConfigPanel extends CommonEventComposite implements IData<Vw
         dialog.addCommonHandler(event -> dialog.hide());
         dialog.getContent().setData(hook.getId());
         dialog.center();
-    }    private final CommonEventHandler hookItemHandler = new CommonEventHandler() {
-        @Override
-        public void onCommonEvent(CommonEvent event) {
-            if (event.isEdit()) {
-
-                WebHookEntity hook = event.getValue();
-                editHook(hook);
-            } else if (event.isDelete()) {
-                WebHookEntity hook = event.getValue();
-                confirmDelete(hook);
-            } else if (event.isSelect()) {
-                WebHookEntity hook = event.getValue();
-                showInstance(hook);
-            }
-        }
-    };
+    }
 
     private void doDelete(WebHookEntity hook) {
         DeleteWebHookRequest request = new DeleteWebHookRequest();
@@ -90,7 +76,22 @@ public class WebHookConfigPanel extends CommonEventComposite implements IData<Vw
                 }
             }
         });
-    }
+    }    private final CommonEventHandler hookItemHandler = new CommonEventHandler() {
+        @Override
+        public void onCommonEvent(CommonEvent event) {
+            if (event.isEdit()) {
+
+                WebHookEntity hook = event.getValue();
+                editHook(hook);
+            } else if (event.isDelete()) {
+                WebHookEntity hook = event.getValue();
+                confirmDelete(hook);
+            } else if (event.isSelect()) {
+                WebHookEntity hook = event.getValue();
+                showInstance(hook);
+            }
+        }
+    };
 
     public VwRepositoryEntity getData() {
         return repository;
@@ -153,6 +154,8 @@ public class WebHookConfigPanel extends CommonEventComposite implements IData<Vw
 
     private void loadData() {
         listContainer.clear();
+        CommonPermission commonPermission = CommonPermission.from(repository.getPermission());
+        btnAdd.setEnabled(commonPermission.isSuper());
         QueryWebHookRequest request = new QueryWebHookRequest();
         request.setSourceId(repository.getId());
         request.setWebhookSourceKind(WebHookSourceKind.HOOK_SOURCE_REPOSITORY.getCode());

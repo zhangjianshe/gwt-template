@@ -2,7 +2,8 @@
              xmlns:g='urn:import:com.google.gwt.user.client.ui'
              xmlns:repository="urn:import:cn.mapway.gwt_template.client.repository"
              xmlns:widget="urn:import:cn.mapway.gwt_template.client.widget"
-             xmlns:buttons="urn:import:cn.mapway.ui.client.widget.buttons">
+             xmlns:buttons="urn:import:cn.mapway.ui.client.widget.buttons"
+             xmlns:widget2="urn:import:cn.mapway.ui.client.widget">
     <ui:style>
         .top {
             display: flex;
@@ -29,6 +30,11 @@
                         <buttons:AiButton ui:field="btnCreate">创建</buttons:AiButton>
                     </g:HTMLPanel>
                 </g:north>
+                <g:north size="50">
+                    <g:HTMLPanel addStyleNames="ai-flex-panel">
+                        <widget2:SearchBox ui:field="searchBox" width="250px"/>
+                    </g:HTMLPanel>
+                </g:north>
                 <g:center>
                     <g:ScrollPanel addStyleNames="{style.left} {style.content}">
                         <repository:RepositoryList width="100%" ui:field="repositoryList"/>
@@ -38,9 +44,6 @@
         </g:layer>
         <g:layer left="350" right="0" top="0" bottom="0">
             <repository:RepositoryView ui:field="repositoryPanel"/>
-        </g:layer>
-        <g:layer left="350" right="0" top="0" bottom="0">
-            <g:SimplePanel ui:field="messagePanel" visible="false"/>
         </g:layer>
     </g:LayoutPanel>
 </ui:UiBinder>

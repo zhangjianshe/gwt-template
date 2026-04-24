@@ -29,6 +29,8 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public interface IAppServerAsync {
 
     ///CODE_GEN_INSERT_POINT///
+	void transferRepository(TransferRepositoryRequest request, AsyncCallback<RpcResult<TransferRepositoryResponse>> async);
+
 	void queryUserPermissionInRepo(QueryUserPermissionInRepoRequest request, AsyncCallback<RpcResult<QueryUserPermissionInRepoResponse>> async);
 
 	void queryImages(QueryImagesRequest request, AsyncCallback<RpcResult<QueryImagesResponse>> async);

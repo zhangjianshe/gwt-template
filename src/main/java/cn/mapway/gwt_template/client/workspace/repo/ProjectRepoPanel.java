@@ -117,7 +117,7 @@ public class ProjectRepoPanel extends CommonEventComposite implements IData<Stri
         for (DevRepositoryEntity repo : repositories) {
             ListItem item = new ListItem();
             item.setData(repo);
-            item.setText(repo.getName());
+            item.setText(repo.getName() + "-" + repo.getOwnerName());
             list.addItem(item);
             if (admin) {
                 DeleteButton deleteButton = new DeleteButton();

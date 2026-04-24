@@ -53,7 +53,7 @@ public class VwRepositoryEntity implements Serializable, IsSerializable {
     @Column("owner_kind")
     Integer ownerKind;
     @Column("permission")
-    Integer permission;
+    String permission;
 
     @Column("my_id")
     Long myId;//授权的用户ID

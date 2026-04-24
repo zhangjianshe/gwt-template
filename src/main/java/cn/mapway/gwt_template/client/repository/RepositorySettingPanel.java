@@ -1,5 +1,6 @@
 package cn.mapway.gwt_template.client.repository;
 
+import cn.mapway.gwt_template.client.repository.operation.RepositoryOperationPanel;
 import cn.mapway.gwt_template.client.repository.webhook.WebHookConfigPanel;
 import cn.mapway.gwt_template.shared.db.VwRepositoryEntity;
 import cn.mapway.ui.client.tools.IData;
@@ -7,6 +8,7 @@ import cn.mapway.ui.client.widget.CommonEventComposite;
 import cn.mapway.ui.client.widget.list.List;
 import cn.mapway.ui.client.widget.list.ListItem;
 import cn.mapway.ui.shared.CommonEvent;
+import cn.mapway.ui.shared.CommonEventHandler;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -25,7 +27,16 @@ public class RepositorySettingPanel extends CommonEventComposite implements IDat
     @UiField
     List list;
     WebHookConfigPanel webHookConfigPanel;
+    RepositoryOperationPanel repositoryOperationPanel;
     private VwRepositoryEntity repository;
+    CommonEventHandler repositoryOperationPanelHandler = new CommonEventHandler() {
+        @Override
+        public void onCommonEvent(CommonEvent event) {
+            if (event.isReload()) {
+               fireEvent(CommonEvent.reloadEvent(null));
+            }
+        }
+    };
 
     public RepositorySettingPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -53,6 +64,18 @@ public class RepositorySettingPanel extends CommonEventComposite implements IDat
                     root.setWidgetTopBottom(webHookConfigPanel, 0, Style.Unit.PX, 0, Style.Unit.PX);
                     root.setWidgetLeftRight(webHookConfigPanel, 0, Style.Unit.PX, 0, Style.Unit.PX);
                     webHookConfigPanel.setData(repository);
+                    break;
+                case CONFIG_OPERATION:
+                    if (repositoryOperationPanel == null) {
+                        repositoryOperationPanel = new RepositoryOperationPanel();
+
+                        repositoryOperationPanel.addCommonHandler(repositoryOperationPanelHandler);
+                    }
+                    root.add(repositoryOperationPanel);
+                    root.setWidgetTopBottom(repositoryOperationPanel, 0, Style.Unit.PX, 0, Style.Unit.PX);
+                    root.setWidgetLeftRight(repositoryOperationPanel, 0, Style.Unit.PX, 0, Style.Unit.PX);
+                    repositoryOperationPanel.setData(repository);
+
                     break;
             }
 

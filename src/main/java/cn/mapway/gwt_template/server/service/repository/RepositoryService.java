@@ -18,6 +18,9 @@ import org.eclipse.jgit.transport.ReceivePack;
 import org.nutz.dao.Cnd;
 import org.nutz.dao.Dao;
 import org.nutz.dao.impl.NutTxDao;
+import org.nutz.dao.pager.Pager;
+import org.nutz.dao.util.cri.Exps;
+import org.nutz.dao.util.cri.SqlExpressionGroup;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
@@ -98,9 +101,13 @@ public class RepositoryService {
 
     public List<VwRepositoryEntity> allRepositories(Long userId, String nameFilter) {
         if (Strings.isBlank(nameFilter)) {
-            return dao.query(VwRepositoryEntity.class, Cnd.where("my_id", "=", userId).desc("create_time"));
+            return dao.query(VwRepositoryEntity.class, Cnd.where("my_id", "=", userId).desc("create_time"), new Pager());
         } else {
-            return dao.query(VwRepositoryEntity.class, Cnd.where("my_id", "=", userId).and("name", "like", "%" + nameFilter + "%").desc("create_time"));
+            SqlExpressionGroup likeGroup = new SqlExpressionGroup();
+            likeGroup.or(Exps.like("name", "%" + nameFilter + "%"));
+            likeGroup.or(Exps.like("fullName", "%" + nameFilter + "%"));
+            return dao.query(VwRepositoryEntity.class, Cnd.where("my_id", "=", userId)
+                    .and(likeGroup).desc("create_time"), new Pager());
         }
     }
 
@@ -185,6 +192,25 @@ public class RepositoryService {
     public DevRepositoryEntity findRepositoryById(String projectId) {
         return dao.fetch(DevRepositoryEntity.class, Cnd.where(DevRepositoryEntity.FLD_ID, "=", projectId));
     }
+
+    public void updateUserPermissionInRepository(Long userId, String repositoryId, CommonPermission permission) {
+        DevRepositoryMemberEntity repositoryMemberByMemberId = findRepositoryMemberByMemberId(repositoryId, userId);
+        if (repositoryMemberByMemberId != null) {
+            repositoryMemberByMemberId.setPermission(permission.toString());
+            repositoryMemberByMemberId.setOwner(permission.isOwner());
+            dao.updateIgnoreNull(repositoryMemberByMemberId);
+        } else {
+            DevRepositoryMemberEntity repositoryMember = new DevRepositoryMemberEntity();
+            repositoryMember.setPermission(permission.toString());
+            repositoryMember.setOwner(permission.isOwner());
+            repositoryMember.setRepositoryId(repositoryId);
+            repositoryMember.setCreateTime(new Timestamp(System.currentTimeMillis()));
+            repositoryMember.setUserId(userId);
+            dao.insert(repositoryMember);
+            updateProjectMember(repositoryId);
+        }
+    }
+
 
     public CommonPermission findUserPermissionInRepoByName(Long userId, String ownerName, String projectName) {
         CommonPermission permission = CommonPermission.empty();
@@ -318,7 +344,7 @@ public class RepositoryService {
         dao.delete(WebHookInstanceEntity.class, instanceId);
     }
 
-    public VwRepositoryEntity findRepositoryView(String id,Long userId) {
+    public VwRepositoryEntity findRepositoryView(String id, Long userId) {
         return dao.fetch(VwRepositoryEntity.class, Cnd.where(VwRepositoryEntity.FLD_ID, "=", id).and("myId", "=", userId));
     }
 }

@@ -14,6 +14,7 @@ import cn.mapway.gwt_template.shared.rpc.project.QueryDevProjectResponse;
 import cn.mapway.ui.client.fonts.Fonts;
 import cn.mapway.ui.client.mvc.*;
 import cn.mapway.ui.client.tools.IData;
+import cn.mapway.ui.client.widget.Header;
 import cn.mapway.ui.shared.rpc.RpcResult;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -65,11 +66,13 @@ public class ProjectHomePanel extends BaseAbstractModule implements IToolsProvid
     ProjectIssueFrame issuePanel;
     @UiField
     WikiFrame wikiFrame;
+    Header lbProject;
     private DevProjectEntity project;
     private boolean teamDataLoaded = false; // 懒加载标志位
 
     public ProjectHomePanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
+        lbProject = new Header();
         initHandlers();
     }
 
@@ -101,6 +104,7 @@ public class ProjectHomePanel extends BaseAbstractModule implements IToolsProvid
         mainTab.addSelectionHandler(event -> {
             Integer index = event.getSelectedItem();
             toolbar.clear();
+            toolbar.add(lbProject);
             if (index == TAB_TEAM) {
                 loadTeamData();
             } else if (index == TAB_GANTT) {
@@ -151,11 +155,14 @@ public class ProjectHomePanel extends BaseAbstractModule implements IToolsProvid
 
     private void toUI() {
         if (project != null) {
+            lbProject.setText(project.getName() + "-" + project.getCreateUserName());
             gantt.setData(project.getId());
             if (mainTab.getSelectedIndex() == TAB_OVERVIEW) {
                 toolbar.clear();
                 toolbar.add(projectCard.getTools());
             }
+        } else {
+            lbProject.setText("");
         }
     }
 
