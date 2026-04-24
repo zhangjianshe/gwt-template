@@ -48,6 +48,7 @@ public class GanttWidget extends CommonEventComposite implements RequiresResize,
     public void chartCommon(CommonEvent event) {
         if (event.isSelect()) {
             DevProjectTaskEntity task = event.getValue();
+            taskCommentPanel.setUserPermission(chart.getDocument().getCurrentUserPermission());
             taskCommentPanel.setData(task);
         } else if (event.isEdit()) {
             DevProjectTaskEntity task = event.getValue();

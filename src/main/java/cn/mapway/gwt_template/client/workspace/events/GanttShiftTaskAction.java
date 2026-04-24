@@ -65,6 +65,8 @@ public class GanttShiftTaskAction implements IMouseHandler<GanttHitResult> {
             // 因为 onMouseMove 已经改变了位置，如果不更新后台，界面可能需要 redraw 恢复原状
             result.ganttItem.getEntity().setStartTime(new Timestamp((long) oldStart));
             result.ganttItem.getEntity().setEstimateTime(new Timestamp((long) oldEstimate));
+            //视为对任务的选择
+            chart.getDocument().appendSelect(result.getGanttItem(), true);
         }
     }
 

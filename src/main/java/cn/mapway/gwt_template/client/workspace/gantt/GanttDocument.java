@@ -7,6 +7,7 @@ import cn.mapway.gwt_template.client.rpc.AsyncAdaptor;
 import cn.mapway.gwt_template.client.workspace.events.GanttHitResult;
 import cn.mapway.gwt_template.shared.db.DevProjectTaskEntity;
 import cn.mapway.gwt_template.shared.rpc.project.*;
+import cn.mapway.gwt_template.shared.rpc.project.module.CommonPermission;
 import cn.mapway.ui.client.mvc.Size;
 import cn.mapway.ui.client.util.StringUtil;
 import cn.mapway.ui.shared.CommonEvent;
@@ -60,6 +61,8 @@ public class GanttDocument {
     @Getter
     DropLocation lastDropLocation = new DropLocation();//拖动任务排序时记录当前的位置
     @Getter
+    CommonPermission currentUserPermission;
+    @Getter
     private double dayWidth = 40.0; // 默认一天 40 像素
     @Getter
     private List<DevProjectTaskEntity> rootTasks;
@@ -74,6 +77,7 @@ public class GanttDocument {
         flatItems = new ArrayList<>();
         rootItems = new ArrayList<>();
         items = new HashMap<>();
+        currentUserPermission = CommonPermission.empty();
     }
 
     public void populateCharge(GanttItem item) {
@@ -145,7 +149,6 @@ public class GanttDocument {
         return (span / dayWidth) * (double) MS_PER_DAY;
     }
 
-
     public void loadDocument(String projectId) {
         this.projectId = projectId;
         flatItems.clear();
@@ -162,6 +165,7 @@ public class GanttDocument {
 
         QueryProjectTaskRequest request = new QueryProjectTaskRequest();
         request.setProjectId(projectId);
+        currentUserPermission.clear();//清空用户权限
         AppProxy.get().queryProjectTask(request, new AsyncCallback<RpcResult<QueryProjectTaskResponse>>() {
             @Override
             public void onFailure(Throwable caught) {
@@ -191,6 +195,7 @@ public class GanttDocument {
      * @param data
      */
     private void buildTree(QueryProjectTaskResponse data) {
+        currentUserPermission = CommonPermission.from(data.getUserPermission());
         rootTasks = data.getRootTasks();
         flatItems.clear();
         items.clear();
@@ -628,6 +633,10 @@ public class GanttDocument {
         currentAnimation.run(400); // 稍微加快到 400ms 增加响应感
     }
 
+    /**
+     * 滚动到item 如果当前item在试图范围之内 就不操作
+     * @param item
+     */
     public void scrollToItem(GanttItem item) {
         double targetScrollTop = scrollTop;
         double itemTop = item.getRect().y;
@@ -640,10 +649,16 @@ public class GanttDocument {
         } else if (itemBottom > viewBottom) {
             targetScrollTop = scrollTop + (itemBottom - viewBottom);
         }
-
+        if(item.getEntity().getStartTime().getTime()>startTimeMillis+getTimeBySpan(getLeftPanelWidth()) &&
+                item.getEntity().getStartTime().getTime()<startTimeMillis+getTimeBySpan(chart.getOffsetWidth()))
+        {
+            //在视图内 不移动
+            return;
+        }
         double targetStartTime = item.getEntity().getStartTime().getTime()
                 - 2 * MS_PER_DAY
                 - getTimeBySpan(getLeftPanelWidth());
+
 
         scrollToTimestamp(targetStartTime, targetScrollTop);
     }

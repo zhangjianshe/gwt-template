@@ -17,6 +17,7 @@ import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.db.DevProjectTaskCommentEntity;
 import cn.mapway.gwt_template.shared.db.DevProjectTaskEntity;
 import cn.mapway.gwt_template.shared.rpc.project.*;
+import cn.mapway.gwt_template.shared.rpc.project.module.CommonPermission;
 import cn.mapway.gwt_template.shared.rpc.project.module.DevTaskKind;
 import cn.mapway.gwt_template.shared.rpc.project.module.ProjectMember;
 import cn.mapway.ui.client.mvc.Size;
@@ -84,6 +85,7 @@ public class TaskCommentPanel extends CommonEventComposite implements IData<DevP
     @UiField
     ProgressSelector progressSelector;
     MarkdownConvert convert;
+    CommonPermission currentUserPermission;
     private DevProjectTaskEntity taskEntity;
 
     public TaskCommentPanel() {
@@ -130,7 +132,7 @@ public class TaskCommentPanel extends CommonEventComposite implements IData<DevP
         assignPanel.setProjectId(taskEntity.getProjectId());
         assignPanel.setAvatar(taskEntity.getCreateAvatar(), taskEntity.getChargeAvatar());
 
-        if (isCreator) {
+        if (isCreator || currentUserPermission.isSuper()) {
             top.setWidgetSize(saveBar, ADMIN_BAR_HEIGHT);
             btnSave.setVisible(true);
             root.setWidgetVisible(editor, true);
@@ -346,6 +348,10 @@ public class TaskCommentPanel extends CommonEventComposite implements IData<DevP
                 scroller.scrollToBottom();
             }
         }.schedule(300); // 300ms 通常足以让浏览器计算出新加入图片的初始布局
+    }
+
+    public void setUserPermission(CommonPermission currentUserPermission) {
+        this.currentUserPermission = currentUserPermission;
     }
 
     interface TaskCommentPanelUiBinder extends UiBinder<LayoutPanel, TaskCommentPanel> {
