@@ -12,6 +12,7 @@ import com.google.gwt.user.client.ui.RequiresResize;
 import elemental2.dom.BaseRenderingContext2D;
 import elemental2.dom.CanvasRenderingContext2D;
 import jsinterop.base.Js;
+import lombok.Getter;
 
 /**
  * 0-100% 进度调整面板
@@ -21,7 +22,9 @@ public class ProgressSelector extends CanvasWidget implements RequiresResize, Ha
     boolean isDragging = false;
     String themeColor = "#2196F3"; // 默认蓝色
     int step = 10; // 默认吸附步长为 10%
+    @Getter
     boolean enabled = true; // 新增标志位
+
     public ProgressSelector() {
         installEvent();
         getElement().getStyle().setProperty("userSelect", "none");
@@ -34,10 +37,6 @@ public class ProgressSelector extends CanvasWidget implements RequiresResize, Ha
             getElement().getStyle().setCursor(com.google.gwt.dom.client.Style.Cursor.DEFAULT);
         }
         updateUI();
-    }
-
-    public boolean isEnabled() {
-        return enabled;
     }
 
     public void setStep(int step) {
@@ -103,6 +102,9 @@ public class ProgressSelector extends CanvasWidget implements RequiresResize, Ha
         int oldValue = value;
         value = Math.max(0, Math.min(100, progress));
         updateUI();
+        if (oldValue != progress) {
+            fireEvent(CommonEvent.valueChangedEvent(value));
+        }
     }
 
     public void setThemeColor(String color) {

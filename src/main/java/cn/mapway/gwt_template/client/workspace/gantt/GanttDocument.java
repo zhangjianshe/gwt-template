@@ -635,6 +635,7 @@ public class GanttDocument {
 
     /**
      * 滚动到item 如果当前item在试图范围之内 就不操作
+     *
      * @param item
      */
     public void scrollToItem(GanttItem item) {
@@ -649,9 +650,8 @@ public class GanttDocument {
         } else if (itemBottom > viewBottom) {
             targetScrollTop = scrollTop + (itemBottom - viewBottom);
         }
-        if(item.getEntity().getStartTime().getTime()>startTimeMillis+getTimeBySpan(getLeftPanelWidth()) &&
-                item.getEntity().getStartTime().getTime()<startTimeMillis+getTimeBySpan(chart.getOffsetWidth()))
-        {
+        if (item.getEntity().getStartTime().getTime() > startTimeMillis + getTimeBySpan(getLeftPanelWidth()) &&
+                item.getEntity().getStartTime().getTime() < startTimeMillis + getTimeBySpan(chart.getOffsetWidth())) {
             //在视图内 不移动
             return;
         }
@@ -1155,7 +1155,9 @@ public class GanttDocument {
         while (parent != null) {
             parent.getEntity().calculateSummaryProgress();
             parent = findItemByTaskId(parent.getEntity().getParentId());
-            updateEntity(parent.getEntity());
+            if (parent != null) {
+                updateEntity(parent.getEntity());
+            }
         }
     }
 
