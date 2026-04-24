@@ -31,6 +31,10 @@ public class GanttShiftTaskAction implements IMouseHandler<GanttHitResult> {
         origin.set(event.getX(), event.getY());
         startPoint.copyFrom(origin);
         result.copyFrom(hitResult);
+        if (!result.getGanttItem().getChildren().isEmpty()) {
+            //不允许调整容器类型的任务
+            return;
+        }
         oldStart = result.getGanttItem().getEntity().getStartTime().getTime();
         oldEstimate = result.getGanttItem().getEntity().getEstimateTime().getTime();
         mouseDown = true;
@@ -46,7 +50,10 @@ public class GanttShiftTaskAction implements IMouseHandler<GanttHitResult> {
 
     @Override
     public void onMouseUp(MouseUpEvent event) {
-        if (!mouseDown) return;
+        if (!mouseDown) {
+            chart.getDocument().appendSelect(result.getGanttItem(), true);
+            return;
+        }
 
         mouseDown = false;
         DOM.releaseCapture(chart.getElement());

@@ -490,7 +490,14 @@ public class GanttItem extends BaseNode {
             double actualEndX = startX + barWidth;
             double edgeThreshold = 5.0;
 
-            if (kind == DevTaskKind.DTK_MILESTONE) {
+            if (!getChildren().isEmpty()) {
+                //这是一个容器 不允许调整时间轴 系统会自动调整
+                if (logic.x > startX + edgeThreshold && logic.x < actualEndX - edgeThreshold) {
+                    result.hitTestGanttItemTask(this);
+                } else {
+                    result.hitTestGanttItemEmpty(this);
+                }
+            } else if (kind == DevTaskKind.DTK_MILESTONE) {
                 double milestoneX = document.getXByDate(entity.getStartTime().getTime());
                 double hitWidth = 20.0;
                 if (logic.x >= milestoneX - hitWidth / 2 && logic.x <= milestoneX + hitWidth / 2) {
