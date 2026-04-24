@@ -45,10 +45,23 @@ public class UpdateWebHookExecutor extends AbstractBizExecutor<UpdateWebHookResp
         switch (sourceKind) {
             case HOOK_SOURCE_REPOSITORY:
                 return checkAndSaveProjectWebHook(userId, request.getWebhook());
+            case HOOK_SOURCE_USER:
+                return checkAndSaveUserWebHook(userId, request.getWebhook());
             case HOOK_SOURCE_WIKI:
             default:
                 return BizResult.error(500, "不支持的源类型: " + sourceKind);
         }
+    }
+
+    private BizResult<UpdateWebHookResponse> checkAndSaveUserWebHook(Long userId, WebHookEntity webhook) {
+        assertTrue(WebHookSourceKind.HOOK_SOURCE_USER.getCode().equals(webhook.getSourceKind()), "hook源不匹配");
+
+        webhook.setSourceId(userId.toString());
+        webHookService.saveOrUpdateWebHook(webhook);
+        WebHookEntity saved = webHookService.saveOrUpdateWebHook(webhook);
+        UpdateWebHookResponse response = new UpdateWebHookResponse();
+        response.setWebhook(saved);
+        return BizResult.success(response);
     }
 
     private BizResult<UpdateWebHookResponse> checkAndSaveProjectWebHook(Long userId, WebHookEntity webhook) {

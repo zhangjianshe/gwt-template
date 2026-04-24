@@ -94,7 +94,7 @@ public class WebHookEditor extends CommonEventComposite implements IData<WebHook
         this.webhook = obj;
         if (this.webhook == null) {
             this.webhook = new WebHookEntity();
-            this.webhook.setActive(false); // Default to active for new ones
+            this.webhook.setActive(false);
             this.webhook.setSourceKind(WebHookSourceKind.HOOK_SOURCE_REPOSITORY.getCode());
             this.webhook.setMethod(HttpMethod.POST.name());
             this.webhook.setTargetKind(WebHookTargetKind.HOOK_TARGET_NORMAL.getCode());

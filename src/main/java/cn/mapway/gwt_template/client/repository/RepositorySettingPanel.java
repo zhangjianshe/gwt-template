@@ -3,6 +3,8 @@ package cn.mapway.gwt_template.client.repository;
 import cn.mapway.gwt_template.client.repository.operation.RepositoryOperationPanel;
 import cn.mapway.gwt_template.client.repository.webhook.WebHookConfigPanel;
 import cn.mapway.gwt_template.shared.db.VwRepositoryEntity;
+import cn.mapway.gwt_template.shared.rpc.project.module.CommonPermission;
+import cn.mapway.gwt_template.shared.rpc.webhook.WebHookSourceKind;
 import cn.mapway.ui.client.tools.IData;
 import cn.mapway.ui.client.widget.CommonEventComposite;
 import cn.mapway.ui.client.widget.list.List;
@@ -28,15 +30,15 @@ public class RepositorySettingPanel extends CommonEventComposite implements IDat
     List list;
     WebHookConfigPanel webHookConfigPanel;
     RepositoryOperationPanel repositoryOperationPanel;
-    private VwRepositoryEntity repository;
     CommonEventHandler repositoryOperationPanelHandler = new CommonEventHandler() {
         @Override
         public void onCommonEvent(CommonEvent event) {
             if (event.isReload()) {
-               fireEvent(CommonEvent.reloadEvent(null));
+                fireEvent(CommonEvent.reloadEvent(null));
             }
         }
     };
+    private VwRepositoryEntity repository;
 
     public RepositorySettingPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -63,7 +65,10 @@ public class RepositorySettingPanel extends CommonEventComposite implements IDat
                     root.add(webHookConfigPanel);
                     root.setWidgetTopBottom(webHookConfigPanel, 0, Style.Unit.PX, 0, Style.Unit.PX);
                     root.setWidgetLeftRight(webHookConfigPanel, 0, Style.Unit.PX, 0, Style.Unit.PX);
-                    webHookConfigPanel.setData(repository);
+                    CommonPermission commonPermission = CommonPermission.from(repository.getPermission());
+                    webHookConfigPanel.enableAdd(commonPermission.isSuper());
+                    webHookConfigPanel.loadHooks(repository.getId(), WebHookSourceKind.HOOK_SOURCE_REPOSITORY);
+
                     break;
                 case CONFIG_OPERATION:
                     if (repositoryOperationPanel == null) {

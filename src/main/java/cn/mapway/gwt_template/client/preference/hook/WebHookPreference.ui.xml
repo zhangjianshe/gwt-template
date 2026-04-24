@@ -1,0 +1,9 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:webhook="urn:import:cn.mapway.gwt_template.client.repository.webhook">
+    <g:LayoutPanel>
+        <g:layer>
+            <webhook:WebHookConfigPanel ui:field="panel"/>
+        </g:layer>
+    </g:LayoutPanel>
+</ui:UiBinder>

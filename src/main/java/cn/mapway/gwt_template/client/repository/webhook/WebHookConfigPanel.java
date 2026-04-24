@@ -2,11 +2,8 @@ package cn.mapway.gwt_template.client.repository.webhook;
 
 import cn.mapway.gwt_template.client.ClientContext;
 import cn.mapway.gwt_template.client.rpc.AppProxy;
-import cn.mapway.gwt_template.shared.db.VwRepositoryEntity;
 import cn.mapway.gwt_template.shared.db.WebHookEntity;
-import cn.mapway.gwt_template.shared.rpc.project.module.CommonPermission;
 import cn.mapway.gwt_template.shared.rpc.webhook.*;
-import cn.mapway.ui.client.tools.IData;
 import cn.mapway.ui.client.widget.CommonEventComposite;
 import cn.mapway.ui.client.widget.dialog.Dialog;
 import cn.mapway.ui.client.widget.panel.MessagePanel;
@@ -23,18 +20,26 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import elemental2.promise.IThenable;
+import lombok.Getter;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
-public class WebHookConfigPanel extends CommonEventComposite implements IData<VwRepositoryEntity> {
+
+public class WebHookConfigPanel extends CommonEventComposite {
 
     private static final WebHookConfigPanelUiBinder ourUiBinder = GWT.create(WebHookConfigPanelUiBinder.class);
     @UiField
     VerticalPanel listContainer;
     @UiField
     Button btnAdd;
-    VwRepositoryEntity repository;
+    /**
+     * Hook对应得到sourceId 有两种可能
+     * 1. 用户ID ->转换为字符串
+     * 2. 仓库ID
+     */
+    @Getter
+    String sourceId;
 
     public WebHookConfigPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -70,43 +75,12 @@ public class WebHookConfigPanel extends CommonEventComposite implements IData<Vw
             @Override
             public void onSuccess(RpcResult<DeleteWebHookResponse> result) {
                 if (result.isSuccess()) {
-                    loadData();
+                    loadHooks(sourceId,sourceKind);
                 } else {
                     ClientContext.get().toast(0, 0, result.getMessage());
                 }
             }
         });
-    }    private final CommonEventHandler hookItemHandler = new CommonEventHandler() {
-        @Override
-        public void onCommonEvent(CommonEvent event) {
-            if (event.isEdit()) {
-
-                WebHookEntity hook = event.getValue();
-                editHook(hook);
-            } else if (event.isDelete()) {
-                WebHookEntity hook = event.getValue();
-                confirmDelete(hook);
-            } else if (event.isSelect()) {
-                WebHookEntity hook = event.getValue();
-                showInstance(hook);
-            }
-        }
-    };
-
-    public VwRepositoryEntity getData() {
-        return repository;
-    }
-
-    @Override
-    public void setData(VwRepositoryEntity obj) {
-        repository = obj;
-        toUI();
-    }
-
-    private void toUI() {
-        if (repository == null) return;
-
-        loadData();
     }
 
     private void renderHooks(List<WebHookEntity> hooks) {
@@ -124,12 +98,27 @@ public class WebHookConfigPanel extends CommonEventComposite implements IData<Vw
             messagePanel.setText("还没有创建的钩子");
             listContainer.add(messagePanel);
         }
-    }
+    }    private final CommonEventHandler hookItemHandler = new CommonEventHandler() {
+        @Override
+        public void onCommonEvent(CommonEvent event) {
+            if (event.isEdit()) {
 
+                WebHookEntity hook = event.getValue();
+                editHook(hook);
+            } else if (event.isDelete()) {
+                WebHookEntity hook = event.getValue();
+                confirmDelete(hook);
+            } else if (event.isSelect()) {
+                WebHookEntity hook = event.getValue();
+                showInstance(hook);
+            }
+        }
+    };
+    WebHookSourceKind sourceKind;
     private void createNewHook() {
         WebHookEntity newHook = new WebHookEntity();
-        newHook.setSourceId(repository.getId());
-        newHook.setSourceKind(WebHookSourceKind.HOOK_SOURCE_REPOSITORY.getCode());
+        newHook.setSourceId(sourceId);
+        newHook.setSourceKind(sourceKind.getCode());
         newHook.setActive(false);
         newHook.setTargetKind(WebHookTargetKind.HOOK_TARGET_NORMAL.getCode());
         newHook.setMethod(HttpMethod.POST.name());
@@ -143,7 +132,7 @@ public class WebHookConfigPanel extends CommonEventComposite implements IData<Vw
         Dialog<WebHookEditor> dialog = WebHookEditor.getDialog(true);
         dialog.addCommonHandler(event -> {
             if (event.isOk()) {
-                loadData();
+                loadHooks(sourceId,sourceKind);
             }
             dialog.hide();
         });
@@ -152,13 +141,13 @@ public class WebHookConfigPanel extends CommonEventComposite implements IData<Vw
 
     }
 
-    private void loadData() {
+    public void loadHooks(String sourceId,WebHookSourceKind sourceKind) {
+        this.sourceId = sourceId;
+        this.sourceKind = sourceKind;
         listContainer.clear();
-        CommonPermission commonPermission = CommonPermission.from(repository.getPermission());
-        btnAdd.setEnabled(commonPermission.isSuper());
         QueryWebHookRequest request = new QueryWebHookRequest();
-        request.setSourceId(repository.getId());
-        request.setWebhookSourceKind(WebHookSourceKind.HOOK_SOURCE_REPOSITORY.getCode());
+        request.setSourceId(sourceId);
+        request.setWebhookSourceKind(sourceKind.getCode());
 
         AppProxy.get().queryWebHook(request, new AsyncCallback<RpcResult<QueryWebHookResponse>>() {
             @Override
@@ -182,10 +171,12 @@ public class WebHookConfigPanel extends CommonEventComposite implements IData<Vw
         createNewHook();
     }
 
-    interface WebHookConfigPanelUiBinder extends UiBinder<Widget, WebHookConfigPanel> {
+    public void enableAdd(boolean enable) {
+        btnAdd.setEnabled(enable);
     }
 
-
+    interface WebHookConfigPanelUiBinder extends UiBinder<Widget, WebHookConfigPanel> {
+    }
 
 
 }

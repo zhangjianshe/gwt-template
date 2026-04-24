@@ -7,7 +7,8 @@ import java.util.Objects;
 public enum WebHookSourceKind {
     HOOK_SOURCE_UNKNOWN(-1, "未知源"),
     HOOK_SOURCE_REPOSITORY(0, "项目代码"),
-    HOOK_SOURCE_WIKI(1, "项目WIKI");
+    HOOK_SOURCE_WIKI(1, "项目WIKI"),
+    HOOK_SOURCE_USER(2, "帐号类型");
 
     @Getter
     final
