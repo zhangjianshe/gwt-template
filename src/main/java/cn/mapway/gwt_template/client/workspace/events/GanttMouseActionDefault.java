@@ -317,9 +317,10 @@ public class GanttMouseActionDefault implements IMouseHandler<GanttHitResult> {
         ganttMenu.addItem(createUnicodeIcon("✎", "编辑任务"), ActionMenuKind.AMK_EDIT_TASK);
         ganttMenu.addItem(createUnicodeIcon("✚", "创建任务"), ActionMenuKind.AMK_CREATE_TASK);
         ganttMenu.addItem(createUnicodeIcon("↳", "创建子任务"), ActionMenuKind.AMK_CREATE_SUB_TASK);
+        ganttMenu.addSeparator();
         ganttMenu.addItem(createUnicodeIcon("📥", "导入任务"), ActionMenuKind.AMK_IMPORT_TASK);
         ganttMenu.addItem(createUnicodeIcon("📤", "导出任务"), ActionMenuKind.AMK_EXPORT_TASK);
-
+        ganttMenu.addItem(createUnicodeIcon("🖼️", "导出图片"), ActionMenuKind.AMK_EXPORT_PICTURE);
         // 可以加一个分割线符号
         ganttMenu.addSeparator();
         ganttMenu.addItem(createUnicodeIcon("🗑", "删除任务"), ActionMenuKind.AMK_DELETE_TASK);
@@ -328,7 +329,7 @@ public class GanttMouseActionDefault implements IMouseHandler<GanttHitResult> {
         ganttControlMenu.addItem(createUnicodeIcon("✚", "创建任务"), ActionMenuKind.AMK_CREATE_TASK);
         ganttControlMenu.addItem(createUnicodeIcon("📥", "导入任务"), ActionMenuKind.AMK_IMPORT_TASK);
         ganttControlMenu.addItem(createUnicodeIcon("📤", "导出任务"), ActionMenuKind.AMK_EXPORT_TASK);
-        ganttControlMenu.addItem(createUnicodeIcon("🖼️", "输出图片"), ActionMenuKind.AMK_EXPORT_PICTURE);
+        ganttControlMenu.addItem(createUnicodeIcon("🖼️", "导出图片"), ActionMenuKind.AMK_EXPORT_PICTURE);
         ganttControlMenu.addCommonHandler(menuHandler);
     }
 
