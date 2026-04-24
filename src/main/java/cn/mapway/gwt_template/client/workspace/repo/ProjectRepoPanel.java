@@ -4,8 +4,11 @@ import cn.mapway.gwt_template.client.ClientContext;
 import cn.mapway.gwt_template.client.repository.CodeRepositorySelector;
 import cn.mapway.gwt_template.client.repository.RepositoryEditor;
 import cn.mapway.gwt_template.client.repository.RepositoryView;
+import cn.mapway.gwt_template.client.resource.AppResource;
 import cn.mapway.gwt_template.client.rpc.AppProxy;
+import cn.mapway.gwt_template.client.workspace.widget.GeneralInfoPanel;
 import cn.mapway.gwt_template.shared.AppConstant;
+import cn.mapway.gwt_template.shared.db.DevRepositoryEntity;
 import cn.mapway.gwt_template.shared.db.VwRepositoryEntity;
 import cn.mapway.gwt_template.shared.rpc.project.*;
 import cn.mapway.gwt_template.shared.rpc.project.module.CommonPermission;
@@ -21,7 +24,6 @@ import cn.mapway.ui.shared.CommonEventHandler;
 import cn.mapway.ui.shared.rpc.RpcResult;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -101,15 +103,18 @@ public class ProjectRepoPanel extends CommonEventComposite implements IData<Stri
     private void switchToUnauthorizedPage(String msg) {
         root.setWidgetVisible(messagePanel, true);
         root.setWidgetVisible(contentPanel, false);
-        messagePanel.setText(msg);
+        messagePanel.clear();
+        GeneralInfoPanel panel = new GeneralInfoPanel();
+        panel.setData(AppResource.INSTANCE.warning().getSafeUri().asString(), msg);
+        messagePanel.appendWidget(panel);
     }
 
-    private void renderRepo(List<VwRepositoryEntity> repositories, boolean admin) {
+    private void renderRepo(List<DevRepositoryEntity> repositories, boolean admin) {
         root.setWidgetVisible(messagePanel, false);
         root.setWidgetVisible(contentPanel, true);
         list.clear();
 
-        for (VwRepositoryEntity repo : repositories) {
+        for (DevRepositoryEntity repo : repositories) {
             ListItem item = new ListItem();
             item.setData(repo);
             item.setText(repo.getName());
@@ -118,18 +123,13 @@ public class ProjectRepoPanel extends CommonEventComposite implements IData<Stri
                 DeleteButton deleteButton = new DeleteButton();
                 deleteButton.setIconUnicode(Fonts.LINK);
                 deleteButton.setData(repo);
-                deleteButton.addClickHandler(new ClickHandler() {
-                    @Override
-                    public void onClick(ClickEvent event) {
-                        confirmDelete(repo);
-                    }
-                });
+                deleteButton.addClickHandler(event -> confirmDelete(repo));
                 item.appendRight(deleteButton, null);
             }
         }
     }
 
-    private void confirmDelete(VwRepositoryEntity repo) {
+    private void confirmDelete(DevRepositoryEntity repo) {
         String msg = "从项目中移除 代码库，此操作不会删除代码库，只会解除代码与本项目的关联?";
         ClientContext.get().confirmDelete(msg).then(new IThenable.ThenOnFulfilledCallbackFn<Void, Object>() {
             @Override
@@ -140,7 +140,7 @@ public class ProjectRepoPanel extends CommonEventComposite implements IData<Stri
         });
     }
 
-    private void doRemoveRepo(VwRepositoryEntity repo) {
+    private void doRemoveRepo(DevRepositoryEntity repo) {
         RemoveProjectRepoRequest request = new RemoveProjectRepoRequest();
         request.setProjectId(projectId);
         request.setRepoId(repo.getId());
@@ -170,7 +170,7 @@ public class ProjectRepoPanel extends CommonEventComposite implements IData<Stri
             public void onCommonEvent(CommonEvent commonEvent) {
                 if (commonEvent.isOk()) {
                     VwRepositoryEntity repo = commonEvent.getValue();
-                    doAppendRepoToProject(repo);
+                    doAppendRepoToProject(repo.getId());
                     dialog.hide();
                 } else if (commonEvent.isClose()) {
                     dialog.hide();
@@ -181,10 +181,10 @@ public class ProjectRepoPanel extends CommonEventComposite implements IData<Stri
         dialog.center();
     }
 
-    private void doAppendRepoToProject(VwRepositoryEntity repo) {
+    private void doAppendRepoToProject(String repositoryId) {
         AddProjectRepoRequest request = new AddProjectRepoRequest();
         request.setProjectId(projectId);
-        request.setRepoId(repo.getId());
+        request.setRepoId(repositoryId);
         AppProxy.get().addProjectRepo(request, new AsyncCallback<RpcResult<AddProjectRepoResponse>>() {
             @Override
             public void onFailure(Throwable caught) {
@@ -210,8 +210,8 @@ public class ProjectRepoPanel extends CommonEventComposite implements IData<Stri
             @Override
             public void onCommonEvent(CommonEvent commonEvent) {
                 if (commonEvent.isSelect()) {
-                    VwRepositoryEntity repo = commonEvent.getValue();
-                    doAppendRepoToProject(repo);
+                    DevRepositoryEntity repo = commonEvent.getValue();
+                    doAppendRepoToProject(repo.getId());
                     dialog.hide();
                 } else if (commonEvent.isClose()) {
                     dialog.hide();
@@ -227,7 +227,8 @@ public class ProjectRepoPanel extends CommonEventComposite implements IData<Stri
     public void listCommon(CommonEvent event) {
         if (event.isSelect()) {
             ListItem item = event.getValue();
-            repositoryPanel.setData((VwRepositoryEntity) item.getData());
+            DevRepositoryEntity entity = (DevRepositoryEntity) item.getData();
+            repositoryPanel.setData(entity.getId());
         }
     }
 

@@ -7,6 +7,8 @@ import com.google.gwt.resources.client.ImageResource;
 public interface AppResource extends ClientBundle {
     AppResource INSTANCE = GWT.create(AppResource.class);
 
+    @Source("./images/warning.png")
+    ImageResource warning();
     // --- 状态图标 ---
     @Source("./images/issue_opened.png")
     ImageResource statusOpen();

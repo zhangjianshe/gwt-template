@@ -65,7 +65,7 @@ public class UpdateRepositoryExecutor extends AbstractBizExecutor<UpdateReposito
         if (updateResult.isFailed()) {
             return updateResult.asBizResult();
         }
-        VwRepositoryEntity view = repositoryService.findRepositoryView(updateResult.getData().getId());
+        VwRepositoryEntity view = repositoryService.findRepositoryView(updateResult.getData().getId(), user.getUser().getUserId());
         UpdateRepositoryResponse resp = new UpdateRepositoryResponse();
         resp.setRepository(view);
         return BizResult.success(resp);

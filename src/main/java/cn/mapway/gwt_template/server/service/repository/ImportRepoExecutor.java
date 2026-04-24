@@ -60,7 +60,7 @@ public class ImportRepoExecutor extends AbstractBizExecutor<ImportRepoResponse, 
         }
 
         CommonPermission permission = repositoryService.findUserPermissionInRepository(user.getUser().getUserId(), request.getRepositoryId());
-        assertTrue(permission.isAdmin(), "没有导入仓库的权限");
+        assertTrue(permission.isSuper(), "没有导入仓库的权限");
 
 
         DevRepositoryEntity project = repositoryService.findRepositoryById(request.getRepositoryId());

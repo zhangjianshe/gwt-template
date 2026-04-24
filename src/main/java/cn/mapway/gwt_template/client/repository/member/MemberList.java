@@ -57,7 +57,7 @@ public class MemberList extends CommonEventComposite implements IData<String> {
         public void onCommonEvent(CommonEvent event) {
             if (event.isDelete()) {
                 VwRepositoryMemberEntity member = event.getValue();
-                confirmdelete(member);
+                confirmRemoveMember(member);
             }
         }
     };
@@ -71,18 +71,18 @@ public class MemberList extends CommonEventComposite implements IData<String> {
         }
     }
 
-    private void confirmdelete(VwRepositoryMemberEntity member) {
+    private void confirmRemoveMember(VwRepositoryMemberEntity member) {
         String message = "移除项目组成员" + member.getUserName() + "?";
         ClientContext.get().confirmDelete(message).then(new IThenable.ThenOnFulfilledCallbackFn<Void, Object>() {
             @Override
             public IThenable<Object> onInvoke(Void p0) {
-                doDelete(member);
+                doRemove(member);
                 return null;
             }
         });
     }
 
-    private void doDelete(VwRepositoryMemberEntity member) {
+    private void doRemove(VwRepositoryMemberEntity member) {
         DeleteRepositoryMemberRequest request = new DeleteRepositoryMemberRequest();
         request.setRepositoryId(member.getRepositoryId());
         request.setUserId(member.getUserId());
@@ -144,7 +144,7 @@ public class MemberList extends CommonEventComposite implements IData<String> {
         btnAdd.setEnabled(adminer);
         if (members == null || members.isEmpty()) {
             list.clear();
-            lbHeader.setText("项目组成员(0)");
+            lbHeader.setText("代码仓库成员(0)");
             list.add(new MessagePanel().setText("没有成员"));
             return;
         }
@@ -155,7 +155,7 @@ public class MemberList extends CommonEventComposite implements IData<String> {
             memberItem.addCommonHandler(itemHandler);
             list.add(memberItem);
         }
-        lbHeader.setText("项目组成员(" + members.size() + ")");
+        lbHeader.setText("代码仓库成员(" + members.size() + ")");
 
     }
 

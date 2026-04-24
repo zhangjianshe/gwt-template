@@ -1,21 +1,28 @@
 package cn.mapway.gwt_template.client.repository;
 
 import cn.mapway.gwt_template.client.repository.basic.RepositoryCodeFrame;
-import cn.mapway.gwt_template.client.repository.basic.RepositoryFlowPanel;
+import cn.mapway.gwt_template.client.resource.AppResource;
+import cn.mapway.gwt_template.client.rpc.AppProxy;
 import cn.mapway.gwt_template.client.widget.IconButton;
+import cn.mapway.gwt_template.client.workspace.widget.GeneralInfoPanel;
 import cn.mapway.gwt_template.shared.db.VwRepositoryEntity;
+import cn.mapway.gwt_template.shared.rpc.repository.QueryUserPermissionInRepoRequest;
+import cn.mapway.gwt_template.shared.rpc.repository.QueryUserPermissionInRepoResponse;
 import cn.mapway.ui.client.fonts.Fonts;
 import cn.mapway.ui.client.mvc.BaseAbstractModule;
 import cn.mapway.ui.client.mvc.IModule;
 import cn.mapway.ui.client.mvc.ModuleMarker;
 import cn.mapway.ui.client.mvc.ModuleParameter;
 import cn.mapway.ui.client.tools.IData;
+import cn.mapway.ui.client.widget.panel.MessagePanel;
 import cn.mapway.ui.shared.CommonEventHandler;
+import cn.mapway.ui.shared.rpc.RpcResult;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.user.client.ui.DockLayoutPanel;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.LayoutPanel;
 
@@ -29,7 +36,7 @@ import com.google.gwt.user.client.ui.LayoutPanel;
         summary = "项目详细信息",
         order = 100
 )
-public class RepositoryView extends BaseAbstractModule implements IData<VwRepositoryEntity> {
+public class RepositoryView extends BaseAbstractModule implements IData<String> {
     public final static String MODULE_CODE = "git_repository_view";
     private static final RepositoryViewUiBinder ourUiBinder = GWT.create(RepositoryViewUiBinder.class);
     @UiField
@@ -40,11 +47,18 @@ public class RepositoryView extends BaseAbstractModule implements IData<VwReposi
     IconButton btnCode;
     @UiField
     LayoutPanel content;
+    @UiField
+    LayoutPanel root;
+    @UiField
+    HTMLPanel toolbar;
+    @UiField
+    MessagePanel messagePanel;
     IconButton selected = null;
-    RepositoryFlowPanel repositoryFlowPanel;
     RepositoryCodeFrame repositoryCodeFrame;
     RepositorySettingPanel repositorySettingPanel;
-    private VwRepositoryEntity vwRepository;
+    String repositoryId;
+    VwRepositoryEntity vwRepositoryEntity;
+
 
     public RepositoryView() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -75,9 +89,8 @@ public class RepositoryView extends BaseAbstractModule implements IData<VwReposi
         content.add(repositorySettingPanel);
         content.setWidgetLeftRight(repositorySettingPanel, 0, Style.Unit.PX, 0, Style.Unit.PX);
         content.setWidgetTopBottom(repositorySettingPanel, 0, Style.Unit.PX, 0, Style.Unit.PX);
-        repositorySettingPanel.setData(vwRepository);
+        repositorySettingPanel.setData(vwRepositoryEntity);
     }
-
 
     private void gotoCode() {
         if (repositoryCodeFrame == null) {
@@ -87,7 +100,7 @@ public class RepositoryView extends BaseAbstractModule implements IData<VwReposi
         content.add(repositoryCodeFrame);
         content.setWidgetLeftRight(repositoryCodeFrame, 0, Style.Unit.PX, 0, Style.Unit.PX);
         content.setWidgetTopBottom(repositoryCodeFrame, 0, Style.Unit.PX, 0, Style.Unit.PX);
-        repositoryCodeFrame.setData(vwRepository);
+        repositoryCodeFrame.setData(vwRepositoryEntity);
     }
 
     public void selectButton(IconButton button) {
@@ -101,17 +114,55 @@ public class RepositoryView extends BaseAbstractModule implements IData<VwReposi
     }
 
     @Override
-    public VwRepositoryEntity getData() {
-        return vwRepository;
+    public String getData() {
+        return repositoryId;
     }
 
     @Override
-    public void setData(VwRepositoryEntity obj) {
-        vwRepository = obj;
-        toUI();
+    public void setData(String repositoryId) {
+        this.repositoryId = repositoryId;
+        QueryUserPermissionInRepoRequest request = new QueryUserPermissionInRepoRequest();
+        request.setRepositoryId(repositoryId);
+        AppProxy.get().queryUserPermissionInRepo(request, new AsyncCallback<RpcResult<QueryUserPermissionInRepoResponse>>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                gotoMessage(caught.getMessage());
+            }
+
+            @Override
+            public void onSuccess(RpcResult<QueryUserPermissionInRepoResponse> result) {
+                if (result.isSuccess()) {
+                    {
+                        vwRepositoryEntity = result.getData().getRepository();
+                        toUI();
+                    }
+                } else {
+                    gotoMessage(result.getMessage());
+                }
+            }
+        });
+    }
+
+    private void gotoMessage(String message) {
+        changeToMessageView();
+        GeneralInfoPanel generalInfoPanel = new GeneralInfoPanel();
+        generalInfoPanel.setData(AppResource.INSTANCE.warning().getSafeUri().asString(), message);
+        messagePanel.clear();
+        messagePanel.appendWidget(generalInfoPanel);
+    }
+
+    private void changeToMessageView() {
+        root.setWidgetVisible(content, false);
+        root.setWidgetVisible(toolbar, false);
+        root.setWidgetVisible(messagePanel, true);
     }
 
     private void toUI() {
+        if (!content.isVisible()) {
+            root.setWidgetVisible(content, true);
+            root.setWidgetVisible(toolbar, true);
+            root.setWidgetVisible(messagePanel, false);
+        }
         btnCode.select();
     }
 
@@ -127,6 +178,6 @@ public class RepositoryView extends BaseAbstractModule implements IData<VwReposi
         return MODULE_CODE;
     }
 
-    interface RepositoryViewUiBinder extends UiBinder<DockLayoutPanel, RepositoryView> {
+    interface RepositoryViewUiBinder extends UiBinder<LayoutPanel, RepositoryView> {
     }
 }

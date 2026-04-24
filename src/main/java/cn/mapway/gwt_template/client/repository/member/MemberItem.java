@@ -117,7 +117,8 @@ public class MemberItem extends CommonEventComposite implements IData<VwReposito
         checkAdmin.setValue(permission.isAdmin());
         checkRead.setValue(permission.canRead());
         checkUpdate.setValue(permission.canUpdate());
-        if (data.getOwner()) {
+        checkOwner.setValue(permission.isOwner());
+        if (permission.isOwner()) {
             checkAdmin.setEnabled(false);
             checkRead.setEnabled(false);
             checkUpdate.setEnabled(false);

@@ -19,8 +19,8 @@
             padding: 10px;
         }
     </ui:style>
-    <g:DockLayoutPanel>
-        <g:west size="350">
+    <g:LayoutPanel ui:field="root">
+        <g:layer left="0" width="350" top="0" bottom="0">
             <g:DockLayoutPanel addStyleNames="{style.left}">
                 <g:north size="50">
                     <g:HTMLPanel addStyleNames="{style.top}">
@@ -35,9 +35,12 @@
                     </g:ScrollPanel>
                 </g:center>
             </g:DockLayoutPanel>
-        </g:west>
-        <g:center>
+        </g:layer>
+        <g:layer left="350" right="0" top="0" bottom="0">
             <repository:RepositoryView ui:field="repositoryPanel"/>
-        </g:center>
-    </g:DockLayoutPanel>
+        </g:layer>
+        <g:layer left="350" right="0" top="0" bottom="0">
+            <g:SimplePanel ui:field="messagePanel" visible="false"/>
+        </g:layer>
+    </g:LayoutPanel>
 </ui:UiBinder>

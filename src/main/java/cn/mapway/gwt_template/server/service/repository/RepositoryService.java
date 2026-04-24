@@ -318,7 +318,7 @@ public class RepositoryService {
         dao.delete(WebHookInstanceEntity.class, instanceId);
     }
 
-    public VwRepositoryEntity findRepositoryView(String id) {
-        return dao.fetch(VwRepositoryEntity.class, Cnd.where(VwRepositoryEntity.FLD_ID, "=", id));
+    public VwRepositoryEntity findRepositoryView(String id,Long userId) {
+        return dao.fetch(VwRepositoryEntity.class, Cnd.where(VwRepositoryEntity.FLD_ID, "=", id).and("myId", "=", userId));
     }
 }

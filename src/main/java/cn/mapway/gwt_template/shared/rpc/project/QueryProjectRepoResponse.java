@@ -1,7 +1,7 @@
 package cn.mapway.gwt_template.shared.rpc.project;
 
 import cn.mapway.document.annotation.Doc;
-import cn.mapway.gwt_template.shared.db.VwRepositoryEntity;
+import cn.mapway.gwt_template.shared.db.DevRepositoryEntity;
 import com.google.gwt.user.client.rpc.IsSerializable;
 import lombok.Data;
 
@@ -16,6 +16,6 @@ import java.util.List;
 @Data
 @Doc("QueryProjectRepoResponse")
 public class QueryProjectRepoResponse implements Serializable, IsSerializable {
-    List<VwRepositoryEntity> repositories;
+    List<DevRepositoryEntity> repositories;
     String currentUserPermission;
 }

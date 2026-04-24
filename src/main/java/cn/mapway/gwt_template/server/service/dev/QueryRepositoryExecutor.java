@@ -43,7 +43,7 @@ public class QueryRepositoryExecutor extends AbstractBizExecutor<QueryRepository
         } else {
             CommonPermission permission = repositoryService.findUserPermissionInRepository(user.getUser().getUserId(), request.getRepositoryId());
             if (permission.canRead()) {
-                VwRepositoryEntity projectView = repositoryService.findRepositoryView(request.getRepositoryId());
+                VwRepositoryEntity projectView = repositoryService.findRepositoryView(request.getRepositoryId(),user.getUser().getUserId());
                 QueryRepositoryResponse response = new QueryRepositoryResponse();
                 response.setRepositories(Lang.list(projectView));
                 return BizResult.success(response);

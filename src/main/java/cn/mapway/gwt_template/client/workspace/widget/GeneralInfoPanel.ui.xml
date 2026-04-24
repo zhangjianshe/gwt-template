@@ -1,0 +1,12 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+    <ui:style>
+        .text {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }</ui:style>
+    <g:HorizontalPanel spacing="10" verticalAlignment="middle">
+        <g:Image ui:field="icon" width="64px" height="64px"/>
+        <g:Label ui:field="text" addStyleNames="{style.text}"/>
+    </g:HorizontalPanel>
+</ui:UiBinder>

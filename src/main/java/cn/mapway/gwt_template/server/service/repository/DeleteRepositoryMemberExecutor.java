@@ -48,8 +48,9 @@ public class DeleteRepositoryMemberExecutor extends AbstractBizExecutor<DeleteRe
         if (member == null) {
             return BizResult.error(500, "成员不在分组中");
         } else {
-            if (member.getOwner() != null && member.getOwner()) {
-                return BizResult.error(500, "不能移除分组的创建者");
+            CommonPermission commonPermission = CommonPermission.from(member.getPermission());
+            if (commonPermission.isOwner()) {
+                return BizResult.error(500, "不能移除仓库的创建者");
             }
             dao.deletex(DevRepositoryMemberEntity.class, request.getUserId(), request.getRepositoryId());
         }

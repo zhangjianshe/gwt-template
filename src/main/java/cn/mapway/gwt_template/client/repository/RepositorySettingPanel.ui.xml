@@ -5,7 +5,7 @@
         <g:west size="400">
             <g:ScrollPanel>
                 <g:HTMLPanel addStyleNames="ai-panel-content">
-                    <widget:Header addStyleNames="ai-flex-panel ai-panel-content">项目配置</widget:Header>
+                    <widget:Header addStyleNames="ai-flex-panel ai-panel-content">仓库配置</widget:Header>
                     <list:List ui:field="list"/>
                 </g:HTMLPanel>
             </g:ScrollPanel>

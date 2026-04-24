@@ -19,7 +19,8 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
-import com.google.gwt.user.client.ui.DockLayoutPanel;
+import com.google.gwt.user.client.ui.LayoutPanel;
+import com.google.gwt.user.client.ui.SimplePanel;
 
 @ModuleMarker(
         name = "开发仓库",
@@ -39,6 +40,10 @@ public class RepositoryFrame extends SubsystemModule {
     RepositoryView repositoryPanel;
     @UiField
     AiButton btnImport;
+    @UiField
+    SimplePanel messagePanel;
+    @UiField
+    LayoutPanel root;
     VwRepositoryEntity currentRepository = null;
 
     public RepositoryFrame() {
@@ -79,7 +84,7 @@ public class RepositoryFrame extends SubsystemModule {
 
     private void showRepository(VwRepositoryEntity repository) {
         currentRepository = repository;
-        repositoryPanel.setData(currentRepository);
+        repositoryPanel.setData(currentRepository.getId());
     }
 
     @UiHandler("btnCreate")
@@ -130,6 +135,6 @@ public class RepositoryFrame extends SubsystemModule {
         dialog.center();
     }
 
-    interface RespositoryFrameUiBinder extends UiBinder<DockLayoutPanel, RepositoryFrame> {
+    interface RespositoryFrameUiBinder extends UiBinder<LayoutPanel, RepositoryFrame> {
     }
 }
