@@ -1,5 +1,7 @@
 package cn.mapway.gwt_template.client.workspace.widget;
 
+import cn.mapway.gwt_template.client.workspace.team.BaseNode;
+import cn.mapway.ui.client.mvc.Size;
 import cn.mapway.ui.client.widget.canvas.CanvasWidget;
 import cn.mapway.ui.shared.CommonEvent;
 import cn.mapway.ui.shared.CommonEventHandler;
@@ -11,6 +13,8 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.RequiresResize;
 import elemental2.dom.BaseRenderingContext2D;
 import elemental2.dom.CanvasRenderingContext2D;
+import elemental2.dom.DOMRect;
+import elemental2.dom.Element;
 import jsinterop.base.Js;
 import lombok.Getter;
 
@@ -24,6 +28,7 @@ public class ProgressSelector extends CanvasWidget implements RequiresResize, Ha
     int step = 10; // 默认吸附步长为 10%
     @Getter
     boolean enabled = true; // 新增标志位
+    Size size = new Size(0, 0);
 
     public ProgressSelector() {
         installEvent();
@@ -76,6 +81,7 @@ public class ProgressSelector extends CanvasWidget implements RequiresResize, Ha
                 DOM.releaseCapture(getElement());
                 isDragging = false;
                 fireEvent(CommonEvent.valueChangedEvent(value));
+                redraw();
             }
         });
     }
@@ -124,48 +130,46 @@ public class ProgressSelector extends CanvasWidget implements RequiresResize, Ha
         updateUI();
     }
 
-
     @Override
     protected void onDraw(double timestamp) {
         CanvasRenderingContext2D ctx = Js.uncheckedCast(getContext2d());
+        ctx.clearRect(0, 0, size.getX(), size.getY());
 
-        // 逻辑尺寸
-        double w = getOffsetWidth();
-        double h = getOffsetHeight();
-
-        // 1. 【核心：重置矩阵】先重置所有变换，确保 clearRect 清理的是整个物理画布
-        ctx.setTransform(1, 0, 0, 1, 0, 0);
-        ctx.clearRect(0, 0, w, h);
-
-        double padding = 15.0; // 左右边距
-        double drawW = w - (padding * 2);
+        ctx.save();
+        // ctx.translate(-0.5, -0.5);
+        double padding = 15; // 左右边距
+        double drawW = size.x - (padding * 2);
         double barH = 12;
-        double y = (h - barH) / 2;
-
+        double y = (size.y - barH) / 2;
         if (!enabled) {
             ctx.globalAlpha = 0.5; // 设置全局透明度
         } else {
             ctx.globalAlpha = 1.0;
         }
 
+        ctx.lineWidth = 1.0;
         ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of(enabled ? "#eeeeee" : "#f5f5f5");
         ctx.beginPath();
-        ctx.roundRect(padding, y, drawW, barH, 6);
-        ctx.fill();
+        ctx.moveTo(padding, size.y / 2);
+        ctx.lineTo(drawW + padding, size.y / 2);
+        ctx.stroke();
+
 
         // B. 绘制进度填充
         double progressW = (drawW * value) / 100.0;
         if (progressW > 0) {
             // 禁用时使用灰色，激活时使用主题色
             String currentColor = enabled ? themeColor : "#cccccc";
-            ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of(currentColor);
+            ctx.strokeStyle = BaseRenderingContext2D.StrokeStyleUnionType.of(currentColor);
+            ctx.lineWidth = 3;
             ctx.beginPath();
-            ctx.roundRect(padding, y, progressW, barH, 6);
-            ctx.fill();
+            ctx.moveTo(padding, size.y / 2.);
+            ctx.lineTo(progressW + padding, size.y / 2.);
+            ctx.stroke();
         }
 
         // C. 绘制刻度
-        ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("#bbbbbb");
+        ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("#888");
         for (int i = 0; i <= 100; i += step) {
             double dotX = padding + (drawW * i) / 100.0;
             ctx.beginPath();
@@ -175,10 +179,11 @@ public class ProgressSelector extends CanvasWidget implements RequiresResize, Ha
 
         // D. 绘制手柄
         double knobX = padding + progressW;
-        // 禁用时不显示阴影
-        ctx.shadowBlur = enabled ? (isDragging ? 8 : 4) : 0;
-        ctx.shadowColor = "rgba(0,0,0,0.3)";
-        ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("#ffffff");
+        if (isDragging) {
+            ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("skyblue");
+        } else {
+            ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of("#ffffff");
+        }
         ctx.beginPath();
         ctx.arc(knobX, y + barH / 2, barH / 2 + 4, 0, Math.PI * 2);
         ctx.fill();
@@ -189,32 +194,35 @@ public class ProgressSelector extends CanvasWidget implements RequiresResize, Ha
         ctx.stroke();
 
         // E. 绘制文字
-        ctx.shadowBlur = 0;
+        ctx.lineWidth = 1;
         ctx.fillStyle = BaseRenderingContext2D.FillStyleUnionType.of(enabled ? "#666666" : "#999999");
-        ctx.font = "bold 12px sans-serif";
+        ctx.font = BaseNode.NORMAL_FONT;
         ctx.textAlign = "center";
         ctx.fillText(value + "%", knobX, y - 12);
 
         // 最后记得重置透明度，防止影响下次绘制或其他组件
         ctx.globalAlpha = 1.0;
-
+        ctx.restore();
     }
 
-
-    @Override
-    public void onResize() {
-        Scheduler.get().scheduleFinally(() -> {
-            resizeWindow();
-            redraw();
+    void resize() {
+        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+            @Override
+            public void execute() {
+                Element element = Js.uncheckedCast(getElement().getParentElement());
+                DOMRect clientRect = element.getBoundingClientRect();
+                size.set(clientRect.width, clientRect.height);
+                setPixelSize((int) size.x, (int) size.y);
+                redraw();
+            }
         });
     }
 
     @Override
-    public void setPixelSize(int width, int height) {
-        super.setPixelSize(width, height);
-        resizeWindow();
-        redraw();
+    public void onResize() {
+        resize();
     }
+
 
     @Override
     public HandlerRegistration addCommonHandler(CommonEventHandler handler) {

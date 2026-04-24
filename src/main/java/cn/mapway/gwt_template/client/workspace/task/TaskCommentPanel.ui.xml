@@ -85,8 +85,9 @@
             font-size: 28px;
         }
 
-        .progress {
-            border: solid 1px grey;
+        .test {
+            border: solid 1px #444;
+            box-sizing: border-box;
         }</ui:style>
     <g:LayoutPanel ui:field="root">
         <g:layer>
@@ -99,8 +100,8 @@
                                 <widget:EditableLabel addStyleNames="{style.title}" ui:field="txtName"/>
                             </g:HTMLPanel>
                         </g:north>
-                        <g:north size="60">
-                            <widget:ProgressSelector  width="100%" height="100%"
+                        <g:north size="65">
+                            <widget:ProgressSelector
                                                      ui:field="progressSelector"/>
                         </g:north>
                         <g:south size="0">

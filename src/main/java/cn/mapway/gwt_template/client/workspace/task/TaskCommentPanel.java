@@ -93,7 +93,7 @@ public class TaskCommentPanel extends CommonEventComposite implements IData<DevP
         ddlPriority.init(false);
         convert = new MarkdownConvert();
         editor.appendTool(inputTools);
-        progressSelector.setThemeColor("skyblue");
+        progressSelector.setThemeColor("brown");
     }
 
     @Override
