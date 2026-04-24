@@ -101,13 +101,13 @@ public class RepositoryService {
 
     public List<VwRepositoryEntity> allRepositories(Long userId, String nameFilter) {
         if (Strings.isBlank(nameFilter)) {
-            return dao.query(VwRepositoryEntity.class, Cnd.where("my_id", "=", userId).desc("create_time"), new Pager());
+            return dao.query(VwRepositoryEntity.class, Cnd.where("my_id", "=", userId).desc("create_time"), new Pager().setPageSize(200));
         } else {
             SqlExpressionGroup likeGroup = new SqlExpressionGroup();
             likeGroup.or(Exps.like("name", "%" + nameFilter + "%"));
             likeGroup.or(Exps.like("fullName", "%" + nameFilter + "%"));
             return dao.query(VwRepositoryEntity.class, Cnd.where("my_id", "=", userId)
-                    .and(likeGroup).desc("create_time"), new Pager());
+                    .and(likeGroup).desc("create_time"), new Pager().setPageSize(200));
         }
     }
 
