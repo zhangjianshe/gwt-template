@@ -517,6 +517,7 @@ public class GanttDocument {
             scrollToItem(selectedItems.get(0));
         }
         chart.fireEvent(CommonEvent.selectEvent(item.getEntity()));
+        chart.redraw();
     }
 
     public String formatTaskCode(Integer code) {
