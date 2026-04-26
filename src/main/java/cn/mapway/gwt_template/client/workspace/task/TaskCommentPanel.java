@@ -141,7 +141,7 @@ public class TaskCommentPanel extends CommonEventComposite implements IData<DevP
             ddlPriority.setEnabled(true);
             markdownBox.setEnabled(true);
             assignPanel.setVisible(true);
-            progressSelector.setEnabled(true);
+            progressSelector.setEnabled(taskEntity.getChildren().isEmpty());
             root.setWidgetVisible(editor, true);
         } else if (isCharge) {
             top.setWidgetSize(saveBar, ADMIN_BAR_HEIGHT);
@@ -150,7 +150,7 @@ public class TaskCommentPanel extends CommonEventComposite implements IData<DevP
             btnUploader.setVisible(true);
             ddlPriority.setEnabled(false);
             markdownBox.setEnabled(true);
-            progressSelector.setEnabled(true);
+            progressSelector.setEnabled(taskEntity.getChildren().isEmpty());
             assignPanel.setVisible(false);
         } else {
             top.setWidgetSize(saveBar, 0);
