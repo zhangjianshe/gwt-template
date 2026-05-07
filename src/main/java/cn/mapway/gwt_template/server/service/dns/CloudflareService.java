@@ -7,12 +7,14 @@ import cn.mapway.gwt_template.shared.rpc.dns.model.CloudflareConfig;
 import cn.mapway.gwt_template.shared.rpc.dns.model.CloudflareError;
 import cn.mapway.gwt_template.shared.rpc.dns.model.CloudflareResult;
 import cn.mapway.gwt_template.shared.rpc.dns.model.DnsEntry;
+import com.google.common.collect.Lists;
 import com.google.gson.reflect.TypeToken;
 import lombok.extern.slf4j.Slf4j;
 import org.nutz.http.Header;
 import org.nutz.http.Http;
 import org.nutz.http.Response;
 import org.nutz.json.Json;
+import org.nutz.json.JsonFormat;
 import org.nutz.lang.Strings;
 import org.springframework.stereotype.Service;
 
@@ -184,68 +186,66 @@ public class CloudflareService {
     }
 
     /**
-     * 批量更新域名的IP
-     * https://api.cloudflare.com/client/v4/zones/{ZONE_ID}/dns_records/batch
-     * {
-     * "patches": [
-     * {
-     * "id": "12345abcde678901234567890abcdefg",
-     * "content": "203.0.113.10",
-     * "proxied": true
-     * },
-     * {
-     * "id": "98765abcde432109876543210fedcba9",
-     * "ttl": 3600,
-     * "comment": "Updated TTL"
-     * }
-     * ],
-     * "posts": [
-     * // array of records to create
-     * ],
-     * "puts": [
-     * // array of records to overwrite
-     * ],
-     * "deletes": [
-     * // array of records to delete
-     * ]
-     * }
-     *
-     * @param zoneId
-     * @param idList
-     * @param ip
+     * 批量更新域名的IP (支持超过200条的自动分批处理)
      */
     public BizResult<CloudflareResult> updateIps(String zoneId, List<DnsEntry> idList, String ip) {
         CloudflareConfig zonConfig = getZoneConfig(zoneId);
-        if (zonConfig == null) {
-            return BizResult.error(500, "没有配置Cloudflare Token");
+        if (zonConfig == null || Strings.isBlank(zonConfig.token)) {
+            return BizResult.error(500, "没有配置有效的 Cloudflare Token");
         }
 
-        String url = String.format("https://api.cloudflare.com/client/v4/zones/%s/dns_records/batch", zonConfig.zoneId);
-        Header header = Header.create().asJsonContentType().set("Authorization", String.format("Bearer %s", zonConfig.token));
-        Map<String, Object> data = new HashMap<>();
-        ArrayList<Object> list = new ArrayList<>();
-        for (DnsEntry dns : idList) {
-            Map<String, Object> obj = new HashMap<>();
-            obj.put("id", dns.getId());
-            obj.put("content", ip);
-            /*obj.put("type", dns.getType());
-            obj.put("name", dns.getName());
-            obj.put("proxied", dns.getProxied());
-            obj.put("ttl",120);*/
-            list.add(obj);
+        if (idList == null || idList.isEmpty()) {
+            return BizResult.error(500, "待更新列表为空");
         }
-        data.put("patches", list);
-        data.put("deletes", new ArrayList<>());
-        data.put("puts", new ArrayList<>());
-        data.put("posts", new ArrayList<>());
-        Response response = Http.post3(url, Json.toJson(data), header, 0);
-        System.out.println(response.getContent());
-        if (response.isOK()) {
-            CloudflareResult result = Json.fromJson(CloudflareResult.class, response.getContent());
-            return BizResult.success(result);
-        } else {
-            return BizResult.error(500, response.getContent());
+
+        String url = String.format("https://api.cloudflare.com/client/v4/zones/%s/dns_records/batch", zoneId);
+        Header header = Header.create()
+                .asJsonContentType()
+                .set("Authorization", "Bearer " + zonConfig.token);
+
+        // 1. 使用 Nutz 的 Lang.splitList 进行分切，每组最多 200 条
+        List<List<DnsEntry>> batches = Lists.partition(idList, 200);
+
+        CloudflareResult lastResult = null;
+        int successCount = 0;
+
+        for (List<DnsEntry> batch : batches) {
+            // 2. 构造当前批次的 Payload
+            List<Map<String, Object>> patches = new ArrayList<>(batch.size());
+            for (DnsEntry dns : batch) {
+                if (Strings.isBlank(dns.getId())) continue;
+                Map<String, Object> item = new HashMap<>();
+                item.put("id", dns.getId());
+                item.put("content", ip);
+                patches.add(item);
+            }
+
+            Map<String, Object> body = new HashMap<>();
+            body.put("patches", patches);
+
+            // 3. 执行 HTTP 请求
+            try {
+                Response response = Http.post3(url, Json.toJson(body, JsonFormat.compact()), header, 30000);
+
+                if (response.isOK()) {
+                    CloudflareResult result = Json.fromJson(CloudflareResult.class, response.getContent());
+                    if (result != null && result.isSuccess()) {
+                        lastResult = result;
+                        successCount += batch.size();
+                    } else {
+                        return BizResult.error(500, String.format("批次更新失败(已成功%d条): %s", successCount, response.getContent()));
+                    }
+                } else {
+                    return BizResult.error(response.getStatus(), String.format("网络请求失败(已成功%d条): %s", successCount, response.getContent()));
+                }
+            } catch (Exception e) {
+                log.error("调用 Cloudflare 批量接口异常", e);
+                return BizResult.error(500, "调用异常: " + e.getMessage());
+            }
         }
+
+        // 全部批次执行完毕
+        return BizResult.success(lastResult);
     }
 
 
