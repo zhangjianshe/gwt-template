@@ -266,6 +266,7 @@ public class DnsFrame extends ToolbarModules {
         });
         allItems.add(checkBox);
         table.setWidget(row, col++, checkBox);
+        table.setWidget(row, col++, new Label(index + ""));
         table.setWidget(row, col++, new Label(entry.getName()));
         table.setWidget(row, col++, new Label(entry.getType()));
         table.setWidget(row, col++, new Label(entry.getContent()));
@@ -276,14 +277,7 @@ public class DnsFrame extends ToolbarModules {
 
         btnEdit.addClickHandler(editHandler);
         table.setWidget(row, col++, btnEdit);
-    }    ClickHandler editHandler = new ClickHandler() {
-        @Override
-        public void onClick(ClickEvent event) {
-            AiButton button = (AiButton) event.getSource();
-            DnsEntry dnsEntry = (DnsEntry) button.getData();
-            editDns(dnsEntry);
-        }
-    };
+    }
 
     private int indexOfEntry(String id) {
         for (int i = 0; i < allItems.size(); i++) {
@@ -293,7 +287,14 @@ public class DnsFrame extends ToolbarModules {
             }
         }
         return -1;
-    }
+    }    ClickHandler editHandler = new ClickHandler() {
+        @Override
+        public void onClick(ClickEvent event) {
+            AiButton button = (AiButton) event.getSource();
+            DnsEntry dnsEntry = (DnsEntry) button.getData();
+            editDns(dnsEntry);
+        }
+    };
 
     private void rendDnsList(List<DnsEntry> dnsList) {
         table.removeAllRows();
@@ -304,6 +305,7 @@ public class DnsFrame extends ToolbarModules {
 
         selectAll.setValue(false, false);
         table.setWidget(row, col++, selectAll);
+        table.setWidget(row, col++, new Label("INDEX"));
         table.setWidget(row, col++, new Label("DNS NAME"));
         table.setWidget(row, col++, new Label("Type"));
         table.setWidget(row, col++, new Label("Content"));
@@ -317,20 +319,18 @@ public class DnsFrame extends ToolbarModules {
             updateTableRow(row, entry);
         }
 
+        col = 0;
         HTMLTable.ColumnFormatter columnFormatter = table.getColumnFormatter();
-        columnFormatter.setWidth(0, "80px");
-        columnFormatter.setWidth(1, "200px");
-        columnFormatter.setWidth(2, "60px");
-        columnFormatter.setWidth(3, "200px");
-        columnFormatter.setWidth(4, "80px");
-        columnFormatter.setWidth(6, "90px");
-        columnFormatter.setStyleName(6, "ai-right");
+        columnFormatter.setWidth(col++, "80px");
+        columnFormatter.setWidth(col++, "80px");
+        columnFormatter.setWidth(col++, "200px");
+        columnFormatter.setWidth(col++, "60px");
+        columnFormatter.setWidth(col++, "200px");
+        columnFormatter.setWidth(col++, "80px");
+        columnFormatter.setWidth(col++, "200px");
+        columnFormatter.setStyleName(col, "ai-right");
     }
 
     interface DnsFrameUiBinder extends UiBinder<DockLayoutPanel, DnsFrame> {
     }
-
-
-
-
 }

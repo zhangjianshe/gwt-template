@@ -45,18 +45,40 @@ public class CloudflareService {
             return BizResult.error(500, "没有配置Cloudflare Token");
         }
 
+        int page = 1;
         String url = String.format("https://api.cloudflare.com/client/v4/zones/%s/dns_records?type=A", zonConfig.zoneId);
+        url = url + "&page=" + page;  //page=1&per_page=50
+        url = url + "&per_page=50";
         Header header = Header.create().set("Authorization", String.format("Bearer %s", zonConfig.token));
         Response response = Http.get(url, header, 0);
         if (response.isOK()) {
+            List<DnsEntry> finalResult=new ArrayList<>();
             TypeToken<CloudflareResult<List<DnsEntry>>> typeToken = new TypeToken<CloudflareResult<List<DnsEntry>>>() {
             };
             CloudflareResult<List<DnsEntry>> result = (CloudflareResult<List<DnsEntry>>) Json.fromJson(typeToken.getType(), response.getContent());
-            return BizResult.success(result.getResult());
+            finalResult.addAll(result.getResult());
+            // first query
+
+            if(result.getResult_info().getTotal_pages()>1)
+            {
+                // 循环获取所有的域名信息
+                for(int page2=2; page2<=result.getResult_info().getTotal_pages(); page2++)
+                {
+                    url = String.format("https://api.cloudflare.com/client/v4/zones/%s/dns_records?type=A", zonConfig.zoneId);
+                    url = url + "&page=" + page2;  //page=1&per_page=50
+                    url = url + "&per_page=50";
+                    Response response2 = Http.get(url, header, 0);
+                    CloudflareResult<List<DnsEntry>> result2 = (CloudflareResult<List<DnsEntry>>) Json.fromJson(typeToken.getType(), response2.getContent());
+                    finalResult.addAll(result2.getResult());
+                }
+            }
+            return BizResult.success(finalResult);
         } else {
             return BizResult.error(500, response.getContent());
         }
     }
+
+
 
     public CloudflareConfig getZoneConfig(String zoneId) {
         if (Strings.isBlank(zoneId)) {
