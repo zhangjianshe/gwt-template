@@ -91,7 +91,7 @@ public class CreateResourceDirFilePanel extends CommonEventComposite {
             }
         } else {
             String fileName = txtDirName.getValue();
-            if (!checkFileName(fileName)) {
+            if (!checkDirName(fileName)) {
             } else {
                 doCreate(fileName, true);
             }
@@ -120,22 +120,59 @@ public class CreateResourceDirFilePanel extends CommonEventComposite {
             }
         });
     }
+    private boolean checkDirName(String dirName) {
+        if (StringUtil.isBlank(dirName)) {
+            saveBar.msg("目录名称不能为空");
+            return false;
+        }
 
-    private boolean checkFileName(String fileName) {
-        if (StringUtil.isBlank(fileName)) {
-            saveBar.msg("目录名称不满足要求");
+        // 1. 去除首尾空格
+        dirName = dirName.trim();
+
+        /**
+         * 2. 正则表达式说明：
+         * ^                  : 行首
+         * [^\\/:*?"<>| \t\n] : 排除非法字符（反斜杠、斜杠、冒号、星号、问号、引号、尖括号、竖线、空格、换行）
+         *                      注：目录名通常建议不要包含空格，以方便脚本处理。
+         * [^\\/:*?"<>|]*     : 后续字符允许中文、字母、数字、点、下划线等，但依然排除非法路径字符
+         * $                  : 行尾
+         */
+        RegExp regExp = RegExp.compile("^[^\\\\/:*?\"<>| \\t\\n][^\\\\/:*?\"<>|]*$");
+
+        if (!regExp.test(dirName)) {
+            saveBar.msg("目录名称包含非法字符或格式不正确");
             return false;
         }
-        fileName = fileName.trim();
-        fileName = fileName.replaceAll(" ", "");
-        RegExp regExp = RegExp.compile("^(\\w+\\.?)*\\w+$");
-        boolean test = regExp.test(fileName);
-        if (!test) {
-            saveBar.msg("目录名称不满足要求");
+
+        // 3. 额外安全检查：禁止仅使用 "." 或 ".." 作为目录名
+        if (".".equals(dirName) || "..".equals(dirName)) {
+            saveBar.msg("目录名称不能为系统保留值");
             return false;
         }
+
         return true;
     }
+    private boolean checkFileName(String fileName) {
+        if (StringUtil.isBlank(fileName)) {
+            saveBar.msg("目录名称不能为空");
+            return false;
+        }
+
+        fileName = fileName.trim();
+
+        // 允许：中文、字母、数字、下划线、点、中划线，长度至少1位
+        // 同时也去掉了原代码中强制删除空格的逻辑，改为在正则中判断
+        RegExp regExp = RegExp.compile("^[\\w\\u4e00-\u9fa5\\.\\-\\s]+$");
+
+        if (!regExp.test(fileName)) {
+            saveBar.msg("目录名称包含非法字符");
+            return false;
+        }
+
+        return true;
+    }
+
+
 
     interface CreateResourceDirFilePanelUiBinder extends UiBinder<DockLayoutPanel, CreateResourceDirFilePanel> {
     }

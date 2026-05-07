@@ -7,8 +7,8 @@ import cn.mapway.gwt_template.client.rpc.AppProxy;
 import cn.mapway.gwt_template.client.rpc.AsyncAdaptor;
 import cn.mapway.gwt_template.client.workspace.task.ProjectMemberSelector;
 import cn.mapway.gwt_template.shared.db.DevProjectResourceEntity;
-import cn.mapway.gwt_template.shared.rpc.project.module.ProjectMember;
 import cn.mapway.gwt_template.shared.rpc.project.module.CommonPermission;
+import cn.mapway.gwt_template.shared.rpc.project.module.ProjectMember;
 import cn.mapway.gwt_template.shared.rpc.project.module.ProjectPermissionKind;
 import cn.mapway.gwt_template.shared.rpc.project.module.ResourceMember;
 import cn.mapway.gwt_template.shared.rpc.project.res.*;
@@ -48,6 +48,8 @@ public class ResourceConfigPanel extends CommonEventComposite implements IData<D
     Button btnSave;
     @UiField
     AiTextBox txtRank;
+    @UiField
+    CheckBox checkOpen;
     private DevProjectResourceEntity resource;
 
     public ResourceConfigPanel() {
@@ -154,6 +156,7 @@ public class ResourceConfigPanel extends CommonEventComposite implements IData<D
         txtColor.setValue(resource.getColor());
         txtName.setValue(resource.getName());
         btnSave.setEnabled(false);
+        checkOpen.setValue(resource.getShare());
         txtRank.setValue(String.valueOf(resource.getRank()));
         loadMember();
     }
@@ -304,6 +307,7 @@ public class ResourceConfigPanel extends CommonEventComposite implements IData<D
         resource.setColor(txtColor.getValue());
         resource.setName(txtName.getValue());
         resource.setRank(Integer.parseInt(txtRank.getValue()));
+        resource.setShare(checkOpen.getValue());
         request.setResource(resource);
         AppProxy.get().updateProjectResource(request, new AsyncCallback<RpcResult<UpdateProjectResourceResponse>>() {
             @Override

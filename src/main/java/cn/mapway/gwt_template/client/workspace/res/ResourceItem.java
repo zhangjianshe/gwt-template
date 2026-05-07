@@ -77,6 +77,10 @@ public class ResourceItem extends CommonEventComposite implements IData<Object> 
         lbName.setTitle(name);
         lbName.getElement().getStyle().setColor(color);
     }
+    public void setIcon(String icon)
+    {
+        lbIcon.setText(Fonts.toHtmlEntity(icon));
+    }
 
     public void setSelected(boolean selected) {
         CommonEventComposite.setElementSelect(getElement(), selected);

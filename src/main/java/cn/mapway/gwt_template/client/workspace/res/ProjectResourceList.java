@@ -76,19 +76,6 @@ public class ProjectResourceList extends CommonEventComposite implements IData<S
         }
 
     };
-    private CommonEventHandler folderFileHandler= commonEvent -> {
-        if (commonEvent.isSelect()) {
-            ResourceItem source = (ResourceItem) commonEvent.getSource();
-            selectItem(source);
-            ResItem data = (ResItem) source.getData();
-            if (!data.getIsDir()) {
-                navInfo.setFile(data.getPathName());
-                fireEvent(CommonEvent.viewEvent(navInfo));
-            } else {
-                loadDir(data.getPathName());
-            }
-        }
-    };
 
     public ProjectResourceList() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -158,7 +145,19 @@ public class ProjectResourceList extends CommonEventComposite implements IData<S
         dialog.getContent().setPath(path);
         dialog.getContent().setAction(GWT.getHostPageBaseURL() + "/api/v1/project/upload");
         dialog.center();
-    }
+    }    private final CommonEventHandler folderFileHandler = commonEvent -> {
+        if (commonEvent.isSelect()) {
+            ResourceItem source = (ResourceItem) commonEvent.getSource();
+            selectItem(source);
+            ResItem data = (ResItem) source.getData();
+            if (!data.getIsDir()) {
+                navInfo.setFile(data.getPathName());
+                fireEvent(CommonEvent.viewEvent(navInfo));
+            } else {
+                loadDir(data.getPathName());
+            }
+        }
+    };
 
     private void confirmDeleteDirFile(ResItem actionItem) {
         if (actionItem == null) {
@@ -384,6 +383,7 @@ public class ProjectResourceList extends CommonEventComposite implements IData<S
                 continue;
             }
 
+            String icon = (resource.getShare() != null && resource.getShare()) ? Fonts.UNLOCK : Fonts.LOCK;
             if (permission.isSuper()) {
                 FontIcon config = new FontIcon();
                 config.setPushButton(true);
@@ -398,9 +398,9 @@ public class ProjectResourceList extends CommonEventComposite implements IData<S
                         showConfig(resource);
                     }
                 });
-                item.setValue(Fonts.ARCHIVE, resource.getName(), config);
+                item.setValue(icon, resource.getName(), config);
             } else {
-                item.setValue(Fonts.ARCHIVE, resource.getName(), "");
+                item.setValue(icon, resource.getName(), "");
             }
             item.updateNameColor(resource.getName(), resource.getColor());
             item.addCommonHandler(archiveItemHandler);
@@ -450,6 +450,7 @@ public class ProjectResourceList extends CommonEventComposite implements IData<S
                         data2.setName(data.getName());
                         data2.setColor(data.getColor());
                         item.updateNameColor(data2.getName(), data2.getColor());
+                        item.setIcon((data2.getShare() != null && data2.getShare()) ? Fonts.UNLOCK : Fonts.LOCK);
                         break;
                     }
                 }
@@ -565,6 +566,7 @@ public class ProjectResourceList extends CommonEventComposite implements IData<S
 
     interface ProjectResourceListUiBinder extends UiBinder<DockLayoutPanel, ProjectResourceList> {
     }
+
 
 
 

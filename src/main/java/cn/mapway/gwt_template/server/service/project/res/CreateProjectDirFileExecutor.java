@@ -49,11 +49,17 @@ public class CreateProjectDirFileExecutor extends AbstractBizExecutor<CreateProj
         assertTrue(Strings.isNotBlank(request.getResourceId()), "未提供资源ID");
         assertTrue(Strings.isNotBlank(request.getName()), "名称不能为空");
         request.setName(Strings.trim(request.getName()));
-        if (request.getName().contains("/") || request.getName().contains("\\")) {
-            return BizResult.error(500, "名称包含非法字符");
+
+        // 根据类型（目录或文件）执行不同的校验逻辑
+        boolean isValid;
+        if (Boolean.TRUE.equals(request.getIsDir())) {
+            isValid = checkDirName(request.getName());
+        } else {
+            isValid = checkFileName(request.getName());
         }
-        if (request.getName().startsWith(".")) {
-            return BizResult.error(500, "禁止创建隐藏文件或者目录");
+
+        if (!isValid) {
+            return BizResult.error(500, "名称不符合规范（不能包含非法字符或以.开头）");
         }
 
         // 2. 获取资源定义并校验权限
@@ -105,4 +111,29 @@ public class CreateProjectDirFileExecutor extends AbstractBizExecutor<CreateProj
 
         return BizResult.success(response);
     }
+
+    private boolean checkDirName(String dirName) {
+        if (Strings.isBlank(dirName)) return false;
+        dirName = dirName.trim();
+
+        // 排除非法路径字符，且禁止以 . 开头以防止创建隐藏目录
+        if (dirName.startsWith(".") || ".".equals(dirName) || "..".equals(dirName)) {
+            return false;
+        }
+
+        // Java 标准正则写法
+        return dirName.matches("^[^\\\\/:*?\"<>| \\t\\n][^\\\\/:*?\"<>|]*$");
+    }
+
+    private boolean checkFileName(String fileName) {
+        if (Strings.isBlank(fileName)) return false;
+        fileName = fileName.trim();
+
+        // 禁止隐藏文件
+        if (fileName.startsWith(".")) return false;
+
+        // 允许中文、字母、数字、点、下划线、中划线和空格
+        return fileName.matches("^[\\w\\u4e00-\\u9fa5\\.\\-\\s]+$");
+    }
+
 }

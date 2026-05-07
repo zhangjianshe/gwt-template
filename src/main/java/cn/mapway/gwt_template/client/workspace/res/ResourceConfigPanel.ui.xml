@@ -20,6 +20,8 @@
             <g:HTMLPanel addStyleNames="{style.box}">
                 <widget:Header>分类名称</widget:Header>
                 <widget:AiTextBox ui:field="txtName"/>
+                <widget:Header>公开访问</widget:Header>
+                <g:CheckBox ui:field="checkOpen" width="80px"/>
                 <widget:Header>颜色</widget:Header>
                 <widget:AiTextBox ui:field="txtColor" width="120px"/>
                 <widget:Header>排序</widget:Header>
@@ -28,9 +30,10 @@
             </g:HTMLPanel>
         </g:north>
         <g:center>
-            <g:FlexTable ui:field="memberTable">
-
-            </g:FlexTable>
+            <g:ScrollPanel>
+                <g:FlexTable ui:field="memberTable">
+                </g:FlexTable>
+            </g:ScrollPanel>
         </g:center>
     </g:DockLayoutPanel>
 </ui:UiBinder>
