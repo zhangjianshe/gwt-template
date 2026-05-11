@@ -31,6 +31,8 @@ public class TextEditViewer extends CommonEventComposite implements RequiresResi
     HorizontalPanel tools;
     @UiField
     DockLayoutPanel root;
+    @UiField
+    Button btnView;
     boolean initialize = false;
     private PreviewData data;
 
@@ -42,6 +44,10 @@ public class TextEditViewer extends CommonEventComposite implements RequiresResi
     @UiHandler("btnSave")
     public void btnSaveClick(ClickEvent event) {
         doSave();
+    }
+
+    @UiHandler("btnView")
+    public void btnViewClick(ClickEvent event) {
     }
 
     public void enableSave(boolean enable) {

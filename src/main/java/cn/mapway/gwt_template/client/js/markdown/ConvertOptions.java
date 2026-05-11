@@ -25,6 +25,23 @@ public class ConvertOptions extends JsObject {
     @JsProperty
     public boolean simpleLineBreaks;
 
+    @JsProperty
+    public boolean noHeaderId;
+
+    @JsProperty
+    public boolean ghCodeBlocks;
+    @JsProperty
+    public boolean openLinksInNewWindow;
+
+    /**
+     * ![foo](foo.jpg =100x80)     simple, assumes units are in px
+     * ![bar](bar.jpg =100x*)      sets the height to "auto"
+     * ![baz](baz.jpg =80%x5em)  Image with width of 80% and height of 5em
+     */
+    @JsProperty
+    public boolean parseImgDimensions;
+
+
     @JsOverlay
     public static ConvertOptions create() {
         return Js.uncheckedCast(JsPropertyMap.of());

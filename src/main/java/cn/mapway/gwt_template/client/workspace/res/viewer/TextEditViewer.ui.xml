@@ -3,6 +3,7 @@
     <g:DockLayoutPanel ui:field="root">
         <g:north size="0">
             <g:HorizontalPanel ui:field="tools">
+                <g:Button ui:field="btnView">预览</g:Button>
                 <g:Button ui:field="btnSave">保存</g:Button>
             </g:HorizontalPanel>
         </g:north>

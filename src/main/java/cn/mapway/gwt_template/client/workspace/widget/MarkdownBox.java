@@ -4,6 +4,7 @@ import cn.mapway.ace.client.AceCommandDescription;
 import cn.mapway.ace.client.AceEditor;
 import cn.mapway.ace.client.AceEditorCallback;
 import cn.mapway.ace.client.AceEditorMode;
+import cn.mapway.gwt_template.client.js.markdown.ConvertOptions;
 import cn.mapway.gwt_template.client.js.markdown.MarkdownConvert;
 import cn.mapway.ui.client.util.StringUtil;
 import cn.mapway.ui.client.widget.CommonEventComposite;
@@ -38,7 +39,11 @@ public class MarkdownBox extends CommonEventComposite implements HasValue<String
 
     public MarkdownBox() {
         initWidget(ourUiBinder.createAndBindUi(this));
-        convert = new MarkdownConvert();
+        ConvertOptions options = ConvertOptions.create();
+        options.tables = true;
+        options.simpleLineBreaks=true;
+        options.parseImgDimensions=true;
+        convert = new MarkdownConvert(options);
         root.addDomHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
