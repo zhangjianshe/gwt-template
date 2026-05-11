@@ -13,7 +13,9 @@
                     <ace:AceEditor width="100%" height="100%" ui:field="editor"/>
                 </g:layer>
                 <g:layer>
-                    <g:HTML ui:field="html" addStyleNames="ai-panel-content markdown-body"/>
+                    <g:ScrollPanel ui:field="htmlPanel">
+                        <g:HTML ui:field="html" addStyleNames="ai-panel-content markdown-body"/>
+                    </g:ScrollPanel>
                 </g:layer>
             </g:LayoutPanel>
         </g:center>

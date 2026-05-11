@@ -40,6 +40,8 @@ public class TextEditViewer extends CommonEventComposite implements RequiresResi
     LayoutPanel contentPanel;
     @UiField
     HTML html;
+    @UiField
+    ScrollPanel htmlPanel;
     boolean initialize = false;
     MarkdownConvert convert;
     Integer VIEW_MODE_EDIT = 0;
@@ -80,9 +82,9 @@ public class TextEditViewer extends CommonEventComposite implements RequiresResi
             contentPanel.setWidgetTopBottom(editor, 0, Style.Unit.PX, 0, Style.Unit.PX);
         } else {
             btnView.setText("编辑");
-            contentPanel.add(html);
-            contentPanel.setWidgetLeftRight(html, 0, Style.Unit.PX, 0, Style.Unit.PX);
-            contentPanel.setWidgetTopBottom(html, 0, Style.Unit.PX, 0, Style.Unit.PX);
+            contentPanel.add(htmlPanel);
+            contentPanel.setWidgetLeftRight(htmlPanel, 0, Style.Unit.PX, 0, Style.Unit.PX);
+            contentPanel.setWidgetTopBottom(htmlPanel, 0, Style.Unit.PX, 0, Style.Unit.PX);
             html.setHTML(convert.makeHtml(editor.getValue()));
         }
     }
