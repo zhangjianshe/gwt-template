@@ -2,9 +2,10 @@ package cn.mapway.gwt_template.client.js.markdown;
 
 import jsinterop.annotations.JsConstructor;
 import jsinterop.annotations.JsMethod;
+import jsinterop.annotations.JsOverlay;
 import jsinterop.annotations.JsType;
 
-@JsType(isNative = true,namespace = "showdown",name = "Converter")
+@JsType(isNative = true, namespace = "showdown", name = "Converter")
 public class MarkdownConvert {
 
     @JsConstructor
@@ -32,4 +33,12 @@ public class MarkdownConvert {
      */
     @JsMethod
     public native Object getOption(String key);
+
+    @JsMethod
+    public native void setFlavor(String flavor);
+
+    @JsOverlay
+    public final void setGithubFlavor() {
+        setFlavor("github");
+    }
 }

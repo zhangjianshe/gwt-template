@@ -41,9 +41,10 @@ public class MarkdownBox extends CommonEventComposite implements HasValue<String
         initWidget(ourUiBinder.createAndBindUi(this));
         ConvertOptions options = ConvertOptions.create();
         options.tables = true;
-        options.simpleLineBreaks=true;
-        options.parseImgDimensions=true;
+        options.simpleLineBreaks = true;
+        options.parseImgDimensions = true;
         convert = new MarkdownConvert(options);
+        convert.setGithubFlavor();
         root.addDomHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
