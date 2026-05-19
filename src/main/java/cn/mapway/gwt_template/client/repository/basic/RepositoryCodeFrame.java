@@ -4,6 +4,7 @@ import cn.mapway.ace.client.AceCommandDescription;
 import cn.mapway.ace.client.AceEditor;
 import cn.mapway.ace.client.AceEditorMode;
 import cn.mapway.gwt_template.client.ClientContext;
+import cn.mapway.gwt_template.client.js.markdown.ConvertOptions;
 import cn.mapway.gwt_template.client.js.markdown.MarkdownConvert;
 import cn.mapway.gwt_template.client.repository.member.MemberList;
 import cn.mapway.gwt_template.client.resource.AppResource;
@@ -91,6 +92,7 @@ public class RepositoryCodeFrame extends CommonEventComposite implements IData<V
     HTML readme;
     @UiField
     FontIcon btnView;
+    MarkdownConvert convert;
     private VwRepositoryEntity repository;
 
     public RepositoryCodeFrame() {
@@ -125,6 +127,13 @@ public class RepositoryCodeFrame extends CommonEventComposite implements IData<V
             loadDir(ref, "");
             loadReadme(repository.getId());
         });
+        ConvertOptions convertOptions = ConvertOptions.create();
+        convertOptions.tables = true;
+        convertOptions.parseImgDimensions = true;
+        convertOptions.ghCodeBlocks = true;
+        convertOptions.tasklists = true;
+        convertOptions.openLinksInNewWindow = true;
+        convert = new MarkdownConvert(convertOptions);
     }
 
     @Override
@@ -514,7 +523,7 @@ public class RepositoryCodeFrame extends CommonEventComposite implements IData<V
             contentPanel.setWidgetLeftRight(messagePanel, 0, Style.Unit.PX, 0, Style.Unit.PX);
             contentPanel.setWidgetTopBottom(messagePanel, 0, Style.Unit.PX, 0, Style.Unit.PX);
             msgContainer.clear();
-            MarkdownConvert convert = new MarkdownConvert();
+
             HTML html = new HTML(convert.makeHtml(text));
             html.addStyleName("markdown-body");
             msgContainer.add(html);
