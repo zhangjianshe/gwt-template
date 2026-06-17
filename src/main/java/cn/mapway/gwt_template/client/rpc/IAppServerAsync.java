@@ -6,6 +6,7 @@ import cn.mapway.gwt_template.shared.rpc.dev.*;
 import cn.mapway.gwt_template.shared.rpc.dns.*;
 import cn.mapway.gwt_template.shared.rpc.ldap.*;
 import cn.mapway.gwt_template.shared.rpc.message.*;
+import cn.mapway.gwt_template.shared.rpc.powerdns.*;
 import cn.mapway.gwt_template.shared.rpc.project.*;
 import cn.mapway.gwt_template.shared.rpc.project.res.*;
 import cn.mapway.gwt_template.shared.rpc.project.wiki.*;
@@ -29,6 +30,18 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public interface IAppServerAsync {
 
     ///CODE_GEN_INSERT_POINT///
+	void queryRecords(QueryRecordsRequest request, AsyncCallback<RpcResult<QueryRecordsResponse>> async);
+
+	void queryZones(QueryZonesRequest request, AsyncCallback<RpcResult<QueryZonesResponse>> async);
+
+	void deleteRecord(DeleteRecordRequest request, AsyncCallback<RpcResult<DeleteRecordResponse>> async);
+
+	void createOrUpdateRecord(CreateOrUpdateRecordRequest request, AsyncCallback<RpcResult<CreateOrUpdateRecordResponse>> async);
+
+	void deleteZone(DeleteZoneRequest request, AsyncCallback<RpcResult<DeleteZoneResponse>> async);
+
+	void createZone(CreateZoneRequest request, AsyncCallback<RpcResult<CreateZoneResponse>> async);
+
 	void transferRepository(TransferRepositoryRequest request, AsyncCallback<RpcResult<TransferRepositoryResponse>> async);
 
 	void queryUserPermissionInRepo(QueryUserPermissionInRepoRequest request, AsyncCallback<RpcResult<QueryUserPermissionInRepoResponse>> async);

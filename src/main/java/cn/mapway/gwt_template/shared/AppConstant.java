@@ -36,4 +36,5 @@ public class AppConstant {
     public static final Integer ERROR_CODE_UNAUTHORITY = 50300;
     public static final long DEFAULT_TASK_DURATION = 3 * 24 * 60 * 60 * 1000;
     public static final long ONE_DAY_DURATION = 24 * 60 * 60 * 1000;
+    public static final String KEY_POWER_DNS = "POWERDNS_CONFIG";
 }

@@ -21,6 +21,7 @@ import cn.mapway.gwt_template.server.service.message.QueryMessageExecutor;
 import cn.mapway.gwt_template.server.service.message.QueryUserMailboxExecutor;
 import cn.mapway.gwt_template.server.service.message.ReadMessageExecutor;
 import cn.mapway.gwt_template.server.service.message.SendMessageExecutor;
+import cn.mapway.gwt_template.server.service.powerdns.*;
 import cn.mapway.gwt_template.server.service.project.*;
 import cn.mapway.gwt_template.server.service.project.res.*;
 import cn.mapway.gwt_template.server.service.project.wiki.*;
@@ -44,6 +45,7 @@ import cn.mapway.gwt_template.shared.rpc.dev.*;
 import cn.mapway.gwt_template.shared.rpc.dns.*;
 import cn.mapway.gwt_template.shared.rpc.ldap.*;
 import cn.mapway.gwt_template.shared.rpc.message.*;
+import cn.mapway.gwt_template.shared.rpc.powerdns.*;
 import cn.mapway.gwt_template.shared.rpc.project.*;
 import cn.mapway.gwt_template.shared.rpc.project.res.*;
 import cn.mapway.gwt_template.shared.rpc.project.wiki.*;
@@ -139,6 +141,66 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
     QueryConfigExecutor queryConfigExecutor;
 
     ///CODE_GEN_INSERT_POINT///
+	
+    @Resource
+    QueryRecordsExecutor queryRecordsExecutor;
+    @Override
+    public RpcResult<QueryRecordsResponse> queryRecords(QueryRecordsRequest request) {
+        BizResult<QueryRecordsResponse> bizResult = queryRecordsExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    QueryZonesExecutor queryZonesExecutor;
+    @Override
+    public RpcResult<QueryZonesResponse> queryZones(QueryZonesRequest request) {
+        BizResult<QueryZonesResponse> bizResult = queryZonesExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    DeleteRecordExecutor deleteRecordExecutor;
+    @Override
+    public RpcResult<DeleteRecordResponse> deleteRecord(DeleteRecordRequest request) {
+        BizResult<DeleteRecordResponse> bizResult = deleteRecordExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    CreateOrUpdateRecordExecutor createOrUpdateRecordExecutor;
+    @Override
+    public RpcResult<CreateOrUpdateRecordResponse> createOrUpdateRecord(CreateOrUpdateRecordRequest request) {
+        BizResult<CreateOrUpdateRecordResponse> bizResult = createOrUpdateRecordExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    DeleteZoneExecutor deleteZoneExecutor;
+    @Override
+    public RpcResult<DeleteZoneResponse> deleteZone(DeleteZoneRequest request) {
+        BizResult<DeleteZoneResponse> bizResult = deleteZoneExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    CreateZoneExecutor createZoneExecutor;
+    @Override
+    public RpcResult<CreateZoneResponse> createZone(CreateZoneRequest request) {
+        BizResult<CreateZoneResponse> bizResult = createZoneExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
 	
     @Resource
     TransferRepositoryExecutor transferRepositoryExecutor;

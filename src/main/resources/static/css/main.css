@@ -363,7 +363,7 @@ body {
 }
 
 .ai-top-bar {
-    height: 40px;
+    height: 48px;
     overflow: hidden;
     border-bottom: solid 1px var(--color-text-tip);
 }

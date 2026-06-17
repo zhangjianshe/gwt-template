@@ -26,10 +26,10 @@ import java.util.Map;
 public class SourceTools {
     public static void main(String[] args) {
         SourceTools tools = new SourceTools();
-        String packageBean = "cn.mapway.gwt_template.shared.rpc.repository";
-        String packageService = "cn.mapway.gwt_template.server.service.repository";
+        String packageBean = "cn.mapway.gwt_template.shared.rpc.powerdns";
+        String packageService = "cn.mapway.gwt_template.server.service.powerdns";
         ArrayList<String> methods = Lang.list(
-                "transferRepository"
+                "queryZones","queryRecords"
         );
         methods.stream().forEach(n -> {
             tools.gen(n, packageBean, packageService);

@@ -4,7 +4,6 @@ import cn.mapway.biz.core.BizResult;
 import cn.mapway.gwt_template.client.repository.RepositoryFrame;
 import cn.mapway.gwt_template.client.workspace.DevWorkspaceFrame;
 import cn.mapway.gwt_template.server.config.AppConfig;
-import cn.mapway.gwt_template.server.rbac.Permissions;
 import cn.mapway.gwt_template.server.service.user.TokenService;
 import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.rpc.user.ResourcePoint;
@@ -138,7 +137,6 @@ public class ServerStartedOnce extends ApplicationObjectSupport implements IServ
     @Override
     public Collection<Class<?>> getScanPackages() {
         Collection<Class<?>> scans = new HashSet<>();
-        scans.add(Permissions.class);
         return scans;
     }
 

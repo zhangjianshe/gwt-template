@@ -5,6 +5,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -15,4 +16,8 @@ import java.util.List;
 @Data
 public class UpdateConfigListRequest implements Serializable, IsSerializable {
     List<SysConfigEntity> configList;
+
+    public UpdateConfigListRequest() {
+        configList = new ArrayList<>();
+    }
 }

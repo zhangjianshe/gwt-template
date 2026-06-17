@@ -3,6 +3,7 @@ package cn.mapway.gwt_template.server.config.startup;
 import cn.mapway.gwt_template.server.service.config.SystemConfigService;
 import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.db.*;
+import cn.mapway.rbac.server.RbacServerPlugin;
 import lombok.extern.slf4j.Slf4j;
 import org.nutz.dao.Dao;
 import org.nutz.dao.Sqls;
@@ -48,6 +49,10 @@ public class StartBootPrepare implements ApplicationContextAware {
         // 检查在制定目录是否有配置文件
         // 目录　/mapway　是配置文件所在目录　如果运行在容器中　可以通过volume 注入
         ApplicationConfig config = SystemConfigService.getConfig();
+        if (config == null) {
+            log.error("读取配置文件信息错误");
+            System.exit(-1);
+        }
         //设置系统变量 传入到SpringBoot中
         System.setProperty("server.port", String.valueOf(config.getPort()));
         System.setProperty("nutz.db.driver", config.getJdbc().getDriver());
@@ -252,7 +257,12 @@ public class StartBootPrepare implements ApplicationContextAware {
 
 
         log.info("[DB] 完成数据库表的初始化");
-
+        List<Class> rbacTables = RbacServerPlugin.getAllTableList();
+        for (Class c:rbacTables)
+        {
+            checkAndCreate(c);
+        }
+        log.info("[DB] 完成RBAC数据库表的初始化");
         //检查视图
 
         SysConfigEntity dbVersion = new SysConfigEntity();
@@ -276,7 +286,7 @@ public class StartBootPrepare implements ApplicationContextAware {
      * @return
      */
     public boolean needCreateTable() {
-        boolean tableExist = tabelExist("public", SysConfigEntity.TABLE_NAME);
+        boolean tableExist = tableExist("public", SysConfigEntity.TABLE_NAME);
         if (tableExist) {
             SysConfigEntity dbVersion = dao.fetch(SysConfigEntity.class, AppConstant.KEY_DB_VERSION);
             return dbVersion == null || Strings.isBlank(dbVersion.getValue()) || !Strings.equals(dbVersion.getValue(), DB_VERSION);
@@ -291,7 +301,7 @@ public class StartBootPrepare implements ApplicationContextAware {
      * @param tableName
      * @return
      */
-    boolean tabelExist(String schema, String tableName) {
+    boolean tableExist(String schema, String tableName) {
         String sqlTemplate =
                 "    SELECT count(*)\n" +
                         "    FROM information_schema.tables\n" +

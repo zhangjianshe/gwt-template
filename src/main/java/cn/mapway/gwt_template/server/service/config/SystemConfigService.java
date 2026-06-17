@@ -2,7 +2,9 @@ package cn.mapway.gwt_template.server.service.config;
 
 import cn.mapway.biz.core.BizResult;
 import cn.mapway.gwt_template.server.config.AppConfig;
+import cn.mapway.gwt_template.server.config.db.JdbcConfig;
 import cn.mapway.gwt_template.server.config.startup.ApplicationConfig;
+import cn.mapway.gwt_template.server.service.file.FileCustomUtils;
 import cn.mapway.gwt_template.shared.db.SysConfigEntity;
 import cn.mapway.gwt_template.shared.rpc.app.AppData;
 import cn.mapway.gwt_template.shared.rpc.config.ConfigEnums;
@@ -17,6 +19,9 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -38,8 +43,11 @@ public class SystemConfigService implements EnvironmentAware {
     @Resource
     AppConfig appConfig;
 
-    private static File getStartupConfigFile() {
-        return new File(CONFIG_ROOT, "app.json");
+    private static File getStartupConfigFile() throws IOException {
+        Path homePath = Paths.get(System.getProperty("user.home"));
+        File file = homePath.toFile();
+        String absPath = FileCustomUtils.concatPath(file.getAbsolutePath(), CONFIG_ROOT, "app.json");
+        return new File(absPath);
     }
 
     /**
@@ -49,16 +57,24 @@ public class SystemConfigService implements EnvironmentAware {
      * @return
      */
     public static ApplicationConfig getConfig() {
-        File configFile = getStartupConfigFile();
-        if (configFile.exists()) {
-            ApplicationConfig config = Json.fromJson(ApplicationConfig.class, Files.read(configFile));
-            return config;
-        } else {
-            ApplicationConfig config = createDefaultConfig();
-            // maybe , we have not privilege to write at this position
-            Files.write(configFile, Json.toJson(config));
-            return config;
+        try {
+            File configFile = getStartupConfigFile();
+            if (configFile.exists()) {
+                ApplicationConfig config = Json.fromJson(ApplicationConfig.class, Files.read(configFile));
+                if (config == null) {
+                    log.error("配置文件内容不能解析，请删除他 系统重建:{}", configFile);
+                }
+                return config;
+            } else {
+                ApplicationConfig config = createDefaultConfig();
+                // maybe , we have not privilege to write at this position
+                Files.write(configFile, Json.toJson(config));
+                return config;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+        return null;
     }
 
     /**
@@ -69,6 +85,12 @@ public class SystemConfigService implements EnvironmentAware {
     private static ApplicationConfig createDefaultConfig() {
         ApplicationConfig config = new ApplicationConfig();
         config.setPort(8080);
+        JdbcConfig jdbcConfig = new JdbcConfig();
+        jdbcConfig.setDriver("org.postgresql.Driver");
+        jdbcConfig.setUrl("jdbc:postgresql://localhost:5432/db");
+        jdbcConfig.setUsername("cangling");
+        jdbcConfig.setPassword("cangling-dev");
+        config.setJdbc(jdbcConfig);
         return config;
     }
 

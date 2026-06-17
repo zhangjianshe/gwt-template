@@ -7,6 +7,7 @@ import cn.mapway.gwt_template.shared.rpc.dev.*;
 import cn.mapway.gwt_template.shared.rpc.dns.*;
 import cn.mapway.gwt_template.shared.rpc.ldap.*;
 import cn.mapway.gwt_template.shared.rpc.message.*;
+import cn.mapway.gwt_template.shared.rpc.powerdns.*;
 import cn.mapway.gwt_template.shared.rpc.project.*;
 import cn.mapway.gwt_template.shared.rpc.project.res.*;
 import cn.mapway.gwt_template.shared.rpc.project.wiki.*;
@@ -31,6 +32,18 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 @RemoteServiceRelativePath(AppConstant.DEFAULT_SERVER_PATH)
 public interface IAppServer extends RemoteService {
     ///CODE_GEN_INSERT_POINT///
+	RpcResult<QueryRecordsResponse> queryRecords(QueryRecordsRequest request);
+
+	RpcResult<QueryZonesResponse> queryZones(QueryZonesRequest request);
+
+	RpcResult<DeleteRecordResponse> deleteRecord(DeleteRecordRequest request);
+
+	RpcResult<CreateOrUpdateRecordResponse> createOrUpdateRecord(CreateOrUpdateRecordRequest request);
+
+	RpcResult<DeleteZoneResponse> deleteZone(DeleteZoneRequest request);
+
+	RpcResult<CreateZoneResponse> createZone(CreateZoneRequest request);
+
 	RpcResult<TransferRepositoryResponse> transferRepository(TransferRepositoryRequest request);
 
 	RpcResult<QueryUserPermissionInRepoResponse> queryUserPermissionInRepo(QueryUserPermissionInRepoRequest request);
