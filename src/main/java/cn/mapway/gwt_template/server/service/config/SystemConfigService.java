@@ -59,19 +59,22 @@ public class SystemConfigService implements EnvironmentAware {
     public static ApplicationConfig getConfig() {
         try {
             File configFile = getStartupConfigFile();
+            log.info("[START] 读取系统配置文件 {}",Files.getAbsPath(configFile));
             if (configFile.exists()) {
                 ApplicationConfig config = Json.fromJson(ApplicationConfig.class, Files.read(configFile));
                 if (config == null) {
-                    log.error("配置文件内容不能解析，请删除他 系统重建:{}", configFile);
+                    log.error("配置文件内容不能解析，请删除他 系统重建:{}", Files.getAbsPath(configFile));
                 }
                 return config;
             } else {
                 ApplicationConfig config = createDefaultConfig();
                 // maybe , we have not privilege to write at this position
                 Files.write(configFile, Json.toJson(config));
+                log.info("[START] write 系统配置文件 {}",Files.getAbsPath(configFile));
                 return config;
             }
         } catch (Exception e) {
+            log.error("[START] 系统解析配置文件错误 {}",e.getMessage());
             e.printStackTrace();
         }
         return null;
