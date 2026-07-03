@@ -5,6 +5,8 @@ import cn.mapway.gwt_template.shared.rpc.desktop.*;
 import cn.mapway.gwt_template.shared.rpc.dev.*;
 import cn.mapway.gwt_template.shared.rpc.dns.*;
 import cn.mapway.gwt_template.shared.rpc.ldap.*;
+import cn.mapway.gwt_template.shared.rpc.log.QueryLogsRequest;
+import cn.mapway.gwt_template.shared.rpc.log.QueryLogsResponse;
 import cn.mapway.gwt_template.shared.rpc.message.*;
 import cn.mapway.gwt_template.shared.rpc.powerdns.*;
 import cn.mapway.gwt_template.shared.rpc.project.*;
@@ -30,6 +32,8 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public interface IAppServerAsync {
 
     ///CODE_GEN_INSERT_POINT///
+	void queryLogs(QueryLogsRequest request, AsyncCallback<RpcResult<QueryLogsResponse>> async);
+
 	void queryRecords(QueryRecordsRequest request, AsyncCallback<RpcResult<QueryRecordsResponse>> async);
 
 	void queryZones(QueryZonesRequest request, AsyncCallback<RpcResult<QueryZonesResponse>> async);

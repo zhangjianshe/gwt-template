@@ -4,6 +4,7 @@ import cn.mapway.biz.core.BizResult;
 import cn.mapway.gwt_template.client.ldap.AttributeKind;
 import cn.mapway.gwt_template.client.ldap.LdapNodeAttribute;
 import cn.mapway.gwt_template.server.service.config.SystemConfigService;
+import cn.mapway.gwt_template.server.service.log.SysLogService;
 import cn.mapway.gwt_template.shared.rpc.config.ConfigEnums;
 import cn.mapway.gwt_template.shared.rpc.ldap.LdapNodeData;
 import cn.mapway.gwt_template.shared.rpc.ldap.RootDse;
@@ -42,6 +43,7 @@ public class LdapService implements IReset {
     @Resource
     SystemConfigService systemConfigService;
     LdapTemplate ldapTemplate;
+
 
     private LdapContextSource getContextSource() {
 

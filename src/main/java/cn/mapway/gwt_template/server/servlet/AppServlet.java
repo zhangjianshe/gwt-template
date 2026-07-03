@@ -17,6 +17,7 @@ import cn.mapway.gwt_template.server.service.dns.QueryDnsExecutor;
 import cn.mapway.gwt_template.server.service.dns.UpdateDnsExecutor;
 import cn.mapway.gwt_template.server.service.dns.UpdateIpExecutor;
 import cn.mapway.gwt_template.server.service.ldap.*;
+import cn.mapway.gwt_template.server.service.log.QueryLogsExecutor;
 import cn.mapway.gwt_template.server.service.message.QueryMessageExecutor;
 import cn.mapway.gwt_template.server.service.message.QueryUserMailboxExecutor;
 import cn.mapway.gwt_template.server.service.message.ReadMessageExecutor;
@@ -44,6 +45,8 @@ import cn.mapway.gwt_template.shared.rpc.desktop.*;
 import cn.mapway.gwt_template.shared.rpc.dev.*;
 import cn.mapway.gwt_template.shared.rpc.dns.*;
 import cn.mapway.gwt_template.shared.rpc.ldap.*;
+import cn.mapway.gwt_template.shared.rpc.log.QueryLogsRequest;
+import cn.mapway.gwt_template.shared.rpc.log.QueryLogsResponse;
 import cn.mapway.gwt_template.shared.rpc.message.*;
 import cn.mapway.gwt_template.shared.rpc.powerdns.*;
 import cn.mapway.gwt_template.shared.rpc.project.*;
@@ -140,108 +143,30 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
     @Resource
     QueryConfigExecutor queryConfigExecutor;
 
-    ///CODE_GEN_INSERT_POINT///
-	
+    /// CODE_GEN_INSERT_POINT///
+
+    @Resource
+    QueryLogsExecutor queryLogsExecutor;
     @Resource
     QueryRecordsExecutor queryRecordsExecutor;
-    @Override
-    public RpcResult<QueryRecordsResponse> queryRecords(QueryRecordsRequest request) {
-        BizResult<QueryRecordsResponse> bizResult = queryRecordsExecutor.execute(getBizContext(), BizRequest.wrap("", request));
-        return toRpcResult(bizResult);
-    }
-
-
-	
     @Resource
     QueryZonesExecutor queryZonesExecutor;
-    @Override
-    public RpcResult<QueryZonesResponse> queryZones(QueryZonesRequest request) {
-        BizResult<QueryZonesResponse> bizResult = queryZonesExecutor.execute(getBizContext(), BizRequest.wrap("", request));
-        return toRpcResult(bizResult);
-    }
-
-
-	
     @Resource
     DeleteRecordExecutor deleteRecordExecutor;
-    @Override
-    public RpcResult<DeleteRecordResponse> deleteRecord(DeleteRecordRequest request) {
-        BizResult<DeleteRecordResponse> bizResult = deleteRecordExecutor.execute(getBizContext(), BizRequest.wrap("", request));
-        return toRpcResult(bizResult);
-    }
-
-
-	
     @Resource
     CreateOrUpdateRecordExecutor createOrUpdateRecordExecutor;
-    @Override
-    public RpcResult<CreateOrUpdateRecordResponse> createOrUpdateRecord(CreateOrUpdateRecordRequest request) {
-        BizResult<CreateOrUpdateRecordResponse> bizResult = createOrUpdateRecordExecutor.execute(getBizContext(), BizRequest.wrap("", request));
-        return toRpcResult(bizResult);
-    }
-
-
-	
     @Resource
     DeleteZoneExecutor deleteZoneExecutor;
-    @Override
-    public RpcResult<DeleteZoneResponse> deleteZone(DeleteZoneRequest request) {
-        BizResult<DeleteZoneResponse> bizResult = deleteZoneExecutor.execute(getBizContext(), BizRequest.wrap("", request));
-        return toRpcResult(bizResult);
-    }
-
-
-	
     @Resource
     CreateZoneExecutor createZoneExecutor;
-    @Override
-    public RpcResult<CreateZoneResponse> createZone(CreateZoneRequest request) {
-        BizResult<CreateZoneResponse> bizResult = createZoneExecutor.execute(getBizContext(), BizRequest.wrap("", request));
-        return toRpcResult(bizResult);
-    }
-
-
-	
     @Resource
     TransferRepositoryExecutor transferRepositoryExecutor;
-    @Override
-    public RpcResult<TransferRepositoryResponse> transferRepository(TransferRepositoryRequest request) {
-        BizResult<TransferRepositoryResponse> bizResult = transferRepositoryExecutor.execute(getBizContext(), BizRequest.wrap("", request));
-        return toRpcResult(bizResult);
-    }
-
-
-	
     @Resource
     QueryUserPermissionInRepoExecutor queryUserPermissionInRepoExecutor;
-    @Override
-    public RpcResult<QueryUserPermissionInRepoResponse> queryUserPermissionInRepo(QueryUserPermissionInRepoRequest request) {
-        BizResult<QueryUserPermissionInRepoResponse> bizResult = queryUserPermissionInRepoExecutor.execute(getBizContext(), BizRequest.wrap("", request));
-        return toRpcResult(bizResult);
-    }
-
-
-	
     @Resource
     QueryImagesExecutor queryImagesExecutor;
-    @Override
-    public RpcResult<QueryImagesResponse> queryImages(QueryImagesRequest request) {
-        BizResult<QueryImagesResponse> bizResult = queryImagesExecutor.execute(getBizContext(), BizRequest.wrap("", request));
-        return toRpcResult(bizResult);
-    }
-
-
-	
     @Resource
     QueryPageCommitsExecutor queryPageCommitsExecutor;
-    @Override
-    public RpcResult<QueryPageCommitsResponse> queryPageCommits(QueryPageCommitsRequest request) {
-        BizResult<QueryPageCommitsResponse> bizResult = queryPageCommitsExecutor.execute(getBizContext(), BizRequest.wrap("", request));
-        return toRpcResult(bizResult);
-    }
-
-
-
     @Resource
     QueryPageSectionExecutor queryPageSectionExecutor;
     @Resource
@@ -436,6 +361,72 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
     UpdateFavoriteProjectExecutor updateFavoriteProjectExecutor;
     @Resource
     QueryFavoriteProjectExecutor queryFavoriteProjectExecutor;
+
+    @Override
+    public RpcResult<QueryLogsResponse> queryLogs(QueryLogsRequest request) {
+        BizResult<QueryLogsResponse> bizResult = queryLogsExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<QueryRecordsResponse> queryRecords(QueryRecordsRequest request) {
+        BizResult<QueryRecordsResponse> bizResult = queryRecordsExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<QueryZonesResponse> queryZones(QueryZonesRequest request) {
+        BizResult<QueryZonesResponse> bizResult = queryZonesExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<DeleteRecordResponse> deleteRecord(DeleteRecordRequest request) {
+        BizResult<DeleteRecordResponse> bizResult = deleteRecordExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<CreateOrUpdateRecordResponse> createOrUpdateRecord(CreateOrUpdateRecordRequest request) {
+        BizResult<CreateOrUpdateRecordResponse> bizResult = createOrUpdateRecordExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<DeleteZoneResponse> deleteZone(DeleteZoneRequest request) {
+        BizResult<DeleteZoneResponse> bizResult = deleteZoneExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<CreateZoneResponse> createZone(CreateZoneRequest request) {
+        BizResult<CreateZoneResponse> bizResult = createZoneExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<TransferRepositoryResponse> transferRepository(TransferRepositoryRequest request) {
+        BizResult<TransferRepositoryResponse> bizResult = transferRepositoryExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<QueryUserPermissionInRepoResponse> queryUserPermissionInRepo(QueryUserPermissionInRepoRequest request) {
+        BizResult<QueryUserPermissionInRepoResponse> bizResult = queryUserPermissionInRepoExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<QueryImagesResponse> queryImages(QueryImagesRequest request) {
+        BizResult<QueryImagesResponse> bizResult = queryImagesExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<QueryPageCommitsResponse> queryPageCommits(QueryPageCommitsRequest request) {
+        BizResult<QueryPageCommitsResponse> bizResult = queryPageCommitsExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
 
     @Override
     public RpcResult<QueryPageSectionResponse> queryPageSection(QueryPageSectionRequest request) {
@@ -1223,8 +1214,8 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
     @Override
     public InputStream findResource(HttpServletRequest request, String moduleBaseURL, String strongName) {
         String path = strongName + ".gwt.rpc";
-        ClassPathResource resource = new ClassPathResource("/static/js/app/"+path);
-        if(resource.exists()){
+        ClassPathResource resource = new ClassPathResource("/static/js/app/" + path);
+        if (resource.exists()) {
             try {
                 return resource.getInputStream();
             } catch (IOException e) {

@@ -6,6 +6,8 @@ import cn.mapway.gwt_template.shared.rpc.desktop.*;
 import cn.mapway.gwt_template.shared.rpc.dev.*;
 import cn.mapway.gwt_template.shared.rpc.dns.*;
 import cn.mapway.gwt_template.shared.rpc.ldap.*;
+import cn.mapway.gwt_template.shared.rpc.log.QueryLogsRequest;
+import cn.mapway.gwt_template.shared.rpc.log.QueryLogsResponse;
 import cn.mapway.gwt_template.shared.rpc.message.*;
 import cn.mapway.gwt_template.shared.rpc.powerdns.*;
 import cn.mapway.gwt_template.shared.rpc.project.*;
@@ -32,55 +34,57 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 @RemoteServiceRelativePath(AppConstant.DEFAULT_SERVER_PATH)
 public interface IAppServer extends RemoteService {
     ///CODE_GEN_INSERT_POINT///
-	RpcResult<QueryRecordsResponse> queryRecords(QueryRecordsRequest request);
+    RpcResult<QueryLogsResponse> queryLogs(QueryLogsRequest request);
 
-	RpcResult<QueryZonesResponse> queryZones(QueryZonesRequest request);
+    RpcResult<QueryRecordsResponse> queryRecords(QueryRecordsRequest request);
 
-	RpcResult<DeleteRecordResponse> deleteRecord(DeleteRecordRequest request);
+    RpcResult<QueryZonesResponse> queryZones(QueryZonesRequest request);
 
-	RpcResult<CreateOrUpdateRecordResponse> createOrUpdateRecord(CreateOrUpdateRecordRequest request);
+    RpcResult<DeleteRecordResponse> deleteRecord(DeleteRecordRequest request);
 
-	RpcResult<DeleteZoneResponse> deleteZone(DeleteZoneRequest request);
+    RpcResult<CreateOrUpdateRecordResponse> createOrUpdateRecord(CreateOrUpdateRecordRequest request);
 
-	RpcResult<CreateZoneResponse> createZone(CreateZoneRequest request);
+    RpcResult<DeleteZoneResponse> deleteZone(DeleteZoneRequest request);
 
-	RpcResult<TransferRepositoryResponse> transferRepository(TransferRepositoryRequest request);
+    RpcResult<CreateZoneResponse> createZone(CreateZoneRequest request);
 
-	RpcResult<QueryUserPermissionInRepoResponse> queryUserPermissionInRepo(QueryUserPermissionInRepoRequest request);
+    RpcResult<TransferRepositoryResponse> transferRepository(TransferRepositoryRequest request);
 
-	RpcResult<QueryImagesResponse> queryImages(QueryImagesRequest request);
+    RpcResult<QueryUserPermissionInRepoResponse> queryUserPermissionInRepo(QueryUserPermissionInRepoRequest request);
 
-	RpcResult<QueryPageCommitsResponse> queryPageCommits(QueryPageCommitsRequest request);
+    RpcResult<QueryImagesResponse> queryImages(QueryImagesRequest request);
 
-	RpcResult<QueryPageSectionResponse> queryPageSection(QueryPageSectionRequest request);
+    RpcResult<QueryPageCommitsResponse> queryPageCommits(QueryPageCommitsRequest request);
 
-	RpcResult<UpdatePageSectionResponse> updatePageSection(UpdatePageSectionRequest request);
+    RpcResult<QueryPageSectionResponse> queryPageSection(QueryPageSectionRequest request);
 
-	RpcResult<LoadPageResponse> loadPage(LoadPageRequest request);
+    RpcResult<UpdatePageSectionResponse> updatePageSection(UpdatePageSectionRequest request);
 
-	RpcResult<QueryPageResponse> queryPage(QueryPageRequest request);
+    RpcResult<LoadPageResponse> loadPage(LoadPageRequest request);
 
-	RpcResult<UpdatePageResponse> updatePage(UpdatePageRequest request);
+    RpcResult<QueryPageResponse> queryPage(QueryPageRequest request);
 
-	RpcResult<ViewAttachmentFileResponse> viewAttachmentFile(ViewAttachmentFileRequest request);
+    RpcResult<UpdatePageResponse> updatePage(UpdatePageRequest request);
 
-	RpcResult<MarkdownToHtmlResponse> markdownToHtml(MarkdownToHtmlRequest request);
+    RpcResult<ViewAttachmentFileResponse> viewAttachmentFile(ViewAttachmentFileRequest request);
 
-	RpcResult<DeleteTaskAttachmentsResponse> deleteTaskAttachments(DeleteTaskAttachmentsRequest request);
+    RpcResult<MarkdownToHtmlResponse> markdownToHtml(MarkdownToHtmlRequest request);
 
-	RpcResult<UploadTaskAttachmentsResponse> uploadTaskAttachments(UploadTaskAttachmentsRequest request);
+    RpcResult<DeleteTaskAttachmentsResponse> deleteTaskAttachments(DeleteTaskAttachmentsRequest request);
 
-	RpcResult<QueryTaskAttachmentsResponse> queryTaskAttachments(QueryTaskAttachmentsRequest request);
+    RpcResult<UploadTaskAttachmentsResponse> uploadTaskAttachments(UploadTaskAttachmentsRequest request);
 
-	RpcResult<UpdateFavoriteProjectResponse> updateFavoriteProject(UpdateFavoriteProjectRequest request);
+    RpcResult<QueryTaskAttachmentsResponse> queryTaskAttachments(QueryTaskAttachmentsRequest request);
 
-	RpcResult<QueryFavoriteProjectResponse> queryFavoriteProject(QueryFavoriteProjectRequest request);
+    RpcResult<UpdateFavoriteProjectResponse> updateFavoriteProject(UpdateFavoriteProjectRequest request);
 
-	RpcResult<AddProjectRepoResponse> addProjectRepo(AddProjectRepoRequest request);
+    RpcResult<QueryFavoriteProjectResponse> queryFavoriteProject(QueryFavoriteProjectRequest request);
 
-	RpcResult<RemoveProjectRepoResponse> removeProjectRepo(RemoveProjectRepoRequest request);
+    RpcResult<AddProjectRepoResponse> addProjectRepo(AddProjectRepoRequest request);
 
-	RpcResult<QueryProjectRepoResponse> queryProjectRepo(QueryProjectRepoRequest request);
+    RpcResult<RemoveProjectRepoResponse> removeProjectRepo(RemoveProjectRepoRequest request);
+
+    RpcResult<QueryProjectRepoResponse> queryProjectRepo(QueryProjectRepoRequest request);
 
     RpcResult<DeleteResourceMemberResponse> deleteResourceMember(DeleteResourceMemberRequest request);
 

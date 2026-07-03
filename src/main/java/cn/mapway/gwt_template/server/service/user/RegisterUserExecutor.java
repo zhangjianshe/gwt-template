@@ -8,9 +8,12 @@ import cn.mapway.gwt_template.client.ldap.AttributeKind;
 import cn.mapway.gwt_template.client.ldap.LdapNodeAttribute;
 import cn.mapway.gwt_template.server.service.config.SystemConfigService;
 import cn.mapway.gwt_template.server.service.ldap.LdapService;
+import cn.mapway.gwt_template.server.service.log.SysLogService;
 import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.rpc.config.ConfigEnums;
 import cn.mapway.gwt_template.shared.rpc.ldap.LdapNodeData;
+import cn.mapway.gwt_template.shared.rpc.log.LogAction;
+import cn.mapway.gwt_template.shared.rpc.log.LogLevel;
 import cn.mapway.gwt_template.shared.rpc.user.RegisterUserRequest;
 import cn.mapway.gwt_template.shared.rpc.user.RegisterUserResponse;
 import cn.mapway.gwt_template.shared.rpc.user.ldap.LdapSettings;
@@ -36,6 +39,8 @@ public class RegisterUserExecutor extends AbstractBizExecutor<RegisterUserRespon
     SystemConfigService systemConfigService;
     @Resource
     LdapService ldapService;
+    @Resource
+    SysLogService sysLogService;
 
     @Override
     protected BizResult<RegisterUserResponse> process(BizContext context, BizRequest<RegisterUserRequest> bizParam) {
@@ -72,9 +77,10 @@ public class RegisterUserExecutor extends AbstractBizExecutor<RegisterUserRespon
         LdapNodeData node = createLdapNode(request, dn);
         BizResult<LdapNodeData> ldapEntry = ldapService.createLdapEntry(node);
         if (ldapEntry.isSuccess()) {
+            sysLogService.logAction(LogLevel.INFO, user.getUser().getUserId(), userName, LogAction.USER_REGISTER, ldapEntry.getData().getDn() + ldapEntry.getData().getName());
             return BizResult.success(new RegisterUserResponse());
         } else {
-
+            sysLogService.logAction(LogLevel.ERROR, user.getUser().getUserId(), userName, LogAction.USER_REGISTER, ldapEntry.getMessage());
             return ldapEntry.asBizResult();
         }
     }

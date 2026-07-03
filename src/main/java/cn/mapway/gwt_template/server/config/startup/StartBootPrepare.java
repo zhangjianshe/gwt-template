@@ -37,7 +37,7 @@ import java.util.regex.Pattern;
 @Service
 @Slf4j
 public class StartBootPrepare implements ApplicationContextAware {
-    public final static String DB_VERSION = "2025-12-12";
+    public final static String DB_VERSION = "2026-07-03";
     @Resource
     Dao dao;
     ApplicationContext context;
@@ -78,7 +78,6 @@ public class StartBootPrepare implements ApplicationContextAware {
         ds.setUsername(config.getJdbc().getUsername());
         ds.setPassword(config.getJdbc().getPassword());
         try (Connection connection = ds.getConnection()) {
-            ds.getConnection();
             log.info("[SYS] 系统初始化检查 数据库连接正常");
         } catch (SQLException e) {
             String message = e.getMessage();
@@ -255,11 +254,13 @@ public class StartBootPrepare implements ApplicationContextAware {
         checkAndCreate(DevProjectPageCommitEntity.class);
         checkAndCreate(DevProjectPageSectionEntity.class);
 
+        // SYS LOG
+        checkAndCreate(SysLogEntity.class);
+
 
         log.info("[DB] 完成数据库表的初始化");
         List<Class> rbacTables = RbacServerPlugin.getAllTableList();
-        for (Class c:rbacTables)
-        {
+        for (Class c : rbacTables) {
             checkAndCreate(c);
         }
         log.info("[DB] 完成RBAC数据库表的初始化");
