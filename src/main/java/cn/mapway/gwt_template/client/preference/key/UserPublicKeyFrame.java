@@ -69,7 +69,7 @@ public class UserPublicKeyFrame extends BaseAbstractModule {
         loadPublicKey();
     }
 
-    private void confitmDelete(SysUserKeyEntity key) {
+    private void confirmDelete(SysUserKeyEntity key) {
         String msg = "删除Key " + key.getName() + "?";
         ClientContext.get().confirmDelete(msg).then(new IThenable.ThenOnFulfilledCallbackFn<Void, Object>() {
             @Override
@@ -82,7 +82,7 @@ public class UserPublicKeyFrame extends BaseAbstractModule {
 
     private void doDelete(SysUserKeyEntity key) {
         DeleteUserKeyRequest request = new DeleteUserKeyRequest();
-        request.setKey(key.getKey());
+        request.setKeyId(key.getId());
         AppProxy.get().deleteUserKey(request, new AsyncCallback<RpcResult<DeleteUserKeyResponse>>() {
             @Override
             public void onFailure(Throwable caught) {
@@ -156,7 +156,7 @@ public class UserPublicKeyFrame extends BaseAbstractModule {
         public void onCommonEvent(CommonEvent event) {
             if (event.isDelete()) {
                 SysUserKeyEntity key = event.getValue();
-                confitmDelete(key);
+                confirmDelete(key);
             } else if (event.isEdit()) {
                 SysUserKeyEntity key = event.getValue();
                 edit(key);

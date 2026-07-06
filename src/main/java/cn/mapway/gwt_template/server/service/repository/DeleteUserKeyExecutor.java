@@ -35,8 +35,8 @@ public class DeleteUserKeyExecutor extends AbstractBizExecutor<DeleteUserKeyResp
         log.info("DeleteUserKeyExecutor {}", Json.toJson(request, JsonFormat.compact()));
         LoginUser user = (LoginUser) context.get(AppConstant.KEY_LOGIN_USER);
 
-        assertTrue(Strings.isNotBlank(request.getKey()), "请提供要删除的公钥");
-        SysUserKeyEntity fetch = dao.fetch(SysUserKeyEntity.class, request.getKey());
+        assertTrue(Strings.isNotBlank(request.getKeyId()), "请提供要删除的公钥");
+        SysUserKeyEntity fetch = dao.fetch(SysUserKeyEntity.class, request.getKeyId());
         if (fetch == null) {
             return BizResult.error(500, "没有要删除的公钥");
         }
@@ -44,7 +44,7 @@ public class DeleteUserKeyExecutor extends AbstractBizExecutor<DeleteUserKeyResp
             return BizResult.error(500, "没有权限删除该公钥");
         }
 
-        dao.delete(SysUserKeyEntity.class, request.getKey());
+        dao.delete(SysUserKeyEntity.class, request.getKeyId());
         return BizResult.success(new DeleteUserKeyResponse());
     }
 }

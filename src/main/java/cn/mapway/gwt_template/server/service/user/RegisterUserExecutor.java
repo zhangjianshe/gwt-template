@@ -18,6 +18,7 @@ import cn.mapway.gwt_template.shared.rpc.user.RegisterUserRequest;
 import cn.mapway.gwt_template.shared.rpc.user.RegisterUserResponse;
 import cn.mapway.gwt_template.shared.rpc.user.ldap.LdapSettings;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
+import cn.mapway.rbac.shared.RbacConstant;
 import lombok.extern.slf4j.Slf4j;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
@@ -80,7 +81,8 @@ public class RegisterUserExecutor extends AbstractBizExecutor<RegisterUserRespon
             sysLogService.logAction(LogLevel.INFO, user.getUser().getUserId(), userName, LogAction.USER_REGISTER, ldapEntry.getData().getDn() + ldapEntry.getData().getName());
             return BizResult.success(new RegisterUserResponse());
         } else {
-            sysLogService.logAction(LogLevel.ERROR, user.getUser().getUserId(), userName, LogAction.USER_REGISTER, ldapEntry.getMessage());
+            sysLogService.logAction(LogLevel.ERROR, RbacConstant.SUPER_USER_ID, request.getUser(), LogAction.USER_REGISTER, ldapEntry.getMessage());
+            log.error("[REG] 用户注册错误:{}", ldapEntry.getMessage());
             return ldapEntry.asBizResult();
         }
     }
