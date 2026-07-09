@@ -35,3 +35,4 @@ build/
 /deploy/docker/data/postgis
 /deploy/docker/data/logs
 deploy/devenv/data/postgis/
+gwt-template.tar

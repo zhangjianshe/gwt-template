@@ -27,7 +27,6 @@
         }
 
 
-
         .recordTable {
             width: 100%;
             border-collapse: collapse;
@@ -74,8 +73,8 @@
             <g:DockLayoutPanel addStyleNames="{style.westPanel}">
                 <g:north size="50">
                     <g:HTMLPanel addStyleNames="{style.box}">
-                        <widget:Header >Zone 列表</widget:Header>
-                        <g:Button ui:field="btnAddZone">添加ZONE</g:Button>
+                        <widget:Header>Zone 列表</widget:Header>
+                        <buttons:AiButton ui:field="btnAddZone" type="warning">添加ZONE</buttons:AiButton>
                     </g:HTMLPanel>
                 </g:north>
                 <g:center>
@@ -87,7 +86,7 @@
         </g:west>
         <g:south size="0">
             <g:HorizontalPanel ui:field="tools">
-                <buttons:AiButton ui:field="btnCreateRecord">创建记录</buttons:AiButton>
+                <buttons:AiButton ui:field="btnCreateRecord" enabled="false">创建记录</buttons:AiButton>
             </g:HorizontalPanel>
         </g:south>
         <g:center>

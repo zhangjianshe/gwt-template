@@ -56,6 +56,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/js/**").permitAll()
                 .antMatchers("/").permitAll()
                 .antMatchers("/public/**").permitAll()
+                .antMatchers("/api/v1/traefik/index").permitAll()
+                .antMatchers("/api/v1/traefik/root-ca.crt").permitAll()
                 .antMatchers("/preview").permitAll()
                 .antMatchers("/socket/**").permitAll()
                 .antMatchers("/code/**").permitAll()

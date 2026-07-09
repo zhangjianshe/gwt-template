@@ -15,5 +15,9 @@ import java.io.Serializable;
 @Data
 @Doc("CreateOrUpdateRecordRequest")
 public class CreateOrUpdateRecordRequest implements Serializable, IsSerializable {
+    /**
+     * such as tjj.cn.
+     */
+    String zoneId;
     private PowerDnsRRSet RRSet;
 }

@@ -11,10 +11,6 @@ import cn.mapway.gwt_template.shared.rpc.powerdns.PowerDnsConfig;
 import cn.mapway.gwt_template.shared.rpc.powerdns.model.PowerDnsRRSet;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
 import lombok.extern.slf4j.Slf4j;
-import org.nutz.http.Header;
-import org.nutz.http.Http;
-import org.nutz.http.Request;
-import org.nutz.http.Response;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.springframework.stereotype.Component;
@@ -35,6 +31,7 @@ import java.util.Map;
 public class CreateOrUpdateRecordExecutor extends AbstractBizExecutor<CreateOrUpdateRecordResponse, CreateOrUpdateRecordRequest> {
     @Resource
     PowerDnsService powerDnsService;
+
     @Override
     protected BizResult<CreateOrUpdateRecordResponse> process(BizContext context, BizRequest<CreateOrUpdateRecordRequest> bizParam) {
         CreateOrUpdateRecordRequest request = bizParam.getData();
@@ -77,38 +74,50 @@ public class CreateOrUpdateRecordExecutor extends AbstractBizExecutor<CreateOrUp
         }
 
         try {
-            // 4. Resolve domain components to match PowerDNS target endpoint
-            // PowerDNS targets updating RRSets via PATCH to the specific zone endpoint
-            String zoneId = resolveZoneIdFromName(rrSet.getName());
+            String zoneId = request.getZoneId();
             String apiUrl = pdnsConfig.basePath + "/api/v1/servers/localhost/zones/" + zoneId;
 
-            // PowerDNS PATCH payload body expects an object containing an "rrsets" array
-            Map<String, Object> patchBody = new HashMap<>();
+            // (Keep payload formatting loop identical to Option 1)
             List<PowerDnsRRSet> rrsetsList = new ArrayList<>();
             rrsetsList.add(rrSet);
-            patchBody.put("rrsets", rrsetsList);
+            for (PowerDnsRRSet item : rrsetsList) {
+                String currentName = item.getName();
+                if (!currentName.endsWith(zoneId)) {
+                    if (!currentName.endsWith(".")) currentName = currentName + ".";
+                    item.setName(currentName + zoneId);
+                }
+                if (!item.getName().endsWith(".")) item.setName(item.getName() + ".");
+            }
 
+            Map<String, Object> patchBody = new HashMap<>();
+            patchBody.put("rrsets", rrsetsList);
             String jsonPayload = Json.toJson(patchBody, JsonFormat.compact());
 
-            Header header = Header.create().asJsonContentType();
-            header.addv("X-API-Key", pdnsConfig.token);
+            // 1. Instantiating the modern Java HttpClient
+            java.net.http.HttpClient client = java.net.http.HttpClient.newBuilder()
+                    .connectTimeout(java.time.Duration.ofSeconds(30))
+                    .build();
 
-            log.info("Sending PATCH modification to PowerDNS API target: {}", apiUrl);
+            // 2. Build PATCH Request
+            java.net.http.HttpRequest httpRequest = java.net.http.HttpRequest.newBuilder()
+                    .uri(java.net.URI.create(apiUrl))
+                    .timeout(java.time.Duration.ofSeconds(30))
+                    .header("Content-Type", "application/json")
+                    .header("X-API-Key", pdnsConfig.token)
+                    .method("PATCH", java.net.http.HttpRequest.BodyPublishers.ofString(jsonPayload))
+                    .build();
 
-            // Execute HTTP PATCH request (using 30-second timeout)
-            Response response = Http.httpReq(apiUrl, Request.METHOD.PATCH, jsonPayload, header, 30000,30000);
+            // 3. Send synchronously
+            java.net.http.HttpResponse<String> response = client.send(httpRequest, java.net.http.HttpResponse.BodyHandlers.ofString());
+            int statusCode = response.statusCode();
 
-            // PowerDNS typically returns 204 No Content on a successful update
-            if (response.isOK() || response.getStatus() == 204) {
+            if (statusCode >= 200 && statusCode < 300) {
                 log.info("PowerDNS record modification applied successfully for: {}", rrSet.getName());
-
                 CreateOrUpdateRecordResponse responseData = new CreateOrUpdateRecordResponse();
-                // If your response object uses standard properties (e.g., success message or updated tracking maps), assign them here.
-
                 return BizResult.success(responseData);
             } else {
-                log.error("PowerDNS API Update failure: {} {} - Response content: {}", apiUrl, response.getStatus(), response.getContent());
-                return BizResult.error(response.getStatus(), "PowerDNS update rejected. Status code: " + response.getStatus());
+                log.error("PowerDNS API Update failure: {} {} - Response content: {}", apiUrl, statusCode, response.body());
+                return BizResult.error(statusCode, "PowerDNS update rejected. Status code: " + statusCode);
             }
 
         } catch (Exception e) {
@@ -117,16 +126,4 @@ public class CreateOrUpdateRecordExecutor extends AbstractBizExecutor<CreateOrUp
         }
     }
 
-    /**
-     * Extracts or matches a zone ID from the fully qualified record name.
-     * Customize this logic to fit your specific zone-naming policies.
-     */
-    private String resolveZoneIdFromName(String recordName) {
-        if (recordName == null) return "";
-        // If your database uses strict zone endings, ensure it ends with a trailing dot if required by PowerDNS
-        String cleaned = recordName.trim();
-        // Simple default logic: If it's a subdomain (e.g. sub.example.com.), extract the base domain
-        // You may want to fetch this directly from request context or DB if complex domain structures exist.
-        return cleaned;
-    }
 }

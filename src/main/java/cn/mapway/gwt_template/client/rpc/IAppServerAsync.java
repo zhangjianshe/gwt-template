@@ -1,5 +1,6 @@
 package cn.mapway.gwt_template.client.rpc;
 
+import cn.mapway.gwt_template.shared.rpc.app.*;
 import cn.mapway.gwt_template.shared.rpc.config.*;
 import cn.mapway.gwt_template.shared.rpc.desktop.*;
 import cn.mapway.gwt_template.shared.rpc.dev.*;
@@ -32,6 +33,12 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public interface IAppServerAsync {
 
     ///CODE_GEN_INSERT_POINT///
+	void deleteAppService(DeleteAppServiceRequest request, AsyncCallback<RpcResult<DeleteAppServiceResponse>> async);
+
+	void updateAppService(UpdateAppServiceRequest request, AsyncCallback<RpcResult<UpdateAppServiceResponse>> async);
+
+	void queryAppService(QueryAppServiceRequest request, AsyncCallback<RpcResult<QueryAppServiceResponse>> async);
+
 	void queryLogs(QueryLogsRequest request, AsyncCallback<RpcResult<QueryLogsResponse>> async);
 
 	void queryRecords(QueryRecordsRequest request, AsyncCallback<RpcResult<QueryRecordsResponse>> async);

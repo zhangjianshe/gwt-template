@@ -1,0 +1,177 @@
+networks:
+  it_network:
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.25.0.0/16
+services:
+  powerdns-db:
+    image: hub.cangling.cn/docker/postgres:15-alpine
+    container_name: powerdns-db
+    restart: unless-stopped
+    networks:
+      - it_network
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: powerdns
+      POSTGRES_USER: powerdns
+      POSTGRES_PASSWORD: powerdns-security-pwd
+    volumes:
+      - ./data/pdns-db:/var/lib/postgresql/data
+      - ./data/init/01-power-db.sql:/docker-entrypoint-initdb.d/01-pdns-schema.sql:ro
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB} || exit 1" ]
+      interval: 5s         # Check every 5 seconds
+      timeout: 5s          # Give the check 5 seconds to complete
+      retries: 5           # Try 5 times before marking as 'unhealthy'
+      start_period: 10s    # Give the service 10s grace period before counting failures
+
+  # 2. PowerDNS 权威服务器
+  powerdns:
+    image: hub.cangling.cn/docker/powerdns/pdns-auth-48:latest
+    container_name: powerdns
+    restart: unless-stopped
+    networks:
+      it_network:
+        ipv4_address: 172.25.0.100
+    ports:
+      #- "53:53/udp"
+      #- "53:53/tcp"
+      - "8053:8081/tcp" # 暴露 API 端口
+    volumes:
+      - ./data/pdns/pdns.conf:/etc/powerdns/pdns.conf
+    depends_on:
+      - powerdns-db
+  # 3. PowerDNS resolver
+  powerdns-recursor:
+    image: hub.cangling.cn/docker/powerdns/pdns-recursor-48:latest
+    container_name: powerdns-recursor
+    restart: unless-stopped
+    networks:
+      - it_network
+    ports:
+      - "53:53/udp"
+      - "53:53/tcp"
+    volumes:
+      - ./data/pdns/recursor.conf:/etc/powerdns/recursor.conf
+      - ./data/pdns/empty-hints.txt:/etc/powerdns/empty-hints.txt
+    depends_on:
+      - powerdns
+
+  # 3. Step-CA 证书服务
+  step-ca:
+    image: hub.cangling.cn/docker/smallstep/step-ca:latest
+    container_name: step-ca
+    restart: unless-stopped
+    networks:
+      - it_network
+    ports:
+      - "9000:9000/tcp" # 映射 ACME HTTPS 端口
+    volumes:
+      - ./data/step-ca-data:/home/step:rw
+    environment:
+      # 第一次运行时用于自动初始化的环境变量
+      - STEPPATH=/home/step
+      - DOCKER_STEPCA_INIT_NAME=${CA_NAME:-SATWAY_CA}
+      - DOCKER_STEPCA_INIT_DNS_NAMES=step-ca
+      - DOCKER_STEPCA_INIT_REMOTE_MANAGEMENT=false
+      - DOCKER_STEPCA_INIT_PASSWORD=QAZwsx@1234
+  openldap:
+    user: root
+    image: hub.cangling.cn/cangling/openldap:final
+    container_name: openldap
+    ports:
+      - "389:1389"
+    # - "636:1636"
+    environment:
+      - LDAP_ROOT=dc=satway,dc=cn
+      - LDAP_ADMIN_USERNAME=admin
+      - LDAP_ADMIN_PASSWORD=Openldap2025*
+      - LDAP_USERS=zhangjianshe
+      - LDAP_PASSWORDS=Zhangjianshe2025*
+    volumes:
+      - ./data/ldap:/bitnami/openldap
+    networks:
+      - it_network
+  dev-db:
+    image: "hub.cangling.cn/cangling/postgis:17"
+    container_name: dev-db
+    networks:
+      - it_network
+    volumes:
+      - ./data/dev/data:/var/lib/postgresql/data
+    expose:
+      - "5432"
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_DB=dev
+      - POSTGRES_USER=cangling
+      - POSTGRES_PASSWORD=cangling-dev
+      - ALLOW_IP_RANGE=0.0.0.0/0
+      - POSTGRES_MULTIPLE_EXTENSIONS=postgis,hstore,postgis_topology,postgis_raster,pgrouting
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB} || exit 1" ]
+      interval: 5s         # Check every 5 seconds
+      timeout: 5s          # Give the check 5 seconds to complete
+      retries: 5           # Try 5 times before marking as 'unhealthy'
+      start_period: 10s    # Give the service 10s grace period before counting failures
+  dev-app:
+    image: "hub.cangling.cn/cangling/gwt-template:latest"
+    container_name: dev-app
+    networks:
+      - it_network
+    expose:
+      - 8080
+    env_file:
+      - .env
+    ports:
+      - "7700:8080"
+    depends_on:
+      dev-db:
+        condition: service_healthy
+    volumes:
+      - ./data/dev/app.json:/root/mapway/app.json
+      - ./data/dev/data:/data/dev
+      - ./data/step-ca-data/certs:/certs:ro
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dev.rule=Host(`dev.tjj.cn`)"
+      - "traefik.http.routers.dev.entrypoints=websecure"
+      - "traefik.http.routers.dev.service=dev"
+      - "traefik.http.routers.dev.tls.certResolver=powerdns"
+      - "traefik.http.routers.dev.tls.domains=dev.tjj.cn"
+      - "traefik.http.services.dev.loadbalancer.server.port=8080"
+      - "traefik.tcp.routers.git-shell.rule=HostSNI(`*`)"
+      - "traefik.tcp.routers.git-shell.entrypoints=ssh"
+      - "traefik.tcp.routers.git-shell.service=git-shell"
+      - "traefik.tcp.services.git-shell.loadbalancer.server.port=2222"
+
+  traefik:
+    image: hub.cangling.cn/docker/library/traefik:v3.7
+    container_name: traefik
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "636:636"
+      - "7701:8080"
+    networks:
+      - it_network
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./data/traefik-certs:/certs
+      - ./data/traefik/:/etc/traefik/
+      - ./data/step-ca-data/certs:/certs-incoming:ro
+    environment:
+      - PDNS_API_KEY=let_china_great_again
+      - PDNS_API_URL=http://powerdns:8081/
+      - LEGO_CA_CERTIFICATES=/certs-incoming/root_ca.crt
+      - PDNS_VHOST=tjj.cn
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"

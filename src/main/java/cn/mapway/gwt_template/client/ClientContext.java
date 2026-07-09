@@ -139,6 +139,10 @@ public class ClientContext implements IClientContext, HasCommonHandlers {
         });
     }
 
+    public static String getImageUploader() {
+        return GWT.getHostPageBaseURL() + "fileUpload";
+    }
+
     @Override
     public IUserInfo getUserInfo() {
         return userInfo;

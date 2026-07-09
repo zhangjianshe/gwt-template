@@ -191,7 +191,6 @@ public class DesktopFrame extends BaseAbstractModule implements RequiresResize {
 
         panelProjects.clear();
         for (DevProjectEntity project : data.getFavoriteProjects()) {
-            DomGlobal.console.log("project: " + project.getName());
             ProjectItem item = new ProjectItem();
             item.setData(project);
             item.addStyleName(AppResource.INSTANCE.styles().box());

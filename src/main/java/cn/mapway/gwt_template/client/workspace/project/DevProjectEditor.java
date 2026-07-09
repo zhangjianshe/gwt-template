@@ -1,5 +1,6 @@
 package cn.mapway.gwt_template.client.workspace.project;
 
+import cn.mapway.gwt_template.client.ClientContext;
 import cn.mapway.gwt_template.client.rpc.AppProxy;
 import cn.mapway.gwt_template.client.workspace.WorkspaceFolderDropdown;
 import cn.mapway.gwt_template.client.workspace.widget.SecurityLevelDropdown;
@@ -53,7 +54,7 @@ public class DevProjectEditor extends CommonEventComposite implements IData<DevP
     public DevProjectEditor() {
         initWidget(ourUiBinder.createAndBindUi(this));
         txtColor.asColor();
-        uploader.setAction(GWT.getHostPageBaseURL() + "fileUpload", "project");
+        uploader.setAction(ClientContext.getImageUploader(), "project");
     }
 
     public static Dialog<DevProjectEditor> getDialog(boolean reuse) {

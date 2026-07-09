@@ -1,0 +1,43 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:dialog="urn:import:cn.mapway.ui.client.widget.dialog"
+             xmlns:widget1="urn:import:cn.mapway.gwt_template.client.widget"
+             xmlns:widget="urn:import:cn.mapway.ui.client.widget"
+             xmlns:buttons="urn:import:cn.mapway.ui.client.widget.buttons">
+    <ui:style>
+        .box {
+            display: grid;
+            gap: 0.5rem;
+            grid-template-columns: 100px 1fr 100px 1fr;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 15px;
+        }</ui:style>
+    <g:DockLayoutPanel>
+        <g:south size="60">
+            <dialog:SaveBar ui:field="saveBar"/>
+        </g:south>
+        <g:center>
+            <g:ScrollPanel>
+                <g:HTMLPanel addStyleNames="{style.box}">
+                    <widget1:Head>服务名称</widget1:Head>
+                    <widget:AiTextBox ui:field="txtName" placeholder="服务名称"/>
+                    <widget1:Head>是否启用</widget1:Head>
+                    <buttons:AiCheckBox ui:field="checkActive"/>
+                    <widget1:Head>规则</widget1:Head>
+                    <widget:AiTextBox ui:field="txtRule" placeholder="Host(`it.tjj.cn`)"/>
+                    <widget1:Head>终端</widget1:Head>
+                    <widget:AiTextBox ui:field="txtEndPoint" placeholder="websecure web ssh"/>
+                    <widget1:Head>证书服务</widget1:Head>
+                    <widget:AiTextBox ui:field="txtTls" placeholder="cloudflare"/>
+                    <widget1:Head>证书域名列表</widget1:Head>
+                    <widget:AiTextBox ui:field="txtDomains" placeholder="域名列表"/>
+                    <widget1:Head>后端服务</widget1:Head>
+                    <widget1:TextArea ui:field="txtBalance" height="120px"/>
+                    <widget1:Head>图标</widget1:Head>
+                    <widget:ImageUploader height="120px" ui:field="imageUploader"/>
+                </g:HTMLPanel>
+            </g:ScrollPanel>
+        </g:center>
+    </g:DockLayoutPanel>
+</ui:UiBinder>

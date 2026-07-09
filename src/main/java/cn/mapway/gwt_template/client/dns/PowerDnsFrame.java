@@ -8,7 +8,7 @@ import cn.mapway.gwt_template.shared.rpc.powerdns.model.PowerDnsRRSet;
 import cn.mapway.gwt_template.shared.rpc.powerdns.model.PowerDnsRecord;
 import cn.mapway.gwt_template.shared.rpc.powerdns.model.PowerDnsZone;
 import cn.mapway.ui.client.fonts.Fonts;
-import cn.mapway.ui.client.frame.ToolbarModule;
+import cn.mapway.ui.client.mvc.BaseAbstractModule;
 import cn.mapway.ui.client.mvc.IModule;
 import cn.mapway.ui.client.mvc.ModuleMarker;
 import cn.mapway.ui.client.mvc.ModuleParameter;
@@ -33,7 +33,10 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.DockLayoutPanel;
+import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Widget;
 import elemental2.promise.IThenable;
 import org.jspecify.annotations.Nullable;
 
@@ -44,17 +47,22 @@ import org.jspecify.annotations.Nullable;
         summary = "PowerDNS Manager",
         unicode = Fonts.CMS
 )
-public class PowerDnsFrame extends ToolbarModule {
+public class PowerDnsFrame extends BaseAbstractModule {
     public final static String MODULE_CODE = "power_dns_frame";
-
-    interface PowerDnsFrameUiBinder extends UiBinder<DockLayoutPanel, PowerDnsFrame> {
-    }
-
     private static final PowerDnsFrameUiBinder ourUiBinder = GWT.create(PowerDnsFrameUiBinder.class);
     @UiField
     Tree zoneTree;
     @UiField
     FlexTable records;
+    PowerDnsZone selectZoneId = null;
+    @UiField
+    SStyle style;
+    @UiField
+    AiButton btnAddZone;
+    @UiField
+    AiButton btnCreateRecord;
+    @UiField
+    HorizontalPanel tools;
 
     public PowerDnsFrame() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -72,9 +80,7 @@ public class PowerDnsFrame extends ToolbarModule {
         btnCreateRecord.setEnabled(false);
         loadZone();
         return true;
-    }
-
-    ClickHandler deleteZoneHandler = new ClickHandler() {
+    }    ClickHandler deleteZoneHandler = new ClickHandler() {
         @Override
         public void onClick(ClickEvent event) {
             event.stopPropagation();
@@ -146,6 +152,8 @@ public class PowerDnsFrame extends ToolbarModule {
         if (event.isSelect()) {
             TreeItem item = event.getValue();
             PowerDnsZone zone = (PowerDnsZone) item.getData();
+            btnCreateRecord.setData(zone);
+            btnCreateRecord.setEnabled(true);
             loadZoneRecord(zone);
         }
     }
@@ -171,7 +179,8 @@ public class PowerDnsFrame extends ToolbarModule {
 
     @UiHandler("btnCreateRecord")
     public void btnCreateRecordClick(ClickEvent event) {
-        editRecord(null,null);
+        PowerDnsZone zone = (PowerDnsZone) btnCreateRecord.getData();
+        editRecord(zone, null, null);
     }
 
     private void doAddZone(String zoneName) {
@@ -198,7 +207,10 @@ public class PowerDnsFrame extends ToolbarModule {
         });
     }
 
-    PowerDnsZone selectZoneId = null;
+    @Override
+    public HorizontalPanel getTools() {
+        return tools;
+    }
 
     private void loadZoneRecord(PowerDnsZone zone) {
         QueryRecordsRequest request = new QueryRecordsRequest();
@@ -259,8 +271,8 @@ public class PowerDnsFrame extends ToolbarModule {
                         AiButton btnDelete = new AiButton("删除");
 
                         // 绑定动作
-                        btnEdit.addClickHandler(event -> editRecord(rrset, record));
-                        btnDelete.addClickHandler(event -> deleteRecord(rrset, record));
+                        btnEdit.addClickHandler(event -> editRecord((PowerDnsZone) btnCreateRecord.getData(), rrset, record));
+                        btnDelete.addClickHandler(event -> deleteRecord((PowerDnsZone) btnCreateRecord.getData(), rrset, record));
 
                         hp.add(btnEdit);
                         hp.add(btnDelete);
@@ -276,7 +288,7 @@ public class PowerDnsFrame extends ToolbarModule {
         }
     }
 
-    private void editRecord(PowerDnsRRSet rrset, PowerDnsRecord record) {
+    private void editRecord(PowerDnsZone zone, PowerDnsRRSet rrset, PowerDnsRecord record) {
 
         Dialog<PowerDnsRecordEditor> dialog1 = PowerDnsRecordEditor.getDialog(true);
         dialog1.addCommonHandler(new CommonEventHandler() {
@@ -284,7 +296,7 @@ public class PowerDnsFrame extends ToolbarModule {
             public void onCommonEvent(CommonEvent event) {
                 if (event.isOk()) {
                     PowerDnsRRSet rrsetUpdated = event.getValue();
-                    doSaveRecord(rrsetUpdated);
+                    doSaveRecord(zone, rrsetUpdated);
                 } else {
                     dialog1.hide();
                 }
@@ -294,18 +306,19 @@ public class PowerDnsFrame extends ToolbarModule {
         dialog1.center();
     }
 
-    private void doSaveRecord(PowerDnsRRSet rrsetUpdated) {
+    private void doSaveRecord(PowerDnsZone zone, PowerDnsRRSet rrsetUpdated) {
         CreateOrUpdateRecordRequest request = new CreateOrUpdateRecordRequest();
+        request.setZoneId(zone.getId());
         request.setRRSet(rrsetUpdated);
         AppProxy.get().createOrUpdateRecord(request, new AsyncAdaptor<RpcResult<CreateOrUpdateRecordResponse>>() {
             @Override
             public void onData(RpcResult<CreateOrUpdateRecordResponse> result) {
-
+                loadZoneRecord((PowerDnsZone) btnCreateRecord.getData());
             }
         });
     }
 
-    private void deleteRecord(PowerDnsRRSet rrset, PowerDnsRecord record) {
+    private void deleteRecord(PowerDnsZone zone, PowerDnsRRSet rrset, PowerDnsRecord record) {
         // 1. 弹出确认框
         ClientContext.get().confirm("确定要删除记录 " + rrset.getName() + " 吗?").then(result -> {
             // 2. 调用删除逻辑
@@ -329,14 +342,8 @@ public class PowerDnsFrame extends ToolbarModule {
         });
     }
 
-    @UiField
-    SStyle style;
-    @UiField
-    Button btnAddZone;
-    @UiField
-    AiButton btnCreateRecord;
-    @UiField
-    HorizontalPanel tools;
+    interface PowerDnsFrameUiBinder extends UiBinder<DockLayoutPanel, PowerDnsFrame> {
+    }
 
     interface SStyle extends CssResource {
         String box();
@@ -353,4 +360,8 @@ public class PowerDnsFrame extends ToolbarModule {
 
         String recordTable();
     }
+
+
+
+
 }

@@ -4,6 +4,9 @@ import cn.mapway.biz.core.BizContext;
 import cn.mapway.biz.core.BizRequest;
 import cn.mapway.biz.core.BizResult;
 import cn.mapway.gwt_template.client.rpc.IAppServer;
+import cn.mapway.gwt_template.server.service.app.DeleteAppServiceExecutor;
+import cn.mapway.gwt_template.server.service.app.QueryAppServiceExecutor;
+import cn.mapway.gwt_template.server.service.app.UpdateAppServiceExecutor;
 import cn.mapway.gwt_template.server.service.config.QueryConfigExecutor;
 import cn.mapway.gwt_template.server.service.config.QueryConfigListExecutor;
 import cn.mapway.gwt_template.server.service.config.UpdateConfigExecutor;
@@ -40,6 +43,7 @@ import cn.mapway.gwt_template.server.service.user.UpdateUserInfoExecutor;
 import cn.mapway.gwt_template.server.service.user.login.LoginProvider;
 import cn.mapway.gwt_template.server.service.webhook.*;
 import cn.mapway.gwt_template.shared.AppConstant;
+import cn.mapway.gwt_template.shared.rpc.app.*;
 import cn.mapway.gwt_template.shared.rpc.config.*;
 import cn.mapway.gwt_template.shared.rpc.desktop.*;
 import cn.mapway.gwt_template.shared.rpc.dev.*;
@@ -143,7 +147,7 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
     @Resource
     QueryConfigExecutor queryConfigExecutor;
 
-    /// CODE_GEN_INSERT_POINT///
+    ///CODE_GEN_INSERT_POINT///
 
     @Resource
     QueryLogsExecutor queryLogsExecutor;
@@ -361,6 +365,30 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
     UpdateFavoriteProjectExecutor updateFavoriteProjectExecutor;
     @Resource
     QueryFavoriteProjectExecutor queryFavoriteProjectExecutor;
+    @Resource
+    DeleteAppServiceExecutor deleteAppServiceExecutor;
+    @Resource
+    UpdateAppServiceExecutor updateAppServiceExecutor;
+    @Resource
+    QueryAppServiceExecutor queryAppServiceExecutor;
+
+    @Override
+    public RpcResult<DeleteAppServiceResponse> deleteAppService(DeleteAppServiceRequest request) {
+        BizResult<DeleteAppServiceResponse> bizResult = deleteAppServiceExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<UpdateAppServiceResponse> updateAppService(UpdateAppServiceRequest request) {
+        BizResult<UpdateAppServiceResponse> bizResult = updateAppServiceExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<QueryAppServiceResponse> queryAppService(QueryAppServiceRequest request) {
+        BizResult<QueryAppServiceResponse> bizResult = queryAppServiceExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
 
     @Override
     public RpcResult<QueryLogsResponse> queryLogs(QueryLogsRequest request) {

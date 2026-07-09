@@ -1,0 +1,35 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:buttons="urn:import:cn.mapway.ui.client.widget.buttons"
+             xmlns:panel="urn:import:cn.mapway.ui.client.widget.panel">
+    <ui:style>
+        .box {
+            padding: 15px;
+        }
+
+        .box1 {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 15px;
+        }</ui:style>
+    <g:DockLayoutPanel>
+        <g:north size="0">
+            <g:HorizontalPanel spacing="4" ui:field="tools">
+                <buttons:AiButton type="warning" ui:field="btnAdd">添加</buttons:AiButton>
+                <buttons:AiButton type="error" ui:field="btnTest">测试</buttons:AiButton>
+            </g:HorizontalPanel>
+        </g:north>
+        <g:center>
+            <g:ScrollPanel>
+                <g:HTMLPanel>
+                    <panel:MessagePanel ui:field="messagePanel"/>
+                    <g:FlexTable width="100%" addStyleNames="{style.box} attr-table" ui:field="list">
+
+                    </g:FlexTable>
+                </g:HTMLPanel>
+            </g:ScrollPanel>
+
+        </g:center>
+    </g:DockLayoutPanel>
+</ui:UiBinder>

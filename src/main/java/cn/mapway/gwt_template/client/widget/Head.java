@@ -4,6 +4,11 @@ import com.google.gwt.user.client.ui.Label;
 
 public class Head extends Label {
     public Head() {
-        setStyleName("ai-bold");
+        setStyleName("ai-header");
+    }
+    public Head(String name)
+    {
+        super(name);
+        setStyleName("ai-header");
     }
 }

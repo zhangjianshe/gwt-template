@@ -26,10 +26,10 @@ import java.util.Map;
 public class SourceTools {
     public static void main(String[] args) {
         SourceTools tools = new SourceTools();
-        String packageBean = "cn.mapway.gwt_template.shared.rpc.log";
-        String packageService = "cn.mapway.gwt_template.server.service.log";
+        String packageBean = "cn.mapway.gwt_template.shared.rpc.app";
+        String packageService = "cn.mapway.gwt_template.server.service.app";
         ArrayList<String> methods = Lang.list(
-                "queryLogs"
+                "queryAppService","updateAppService","deleteAppService"
         );
         methods.stream().forEach(n -> {
             tools.gen(n, packageBean, packageService);

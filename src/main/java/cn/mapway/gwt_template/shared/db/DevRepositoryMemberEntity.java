@@ -20,7 +20,6 @@ public class DevRepositoryMemberEntity implements Serializable, IsSerializable {
     public static final String FLD_OWNER = "owner";
 
     @Column("user_id")
-    @ColDefine(type = ColType.VARCHAR, width = 64)
     Long userId;
     @Column("repository_id")
     @ColDefine(type = ColType.VARCHAR, width = 64)

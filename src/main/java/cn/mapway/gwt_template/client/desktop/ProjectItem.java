@@ -3,6 +3,7 @@ package cn.mapway.gwt_template.client.desktop;
 import cn.mapway.gwt_template.client.resource.AppResource;
 import cn.mapway.gwt_template.shared.db.DevProjectEntity;
 import cn.mapway.ui.client.tools.IData;
+import cn.mapway.ui.client.util.Colors;
 import cn.mapway.ui.client.util.StringUtil;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ErrorEvent;
@@ -49,6 +50,8 @@ public class ProjectItem extends Composite implements IData<DevProjectEntity> {
 
     private void toUI() {
         lbName.setText(project.getName());
+        int i = Colors.fromRGBA(project.getColor());
+
         lbName.getElement().getStyle().setColor(project.getColor());
         lbUserName.setText(project.getCreateUserName());
         if (StringUtil.isBlank(project.getCreateUserAvatar())) {

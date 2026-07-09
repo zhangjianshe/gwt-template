@@ -47,7 +47,7 @@ public class QueryZonesExecutor extends AbstractBizExecutor<QueryZonesResponse, 
             Header header=Header.create().asJsonContentType();
             header.addv("X-API-Key", pdnsConfig.token);
 
-            Response response = Http.get(apiUrl, header,30);
+            Response response = Http.get(apiUrl, header,3000);
             if (response.isOK()) {
                 // Parse the raw JSON Array directly into a List of PowerDnsZone objects
                 List<PowerDnsZone> zones = Json.fromJsonAsList(PowerDnsZone.class, response.getReader());
