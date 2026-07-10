@@ -55,6 +55,8 @@ public class AppLoginFrame extends BaseAbstractModule implements RequiresResize 
     Label lbVersion;
     @UiField
     Button btnRegister;
+    @UiField
+    Label lbVersionInfo;
 
     public AppLoginFrame() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -66,7 +68,8 @@ public class AppLoginFrame extends BaseAbstractModule implements RequiresResize 
             root.setWidgetVisible(background, false);
         }
         CompileInformation information = ClientContext.getCompileFactory().compileInfo();
-        lbVersion.setText(information.version + "(" + information.gitCommit + ")@ " + StringUtil.formatDate(information.compileTime));
+        lbVersion.setText(information.version);
+        lbVersionInfo.setText("[" + information.gitCommit + "]@" + StringUtil.formatDate(information.compileTime));
         txtPassword.addKeyDownHandler(new KeyDownHandler() {
             @Override
             public void onKeyDown(KeyDownEvent event) {

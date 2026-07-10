@@ -1,58 +1,133 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
              xmlns:g='urn:import:com.google.gwt.user.client.ui' xmlns:widget="urn:import:cn.mapway.ui.client.widget">
     <ui:style>
+        /* ✨ 升级：现代微毛玻璃（Glassmorphism）登录容器 */
         .login-container {
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 380px;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            padding: 35px 40px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08),
+            0 1px 3px rgba(15, 23, 42, 0.04);
+            width: 400px;
             position: absolute;
-            right: 15%;
+            right: 12%;
+            top: 50%;
+            transform: translateY(-50%); /* 纵向完美居中 */
+            box-sizing: border-box;
         }
 
+        /* 标题：更有呼吸感，符合企业级审美 */
         h2 {
             text-align: center;
-            margin-bottom: 20px;
+            margin: 0 0 28px 0;
+            color: #1e293b;
+            font-size: 22px;
+            font-weight: 600;
+            letter-spacing: 2px;
         }
 
         .input-group {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
+            width: 100%;
         }
 
+        /* 标签：轻量化、小字号 */
         .input-group label {
             display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            padding-bottom: 10px;
+            margin-bottom: 8px;
+            font-size: 13px;
+            color: #64748b;
+            font-weight: 500;
         }
 
+        /* 适配 AiTextBox 编译出的输入框样式 */
         .input-group input[type="text"],
-        .input-group input[type="password"] {
+        .input-group input[type="password"],
+        .input-group :value {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box; /* Important for padding not to increase total width */
+            height: 40px;
+            padding: 0 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            background-color: rgba(255, 255, 255, 0.7);
+            color: #334155;
+            font-size: 14px;
+            transition: all 0.2s ease-in-out;
+            box-sizing: border-box;
         }
 
-        .login-button {
-            width: 140px;
-            padding: 10px;
-            background-color: #007bff;
-            color: white;
+        /* 输入框 Focus 动效 */
+        .input-group input:focus {
+            border-color: #3b82f6;
+            background-color: #ffffff;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+            outline: none;
+        }
+
+        .line {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 26px;
+            width: 100%;
+        }
+
+        /* 🔑 主按钮：登录 */
+        .btn-login {
+            width: 145px;
+            height: 40px;
+            background-color: #2563eb;
+            color: #ffffff;
             border: none;
-            border-radius: 4px;
+            border-radius: 6px;
             cursor: pointer;
-            font-size: 16px;
-            margin-top: 10px;
-            line-height: 14px;
+            font-size: 15px;
+            font-weight: 500;
+            letter-spacing: 1px;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
         }
 
-        .login-button:hover {
-            background-color: #0056b3;
+        .btn-login:hover {
+            background-color: #1d4ed8;
+            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3);
+            transform: translateY(-1px);
         }
 
+        .btn-login:active {
+            transform: translateY(0);
+        }
+
+        /* outline次按钮：注册 */
+        .btn-register {
+            width: 145px;
+            height: 40px;
+            background-color: transparent;
+            color: #475569;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 500;
+            letter-spacing: 1px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-register:hover {
+            background-color: rgba(0, 0, 0, 0.04);
+            color: #1e293b;
+            border-color: #94a3b8;
+            transform: translateY(-1px);
+        }
+
+        .btn-register:active {
+            transform: translateY(0);
+        }
+
+        /* 基础公用样式（保持不动） */
         .box {
             display: flex;
             align-items: center;
@@ -94,29 +169,115 @@
         }
 
         .version {
-            color: gray;
+            color: #444;
             font-size: 0.9rem;
-            font-family: Iosevka;
+            font-family: Iosevka, monospace;
         }
 
-        .line {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 10px;
+        .versioninfo {
+            color: #888;
+            font-size: 0.9rem;
+            font-family: Iosevka, monospace;
         }
 
+        /* 证书悬浮窗空间管理（保持不动） */
+        .cert-wrapper {
+            width: 100%;
+            height: 100%;
+            padding: 170px 40px 14px 20px;
+            box-sizing: border-box;
+        }
 
         .cert {
+            position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 4px;
-            border: #888 1px solid;
+            border-radius: 6px;
+            border: 1px solid rgba(0, 123, 255, 0.4);
+            background-color: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transition: all 0.2s ease-in-out;
+            width: 100%;
+            height: 46px;
+            box-sizing: border-box;
         }
 
+        .cert:hover {
+            border-color: #007bff;
+            background-color: #f0f7ff;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 123, 255, 0.25);
+        }
 
+        .cert a {
+            color: #007bff;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            letter-spacing: 1px;
+        }
+
+        .cert a:hover {
+            color: #0056b3;
+        }
+
+        .tooltip-box {
+            position: absolute;
+            bottom: 56px;
+            left: 0;
+            width: 320px;
+            background: rgba(30, 41, 59, 0.95);
+            backdrop-filter: blur(4px);
+            color: #ffffff;
+            padding: 14px;
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(8px);
+            transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        .tooltip-box::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 35px;
+            border: 6px solid transparent;
+            border-top-color: rgba(30, 41, 59, 0.95);
+        }
+
+        .cert:hover .tooltip-box {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .tooltip-title {
+            font-size: 13px;
+            font-weight: bold;
+            color: #00E5FF;
+            margin-bottom: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            padding-bottom: 6px;
+        }
+
+        .tooltip-line {
+            font-size: 12px;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.85);
+            margin-bottom: 4px;
+        }
     </ui:style>
+
     <g:LayoutPanel ui:field="root">
         <g:layer>
             <g:Image ui:field="background" addStyleNames="{style.background}"/>
@@ -124,7 +285,7 @@
         <g:layer>
             <g:HTMLPanel addStyleNames="{style.box1}" ui:field="page">
                 <div class="{style.login-container}">
-                    <h2>苍灵开发平台</h2>
+                    <h2>系统登录</h2>
                     <form method="POST" class="{style.box}">
                         <div class="{style.input-group}">
                             <label for="txtName">用户名</label>
@@ -135,24 +296,39 @@
                             <widget:AiTextBox name="password" ui:field="txtPassword"/>
                         </div>
                         <g:HTMLPanel addStyleNames="{style.line}">
-                            <g:Button addStyleNames="{style.login-button}" ui:field="btnLogin">登录</g:Button>
-                            <g:Button addStyleNames="{style.login-button}" ui:field="btnRegister">注册</g:Button>
+                            <g:Button addStyleNames="{style.btn-login}" ui:field="btnLogin">登录</g:Button>
+                            <g:Button addStyleNames="{style.btn-register}" ui:field="btnRegister">注册</g:Button>
                         </g:HTMLPanel>
                     </form>
                 </div>
-
             </g:HTMLPanel>
         </g:layer>
+
         <g:layer left="100" bottom="100" right="100" height="100">
             <g:Label ui:field="lbMessage" visible="false" addStyleNames="{style.msg}"/>
         </g:layer>
-        <g:layer left="20" bottom="50" width="300" height="60">
-                <g:HTMLPanel addStyleNames="{style.cert}">
-                    <g:Anchor title="【step-ca 证书安装指南】&#10;1. 点击下载证书文件。&#10;2. 双击打开文件，选择‘安装证书’。&#10;3. 存储位置务必选择：‘受信任的根证书颁发机构’。&#10;4. 一路点击下一步并确认即可解除 HTTPS 警告。" target="_blank" href="/api/v1/traefik/root-ca.crt">根证书下载</g:Anchor>
-                </g:HTMLPanel>
+
+        <g:layer left="0" bottom="50" width="340" height="240">
+            <g:HTMLPanel addStyleNames="{style.cert-wrapper}">
+                <div class="{style.cert}">
+                    <g:Anchor target="_blank" href="/api/v1/traefik/root-ca.crt">🔒 下载 Step-CA 根证书</g:Anchor>
+                    <div class="{style.tooltip-box}">
+                        <div class="{style.tooltip-title}">🔒 Step-CA 安全证书配置引导</div>
+                        <div class="{style.tooltip-line}">1. 请先点击下载此根证书</div>
+                        <div class="{style.tooltip-line}">2. 双击证书将其导入操作系统</div>
+                        <div class="{style.tooltip-line}">3. 将其信任设置为“始终信任此证书”</div>
+                        <div class="{style.tooltip-line}">4. 即可正常访问内部 HTTPS 安全接口</div>
+                    </div>
+                </div>
+            </g:HTMLPanel>
         </g:layer>
-        <g:layer left="20" bottom="10" width="300" height="30">
-            <g:Label ui:field="lbVersion" addStyleNames="{style.version}"/>
+
+        <g:layer right="20" bottom="10" width="300" height="30">
+            <g:HorizontalPanel spacing="4">
+                <g:Label ui:field="lbVersion" addStyleNames="{style.version}"/>
+                <g:Label ui:field="lbVersionInfo" addStyleNames="{style.versioninfo}"/>
+            </g:HorizontalPanel>
+
         </g:layer>
     </g:LayoutPanel>
 </ui:UiBinder>
