@@ -34,7 +34,9 @@ public class IndexAppServiceExecutor {
     }
 
     private String buildConfig(List<AppServiceEntity> services) {
-        return Json.toJson( buildHttp(services));
+        Map<String, Object> http = new HashMap<>();
+        http.put("http", buildHttp(services));
+        return Json.toJson(http);
     }
 
     private Map<String, Object> buildHttp(List<AppServiceEntity> serviceList) {

@@ -170,8 +170,5 @@ services:
       - PDNS_API_KEY=let_china_great_again
       - PDNS_API_URL=http://powerdns:8081/
       - LEGO_CA_CERTIFICATES=/certs-incoming/root_ca.crt
-      - PDNS_VHOST=tjj.cn
     command:
-      - "--api.insecure=true"
-      - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=false"
+      - "--configfile=/etc/traefik/traefik.yaml"
