@@ -5,7 +5,6 @@ import com.google.gwt.core.ext.Generator;
 import com.google.gwt.core.ext.GeneratorContext;
 import com.google.gwt.core.ext.TreeLogger;
 import com.google.gwt.core.ext.UnableToCompleteException;
-import com.google.gwt.dev.resource.Resource;
 import com.google.gwt.user.rebind.ClassSourceFileComposerFactory;
 import com.google.gwt.user.rebind.SourceWriter;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +15,6 @@ import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
 
 import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Date;
@@ -111,16 +109,22 @@ public class CompileGenerator extends Generator {
             commitTime = System.currentTimeMillis();
             commitHash = "Unknown";
         }
-        Resource resource = generatorContext.getResourcesOracle().getResource("version.txt");
         String version = "Unknown";
-        if (resource != null) {
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource.openContents()))) {
-                version = reader.readLine().trim();
-            } catch (Exception e) {
-                log.error("Failed to read version from classpath", e);
+        try (java.io.InputStream is = CompileGenerator.class.getClassLoader().getResourceAsStream("version.txt")) {
+            if (is != null) {
+                try (BufferedReader reader = new BufferedReader(new java.io.InputStreamReader(is, java.nio.charset.StandardCharsets.UTF_8))) {
+                    String line = reader.readLine();
+                    if (line != null) {
+                        version = line.trim();
+                    }
+                }
+            } else {
+                log.warn("version.txt not found in classpath root!");
             }
+        } catch (Exception e) {
+            log.error("Failed to read version from classpath", e);
         }
-        log.info("{} {} {}", commitHash, commitAuthor, commitTime);
+        log.info("{} {} {} {}", version, commitHash, commitAuthor, commitTime);
         sourceWriter.println("\t data.gitTime= new Date(" + commitTime + "L);");
         sourceWriter.println("\t data.gitCommit= \"" + commitHash + "\";");
         sourceWriter.println("\t data.gitAuthor= \"" + commitAuthor + "\";");
