@@ -106,13 +106,17 @@
             padding: 0 10px;
         }
 
+
         .cert {
             display: flex;
             align-items: center;
             justify-content: center;
             border-radius: 4px;
             border: #888 1px solid;
-        }</ui:style>
+        }
+
+
+    </ui:style>
     <g:LayoutPanel ui:field="root">
         <g:layer>
             <g:Image ui:field="background" addStyleNames="{style.background}"/>
@@ -143,9 +147,9 @@
             <g:Label ui:field="lbMessage" visible="false" addStyleNames="{style.msg}"/>
         </g:layer>
         <g:layer left="20" bottom="50" width="300" height="60">
-            <g:HTMLPanel addStyleNames="{style.cert}">
-                <g:Anchor target="_blank" href="/api/v1/traefik/root-ca.crt">根证书下载</g:Anchor>
-            </g:HTMLPanel>
+                <g:HTMLPanel addStyleNames="{style.cert}">
+                    <g:Anchor title="【step-ca 证书安装指南】&#10;1. 点击下载证书文件。&#10;2. 双击打开文件，选择‘安装证书’。&#10;3. 存储位置务必选择：‘受信任的根证书颁发机构’。&#10;4. 一路点击下一步并确认即可解除 HTTPS 警告。" target="_blank" href="/api/v1/traefik/root-ca.crt">根证书下载</g:Anchor>
+                </g:HTMLPanel>
         </g:layer>
         <g:layer left="20" bottom="10" width="300" height="30">
             <g:Label ui:field="lbVersion" addStyleNames="{style.version}"/>

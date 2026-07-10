@@ -3,7 +3,7 @@
     <ui:style>
         .box {
             display: grid;
-            grid-template-columns: 280px 1fr 160px 34px 34px 34px;
+            grid-template-columns: 240px 1fr 160px 34px 34px 34px;
             align-items: center;
             justify-content: space-between;
             gap: 1rem;
