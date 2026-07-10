@@ -7,12 +7,7 @@
             padding: 15px;
         }
 
-        .box1 {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 15px;
-        }</ui:style>
+    </ui:style>
     <g:DockLayoutPanel>
         <g:north size="0">
             <g:HorizontalPanel spacing="4" ui:field="tools">
@@ -22,10 +17,9 @@
         </g:north>
         <g:center>
             <g:ScrollPanel>
-                <g:HTMLPanel>
+                <g:HTMLPanel addStyleNames="{style.box}">
                     <panel:MessagePanel ui:field="messagePanel"/>
-                    <g:FlexTable width="100%" addStyleNames="{style.box} attr-table" ui:field="list">
-
+                    <g:FlexTable width="100%" addStyleNames=" attr-table" ui:field="list">
                     </g:FlexTable>
                 </g:HTMLPanel>
             </g:ScrollPanel>

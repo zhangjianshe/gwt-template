@@ -1,4 +1,4 @@
-package cn.mapway.gwt_template.client.dns;
+package cn.mapway.gwt_template.client.dns.cloudflare;
 
 import cn.mapway.gwt_template.client.rpc.AppProxy;
 import cn.mapway.gwt_template.client.rpc.AsyncAdaptor;

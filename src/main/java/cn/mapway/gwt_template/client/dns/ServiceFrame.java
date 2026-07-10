@@ -1,5 +1,7 @@
 package cn.mapway.gwt_template.client.dns;
 
+import cn.mapway.gwt_template.client.dns.cloudflare.DnsFrame;
+import cn.mapway.gwt_template.client.dns.powerdns.PowerDnsFrame;
 import cn.mapway.gwt_template.client.dns.traefik.TraefikFrame;
 import cn.mapway.ui.client.fonts.Fonts;
 import cn.mapway.ui.client.frame.ToolbarModules;
@@ -12,9 +14,9 @@ import com.google.gwt.user.client.ui.DockLayoutPanel;
 
 @ModuleMarker(
         value = ServiceFrame.MODULE_CODE,
-        name = "应用服务",
+        name = "证书与服务",
         summary = "App Service",
-        unicode = Fonts.CMS
+        unicode = Fonts.CERT
 )
 public class ServiceFrame extends ToolbarModules {
     public final static String MODULE_CODE = "app_service_frame";
@@ -31,6 +33,7 @@ public class ServiceFrame extends ToolbarModules {
 
     @Override
     protected void initializeSubsystem() {
+        registerModule(DnsFrame.MODULE_CODE);
         registerModule(PowerDnsFrame.MODULE_CODE);
         registerModule(TraefikFrame.MODULE_CODE);
     }

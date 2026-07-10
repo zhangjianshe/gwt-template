@@ -4023,49 +4023,98 @@ ai-steps       end
     width: 100%;
     border-collapse: separate;
     border-spacing: 0;
-    font-size: 1rem;
+    background: var(--color-background);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    overflow: hidden;
+    font-size: 14px;
+}
+.attr-table thead th{
+    height:56px;
+    line-height:56px;
+    padding:0 18px;
+    font-size:15px;
+    font-weight:600;
+
+    background:#f8fafc;
+    color:#303133;
+
+    border-bottom:2px solid #e5e7eb;
+}
+.attr-table tbody td{
+    height:52px;
+    padding:0 18px;
+}
+.attr-table tr {
+    transition: background .18s ease;
 }
 
-.attr-table > tbody > tr {
-    border-bottom: 0px solid var(--color-border) !important;
-    height: 46px !important;
+.attr-table tr:not(:last-child) td {
+    border-bottom: 1px solid var(--color-split);
 }
 
-.attr-table > tbody > tr:first-child {
-    background-color: var(--color-table-header) !important;
+.attr-table tr:hover {
+    background: rgba(57, 98, 182, 0.05);
 }
 
-.attr-table > tbody > tr:nth-child(2n+3) {
-    background-color: var(--color-background-light) !important;
+.attr-table td {
+    padding: 10px 14px;
+    vertical-align: middle;
 }
 
-.attr-table > tbody > tr:nth-child(n+2):hover {
-    background-color: var(--color-background-hover) !important;
+/* 属性名 */
+.attr-table .attr-name {
+    width: 180px;
+    white-space: nowrap;
+    background: #f8fafc;
+    color: #666;
+    font-weight: 600;
+    border-right: 1px solid var(--color-split);
 }
 
-.attr-table > tbody > tr[select="true"] {
-    background-color: var(--color-background-selected) !important;
+/* 属性值 */
+.attr-table .attr-value {
+    color: var(--color-text-title);
+    word-break: break-word;
 }
 
-.attr-table > tbody > tr > td {
-    padding: 0 8px !important;
-}
-
-.attr-table > tbody > tr > td {
-    cursor: default;
-}
-
-.attr-table > tbody > tr > td > div {
-    cursor: default;
-}
-
-.attr-table > tbody > tr:first-child > td {
+/* 分组标题 */
+.attr-table .group-title td {
+    background: linear-gradient(90deg,
+    var(--color-main),
+    #5d86db);
+    color: white;
     font-weight: bold;
+    padding: 10px 14px;
+    border: none;
 }
 
-.attr-table > tbody > tr:first-child > td > div {
-    font-weight: bold;
+/* 输入框统一 */
+.attr-table input,
+.attr-table textarea,
+.attr-table select {
+    width: 100%;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    padding: 6px 10px;
+    transition: .2s;
+    background: white;
 }
+
+.attr-table input:hover,
+.attr-table textarea:hover,
+.attr-table select:hover {
+    border-color: var(--color-main);
+}
+
+.attr-table input:focus,
+.attr-table textarea:focus,
+.attr-table select:focus {
+    border-color: var(--color-main);
+    box-shadow: 0 0 0 3px rgba(57,98,182,.12);
+    outline: none;
+}
+
 
 .preference .iti-default-icon {
     color: var(--color-main);

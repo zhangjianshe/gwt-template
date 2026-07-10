@@ -1,4 +1,4 @@
-package cn.mapway.gwt_template.client.dns;
+package cn.mapway.gwt_template.client.dns.powerdns;
 
 import cn.mapway.gwt_template.shared.rpc.powerdns.model.PowerDnsRRSet;
 import cn.mapway.gwt_template.shared.rpc.powerdns.model.PowerDnsRecord;

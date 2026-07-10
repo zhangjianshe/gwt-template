@@ -1,4 +1,4 @@
-package cn.mapway.gwt_template.client.dns;
+package cn.mapway.gwt_template.client.dns.cloudflare;
 
 import cn.mapway.gwt_template.client.rpc.AppProxy;
 import cn.mapway.gwt_template.shared.AppConstant;
@@ -10,7 +10,7 @@ import cn.mapway.gwt_template.shared.rpc.dns.QueryDnsResponse;
 import cn.mapway.gwt_template.shared.rpc.dns.model.CloudflareConfig;
 import cn.mapway.gwt_template.shared.rpc.dns.model.DnsEntry;
 import cn.mapway.ui.client.fonts.Fonts;
-import cn.mapway.ui.client.frame.ToolbarModules;
+import cn.mapway.ui.client.mvc.BaseAbstractModule;
 import cn.mapway.ui.client.mvc.IModule;
 import cn.mapway.ui.client.mvc.ModuleMarker;
 import cn.mapway.ui.client.mvc.ModuleParameter;
@@ -38,18 +38,18 @@ import jsinterop.base.Js;
 import java.util.ArrayList;
 import java.util.List;
 
-import static cn.mapway.gwt_template.client.dns.DnsFrame.MODULE_CODE;
+import static cn.mapway.gwt_template.client.dns.cloudflare.DnsFrame.MODULE_CODE;
 
 /**
  * DNS配置窗口
  */
 @ModuleMarker(
         value = MODULE_CODE,
-        name = "DNS配置",
+        name = "Cloudflare",
         summary = "config the dns",
         unicode = Fonts.CMS
 )
-public class DnsFrame extends ToolbarModules {
+public class DnsFrame extends BaseAbstractModule {
     public static final String MODULE_CODE = "dns_frame";
     private static final DnsFrameUiBinder ourUiBinder = GWT.create(DnsFrameUiBinder.class);
     @UiField
@@ -96,10 +96,6 @@ public class DnsFrame extends ToolbarModules {
 
     }
 
-    @Override
-    protected void initializeSubsystem() {
-
-    }
 
     @Override
     public String getModuleCode() {
@@ -110,7 +106,6 @@ public class DnsFrame extends ToolbarModules {
     public boolean initialize(IModule parentModule, ModuleParameter parameter) {
         super.initialize(parentModule, parameter);
         loadData();
-        updateTools(tools);
         return true;
     }
 
@@ -141,6 +136,11 @@ public class DnsFrame extends ToolbarModules {
             }
 
         });
+    }
+
+    @Override
+    public HorizontalPanel getTools() {
+        return tools;
     }
 
     private void renderData(SysConfigEntity sysConfigEntity) {
@@ -287,14 +287,7 @@ public class DnsFrame extends ToolbarModules {
             }
         }
         return -1;
-    }    ClickHandler editHandler = new ClickHandler() {
-        @Override
-        public void onClick(ClickEvent event) {
-            AiButton button = (AiButton) event.getSource();
-            DnsEntry dnsEntry = (DnsEntry) button.getData();
-            editDns(dnsEntry);
-        }
-    };
+    }
 
     private void rendDnsList(List<DnsEntry> dnsList) {
         table.removeAllRows();
@@ -333,4 +326,15 @@ public class DnsFrame extends ToolbarModules {
 
     interface DnsFrameUiBinder extends UiBinder<DockLayoutPanel, DnsFrame> {
     }
+
+    ClickHandler editHandler = new ClickHandler() {
+        @Override
+        public void onClick(ClickEvent event) {
+            AiButton button = (AiButton) event.getSource();
+            DnsEntry dnsEntry = (DnsEntry) button.getData();
+            editDns(dnsEntry);
+        }
+    };
+
+
 }

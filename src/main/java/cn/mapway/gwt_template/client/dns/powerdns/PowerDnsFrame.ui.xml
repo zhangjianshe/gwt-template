@@ -4,7 +4,7 @@
              xmlns:tree="urn:import:cn.mapway.ui.client.widget.tree"
              xmlns:buttons="urn:import:cn.mapway.ui.client.widget.buttons">
 
-    <ui:style type="cn.mapway.gwt_template.client.dns.PowerDnsFrame.SStyle">
+    <ui:style type="cn.mapway.gwt_template.client.dns.powerdns.PowerDnsFrame.SStyle">
         /* Layout Panels */
         .westPanel {
             border-right: 1px solid #e2e8f0;
@@ -74,8 +74,7 @@
                 <g:north size="50">
                     <g:HTMLPanel addStyleNames="{style.box}">
                         <widget:Header>Zone 列表</widget:Header>
-                        <buttons:AiButton ui:field="btnAddZone" type="warning">添加ZONE</buttons:AiButton>
-                    </g:HTMLPanel>
+                     </g:HTMLPanel>
                 </g:north>
                 <g:center>
                     <g:ScrollPanel>
@@ -86,13 +85,16 @@
         </g:west>
         <g:south size="0">
             <g:HorizontalPanel ui:field="tools">
+                <buttons:AiButton ui:field="btnAddZone" type="warning">添加ZONE</buttons:AiButton>
                 <buttons:AiButton ui:field="btnCreateRecord" enabled="false">创建记录</buttons:AiButton>
             </g:HorizontalPanel>
         </g:south>
         <g:center>
             <g:ScrollPanel addStyleNames="{style.centerPanel}">
-                <g:FlexTable ui:field="records" addStyleNames="{style.recordTable}">
-                </g:FlexTable>
+                <g:HTMLPanel>
+                    <g:FlexTable ui:field="records" addStyleNames="{style.recordTable}">
+                    </g:FlexTable>
+                </g:HTMLPanel>
             </g:ScrollPanel>
         </g:center>
     </g:DockLayoutPanel>
