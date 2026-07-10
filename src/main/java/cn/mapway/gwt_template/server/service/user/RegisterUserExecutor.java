@@ -78,7 +78,11 @@ public class RegisterUserExecutor extends AbstractBizExecutor<RegisterUserRespon
         LdapNodeData node = createLdapNode(request, dn);
         BizResult<LdapNodeData> ldapEntry = ldapService.createLdapEntry(node);
         if (ldapEntry.isSuccess()) {
-            sysLogService.logAction(LogLevel.INFO, user.getUser().getUserId(), userName, LogAction.USER_REGISTER, ldapEntry.getData().getDn() + ldapEntry.getData().getName());
+            if (user == null) {
+                sysLogService.logAction(LogLevel.INFO, 1L, "自注册", LogAction.USER_REGISTER, ldapEntry.getData().getDn() + ldapEntry.getData().getName());
+            } else {
+                sysLogService.logAction(LogLevel.INFO, user.getUser().getUserId(), userName, LogAction.USER_REGISTER, ldapEntry.getData().getDn() + ldapEntry.getData().getName());
+            }
             return BizResult.success(new RegisterUserResponse());
         } else {
             sysLogService.logAction(LogLevel.ERROR, RbacConstant.SUPER_USER_ID, request.getUser(), LogAction.USER_REGISTER, ldapEntry.getMessage());

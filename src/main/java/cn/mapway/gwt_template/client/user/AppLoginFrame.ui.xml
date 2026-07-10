@@ -67,6 +67,14 @@
             outline: none;
         }
 
+        .input-group input:focus,
+        .input-group :value:focus { /* 确保 GWT 编译后的伪类或绑定组件也生效 */
+            border-color: #00E5FF;
+            background-color: rgba(15, 23, 42, 0.8); /* 稍微提升一点暗色背景的不透明度，体验更好 */
+            color: #ffffff !important; /* 🌟 核心修改：强制文本保持白色 */
+            box-shadow: 0 0 10px rgba(0, 229, 255, 0.25), inset 0 0 5px rgba(0, 229, 255, 0.1);
+            outline: none;
+        }
         .line {
             display: flex;
             align-items: center;

@@ -15,4 +15,5 @@ import java.io.Serializable;
 @Doc("QueryLdapNodeDataRequest")
 public class QueryLdapNodeDataRequest implements Serializable, IsSerializable {
     String dn;
+    String nameFilter;
 }
