@@ -66,7 +66,7 @@ public class AppLoginFrame extends BaseAbstractModule implements RequiresResize 
             root.setWidgetVisible(background, false);
         }
         CompileInformation information = ClientContext.getCompileFactory().compileInfo();
-        lbVersion.setText(information.gitCommit + " @ " + StringUtil.formatDate(information.compileTime));
+        lbVersion.setText(information.version + "(" + information.gitCommit + ")@ " + StringUtil.formatDate(information.compileTime));
         txtPassword.addKeyDownHandler(new KeyDownHandler() {
             @Override
             public void onKeyDown(KeyDownEvent event) {
