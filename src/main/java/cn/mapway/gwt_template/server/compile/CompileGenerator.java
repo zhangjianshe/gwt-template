@@ -5,6 +5,7 @@ import com.google.gwt.core.ext.Generator;
 import com.google.gwt.core.ext.GeneratorContext;
 import com.google.gwt.core.ext.TreeLogger;
 import com.google.gwt.core.ext.UnableToCompleteException;
+import com.google.gwt.dev.resource.Resource;
 import com.google.gwt.user.rebind.ClassSourceFileComposerFactory;
 import com.google.gwt.user.rebind.SourceWriter;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +16,7 @@ import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
 
 import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Date;
@@ -61,7 +63,7 @@ public class CompileGenerator extends Generator {
             sourceWriter.println("}");
 
             // 输出代码方法
-            printFactoryMethod(sourceWriter);
+            printFactoryMethod(sourceWriter, generatorContext);
 
             // 写入磁盘
             sourceWriter.commit(treeLogger);
@@ -72,7 +74,7 @@ public class CompileGenerator extends Generator {
         return composer.getCreatedClassName();
     }
 
-    private void printFactoryMethod(SourceWriter sourceWriter) {
+    private void printFactoryMethod(SourceWriter sourceWriter, GeneratorContext generatorContext) {
         log.info("================ compile info generator===========");
         sourceWriter.println("public CompileInformation compileInfo(){");
         sourceWriter.println(" CompileInformation data=new CompileInformation();");
@@ -109,10 +111,20 @@ public class CompileGenerator extends Generator {
             commitTime = System.currentTimeMillis();
             commitHash = "Unknown";
         }
+        Resource resource = generatorContext.getResourcesOracle().getResource("version.txt");
+        String version = "Unknown";
+        if (resource != null) {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource.openContents()))) {
+                version = reader.readLine().trim();
+            } catch (Exception e) {
+                log.error("Failed to read version from classpath", e);
+            }
+        }
         log.info("{} {} {}", commitHash, commitAuthor, commitTime);
         sourceWriter.println("\t data.gitTime= new Date(" + commitTime + "L);");
         sourceWriter.println("\t data.gitCommit= \"" + commitHash + "\";");
         sourceWriter.println("\t data.gitAuthor= \"" + commitAuthor + "\";");
+        sourceWriter.println("\t data.version= \"" + version + "\";");
         sourceWriter.println("\t data.compileTime= new Date(" + System.currentTimeMillis() + "L);");
 
         sourceWriter.println(" return data;");

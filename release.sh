@@ -3,9 +3,9 @@
 # master
 #    |---> v1.0.12
 #    |        |-> TAG v1.0.12
-#  version.txt is current released version
+#  src/main/resources/version.txt is current released version
 set -e
-VERSION_FILE=version.txt
+VERSION_FILE="src/main/resources/version.txt"
 bump_version() {
     local current_version=$1
     # Strip any trailing -SNAPSHOT or other qualifiers
@@ -79,9 +79,9 @@ fi
 
 echo "New Version: $NEW_VERSION"
 
-#  commit new version info to version.txt
-echo "$NEW_VERSION" > version.txt
-git add version.txt
+#  commit new version info to src/main/resources/version.txt
+echo "$NEW_VERSION" > $VERSION_FILE
+git add $VERSION_FILE
 git commit -m "UPDATE TO $NEW_VERSION"
 
 
