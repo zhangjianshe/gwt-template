@@ -12,8 +12,8 @@
             padding: 20px;
         }
     </ui:style>
-    <g:DockLayoutPanel>
-        <g:south size="68">
+    <g:DockLayoutPanel ui:field="root">
+        <g:south size="60">
             <dialog:SaveBar ui:field="saveBar"/>
         </g:south>
         <g:center>

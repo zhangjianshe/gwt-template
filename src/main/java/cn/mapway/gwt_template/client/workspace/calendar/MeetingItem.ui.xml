@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+    <ui:style>
+        /* ========== 大事记列表项容器 ========== */
+        .box {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 28px 40px;
+            background-color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            transition: background-color 0.2s ease;
+
+            display: grid;
+            /* 严格控制三栏物理宽度：
+               第一栏时间：160px
+               第二栏轴线：60px (圆点在其 30px 中心)
+               第三栏内容：1fr */
+            grid-template-columns: 160px 60px 1fr;
+            align-items: start;
+            position: relative;
+        }
+
+        .box:hover {
+            background-color: #fafafa;
+        }
+
+        /* ========== 1. 左栏：时间锚点 ========== */
+        .time_column {
+            grid-column: 1;
+            grid-row: 1 / span 2;
+
+            font-size: 0.9rem;
+            color: #757575;
+            font-weight: 400;
+            white-space: nowrap;
+            letter-spacing: 0.03em;
+            text-align: right;
+            padding-top: 10px;
+        }
+
+        /* ========== 2. 中栏：轴线容器 (锁定第二列) ========== */
+        .timeline_axis {
+            grid-column: 2; /* 💡 核心修复：强行锁定在第二列，防止它把第三列往右挤 */
+            grid-row: 1 / span 2;
+            height: 100%;
+            position: relative;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* 1. 默认状态：竖线无缝重叠 */
+        .timeline_axis::before {
+            content: "";
+            position: absolute;
+            top: -28px;
+            bottom: -28px;
+            width: 2px;
+            background-color: #e6e6e6;
+            z-index: 1;
+        }
+
+        /* 2. 第一项顶端收口 */
+        .box:first-child .timeline_axis::before {
+            top: 28px !important;
+        }
+
+        /* 3. 最后一项底端收口 */
+        .box:last-child .timeline_axis::before {
+            bottom: auto !important;
+            height: 48px !important;
+        }
+
+        /* 实体圆点位置绝对居中 */
+        .circle_dot {
+            position: absolute;
+            top: 8px; /* 完美水平切齐 20px 行高的标题 */
+
+            left: 50%;
+            transform: translateX(-50%);
+            -webkit-transform: translateX(-50%);
+
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: #cbd5e1;
+            border: 3px solid #ffffff;
+            z-index: 2;
+            box-shadow: 0 0 0 1px #e2e8f0;
+            transition: background-color 0.2s ease;
+        }
+
+        /* ========== 3. 右栏第一层：标题与标签栏 ========== */
+        .content_header {
+            grid-column: 3;
+            grid-row: 1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            margin-bottom: 12px;
+        }
+
+        .title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #191919;
+            letter-spacing: -0.01em;
+            margin: 0;
+            line-height: 20px;
+        }
+
+        /* 右侧标签组 */
+        .right_tag_group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding-right: 0px;
+            margin-right: 3px;
+        }
+
+        .btn_edit_link {
+            font-size: 0.85rem;
+            color: #6b6b6b !important;
+            text-decoration: none;
+            margin-right: 4px;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+        .btn_edit_link:hover {
+            color: #1a1a1a !important;
+            text-decoration: underline;
+        }
+
+        .badge {
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background-color: #f7f7f7;
+            color: #6b6b6b;
+            border: 1px solid #eaeaea;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            white-space: nowrap;
+        }
+
+        .badge_location {
+            background-color: #eff6ff;
+            color: #1d4ed8;
+            border-color: #dbeafe;
+        }
+
+        .badge_priority {
+            background-color: #fff7ed;
+            color: #ea580c;
+            border-color: #ffedd5;
+        }
+
+        /* ========== 4. 右栏第二层：正文区域 ========== */
+        .content_body {
+            grid-column: 3;
+            grid-row: 2;
+        }
+
+        .content {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #292929;
+            max-height: 76px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+    </ui:style>
+
+    <g:HTMLPanel addStyleNames="{style.box}" ui:field="rootElement">
+
+        <!-- [第一栏] 时间 -->
+        <g:Label ui:field="lbTime" addStyleNames="{style.time_column}"/>
+
+        <!-- [第二栏] 100% 高度自适应通连轴线 -->
+        <div class="{style.timeline_axis}">
+            <g:SimplePanel ui:field="circleDot" addStyleNames="{style.circle_dot}"/>
+        </div>
+
+        <!-- [第三栏·上] 标题与标签 -->
+        <g:HTMLPanel addStyleNames="{style.content_header}">
+            <g:Label ui:field="lbTitle" addStyleNames="{style.title}"/>
+
+            <g:HTMLPanel styleName="{style.right_tag_group}">
+                <!-- 💡 绑定美化后的文字连样式 -->
+                <g:Label ui:field="lbPriority" addStyleNames="{style.badge} {style.badge_priority}"/>
+                <g:Label ui:field="lbParticipant" addStyleNames="{style.badge}">👥 全员</g:Label>
+                <g:Label ui:field="lbLocation" addStyleNames="{style.badge} ">📍 未填写</g:Label>
+                <g:Anchor ui:field="btnEdit"  addStyleNames="{style.badge} {style.btn_edit_link} {style.badge_location}">预览/编辑</g:Anchor>
+            </g:HTMLPanel>
+        </g:HTMLPanel>
+
+        <!-- [第三栏·下] 正文 -->
+        <g:HTMLPanel addStyleNames="{style.content_body}">
+            <g:HTML ui:field="lbContent" addStyleNames="{style.content}"/>
+        </g:HTMLPanel>
+
+    </g:HTMLPanel>
+</ui:UiBinder>

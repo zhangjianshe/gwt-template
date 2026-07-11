@@ -1,139 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
              xmlns:g='urn:import:com.google.gwt.user.client.ui'
              xmlns:widget="urn:import:cn.mapway.gwt_template.client.workspace.widget"
-             xmlns:ace="urn:import:cn.mapway.ace.client"
              xmlns:task="urn:import:cn.mapway.gwt_template.client.workspace.task"
-             xmlns:buttons="urn:import:cn.mapway.ui.client.widget.buttons"
-             xmlns:issue="urn:import:cn.mapway.gwt_template.client.workspace.issue"
+             xmlns:widget1="urn:import:cn.mapway.ui.client.widget"
 >
 
     <ui:import field="cn.mapway.gwt_template.client.workspace.team.BaseNode.*"/>
 
     <ui:style>
+        /* ========== 1. 顶层画布基础属性 ========== */
         .page {
-            background-color: white;
-            font-family: "mapway-font", sans-serif;
+            background-color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            -webkit-font-smoothing: antialiased;
         }
 
+        /* ========== 2. 头部：打造高级浅灰看板舱 ========== */
         .header-box {
-            padding: 24px;
+            padding: 32px 40px 24px 40px;
+            background-color: #f8fafc; /* 换用温和的行政浅灰蓝底色 */
+            border-bottom: 1px solid #e2e8f0; /* 与下方编辑器绝对切开 */
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 12px;
+            box-sizing: border-box;
         }
 
+        /* 标题行容器 */
+        .title-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            width: 100%;
+        }
+
+        /* 大标题输入/展示组件 */
         .title {
-            font-size: 1.6rem;
-            font-weight: bold;
-            color: #222;
-            padding: 2px 4px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #191919;
+            padding: 4px 8px;
+            margin-left: -8px;
+            width: 100%;
+            transition: all 0.2s ease;
         }
 
-        .title:focus {
-            outline: 2px solid #66bfff; /* 使用 Raylib SKYBLUE */
-            background-color: #fff;
-            border-radius: 4px;
-        }
-
-        .title:hover {
-            background-color: #f5f5f5; /* 使用 Raylib RAYWHITE */
-            cursor: text;
+        /* 时间与持续时长栏 */
+        .time-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-top: -4px;
         }
 
         .time-label {
-            color: #666; /* 或者使用 COLOR_GRAY */
-            font-size: 0.95rem;
-            display: flex;
+            color: #6b6b6b;
+            font-size: 0.88rem;
+            display: inline-flex;
             align-items: center;
-            padding: 2px 4px;
+        }
+
+        .meta-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px; /* 稍微拉开双列的间距 */
+            margin-top: 8px;
+            width: 100%;
         }
 
         .meta-item {
             display: grid;
+            gap: 1rem;
             grid-template-columns: 30px 1fr;
-            gap: 10px;
-            font-size: 0.9rem;
-            color: #555;
-            align-items: center;
-            padding: 2px 4px;
+        }
+
+        /* 当小卡片处于编辑焦点或悬停时 */
+        .meta-item:hover {
+            border-color: #cbd5e1;
+            background-color: #fafafa;
         }
 
         .icon {
-            margin-right: 8px;
-            color: #888;
+            font-size: 0.95rem;
+            color: #64748b;
+            flex-shrink: 0;
+            display: inline-flex;
+            align-items: center;
         }
 
+        /* 💡 终极驯服：深度穿透并干掉 EditableLabel 激活时内部生成的原生 input 样式 */
         .edit {
-            padding: 2px 4px;
             width: 100%;
-            line-height: 28px;
+            font-size: 0.9rem;
+            color: #334155;
         }
 
-        .edit:focus {
-            outline: 2px solid #66bfff; /* 使用 Raylib SKYBLUE */
-            background-color: #fff;
-            border-radius: 4px;
+        /* 强行抹除激活状态下原生的各种黑边框和多余的高宽、内边距 */
+        .edit input,
+        .edit :global(.gwt-TextBox),
+        .edit input[type="text"] {
+            width: 100% !important;
+            height: 100% !important;
+            border: none !important;
+            outline: none !important;
+            background: transparent !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            box-shadow: none !important;
+            font-size: 0.9rem !important;
+            line-height: 34px !important; /* 让文字完美垂直居中 */
         }
 
-        .content {
-            padding: 10px;
+        /* ========== 5. 下方工具按钮及整体对齐拉伸 ========== */
+        /* 确保中央的 Tab 容器以及附件面板右侧也有 40px 的安全缩进对齐线 */
+        :global(.gwt-TabLayoutPanelContent) {
+            padding: 20px 40px !important; /* 统一让内容区享有左右 40px 内缩进 */
+            box-sizing: border-box !important;
         }
 
         .tools {
             display: flex;
-            gap: 4px;
+            gap: 8px;
             align-items: center;
             justify-content: flex-end;
+
+            /* 💡 核心对齐：因为上面大容器 padding 是 40px，
+               这里的按钮区域向右推出 40px 负边距，或者直接将 width 设置为 100% 并清除父级干扰 */
+            padding-right: 40px;
+            box-sizing: border-box;
         }
 
         .preview {
             display: flex;
             align-items: center;
             justify-content: center;
+            background-color: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(4px);
         }
 
         .bigtip {
-            font-weight: bold;
-            font-size: 1.6rem;
-            color: #d0d0d0;
-        }</ui:style>
+            font-weight: 700;
+            font-size: 1.8rem;
+            color: #cbd5e1;
+            letter-spacing: 0.1em;
+        }
+    </ui:style>
 
     <g:LayoutPanel ui:field="allLayers">
+        <!-- 核心内容视图图层 -->
         <g:layer>
             <g:DockLayoutPanel ui:field="root" visible="false" addStyleNames="{style.page}">
-                <g:north size="200">
+                <g:north size="220">
                     <g:HTMLPanel addStyleNames="{style.header-box}">
-                        <widget:EditableLabel ui:field="lbName" addStyleNames="{style.title}"
-                                              title="点击直接修改标题"/>
-                        <g:HorizontalPanel>
-                            <g:DateLabel ui:field="lbTime"
-                                         customFormat="yyyy年MM月dd日 HH:mm"
+
+                        <!-- 第一行：大标题与优先级下拉组件并列 -->
+                        <div class="{style.title-row}">
+                            <widget:EditableLabel ui:field="lbName" addStyleNames="{style.title}"
+                                                  title="点击直接修改标题"/>
+                            <widget:TaskPriorityDropdown ui:field="ddlPriority"/>
+                        </div>
+
+                        <!-- 第二行：会议时间与耗时统计 -->
+                        <div class="{style.time-row}">
+                            <g:DateLabel ui:field="lbTime" customFormat="yyyy年MM月dd日 HH:mm"
                                          addStyleNames="{style.time-label}"/>
                             <g:Label ui:field="lbDuration" addStyleNames="{style.time-label}"/>
-                            <widget:TaskPriorityDropdown ui:field="ddlPriority"/>
-                        </g:HorizontalPanel>
-                        <g:Label/>
-                        <g:HTMLPanel addStyleNames="{style.meta-item}">
-                            <g:Label text="🚩 " addStyleNames="{style.icon}"/>
-                            <widget:EditableLabel ui:field="lbLocation" addStyleNames="{style.edit}"/>
-                        </g:HTMLPanel>
-                        <g:HTMLPanel addStyleNames="{style.meta-item}">
-                            <g:Label text="👥 " addStyleNames="{style.icon}"/>
-                            <widget:EditableLabel ui:field="lbParticipate" addStyleNames="{style.edit}"/>
-                        </g:HTMLPanel>
+                        </div>
+
+                        <!-- 第三行：双列并行的元数据白色属性卡片 -->
+                        <div class="{style.meta-grid}">
+                            <!-- 地点属性仓 -->
+                            <div class="{style.meta-item}">
+                                <g:Label text="📍" addStyleNames="{style.icon}"/>
+                                <widget1:AiTextBox ui:field="lbLocation" addStyleNames="{style.edit}"/>
+                            </div>
+                            <!-- 人员属性仓 -->
+                            <div class="{style.meta-item}">
+                                <g:Label text="👥" addStyleNames="{style.icon}"/>
+                                <widget1:AiTextBox ui:field="lbParticipate" addStyleNames="{style.edit}"/>
+                            </div>
+                        </div>
+
                     </g:HTMLPanel>
                 </g:north>
-                <g:south size="0">
-                    <g:HorizontalPanel ui:field="editTools">
-                        <buttons:AiButton ui:field="btnSave" type="warning" addStyleNames="ai-small">保存</buttons:AiButton>
-                    </g:HorizontalPanel>
-                </g:south>
+
+                <!-- [中央填充区] 选项卡及富文本区域 -->
                 <g:center>
-                    <g:LayoutPanel addStyleNames="ai-border-top">
+                    <g:LayoutPanel>
+                        <!-- 选项卡主图层 -->
                         <g:layer>
-                            <g:TabLayoutPanel ui:field="tabs" barHeight="50">
+                            <g:TabLayoutPanel ui:field="tabs" barHeight="48">
                                 <g:tab>
                                     <g:header>会议纪要</g:header>
+                                    <!-- MarkdownBox 内部由于具有 padding 40px，会与上方天然垂直对齐 -->
                                     <widget:MarkdownBox ui:field="markdownBox"/>
                                 </g:tab>
                                 <g:tab>
@@ -142,17 +203,19 @@
                                 </g:tab>
                             </g:TabLayoutPanel>
                         </g:layer>
-                        <g:layer right="0" top="0" height="50" width="180">
-                            <g:HTMLPanel height="50px" ui:field="toolsPanel"
-                                         addStyleNames="{style.tools}">
 
+                        <!-- 浮动在 TabBar 右侧的工具控制按钮区域 -->
+                        <g:layer right="0" top="0" height="48" width="240">
+                            <g:HTMLPanel height="48px" ui:field="toolsPanel" addStyleNames="{style.tools}">
                             </g:HTMLPanel>
                         </g:layer>
                     </g:LayoutPanel>
-
                 </g:center>
+
             </g:DockLayoutPanel>
         </g:layer>
+
+        <!-- 浮动遮罩预览图层 -->
         <g:layer>
             <g:HTMLPanel addStyleNames="{style.preview}" ui:field="masker">
                 <g:Label addStyleNames="{style.bigtip}">会议预览</g:Label>

@@ -12,6 +12,7 @@ import cn.mapway.ui.client.mvc.Rect;
 import cn.mapway.ui.client.util.StringUtil;
 import cn.mapway.ui.shared.CommonEvent;
 import cn.mapway.ui.shared.rpc.RpcResult;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import elemental2.dom.DomGlobal;
 import elemental2.dom.HTMLImageElement;
@@ -114,19 +115,41 @@ public class TeamCanvasData {
         if (StringUtil.isBlank(url)) {
             url = AppResource.INSTANCE.emptyAvatar().getSafeUri().asString();
         }
-        // 简单的缓存判断
+
         if (node.getChargeImage() != null && url.equals(node.getChargeImage().src)) {
             return;
         }
+
         HTMLImageElement img = avatars.get(url);
         if (img == null) {
             img = (HTMLImageElement) DomGlobal.document.createElement("img");
             avatars.put(url, img);
-            img.src = url;
-            img.onload = (e) -> {
-                teamCanvas.redraw();
+
+            // 💡 终极加固 1：捕获并断开图片损坏链路 (防断链接卡死)
+            final String finalUrl = url;
+            final HTMLImageElement finalImg = img;
+            img.onerror = (e) -> {
+                // 如果发现该头像资源是一个坏链或 404，立刻启动兜底拦截
+                String fallbackUrl = AppResource.INSTANCE.emptyAvatar().getSafeUri().asString();
+
+                // 只有当当前的坏链不是默认占位符本身时才做替换，避免陷入死循环
+                if (!finalUrl.equals(fallbackUrl)) {
+                    GWT.log("团队负责人头像资源加载失败: " + finalUrl + "，已切换至本地安全占位图。");
+                    finalImg.src = fallbackUrl; // 强行把 src 指向绝对安全的本地资源
+                }
                 return null;
             };
+
+            // 💡 终极加固 2：利用 HTML5 的完整度检测，在图片真正完整就绪后再触发画布局部刷新
+            img.onload = (e) -> {
+                // 只有当图片拥有合法的物理像素宽度时，才认为完全加载就绪，允许触发重绘
+                if (finalImg.complete && finalImg.naturalWidth > 0) {
+                    teamCanvas.redraw();
+                }
+                return null;
+            };
+
+            img.src = url;
         }
         node.setChargeImage(img);
     }
@@ -283,7 +306,6 @@ public class TeamCanvasData {
     public boolean isEmpty() {
         return flatNodes.isEmpty();
     }
-
 
 
     public void clearSelection() {

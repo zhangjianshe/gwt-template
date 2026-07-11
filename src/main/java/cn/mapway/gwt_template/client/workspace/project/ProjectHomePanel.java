@@ -35,21 +35,18 @@ public class ProjectHomePanel extends BaseAbstractModule implements IToolsProvid
     public static final String MODULE_CODE = "DevProjectHomePanel";
     // 定义 Tab 索引常量，提高可读性
     // 重新定义常量，确保与 XML 中的 Tab 顺序严格对应
-    public static final int TAB_GANTT = 0;
-    public static final int TAB_OVERVIEW = 1;
-    public static final int TAB_CALENDAR = 2;
-    public static final int TAB_ISSUE = 3;
-    public static final int TAB_WIKI = 4;
-    public static final int TAB_RESOURCE = 5;
-    public static final int TAB_REPO = 6;
-    public static final int TAB_TEAM = 7;
+    public static final int TAB_CALENDAR = 0;
+    public static final int TAB_GANTT = 1;
+    public static final int TAB_ISSUE = 2;
+    public static final int TAB_WIKI = 3;
+    public static final int TAB_RESOURCE = 4;
+    public static final int TAB_REPO = 5;
+    public static final int TAB_TEAM = 6;
     private static final ProjectHomePanelUiBinder ourUiBinder = GWT.create(ProjectHomePanelUiBinder.class);
     @UiField
     ProjectTeamMemberPanel teamPanel;
     @UiField
     TabLayoutPanel mainTab;
-    @UiField
-    ProjectCard projectCard;
     @UiField
     GanttWidget gantt;
     @UiField
@@ -117,9 +114,8 @@ public class ProjectHomePanel extends BaseAbstractModule implements IToolsProvid
             } else if (index == TAB_CALENDAR) {
                 projectCalendar.setData(project.getId());
                 projectCalendar.setFocus(true);
-            } else if (index == TAB_OVERVIEW) {
-                toolbar.add(projectCard.getTools());
-                projectCard.setData(project.getId());
+                toolbar.clear();
+                toolbar.add(projectCalendar.getTools());
             } else if (index == TAB_ISSUE) {
                 issuePanel.setData(project.getId());
             } else if (index == TAB_WIKI) {
@@ -150,17 +146,19 @@ public class ProjectHomePanel extends BaseAbstractModule implements IToolsProvid
 
         this.project = obj;
         toUI();
-        mainTab.selectTab(0, true);
+        if (mainTab.getSelectedIndex() == 0) {
+            projectCalendar.setData(this.project.getId());
+            toolbar.clear();
+            toolbar.add(projectCalendar.getTools());
+        } else {
+            mainTab.selectTab(0, true);
+        }
     }
 
     private void toUI() {
         if (project != null) {
             lbProject.setText(project.getName() + "-" + project.getCreateUserName());
-            gantt.setData(project.getId());
-            if (mainTab.getSelectedIndex() == TAB_OVERVIEW) {
-                toolbar.clear();
-                toolbar.add(projectCard.getTools());
-            }
+            //gantt.setData(project.getId());
         } else {
             lbProject.setText("");
         }

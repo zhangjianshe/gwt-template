@@ -11,11 +11,11 @@
                 <g:Button addStyleNames="ai-small" ui:field="btnUpload">上传</g:Button>
             </g:HTMLPanel>
         </g:north>
-        <g:north size="200">
+        <g:west size="350">
             <g:ScrollPanel>
                 <task:AttachmentList width="100%" ui:field="list"/>
             </g:ScrollPanel>
-        </g:north>
+        </g:west>
         <g:center>
             <view:FilePreview ui:field="filePreview"/>
         </g:center>
