@@ -43,7 +43,7 @@ jobs:
           gpg-passphrase: ${{ secrets.GPG_PASSPHRASE }}
           cache: 'maven'
       - name: compile and build
-        run: mvn clean compile gwt:compile package install
+        run: mvn clean compile gwt:compile package install -Prelease
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
 

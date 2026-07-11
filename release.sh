@@ -5,7 +5,7 @@
 #    |        |-> TAG v1.0.12
 #  src/main/resources/version.txt is current released version
 set -e
-VERSION_FILE="src/main/resources/version.txt"
+VERSION_FILE="version.txt"
 bump_version() {
     local current_version=$1
     # Strip any trailing -SNAPSHOT or other qualifiers
