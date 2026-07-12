@@ -182,6 +182,21 @@ public class DevProjectController extends ApiBaseController {
 
     @Resource
     QueryPageCommitsExecutor queryPageCommitsExecutor;
+
+    @Resource
+    UpdateProjectTaskCoverExecutor updateProjectTaskCoverExecutor;
+    /**
+     * UpdateProjectTaskCover
+     *
+     * @param request request
+     * @return data
+     */
+    @Doc(value = "UpdateProjectTaskCover", retClazz = {UpdateProjectTaskCoverResponse.class})
+    @RequestMapping(value = "/updateProjectTaskCover", method = RequestMethod.POST)
+    public RpcResult<UpdateProjectTaskCoverResponse> updateProjectTaskCover(@RequestBody UpdateProjectTaskCoverRequest request) {
+        BizResult<UpdateProjectTaskCoverResponse> bizResult = updateProjectTaskCoverExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toApiResult(bizResult);
+    }
     /**
      * QueryPageCommits
      *

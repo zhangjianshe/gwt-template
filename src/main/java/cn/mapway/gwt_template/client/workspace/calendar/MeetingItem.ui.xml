@@ -128,6 +128,7 @@
             cursor: pointer;
             transition: color 0.2s ease;
         }
+
         .btn_edit_link:hover {
             color: #1a1a1a !important;
             text-decoration: underline;
@@ -177,17 +178,26 @@
             white-space: pre-wrap;
             word-break: break-all;
         }
-    </ui:style>
+
+        .cover {
+            width: 160px;
+            margin-top: 10px;
+        }</ui:style>
 
     <g:HTMLPanel addStyleNames="{style.box}" ui:field="rootElement">
 
         <!-- [第一栏] 时间 -->
-        <g:Label ui:field="lbTime" addStyleNames="{style.time_column}"/>
+        <g:HTMLPanel addStyleNames="{style.time_column}">
+            <g:Label ui:field="lbTime"/>
+            <g:Image ui:field="cover" addStyleNames="{style.cover}"/>
+        </g:HTMLPanel>
+
 
         <!-- [第二栏] 100% 高度自适应通连轴线 -->
         <div class="{style.timeline_axis}">
             <g:SimplePanel ui:field="circleDot" addStyleNames="{style.circle_dot}"/>
         </div>
+
 
         <!-- [第三栏·上] 标题与标签 -->
         <g:HTMLPanel addStyleNames="{style.content_header}">
@@ -198,7 +208,9 @@
                 <g:Label ui:field="lbPriority" addStyleNames="{style.badge} {style.badge_priority}"/>
                 <g:Label ui:field="lbParticipant" addStyleNames="{style.badge}">👥 全员</g:Label>
                 <g:Label ui:field="lbLocation" addStyleNames="{style.badge} ">📍 未填写</g:Label>
-                <g:Anchor ui:field="btnEdit"  addStyleNames="{style.badge} {style.btn_edit_link} {style.badge_location}">预览/编辑</g:Anchor>
+                <g:Anchor ui:field="btnEdit" addStyleNames="{style.badge} {style.btn_edit_link} {style.badge_location}">
+                    预览/编辑
+                </g:Anchor>
             </g:HTMLPanel>
         </g:HTMLPanel>
 

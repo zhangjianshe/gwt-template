@@ -148,6 +148,16 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
     QueryConfigExecutor queryConfigExecutor;
 
     ///CODE_GEN_INSERT_POINT///
+	
+    @Resource
+    UpdateProjectTaskCoverExecutor updateProjectTaskCoverExecutor;
+    @Override
+    public RpcResult<UpdateProjectTaskCoverResponse> updateProjectTaskCover(UpdateProjectTaskCoverRequest request) {
+        BizResult<UpdateProjectTaskCoverResponse> bizResult = updateProjectTaskCoverExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
 
     @Resource
     QueryLogsExecutor queryLogsExecutor;

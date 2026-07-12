@@ -1,13 +1,15 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
              xmlns:g='urn:import:com.google.gwt.user.client.ui'
              xmlns:task="urn:import:cn.mapway.gwt_template.client.workspace.task"
-             xmlns:view="urn:import:cn.mapway.gwt_template.client.workspace.view">
+             xmlns:view="urn:import:cn.mapway.gwt_template.client.workspace.view"
+             xmlns:buttons="urn:import:cn.mapway.ui.client.widget.buttons">
     <ui:style>
 
     </ui:style>
     <g:DockLayoutPanel>
         <g:north size="0">
             <g:HTMLPanel ui:field="tools" addStyleNames="ai-flex-panel">
+                <buttons:AiButton ui:field="btnAsCover" enabled="false">作为封面</buttons:AiButton>
                 <g:Button addStyleNames="ai-small" ui:field="btnUpload">上传</g:Button>
             </g:HTMLPanel>
         </g:north>

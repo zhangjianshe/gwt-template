@@ -33,6 +33,8 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public interface IAppServerAsync {
 
     ///CODE_GEN_INSERT_POINT///
+	void updateProjectTaskCover(UpdateProjectTaskCoverRequest request, AsyncCallback<RpcResult<UpdateProjectTaskCoverResponse>> async);
+
 	void deleteAppService(DeleteAppServiceRequest request, AsyncCallback<RpcResult<DeleteAppServiceResponse>> async);
 
 	void updateAppService(UpdateAppServiceRequest request, AsyncCallback<RpcResult<UpdateAppServiceResponse>> async);

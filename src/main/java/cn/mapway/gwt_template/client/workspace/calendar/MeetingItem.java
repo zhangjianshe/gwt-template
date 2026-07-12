@@ -37,6 +37,8 @@ public class MeetingItem extends CommonEventComposite implements IData<DevProjec
     SimplePanel circleDot;
     @UiField
     Anchor btnEdit;
+    @UiField
+    Image cover;
     MarkdownConvert convert;
     private DevProjectTaskEntity meeting;
 
@@ -76,7 +78,14 @@ public class MeetingItem extends CommonEventComposite implements IData<DevProjec
         lbParticipant.setText("👥 " + mapper.get("participant")); // 结果：👥 好多人
         lbLocation.setText("📍 " + mapper.get("location"));       // 结果：📍 这里是北京
         String markdown = DataCastor.castToString(mapper.get("body"));
-        lbContent.setHTML(convert.makeHtml(markdown));                     // 结果：法学纪律
+        lbContent.setHTML(convert.makeHtml(markdown));
+
+        if (StringUtil.isNotBlank(meeting.getCover())) {
+            cover.setVisible(true);
+            cover.setUrl(meeting.getCover());
+        } else {
+            cover.setVisible(false);
+        }
     }
 
     @UiHandler("btnEdit")

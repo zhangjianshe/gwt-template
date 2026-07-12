@@ -1,5 +1,6 @@
 package cn.mapway.gwt_template.client.workspace.task;
 
+import cn.mapway.gwt_template.client.ClientContext;
 import cn.mapway.gwt_template.client.rpc.AppProxy;
 import cn.mapway.gwt_template.client.rpc.AsyncAdaptor;
 import cn.mapway.gwt_template.client.widget.file.MultiFileUploader;
@@ -7,11 +8,14 @@ import cn.mapway.gwt_template.client.workspace.view.FilePreview;
 import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.rpc.project.DeleteTaskAttachmentsRequest;
 import cn.mapway.gwt_template.shared.rpc.project.DeleteTaskAttachmentsResponse;
+import cn.mapway.gwt_template.shared.rpc.project.UpdateProjectTaskCoverRequest;
+import cn.mapway.gwt_template.shared.rpc.project.UpdateProjectTaskCoverResponse;
 import cn.mapway.gwt_template.shared.rpc.project.module.ResItem;
 import cn.mapway.ui.client.mvc.IToolsProvider;
 import cn.mapway.ui.client.tools.IData;
 import cn.mapway.ui.client.util.StringUtil;
 import cn.mapway.ui.client.widget.CommonEventComposite;
+import cn.mapway.ui.client.widget.buttons.AiButton;
 import cn.mapway.ui.client.widget.dialog.Dialog;
 import cn.mapway.ui.shared.CommonEvent;
 import cn.mapway.ui.shared.CommonEventHandler;
@@ -21,6 +25,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.HTMLPanel;
@@ -36,6 +41,8 @@ public class TaskAttachmentsPanel extends CommonEventComposite implements ITools
     HTMLPanel tools;
     @UiField
     FilePreview filePreview;
+    @UiField
+    AiButton btnAsCover;
     boolean enableEditable = false;
     private String taskId;
 
@@ -93,7 +100,38 @@ public class TaskAttachmentsPanel extends CommonEventComposite implements ITools
         } else if (event.isSelect()) {
             ResItem item = event.getValue();
             filePreview.previewAttachment(taskId, item.getPathName());
+            boolean isPicture = (item.getIsDir() != null && !item.getIsDir())
+                    && (item.getPathName().toLowerCase().endsWith("png") || item.getPathName().toLowerCase().endsWith("jpg"));
+            btnAsCover.setEnabled(enableEditable && isPicture);
+            btnAsCover.setData(item);
         }
+    }
+
+    @UiHandler("btnAsCover")
+    public void btnAsCoverClick(ClickEvent event) {
+        ResItem item= (ResItem) btnAsCover.getData();
+        UpdateProjectTaskCoverRequest request=new UpdateProjectTaskCoverRequest();
+        request.setTaskId(taskId);
+        request.setClearCover(false);
+        request.setPicturePath(item.getPathName());
+        AppProxy.get().updateProjectTaskCover(request, new AsyncCallback<RpcResult<UpdateProjectTaskCoverResponse>>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                ClientContext.get().toast(0,0,caught.getMessage());
+            }
+
+            @Override
+            public void onSuccess(RpcResult<UpdateProjectTaskCoverResponse> result) {
+                if(result.isSuccess())
+                {
+                    ClientContext.get().toast(0,0,"更新成功");
+                }
+                else{
+                    ClientContext.get().toast(0,0,result.getMessage());
+                }
+            }
+        });
+
     }
 
     @Override
@@ -105,6 +143,7 @@ public class TaskAttachmentsPanel extends CommonEventComposite implements ITools
         enableEditable = enable;
         btnUpload.setEnabled(enable);
         btnUpload.setVisible(enable);
+        btnAsCover.setEnabled(false);
     }
 
     interface TaskAttachmentsPanelUiBinder extends UiBinder<DockLayoutPanel, TaskAttachmentsPanel> {
