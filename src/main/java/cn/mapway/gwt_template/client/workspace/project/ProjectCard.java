@@ -1,21 +1,30 @@
 package cn.mapway.gwt_template.client.workspace.project;
 
+import cn.mapway.gwt_template.client.resource.AppResource;
+import cn.mapway.gwt_template.client.rpc.AppProxy;
 import cn.mapway.gwt_template.shared.db.DevProjectEntity;
+import cn.mapway.gwt_template.shared.db.DevProjectTeamEntity;
 import cn.mapway.gwt_template.shared.rpc.file.SecurityLevel;
+import cn.mapway.gwt_template.shared.rpc.project.QueryProjectTeamRequest;
+import cn.mapway.gwt_template.shared.rpc.project.QueryProjectTeamResponse;
 import cn.mapway.gwt_template.shared.rpc.project.module.CommonPermission;
+import cn.mapway.gwt_template.shared.rpc.project.module.ProjectMember;
 import cn.mapway.ui.client.mvc.IToolsProvider;
 import cn.mapway.ui.client.tools.IData;
 import cn.mapway.ui.client.util.StringUtil;
 import cn.mapway.ui.client.widget.CommonEventComposite;
+import cn.mapway.ui.shared.rpc.RpcResult;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
+import com.google.gwt.event.dom.client.ErrorEvent;
+import com.google.gwt.event.dom.client.ErrorHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.user.client.ui.HTMLPanel;
-import com.google.gwt.user.client.ui.InlineLabel;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.*;
+
+import java.util.List;
 
 public class ProjectCard extends CommonEventComposite implements IToolsProvider, IData<DevProjectEntity> {
     private static final ProjectCardUiBinder ourUiBinder = GWT.create(ProjectCardUiBinder.class);
@@ -35,10 +44,20 @@ public class ProjectCard extends CommonEventComposite implements IToolsProvider,
     Label lbSecurity;
     @UiField
     HTMLPanel card;
+    @UiField
+    Image avatar;
+    @UiField
+    HTMLPanel memberPanel;
     DevProjectEntity project;
 
     public ProjectCard() {
         initWidget(ourUiBinder.createAndBindUi(this));
+        avatar.addErrorHandler(new ErrorHandler() {
+            @Override
+            public void onError(ErrorEvent event) {
+                avatar.setResource(AppResource.INSTANCE.avatar());
+            }
+        });
     }
 
     @Override
@@ -50,8 +69,51 @@ public class ProjectCard extends CommonEventComposite implements IToolsProvider,
     public void setData(DevProjectEntity obj) {
         project = obj;
         toUI();
+        loadMember();
     }
 
+    private void loadMember() {
+
+        QueryProjectTeamRequest request = new QueryProjectTeamRequest();
+        request.setProjectId(project.getId());
+        AppProxy.get().queryProjectTeam(request, new AsyncCallback<RpcResult<QueryProjectTeamResponse>>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                memberPanel.add(new Label(caught.getMessage()));
+            }
+
+            @Override
+            public void onSuccess(RpcResult<QueryProjectTeamResponse> result) {
+                if (result.isSuccess()) {
+                    memberPanel.clear();
+                    renderData(result.getData().getRootTeams());
+                } else {
+                    memberPanel.add(new Label(result.getMessage()));
+                }
+            }
+        });
+    }
+
+    private void renderData(List<DevProjectTeamEntity> rootTeams) {
+        addMember(rootTeams);
+    }
+
+    private void addMember(List<DevProjectTeamEntity> rootTeams) {
+        if (rootTeams == null || rootTeams.isEmpty()) {
+            return;
+        }
+        for (DevProjectTeamEntity member : rootTeams) {
+            if (member.getMembers() == null || member.getMembers().isEmpty()) {
+                continue;
+            }
+            for (ProjectMember m : member.getMembers()) {
+                MemberWidget memberWidget = new MemberWidget();
+                memberWidget.setData(m.getUserName(), m.getAvatar());
+                memberPanel.add(memberWidget);
+            }
+            addMember(member.getChildren());
+        }
+    }
 
 
     private void toUI() {
@@ -84,6 +146,12 @@ public class ProjectCard extends CommonEventComposite implements IToolsProvider,
         } else {
             style.clearBackgroundImage();
             style.setProperty("borderTop", "6px solid " + themeColor); // 巧用主题色作为顶部线条点缀，非常专业！
+        }
+        // avatar
+        if (StringUtil.isBlank(project.getCreateUserAvatar())) {
+            avatar.setResource(AppResource.INSTANCE.emptyAvatar());
+        } else {
+            avatar.setUrl(project.getCreateUserAvatar());
         }
 
     }

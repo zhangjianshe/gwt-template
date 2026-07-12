@@ -30,8 +30,9 @@
             grid-column: 1;
             grid-row: 1 / span 2;
 
-            font-size: 0.9rem;
-            color: #757575;
+            font-size: 1.0rem;
+            font-style: italic;
+            color: #6c6c6c;
             font-weight: 400;
             white-space: nowrap;
             letter-spacing: 0.03em;

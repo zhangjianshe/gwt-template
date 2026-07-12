@@ -127,26 +127,32 @@
             color: #191919;
         }
 
-    </ui:style>
+        .member_panel {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            padding: 0 6px;
+        }</ui:style>
 
     <g:HTMLPanel styleName="{style.card}" ui:field="card">
 
         <!-- 1. 主标题 -->
-        <g:HTMLPanel styleName="{style.title}" ui:field="pnlName" />
+        <g:HTMLPanel styleName="{style.title}" ui:field="pnlName"/>
 
         <!-- 2. 副标题 / 项目概述 -->
-        <g:HTMLPanel styleName="{style.desc}" ui:field="pnlSummary" />
+        <g:HTMLPanel styleName="{style.desc}" ui:field="pnlSummary"/>
 
         <!-- 3. 统一的高级单行元数据与数据栏 -->
         <div class="{style.unified_meta_bar}">
 
             <!-- 左侧：人员档案与创建细节 -->
             <div class="{style.left_user_group}">
-                <div class="{style.avatar_placeholder}">👤</div>
+                <g:Image ui:field="avatar" addStyleNames="{style.avatar_placeholder}"/>
                 <div class="{style.meta_text_group}">
-                    <g:Label ui:field="lbCreator" addStyleNames="{style.creator_name}" />
-                    <g:InlineLabel ui:field="lbCreateTime" styleName="{style.create_date}" />
-                    <g:Label ui:field="lbSecurity" addStyleNames="{style.security_badge}" />
+                    <g:Label ui:field="lbCreator" addStyleNames="{style.creator_name}"/>
+                    <g:InlineLabel ui:field="lbCreateTime" styleName="{style.create_date}"/>
+                    <g:Label ui:field="lbSecurity" addStyleNames="{style.security_badge}"/>
                 </div>
             </div>
 
@@ -163,6 +169,8 @@
             </div>
 
         </div>
-
+        <div class="{style.unified_meta_bar}">
+            <g:HTMLPanel ui:field="memberPanel" addStyleNames="{style.member_panel}"/>
+        </div>
     </g:HTMLPanel>
 </ui:UiBinder>
