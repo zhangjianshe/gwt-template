@@ -96,7 +96,7 @@
             padding: 4px 10px;
         }</ui:style>
     <g:SplitLayoutPanel>
-        <g:east size="500">
+        <g:east size="600">
             <issue:IssuePanel ui:field="issuePanel" addStyleNames="{style.right}"/>
         </g:east>
         <g:center>
