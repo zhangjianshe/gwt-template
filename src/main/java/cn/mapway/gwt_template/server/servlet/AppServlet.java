@@ -11,9 +11,7 @@ import cn.mapway.gwt_template.server.service.config.QueryConfigExecutor;
 import cn.mapway.gwt_template.server.service.config.QueryConfigListExecutor;
 import cn.mapway.gwt_template.server.service.config.UpdateConfigExecutor;
 import cn.mapway.gwt_template.server.service.config.UpdateConfigListExecutor;
-import cn.mapway.gwt_template.server.service.desktop.DeleteDesktopExecutor;
-import cn.mapway.gwt_template.server.service.desktop.QueryDesktopExecutor;
-import cn.mapway.gwt_template.server.service.desktop.UpdateDesktopExecutor;
+import cn.mapway.gwt_template.server.service.desktop.*;
 import cn.mapway.gwt_template.server.service.dev.*;
 import cn.mapway.gwt_template.server.service.dns.DeleteDnsExecutor;
 import cn.mapway.gwt_template.server.service.dns.QueryDnsExecutor;
@@ -148,6 +146,36 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
     QueryConfigExecutor queryConfigExecutor;
 
     ///CODE_GEN_INSERT_POINT///
+	
+    @Resource
+    DeleteDashboardExecutor deleteDashboardExecutor;
+    @Override
+    public RpcResult<DeleteDashboardResponse> deleteDesktopLayout(DeleteDashboardRequest request) {
+        BizResult<DeleteDashboardResponse> bizResult = deleteDashboardExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    QueryDashboardExecutor queryDashboardExecutor;
+    @Override
+    public RpcResult<QueryDashboardResponse> queryDesktopLayout(QueryDashboardRequest request) {
+        BizResult<QueryDashboardResponse> bizResult = queryDashboardExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    UpdateDashboardExecutor  updateDashboardExecutor;
+    @Override
+    public RpcResult<UpdateDashboardResponse> saveDesktopLayout(UpdateDashboardRequest request) {
+        BizResult<UpdateDashboardResponse> bizResult = updateDashboardExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
 	
     @Resource
     UpdateProjectTaskCoverExecutor updateProjectTaskCoverExecutor;

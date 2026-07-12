@@ -7,15 +7,12 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * QueryDesktopRequest
+ * DeleteDesktopLayoutRequest
  *
  * @author zhangjianshe@gmail.com
  */
 @Data
-@Doc("QueryDesktopRequest")
-public class QueryDesktopRequest implements Serializable, IsSerializable {
-    boolean fetchMainBoard;
-    boolean fetchShortcut;
-    boolean fetchProjects;
-    boolean fetchWorkspaces;
+@Doc("DeleteDesktopLayoutRequest")
+public class DeleteDashboardRequest implements Serializable, IsSerializable {
+    String layoutId;
 }

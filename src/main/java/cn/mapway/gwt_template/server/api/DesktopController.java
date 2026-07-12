@@ -3,9 +3,7 @@ package cn.mapway.gwt_template.server.api;
 import cn.mapway.biz.core.BizRequest;
 import cn.mapway.biz.core.BizResult;
 import cn.mapway.document.annotation.Doc;
-import cn.mapway.gwt_template.server.service.desktop.DeleteDesktopExecutor;
-import cn.mapway.gwt_template.server.service.desktop.QueryDesktopExecutor;
-import cn.mapway.gwt_template.server.service.desktop.UpdateDesktopExecutor;
+import cn.mapway.gwt_template.server.service.desktop.*;
 import cn.mapway.gwt_template.shared.rpc.desktop.*;
 import cn.mapway.ui.shared.rpc.RpcResult;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -26,6 +24,53 @@ public class DesktopController extends ApiBaseController {
     UpdateDesktopExecutor updateDesktopExecutor;
     @Resource
     DeleteDesktopExecutor deleteDesktopExecutor;
+
+
+    @Resource
+    UpdateDashboardExecutor updateDashboardExecutor;
+    @Resource
+    QueryDashboardExecutor queryDashboardExecutor;
+    @Resource
+    DeleteDashboardExecutor deleteDashboardExecutor;
+
+    /**
+     * SaveDesktopLayout
+     *
+     * @param request request
+     * @return data
+     */
+    @Doc(value = "SaveDesktopLayout", retClazz = {UpdateDashboardResponse.class})
+    @RequestMapping(value = "/saveDesktopLayout", method = RequestMethod.POST)
+    public RpcResult<UpdateDashboardResponse> saveDesktopLayout(@RequestBody UpdateDashboardRequest request) {
+        BizResult<UpdateDashboardResponse> bizResult = updateDashboardExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toApiResult(bizResult);
+    }
+
+    /**
+     * QueryDesktopLayout
+     *
+     * @param request request
+     * @return data
+     */
+    @Doc(value = "QueryDesktopLayout", retClazz = {QueryDashboardResponse.class})
+    @RequestMapping(value = "/queryDashboardLayout", method = RequestMethod.POST)
+    public RpcResult<QueryDashboardResponse> queryDesktopLayout(@RequestBody QueryDashboardRequest request) {
+        BizResult<QueryDashboardResponse> bizResult = queryDashboardExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toApiResult(bizResult);
+    }
+
+    /**
+     * DeleteDesktopLayout
+     *
+     * @param request request
+     * @return data
+     */
+    @Doc(value = "DeleteDesktopLayout", retClazz = {DeleteDashboardResponse.class})
+    @RequestMapping(value = "/deleteDesktopLayout", method = RequestMethod.POST)
+    public RpcResult<DeleteDashboardResponse> deleteDesktopLayout(@RequestBody DeleteDashboardRequest request) {
+        BizResult<DeleteDashboardResponse> bizResult = deleteDashboardExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toApiResult(bizResult);
+    }
 
     /**
      * QueryDesktop

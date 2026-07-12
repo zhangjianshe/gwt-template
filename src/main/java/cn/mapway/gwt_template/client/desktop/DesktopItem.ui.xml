@@ -2,63 +2,55 @@
              xmlns:g='urn:import:com.google.gwt.user.client.ui'
              xmlns:buttons="urn:import:cn.mapway.ui.client.widget.buttons">
     <ui:style>
-
-
-        .img {
-            object-fit: cover;
-            width: 90px;
-            height: 90px;
-            border-radius: 4px;
-            user-select: none;
+        @eval HOVER_BACK "var(--color-background-hover)";
+        @eval SELECTED_BACK "var(--color-background-selected)";
+        .box {
+            display: grid;
+            grid-template-rows: 1fr 32px;
+            align-items: center;
+            justify-content: center;
+            width: 120px;
+            height: 120px;
+            border-radius: 6px;
+            position: relative;
         }
+
+        .box:HOVER {
+            background-color: HOVER_BACK;
+        }
+
+        .box[select="true"] {
+            background-color: SELECTED_BACK;
+        }
+
 
         .name {
-            max-width: 140px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            font-size: 18px;
-            color: #1a2138;
-            margin: 0;
-            transition: color 0.3s ease;
-            font-weight: bold;
-            height: 26px;
-            white-space: nowrap;
+            line-height: 42px;
         }
 
-        .name:hover {
-            color: #2f54eb; /* 悬停时标题变色 */
+        .img {
+            align-self: center;
+            justify-self: anchor-center;
+            width: 60px;
+            height: 60px;
+        }
+
+        .btn {
+
         }
 
         .editor {
             position: absolute;
-            right: 0;
-            top: 0;
             left: 0;
-            height: 30px;
-            border-radius: 16px 16px 0 0;
-            padding: 0 4px;
-            background-color: rgba(0, 0, 0, 0.4);
-            display: flex;
-            align-items: center;
-            justify-content: flex-start;
-            gap: 1rem;
-        }
-
-        .btn {
-            border-radius: 4px;
-            width: 26px;
-            height: 26px;
+            top: 0;
+            right: 0;
+            height: 40px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: darkgreen;
-        }
-
-        .btn:HOVER {
-            background-color: skyblue;
         }
     </ui:style>
-    <g:HTMLPanel width="160px" height="160px" ui:field="root">
+    <g:HTMLPanel  ui:field="root" addStyleNames="{style.box}">
         <g:HTMLPanel ui:field="btnPan" visible="false" addStyleNames="{style.editor}">
             <buttons:DeleteButton addStyleNames="{style.btn}" color="white" ui:field="btnDelete" fontSize="24"/>
             <buttons:EditButton addStyleNames="{style.btn}" color="white" ui:field="btnEditor" fontSize="22"/>

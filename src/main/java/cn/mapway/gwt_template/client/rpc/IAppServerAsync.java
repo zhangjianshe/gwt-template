@@ -33,6 +33,12 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public interface IAppServerAsync {
 
     ///CODE_GEN_INSERT_POINT///
+	void deleteDesktopLayout(DeleteDashboardRequest request, AsyncCallback<RpcResult<DeleteDashboardResponse>> async);
+
+	void queryDesktopLayout(QueryDashboardRequest request, AsyncCallback<RpcResult<QueryDashboardResponse>> async);
+
+	void saveDesktopLayout(UpdateDashboardRequest request, AsyncCallback<RpcResult<UpdateDashboardResponse>> async);
+
 	void updateProjectTaskCover(UpdateProjectTaskCoverRequest request, AsyncCallback<RpcResult<UpdateProjectTaskCoverResponse>> async);
 
 	void deleteAppService(DeleteAppServiceRequest request, AsyncCallback<RpcResult<DeleteAppServiceResponse>> async);

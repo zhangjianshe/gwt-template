@@ -1,0 +1,15 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:gridstack="urn:import:cn.mapway.gwt_template.client.widget.gridstack"
+             xmlns:buttons="urn:import:cn.mapway.ui.client.widget.buttons">
+    <g:LayoutPanel>
+        <g:layer left="0" top="0" width="1" height="1">
+            <g:HorizontalPanel ui:field="tools">
+                <buttons:AiButton ui:field="btnAdd">添加组件</buttons:AiButton>
+            </g:HorizontalPanel>
+        </g:layer>
+        <g:layer top="0px" bottom="0px" left="0px" right="0px">
+            <gridstack:GridStackPanel ui:field="gridStackPanel"/>
+        </g:layer>
+    </g:LayoutPanel>
+</ui:UiBinder>

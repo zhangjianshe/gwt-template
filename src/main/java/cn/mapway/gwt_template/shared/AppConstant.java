@@ -37,4 +37,5 @@ public class AppConstant {
     public static final long DEFAULT_TASK_DURATION = 3 * 24 * 60 * 60 * 1000;
     public static final long ONE_DAY_DURATION = 24 * 60 * 60 * 1000;
     public static final String KEY_POWER_DNS = "POWERDNS_CONFIG";
+    public static final String TAG_WIDGET = "widget";
 }

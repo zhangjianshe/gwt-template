@@ -1,0 +1,26 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:dialog="urn:import:cn.mapway.ui.client.widget.dialog">
+    <ui:style>
+
+        .list {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            flex-flow: wrap;
+            gap: 1rem;
+            padding: 15px;
+        }</ui:style>
+    <g:DockLayoutPanel>
+        <g:south size="60">
+            <dialog:SaveBar ui:field="saveBar"/>
+        </g:south>
+        <g:center>
+            <g:ScrollPanel>
+                <g:HTMLPanel ui:field="list" addStyleNames="{style.list}">
+
+                </g:HTMLPanel>
+            </g:ScrollPanel>
+        </g:center>
+    </g:DockLayoutPanel>
+</ui:UiBinder>
