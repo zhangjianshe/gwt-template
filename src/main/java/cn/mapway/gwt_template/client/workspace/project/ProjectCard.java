@@ -108,7 +108,7 @@ public class ProjectCard extends CommonEventComposite implements IToolsProvider,
             }
             for (ProjectMember m : member.getMembers()) {
                 MemberWidget memberWidget = new MemberWidget();
-                memberWidget.setData(m.getUserName(), m.getAvatar());
+                memberWidget.setData(m.getName(), m.getAvatar());
                 memberPanel.add(memberWidget);
             }
             addMember(member.getChildren());

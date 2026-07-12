@@ -182,6 +182,7 @@
         .cover {
             width: 160px;
             margin-top: 10px;
+            border-radius: 6px;
         }</ui:style>
 
     <g:HTMLPanel addStyleNames="{style.box}" ui:field="rootElement">
