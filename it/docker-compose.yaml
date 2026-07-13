@@ -22,10 +22,10 @@ services:
       - ./data/init/01-power-db.sql:/docker-entrypoint-initdb.d/01-pdns-schema.sql:ro
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB} || exit 1" ]
-      interval: 5s         # Check every 5 seconds
-      timeout: 5s          # Give the check 5 seconds to complete
-      retries: 5           # Try 5 times before marking as 'unhealthy'
-      start_period: 10s    # Give the service 10s grace period before counting failures
+      interval: 5s # Check every 5 seconds
+      timeout: 5s # Give the check 5 seconds to complete
+      retries: 5 # Try 5 times before marking as 'unhealthy'
+      start_period: 10s # Give the service 10s grace period before counting failures
 
   # 2. PowerDNS 权威服务器
   powerdns:
@@ -66,6 +66,8 @@ services:
     restart: unless-stopped
     networks:
       - it_network
+    dns:
+      - 172.25.0.100
     ports:
       - "9000:9000/tcp" # 映射 ACME HTTPS 端口
     volumes:
@@ -77,6 +79,8 @@ services:
       - DOCKER_STEPCA_INIT_DNS_NAMES=step-ca
       - DOCKER_STEPCA_INIT_REMOTE_MANAGEMENT=false
       - DOCKER_STEPCA_INIT_PASSWORD=QAZwsx@1234
+      - DOCKER_STEPCA_INIT_ACME=acme
+
   openldap:
     user: root
     image: hub.cangling.cn/cangling/openldap:final
@@ -85,7 +89,7 @@ services:
       - "389:1389"
     # - "636:1636"
     environment:
-      - LDAP_ROOT=dc=satway,dc=cn
+      - LDAP_ROOT=dc=tjj,dc=cn
       - LDAP_ADMIN_USERNAME=admin
       - LDAP_ADMIN_PASSWORD=Openldap2025*
       - LDAP_USERS=zhangjianshe
@@ -114,10 +118,10 @@ services:
     restart: unless-stopped
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB} || exit 1" ]
-      interval: 5s         # Check every 5 seconds
-      timeout: 5s          # Give the check 5 seconds to complete
-      retries: 5           # Try 5 times before marking as 'unhealthy'
-      start_period: 10s    # Give the service 10s grace period before counting failures
+      interval: 5s # Check every 5 seconds
+      timeout: 5s # Give the check 5 seconds to complete
+      retries: 5 # Try 5 times before marking as 'unhealthy'
+      start_period: 10s # Give the service 10s grace period before counting failures
   dev-app:
     image: "hub.cangling.cn/cangling/gwt-template:latest"
     container_name: dev-app
@@ -142,8 +146,9 @@ services:
       - "traefik.http.routers.dev.rule=Host(`dev.tjj.cn`)"
       - "traefik.http.routers.dev.entrypoints=websecure"
       - "traefik.http.routers.dev.service=dev"
-      - "traefik.http.routers.dev.tls.certResolver=powerdns"
-      - "traefik.http.routers.dev.tls.domains=dev.tjj.cn"
+      - "traefik.http.routers.dev.tls=true"
+      - "traefik.http.routers.dev.tls.certresolver=powerdns"
+      - "traefik.http.routers.dev.tls.domains[0].main=dev.tjj.cn"
       - "traefik.http.services.dev.loadbalancer.server.port=8080"
       - "traefik.tcp.routers.git-shell.rule=HostSNI(`*`)"
       - "traefik.tcp.routers.git-shell.entrypoints=ssh"
@@ -167,8 +172,11 @@ services:
       - ./data/traefik/:/etc/traefik/
       - ./data/step-ca-data/certs:/certs-incoming:ro
     environment:
+      # 传递环境变量给 YAML 中的 pdns provider 驱动使用
       - PDNS_API_KEY=let_china_great_again
-      - PDNS_API_URL=http://powerdns:8081/
+      - PDNS_API_URL=http://powerdns:8081
       - LEGO_CA_CERTIFICATES=/certs-incoming/root_ca.crt
+      - PDNS_VHOST=tjj
+
     command:
       - "--configfile=/etc/traefik/traefik.yaml"

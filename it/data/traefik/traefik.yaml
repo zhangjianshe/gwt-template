@@ -2,7 +2,7 @@ global:
   checkNewVersion: false
   sendAnonymousUsage: false
 log:
-  level: INFO
+  level: DEBUG
 api:
   dashboard: true
   insecure: true
@@ -13,8 +13,8 @@ entryPoints:
     address: ":443"
   ldaps:
     address: ":636/tcp"
-  ssh:
-    address: ":2222"
+  ssh:                      # 💡 加上这个节点，修复 git-shell 的报错
+    address: ":2222/tcp"  
 serversTransports:
   default:
     insecureSkipVerify: true
@@ -42,6 +42,6 @@ certificatesResolvers:
       dnsChallenge:
         provider: pdns
         resolvers:
-          - "172.25.0.100:53"
-        propagation:
-          disableChecks: true
+          - "powerdns:53"
+        disablePropagationCheck: true
+
