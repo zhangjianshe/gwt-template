@@ -5,7 +5,8 @@ import cn.mapway.gwt_template.shared.rpc.desktop.DashboardItemData;
 import cn.mapway.ui.client.fonts.Fonts;
 import cn.mapway.ui.client.mvc.IModule;
 import cn.mapway.ui.client.mvc.ModuleParameter;
-import cn.mapway.ui.client.mvc.attribute.DataCastor;
+import cn.mapway.ui.client.tools.JSON;
+import cn.mapway.ui.client.util.StringUtil;
 import cn.mapway.ui.client.widget.FontIcon;
 import cn.mapway.ui.shared.CommonEvent;
 import cn.mapway.ui.shared.CommonEventHandler;
@@ -24,6 +25,19 @@ public class GridStackItemWrapper extends FlowPanel implements HasCommonHandlers
     FlowPanel header;
     Label titleLabel;
     Widget childWidget;
+    CommonEventHandler childWidgetHandler = new CommonEventHandler() {
+        @Override
+        public void onCommonEvent(CommonEvent event) {
+            if (event.isTitle()) {
+                String title = event.getValue();
+                if (StringUtil.isNotBlank(title)) {
+                    setTitle(title);
+                }
+            } else {
+                fireEvent(event);
+            }
+        }
+    };
     private DashboardItemData dashboardItemData;
     private final ClickHandler removeWidgetHandler = new ClickHandler() {
         @Override
@@ -39,14 +53,14 @@ public class GridStackItemWrapper extends FlowPanel implements HasCommonHandlers
             event.stopPropagation();
             event.preventDefault();
             IWidgetConfig config = (IWidgetConfig) childWidget;
-            config.showConfig("").then(new IThenable.ThenOnFulfilledCallbackFn<Object, Object>() {
+            config.showConfig(JSON.parse(dashboardItemData.parameter)).then(new IThenable.ThenOnFulfilledCallbackFn<Object, Object>() {
                 @Override
                 public @Nullable IThenable<Object> onInvoke(Object p0) {
-                    String url = DataCastor.castToString(p0);
-                    dashboardItemData.parameter = url;
+                    dashboardItemData.parameter = JSON.stringify(p0);
                     ModuleParameter para = new ModuleParameter();
-                    para.put(url);
+                    para.put(p0);
                     module.initialize(null, para);
+                    fireEvent(CommonEvent.configEvent(dashboardItemData));
                     return null;
                 }
             });
@@ -108,6 +122,11 @@ public class GridStackItemWrapper extends FlowPanel implements HasCommonHandlers
         childWidget.getElement().getStyle().setOverflow(Style.Overflow.AUTO);
         contentPanel.add(childWidget);
 
+        if (childWidget instanceof HasCommonHandlers) {
+
+            ((HasCommonHandlers) childWidget).addCommonHandler(childWidgetHandler);
+        }
+
         this.add(contentPanel);
 
 
@@ -141,6 +160,4 @@ public class GridStackItemWrapper extends FlowPanel implements HasCommonHandlers
     public HandlerRegistration addCommonHandler(CommonEventHandler handler) {
         return addHandler(handler, CommonEvent.TYPE);
     }
-
-
 }

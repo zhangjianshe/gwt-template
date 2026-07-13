@@ -273,7 +273,9 @@ public class StartBootPrepare implements ApplicationContextAware {
         dbVersion.setValue(DB_VERSION);
         dbVersion.setCreateTime(new Timestamp(System.currentTimeMillis()));
         dao.insertOrUpdate(dbVersion);
+
     }
+
 
     void checkAndCreate(Class clz) {
         if (dao.exists(clz)) {

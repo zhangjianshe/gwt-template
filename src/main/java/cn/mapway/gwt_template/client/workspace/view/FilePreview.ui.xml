@@ -9,11 +9,18 @@
             padding: 0 10px;
             border-bottom: solid 1px #e0e0e0;
             background-color: #f0f0f0;
-        }</ui:style>
+        }
+
+        .link {
+            user-select: text;
+            font-style: italic;
+        }
+    </ui:style>
     <g:DockLayoutPanel ui:field="root">
         <g:north size="40">
             <g:HTMLPanel addStyleNames="{style.top}">
                 <widget:Header ui:field="lbName" addStyleNames="ai-code"/>
+                <g:Label ui:field="lbLink" addStyleNames="{style.link}"/>
                 <g:HorizontalPanel ui:field="toolBar">
                 </g:HorizontalPanel>
             </g:HTMLPanel>

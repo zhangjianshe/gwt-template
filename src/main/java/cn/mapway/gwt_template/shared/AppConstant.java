@@ -38,4 +38,7 @@ public class AppConstant {
     public static final long ONE_DAY_DURATION = 24 * 60 * 60 * 1000;
     public static final String KEY_POWER_DNS = "POWERDNS_CONFIG";
     public static final String TAG_WIDGET = "widget";
+    public static final String SYSTEM_WORKSPACE_ID = "000000";
+    public static final String SYSTEM_PROJECT_ID = "000000";
+    public static final String SYSTEM_RESOURCE_ID = "000000";
 }

@@ -4,6 +4,7 @@ import cn.mapway.biz.core.BizResult;
 import cn.mapway.gwt_template.client.repository.RepositoryFrame;
 import cn.mapway.gwt_template.client.workspace.DevWorkspaceFrame;
 import cn.mapway.gwt_template.server.config.AppConfig;
+import cn.mapway.gwt_template.server.service.project.ProjectService;
 import cn.mapway.gwt_template.server.service.user.TokenService;
 import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.rpc.user.ResourcePoint;
@@ -53,6 +54,8 @@ public class ServerStartedOnce extends ApplicationObjectSupport implements IServ
     TokenService tokenService;
     @Resource
     RbacResourceService rbacResourceService;
+    @Resource
+    ProjectService projectService;
 
 
     @Override
@@ -214,7 +217,19 @@ public class ServerStartedOnce extends ApplicationObjectSupport implements IServ
             rbacUserEntity.setRelId(AppConstant.USER_IS_PUBLIC_ACCOUNT);
             dao.insert(rbacUserEntity);
         }
+        checkSystemProject();
+    }
 
+    /**
+     * 检查全局的项目 这个项目用于系统资料的发布
+     * ADMIN
+     *    WORKSPACE
+     *       PROJECT  000000
+     *          RESOURCEID 000000
+     *              index.html
+     */
+    private void checkSystemProject() {
+        projectService.createSystemProject();
     }
 
     private void importAllModules() {

@@ -3,11 +3,15 @@ package cn.mapway.gwt_template.server.service.project;
 import cn.mapway.biz.core.BizResult;
 import cn.mapway.gwt_template.server.service.config.SystemConfigService;
 import cn.mapway.gwt_template.server.service.file.FileCustomUtils;
+import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.db.*;
+import cn.mapway.gwt_template.shared.rpc.file.SecurityLevel;
 import cn.mapway.gwt_template.shared.rpc.project.module.CommonPermission;
+import cn.mapway.rbac.shared.RbacConstant;
 import cn.mapway.rbac.shared.db.postgis.RbacUserEntity;
 import cn.mapway.ui.client.IUserInfo;
 import cn.mapway.ui.client.fonts.Fonts;
+import cn.mapway.ui.client.util.Colors;
 import lombok.extern.slf4j.Slf4j;
 import org.nutz.dao.Cnd;
 import org.nutz.dao.Dao;
@@ -19,10 +23,14 @@ import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
+import org.nutz.resource.NutResource;
+import org.nutz.resource.Scans;
 import org.nutz.trans.Trans;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.io.File;
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -317,8 +325,10 @@ public class ProjectService {
      * @param userId
      * @param workspace
      */
-    public void createUserWorkspace(Long userId, DevWorkspaceEntity workspace) {
-        workspace.setId(R.UU16());
+    public DevWorkspaceEntity createUserWorkspace(Long userId, DevWorkspaceEntity workspace) {
+        if (Strings.isBlank(workspace.getId())) {
+            workspace.setId(R.UU16());
+        }
         workspace.setUserId(userId);
         workspace.setCreateTime(new Timestamp(System.currentTimeMillis()));
 
@@ -343,6 +353,7 @@ public class ProjectService {
         member.setIsOwner(true);
         member.setPermission(CommonPermission.from("").setOwner().toString());
         dao.insert(member);
+        return dao.fetch(DevWorkspaceEntity.class, workspace.getId());
     }
 
     public BizResult<String> getResourceAbsolutePath(DevProjectResourceEntity resource) {
@@ -601,6 +612,12 @@ public class ProjectService {
                 .and(DevProjectResourceMemberEntity.FLD_RESOURCE_ID, "=", resourceId);
         DevProjectResourceMemberEntity resourceMember = dao.fetch(DevProjectResourceMemberEntity.class, where);
         if (resourceMember == null) {
+            DevProjectResourceEntity projectResource = findProjectResource(resourceId);
+            boolean isResourcePublic = projectResource != null && projectResource.getShare() != null && projectResource.getShare();
+            boolean isAdminProject = projectResource.getUserId().equals(RbacConstant.SUPER_USER_ID);
+            if (isResourcePublic || isAdminProject) {
+                return CommonPermission.empty().setRead(true);
+            }
             return CommonPermission.empty();
         } else {
             return CommonPermission.from(resourceMember.getPermission());
@@ -619,8 +636,7 @@ public class ProjectService {
 
     public BizResult<Boolean> isTaskManager(String projectId, Long currentUserId, String parentId) {
         CommonPermission permission = findUserPermissionInProject(currentUserId, projectId);
-        if(permission.isSuper())
-        {
+        if (permission.isSuper()) {
             return BizResult.success(true);
         }
 
@@ -640,6 +656,7 @@ public class ProjectService {
 
     /**
      * 查询所有我参与的项目
+     *
      * @param userId
      * @return
      */
@@ -664,6 +681,7 @@ public class ProjectService {
 
         return sql.getList(DevProjectEntity.class);
     }
+
     public List<DevProjectEntity> queryFavoriteProjects(Long userId) {
         // --- 优化后的 SQL 逻辑 ---
         // 使用 EXISTS 子查询可以完美解决“多条记录”导致的重复问题
@@ -914,6 +932,130 @@ public class ProjectService {
                 task.setCreateUserName(Strings.isBlank(creator.getNickName()) ? creator.getUserName() : creator.getNickName());
                 task.setCreateUserAvatar(creator.getAvatar());
             }
+        }
+    }
+
+    /**
+     * * 检查全局的项目 这个项目用于系统资料的发布
+     * * ADMIN
+     * *    WORKSPACE  000000
+     * *       PROJECT  000000
+     * *          RESOURCEID 000000
+     * *              index.html
+     */
+    public void createSystemProject() {
+        // 系统工作空间
+        DevWorkspaceEntity systemWorkspace = dao.fetch(DevWorkspaceEntity.class, AppConstant.SYSTEM_WORKSPACE_ID);
+        if (systemWorkspace == null) {
+            systemWorkspace = new DevWorkspaceEntity();
+            systemWorkspace.setId(AppConstant.SYSTEM_WORKSPACE_ID);
+            systemWorkspace.setName("系统工作空间");
+            systemWorkspace.setProjectCount(0);
+            systemWorkspace.setColor(Colors.color(3));
+            systemWorkspace.setIsShare(false);
+            systemWorkspace = createUserWorkspace(RbacConstant.SUPER_USER_ID, systemWorkspace);
+        }
+        //系统项目
+        DevProjectEntity project = dao.fetch(DevProjectEntity.class, AppConstant.SYSTEM_PROJECT_ID);
+        if (project == null) {
+            DevProjectEntity systemProject = new DevProjectEntity();
+            systemProject.setColor(Colors.color(3));
+            systemProject.setFavorite(true);
+            systemProject.setIsTemplate(false);
+            systemProject.setProgress("");
+            systemProject.setWorkspaceId(AppConstant.SYSTEM_PROJECT_ID);
+            systemProject.setId(AppConstant.SYSTEM_PROJECT_ID);
+            systemProject.setCreateTime(new Timestamp(System.currentTimeMillis()));
+            systemProject.setIcon("");
+            systemProject.setUnicode(Fonts.PROJECT);
+            systemProject.setCreateUserAvatar("");
+            systemProject.setCreateUserName("ADMIN");
+            systemProject.setUserId(RbacConstant.SUPER_USER_ID);
+            systemProject.setSummary("");
+            systemProject.setFolderId("");
+            systemProject.setUpdateTime(new Timestamp(System.currentTimeMillis()));
+            systemProject.setTag("");
+            systemProject.setSecurityLevel(SecurityLevel.PUBLIC.getRank());
+            systemProject.setMemberCount(1);
+            systemProject.setName("系统公开项目");
+
+
+            DevProjectTeamEntity team = new DevProjectTeamEntity();
+            team.setProjectId(AppConstant.SYSTEM_PROJECT_ID);
+            team.setIcon(Fonts.ADMIN);
+            team.setColor(Colors.color(3));
+            team.setId(R.UU16());
+            team.setCreateTime(new Timestamp(System.currentTimeMillis()));
+            team.setChildren(new ArrayList<>());
+            team.setCharger(RbacConstant.SUPER_USER_ID);
+            team.setParentId("");
+            team.setName("管理组");
+            team.setTeamPermission(CommonPermission.all().toString());
+            team.setSummary("");
+
+
+            DevProjectTeamMemberEntity entity = new DevProjectTeamMemberEntity();
+            entity.setProjectId(AppConstant.SYSTEM_PROJECT_ID);
+            entity.setFavorite(true);
+            entity.setSummary("");
+            entity.setUserId(RbacConstant.SUPER_USER_ID);
+            entity.setPermission(CommonPermission.all().toString());
+            entity.setTeamId(team.getId());
+
+
+            DevProjectResourceEntity resource = new DevProjectResourceEntity();
+            resource.setProjectId(AppConstant.SYSTEM_PROJECT_ID);
+            resource.setName("公开资源");
+            resource.setRank(0);
+            resource.setColor(Colors.color(0));
+
+            resource.setId(AppConstant.SYSTEM_RESOURCE_ID);
+            resource.setUserId(RbacConstant.SUPER_USER_ID);
+            resource.setCreateTime(new Timestamp(System.currentTimeMillis()));
+            resource.setUpdateTime(new Timestamp(System.currentTimeMillis()));
+            resource.setShare(true);
+            resource.setMemberCount(1); // 初始成员为创建者自己
+
+            // 4. 初始化成员记录
+            DevProjectResourceMemberEntity member = new DevProjectResourceMemberEntity();
+            member.setResourceId(AppConstant.SYSTEM_RESOURCE_ID);
+            member.setUserId(RbacConstant.SUPER_USER_ID);
+            member.setPermission(CommonPermission.owner().toString());
+            member.setCreateTime(new Timestamp(System.currentTimeMillis()));
+
+            // 5. 事务持久化
+            Trans.exec(() -> {
+                dao.insert(systemProject);
+                dao.insert(entity);
+                dao.insert(team);
+                dao.insert(resource);
+                dao.insert(member);
+
+                BizResult<String> absolutePath = getResourceAbsolutePath(AppConstant.SYSTEM_RESOURCE_ID);
+                String indexHtml = FileCustomUtils.concatPath(absolutePath.getData(), "index.html");
+                File file = new File(indexHtml);
+                if (!file.exists()) {
+                    List<NutResource> nutResources = Scans.me().scan("code/projectIndex.html");
+                    if (nutResources.isEmpty()) {
+                        log.error("code/projectIndex.html");
+                    } else {
+                        try {
+                            String content = Lang.readAll(nutResources.get(0).getReader());
+                            Files.write(file, content);
+                        } catch (IOException e) {
+                            {
+                                Files.write(file, "<html>" +
+                                        " <head>" +
+                                        " </head>" +
+                                        " <body>" +
+                                        " <h2> 欢迎使用本系统</h2>" +
+                                        " </body>" +
+                                        "</html>");
+                            }
+                        }
+                    }
+                }
+            });
         }
     }
 }

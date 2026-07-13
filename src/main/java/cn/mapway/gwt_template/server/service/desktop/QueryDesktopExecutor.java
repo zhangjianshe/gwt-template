@@ -95,22 +95,9 @@ public class QueryDesktopExecutor extends AbstractBizExecutor<QueryDesktopRespon
         dashboard.setSummary("系统创建缺省面板");
 
         List<DashboardItemData> layouts = new ArrayList<>();
-        layouts.add(create("widget_shortcut", 2, 1, 3, 3, ""));
-        String defaultLayout = "[{\"moduleCode\":\"widget_my_projects\",\"x\":0,\"y\":0,\"w\":4,\"h\":11},{\"moduleCode\":\"widget_shortcut\",\"x\":4,\"y\":0,\"w\":8,\"h\":3}]";
+        String defaultLayout = "[{\"moduleCode\":\"widget_my_projects\",\"x\":0,\"y\":0,\"w\":4,\"h\":11},{\"moduleCode\":\"widget_shortcut\",\"x\":4,\"y\":0,\"w\":8,\"h\":3},{\"moduleCode\":\"widget_iframe\",\"x\":4,\"y\":3,\"w\":8,\"h\":6,\"parameter\":\"{\\\"title\\\":\\\"系统介绍\\\",\\\"url\\\":\\\"api/v1/project/file/000000/index.html\\\"}\"}]";
         dashboard.setLayout(defaultLayout);
         dao.insert(dashboard);
         return dashboard;
-    }
-
-    private DashboardItemData create(String moduleCode, int x, int y, int w, int h, String param) {
-        DashboardItemData data = new DashboardItemData();
-        data.id = "G" + R.captchaChar(7);
-        data.moduleCode = moduleCode;
-        data.x = (double) x;
-        data.y = (double) y;
-        data.w = (double) w;
-        data.h = (double) h;
-        data.parameter = param;
-        return data;
     }
 }

@@ -42,6 +42,8 @@ public class FilePreview extends CommonEventComposite implements RequiresResize 
     LayoutPanel contentPanel;
     @UiField
     DockLayoutPanel root;
+    @UiField
+    Label lbLink;
     Widget currentWidget = null;
     InfoViewer infoViewer;
     TextEditViewer textEditViewer;
@@ -127,26 +129,23 @@ public class FilePreview extends CommonEventComposite implements RequiresResize 
     private void switchView(PreviewData data) {
         lbName.setText(StringUtil.extractName(data.getFileName()));
 
+        String fileName = data.getFileName();
+        // 1. 先进行标准路径片段编码 (会将 / 变成 %2F)
+        String encodedPath = URL.encodePathSegment(fileName);
+        // 2. 将 %2F 还原为 /，这样 URL 就能保持层级结构，同时文件名中的特殊字符（如空格、#）已被安全编码
+        encodedPath = encodedPath.replace("%2F", "/");
+        // 3. 拼接基础路径
+        String baseUrl = GWT.getHostPageBaseURL() + "api/v1/project/file/" + data.getResourceId();
+        // 确保 baseUrl 和 encodedPath 之间只有一个斜杠
+        String url;
+        if (encodedPath.startsWith("/")) {
+            url = baseUrl + encodedPath;
+        } else {
+            url = baseUrl + "/" + encodedPath;
+        }
+        lbLink.setText(url);
+
         if (AppConstant.CANGLING_MIME_TYPE.equals(data.getMimeType())) {
-            String fileName = data.getFileName();
-
-            // 1. 先进行标准路径片段编码 (会将 / 变成 %2F)
-            String encodedPath = URL.encodePathSegment(fileName);
-
-            // 2. 将 %2F 还原为 /，这样 URL 就能保持层级结构，同时文件名中的特殊字符（如空格、#）已被安全编码
-            encodedPath = encodedPath.replace("%2F", "/");
-
-            // 3. 拼接基础路径
-            String baseUrl = "/api/v1/project/file/" + data.getResourceId();
-
-            // 确保 baseUrl 和 encodedPath 之间只有一个斜杠
-            String url;
-            if (encodedPath.startsWith("/")) {
-                url = baseUrl + encodedPath;
-            } else {
-                url = baseUrl + "/" + encodedPath;
-            }
-
             switchHtml(data, url);
             return;
         }

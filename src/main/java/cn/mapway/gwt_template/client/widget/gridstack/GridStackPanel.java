@@ -6,6 +6,7 @@ import cn.mapway.ui.client.mvc.BaseAbstractModule;
 import cn.mapway.ui.client.mvc.IModule;
 import cn.mapway.ui.client.mvc.IModuleCallback;
 import cn.mapway.ui.client.mvc.ModuleParameter;
+import cn.mapway.ui.client.tools.JSON;
 import cn.mapway.ui.client.util.StringUtil;
 import cn.mapway.ui.client.widget.CommonEventComposite;
 import cn.mapway.ui.shared.CommonEvent;
@@ -38,6 +39,8 @@ public class GridStackPanel extends CommonEventComposite {
             GridStackItemWrapper wrapper = (GridStackItemWrapper) event.getSource();
             if (event.isDelete()) {
                 removeItem(wrapper);
+                updateAll();
+            } else if (event.isConfig()) {
                 updateAll();
             }
         }
@@ -121,7 +124,12 @@ public class GridStackPanel extends CommonEventComposite {
         gridStack.makeWidget(Js.uncheckedCast(wrapper.getElement()));
 
         ModuleParameter parameter = new ModuleParameter();
-        parameter.put(item.parameter);
+        if (item.parameter == null || !item.parameter.startsWith("{")) {
+            parameter.put(item.parameter);
+        } else {
+            parameter.put(JSON.parse(item.parameter));
+        }
+
         module.initialize(null, parameter);
         container.add(wrapper);
         children.add(wrapper);

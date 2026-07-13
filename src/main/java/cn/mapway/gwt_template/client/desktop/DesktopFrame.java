@@ -1,14 +1,10 @@
 package cn.mapway.gwt_template.client.desktop;
 
-import cn.mapway.gwt_template.client.workspace.project.ProjectHomePanel;
 import cn.mapway.gwt_template.client.workspace.wiki.PageEditor;
-import cn.mapway.gwt_template.shared.db.DevProjectEntity;
 import cn.mapway.ui.client.fonts.Fonts;
 import cn.mapway.ui.client.mvc.*;
 import cn.mapway.ui.shared.CommonEvent;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -31,33 +27,20 @@ public class DesktopFrame extends BaseAbstractModule implements RequiresResize {
     @UiField
     PageEditor pageEditor;
     @UiField
-    DashboardPanel dashBoard;
+    DashboardPanel dashboard;
     @UiField
     HTMLPanel toolsPanel;
     Widget currentWidget = null;
-    ClickHandler projectHandler = new ClickHandler() {
-
-        @Override
-        public void onClick(ClickEvent event) {
-            ProjectItem sourceItem = (ProjectItem) event.getSource();
-            DevProjectEntity data1 = sourceItem.getData();
-            SwitchModuleData switchModuleData = new SwitchModuleData(ProjectHomePanel.MODULE_CODE, "");
-            switchModuleData.getParameters().put(data1);
-            fireModuleEvent(DesktopFrame.this, CommonEvent.switchEvent(switchModuleData));
-        }
-    };
 
     public DesktopFrame() {
         initWidget(ourUiBinder.createAndBindUi(this));
-
-        currentWidget = dashBoard;
-
+        currentWidget = dashboard;
         root.addSelectionHandler(event -> {
             Integer selectedItem = event.getSelectedItem();
             toolsPanel.clear();
             switch (selectedItem) {
                 case 0:
-                    toolsPanel.add(dashBoard.getTools());
+                    gotoBoard();
                     break;
                 case 1:
                     break;
@@ -67,6 +50,12 @@ public class DesktopFrame extends BaseAbstractModule implements RequiresResize {
 
             }
         });
+        gotoBoard();
+    }
+
+    private void gotoBoard() {
+        toolsPanel.clear();
+        toolsPanel.add(dashboard.getTools());
     }
 
     @Override
@@ -85,7 +74,7 @@ public class DesktopFrame extends BaseAbstractModule implements RequiresResize {
         root.onResize();
     }
 
-    @UiHandler("dashBoard")
+    @UiHandler("dashboard")
     public void dashBoardCommon(CommonEvent event) {
         if (event.isSwitch()) {
             SwitchModuleData data = event.getValue();

@@ -221,7 +221,6 @@ public class ProjectResourceList extends CommonEventComposite implements IData<S
     private void selectItem(ResourceItem item) {
         if (selectedItem != null) {
             selectedItem.setSelected(false);
-            selectedItem = null;
         }
         selectedItem = item;
         if (selectedItem != null) {

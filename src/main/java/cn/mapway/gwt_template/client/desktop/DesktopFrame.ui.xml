@@ -16,7 +16,7 @@
             <g:TabLayoutPanel barHeight="50" ui:field="root">
                 <g:tab>
                     <g:header>🖥️ 桌面</g:header>
-                    <desktop:DashboardPanel ui:field="dashBoard"/>
+                    <desktop:DashboardPanel ui:field="dashboard"/>
                 </g:tab>
                 <g:tab>
                     <g:header>🗓️ 工作日历</g:header>
