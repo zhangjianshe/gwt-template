@@ -73,6 +73,7 @@ public class IFrameWidget extends BaseAbstractModule implements IWidgetConfig {
         } else {
             IFrameConfig config = Js.uncheckedCast(obj);
             if (StringUtil.isNotBlank(config.url)) {
+                frame.getElement().removeAttribute("srcdoc");
                 frame.setUrl(config.url);
                 fireEvent(CommonEvent.titleEvent(config.title));
             } else {

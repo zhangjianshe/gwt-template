@@ -17,7 +17,10 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.ui.*;
+import elemental2.core.JsObject;
+import elemental2.dom.DomGlobal;
 import elemental2.promise.IThenable;
+import jsinterop.base.Js;
 import org.jspecify.annotations.Nullable;
 
 public class GridStackItemWrapper extends FlowPanel implements HasCommonHandlers {
@@ -53,7 +56,14 @@ public class GridStackItemWrapper extends FlowPanel implements HasCommonHandlers
             event.stopPropagation();
             event.preventDefault();
             IWidgetConfig config = (IWidgetConfig) childWidget;
-            config.showConfig(JSON.parse(dashboardItemData.parameter)).then(new IThenable.ThenOnFulfilledCallbackFn<Object, Object>() {
+            JsObject configData;
+            try {
+                configData = Js.uncheckedCast(JSON.parse(dashboardItemData.parameter));
+            } catch (Exception e) {
+                DomGlobal.console.log(this.getClass().getName() + "解析组件参数错误" + e.getMessage());
+                configData = new JsObject();
+            }
+            config.showConfig(configData).then(new IThenable.ThenOnFulfilledCallbackFn<Object, Object>() {
                 @Override
                 public @Nullable IThenable<Object> onInvoke(Object p0) {
                     dashboardItemData.parameter = JSON.stringify(p0);

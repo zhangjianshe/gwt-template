@@ -18,6 +18,7 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Widget;
 import elemental2.core.JsArray;
+import elemental2.core.JsObject;
 import elemental2.dom.DomGlobal;
 import elemental2.dom.Event;
 import jsinterop.base.Js;
@@ -125,9 +126,15 @@ public class GridStackPanel extends CommonEventComposite {
 
         ModuleParameter parameter = new ModuleParameter();
         if (item.parameter == null || !item.parameter.startsWith("{")) {
-            parameter.put(item.parameter);
+            parameter.put(new JsObject());
         } else {
-            parameter.put(JSON.parse(item.parameter));
+            Object parse;
+            try {
+                parse = JSON.parse(item.parameter);
+            } catch (Exception e) {
+                parse = new JsObject();
+            }
+            parameter.put(parse);
         }
 
         module.initialize(null, parameter);
