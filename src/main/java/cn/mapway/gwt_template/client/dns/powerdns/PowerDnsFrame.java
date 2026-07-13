@@ -80,6 +80,17 @@ public class PowerDnsFrame extends BaseAbstractModule {
         btnCreateRecord.setEnabled(false);
         loadZone();
         return true;
+    }
+
+    private void confirmDelete(PowerDnsZone zone) {
+        String message = "删除ZONE" + zone.getName() + "?";
+        ClientContext.get().confirmDelete(message).then(new IThenable.ThenOnFulfilledCallbackFn<Void, Object>() {
+            @Override
+            public @Nullable IThenable<Object> onInvoke(Void p0) {
+                doDeleteZone(zone);
+                return null;
+            }
+        });
     }    ClickHandler deleteZoneHandler = new ClickHandler() {
         @Override
         public void onClick(ClickEvent event) {
@@ -91,17 +102,6 @@ public class PowerDnsFrame extends BaseAbstractModule {
             confirmDelete(zone);
         }
     };
-
-    private void confirmDelete(PowerDnsZone zone) {
-        String message = "删除ZONE" + zone.getName() + "?";
-        ClientContext.get().confirmDelete(message).then(new IThenable.ThenOnFulfilledCallbackFn<Void, Object>() {
-            @Override
-            public @Nullable IThenable<Object> onInvoke(Void p0) {
-                doDeleteZone(zone);
-                return null;
-            }
-        });
-    }
 
     private void doDeleteZone(PowerDnsZone zone) {
         DeleteZoneRequest request = new DeleteZoneRequest();
@@ -325,6 +325,7 @@ public class PowerDnsFrame extends BaseAbstractModule {
             DeleteRecordRequest request = new DeleteRecordRequest();
             request.setName(rrset.getName());
             request.setZoneId(selectZoneId.getId());
+            request.setType(rrset.getType());
             // 设置必要的参数 (zoneId, name, type 等)
             AppProxy.get().deleteRecord(request, new AsyncCallback<RpcResult<DeleteRecordResponse>>() {
                 @Override
@@ -334,8 +335,13 @@ public class PowerDnsFrame extends BaseAbstractModule {
 
                 @Override
                 public void onSuccess(RpcResult<DeleteRecordResponse> result) {
-                    // 刷新列表
-                    loadZoneRecord(selectZoneId);
+                    if(result.isSuccess()) {
+                        // 刷新列表
+                        loadZoneRecord(selectZoneId);
+                    }
+                    else {
+                        ClientContext.get().toast(0,0,result.getMessage());
+                    }
                 }
             });
             return null;
