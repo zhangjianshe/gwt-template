@@ -30,3 +30,26 @@ step4:
 http://powerdns:8081
 let_china_great_again
 
+
+
+setup cert default setting 
+
+
+./data/step-ca-data/config/ca.json
+
+`{
+"type": "ACME",
+"name": "satway-acme",
+"claims": {
+"enableSSHCA": true,
+"disableRenewal": false,
+"allowRenewalAfterExpiry": true,
+"disableSmallstepExtensions": false,
+"maxTLSCertDuration": "2160h",
+"defaultTLSCertDuration": "2160h"
+},
+"options": {
+"x509": {},
+"ssh": {}
+}
+}`

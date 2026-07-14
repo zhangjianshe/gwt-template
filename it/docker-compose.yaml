@@ -20,6 +20,8 @@ services:
     volumes:
       - ./data/pdns-db:/var/lib/postgresql/data
       - ./data/init/01-power-db.sql:/docker-entrypoint-initdb.d/01-pdns-schema.sql:ro
+      - "/etc/localtime:/etc/localtime:ro"
+      - "/etc/timezone:/etc/timezone:ro"
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB} || exit 1" ]
       interval: 5s # Check every 5 seconds
@@ -41,6 +43,8 @@ services:
       - "8053:8081/tcp" # 暴露 API 端口
     volumes:
       - ./data/pdns/pdns.conf:/etc/powerdns/pdns.conf
+      - "/etc/localtime:/etc/localtime:ro"
+      - "/etc/timezone:/etc/timezone:ro"
     depends_on:
       - powerdns-db
   # 3. PowerDNS resolver
@@ -56,6 +60,8 @@ services:
     volumes:
       - ./data/pdns/recursor.conf:/etc/powerdns/recursor.conf
       - ./data/pdns/empty-hints.txt:/etc/powerdns/empty-hints.txt
+      - "/etc/localtime:/etc/localtime:ro"
+      - "/etc/timezone:/etc/timezone:ro"
     depends_on:
       - powerdns
 
@@ -72,6 +78,8 @@ services:
       - "9000:9000/tcp" # 映射 ACME HTTPS 端口
     volumes:
       - ./data/step-ca-data:/home/step:rw
+      - "/etc/localtime:/etc/localtime:ro"
+      - "/etc/timezone:/etc/timezone:ro"
     environment:
       # 第一次运行时用于自动初始化的环境变量
       - STEPPATH=/home/step
@@ -96,6 +104,8 @@ services:
       - LDAP_PASSWORDS=Zhangjianshe2025*
     volumes:
       - ./data/ldap:/bitnami/openldap
+      - "/etc/localtime:/etc/localtime:ro"
+      - "/etc/timezone:/etc/timezone:ro"
     networks:
       - it_network
   dev-db:
@@ -115,6 +125,8 @@ services:
       - POSTGRES_PASSWORD=cangling-dev
       - ALLOW_IP_RANGE=0.0.0.0/0
       - POSTGRES_MULTIPLE_EXTENSIONS=postgis,hstore,postgis_topology,postgis_raster,pgrouting
+      - "/etc/localtime:/etc/localtime:ro"
+      - "/etc/timezone:/etc/timezone:ro"
     restart: unless-stopped
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB} || exit 1" ]
@@ -140,16 +152,19 @@ services:
       - ./data/dev/app.json:/root/mapway/app.json
       - ./data/dev/data:/data/dev
       - ./data/step-ca-data/certs:/certs:ro
+      - "/etc/localtime:/etc/localtime:ro"
+      - "/etc/timezone:/etc/timezone:ro"
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.dev.rule=Host(`dev.tjj.cn`)"
       - "traefik.http.routers.dev.entrypoints=websecure"
-      - "traefik.http.routers.dev.service=dev"
       - "traefik.http.routers.dev.tls=true"
       - "traefik.http.routers.dev.tls.certresolver=powerdns"
       - "traefik.http.routers.dev.tls.domains[0].main=dev.tjj.cn"
-      - "traefik.http.services.dev.loadbalancer.server.port=8080"
+
+      - "traefik.http.routers.dev.service=dev-app"
+      - "traefik.http.services.dev-app.loadbalancer.server.port=8080"
       - "traefik.tcp.routers.git-shell.rule=HostSNI(`*`)"
       - "traefik.tcp.routers.git-shell.entrypoints=ssh"
       - "traefik.tcp.routers.git-shell.service=git-shell"
@@ -171,6 +186,8 @@ services:
       - ./data/traefik-certs:/certs
       - ./data/traefik/:/etc/traefik/
       - ./data/step-ca-data/certs:/certs-incoming:ro
+      - "/etc/localtime:/etc/localtime:ro"
+      - "/etc/timezone:/etc/timezone:ro"
     environment:
       # 传递环境变量给 YAML 中的 pdns provider 驱动使用
       - PDNS_API_KEY=let_china_great_again
