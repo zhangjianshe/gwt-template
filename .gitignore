@@ -36,3 +36,4 @@ build/
 /deploy/docker/data/logs
 deploy/devenv/data/postgis/
 gwt-template.tar
+/it/all_docker_images.tar.gz
