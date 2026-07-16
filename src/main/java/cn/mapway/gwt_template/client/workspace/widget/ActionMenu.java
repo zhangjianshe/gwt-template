@@ -1,7 +1,6 @@
 package cn.mapway.gwt_template.client.workspace.widget;
 
 import cn.mapway.gwt_template.client.resource.AppResource;
-import cn.mapway.gwt_template.client.workspace.team.TeamGroupNode;
 import cn.mapway.ui.client.tools.IData;
 import cn.mapway.ui.client.widget.AiLabel;
 import cn.mapway.ui.shared.CommonEvent;
@@ -20,14 +19,14 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 /**
  * 通用的右键操作菜单
  */
-public class ActionMenu extends PopupPanel implements HasCommonHandlers, IData<TeamGroupNode> {
+public  class  ActionMenu<T> extends PopupPanel implements HasCommonHandlers, IData<T> {
     private final VerticalPanel container;
     ClickHandler itemClicked = event -> {
         AiLabel source = (AiLabel) event.getSource();
         ActionMenuKind kind = (ActionMenuKind) source.getData();
         fireEvent(CommonEvent.selectEvent(kind));
     };
-    private TeamGroupNode layoutNode;
+    private T layoutNode;
 
     public ActionMenu() {
         super(true); // 点击外部自动消失
@@ -76,12 +75,12 @@ public class ActionMenu extends PopupPanel implements HasCommonHandlers, IData<T
     }
 
     @Override
-    public TeamGroupNode getData() {
+    public T getData() {
         return layoutNode;
     }
 
     @Override
-    public void setData(TeamGroupNode obj) {
+    public void setData(T obj) {
         layoutNode = obj;
     }
 
