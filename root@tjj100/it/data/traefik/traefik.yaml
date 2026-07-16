@@ -1,0 +1,47 @@
+global:
+  checkNewVersion: false
+  sendAnonymousUsage: false
+log:
+  level: DEBUG
+api:
+  dashboard: true
+  insecure: true
+entryPoints:
+  web:
+    address: :80
+  websecure:
+    address: ":443"
+  ldaps:
+    address: ":636/tcp"
+  ssh:                      # 💡 加上这个节点，修复 git-shell 的报错
+    address: ":2222/tcp"  
+serversTransports:
+  default:
+    insecureSkipVerify: true
+    forwardingTimeouts:
+      idleConnTimeout: 0
+      readIdleTimeout: 0
+      responseHeaderTimeout: 0
+
+providers:
+  docker:
+    exposedByDefault: false
+  file:
+    directory: /etc/traefik/dynamic
+    watch: true
+  http:
+    endpoint: "http://dev-app:8080/api/v1/traefik/index"
+    pollInterval: "5s"
+
+certificatesResolvers:
+  powerdns:
+    acme:
+      email: zhangjianshe@gmail.com
+      storage: /certs/acme.json
+      caServer: https://step-ca:9000/acme/satway-acme/directory
+      dnsChallenge:
+        provider: pdns
+        resolvers:
+          - "powerdns:53"
+        disablePropagationCheck: true
+
