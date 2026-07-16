@@ -39,11 +39,14 @@ public class DashboardPanel extends CommonEventComposite implements IToolsProvid
     HorizontalPanel tools;
     @UiField
     AiButton btnAdd;
+    @UiField
+    AiButton btnDesign;
     DashboardEntity dashboardEntity;
 
     public DashboardPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
         loadUserDesktopConfig();
+        btnDesign.setData(false);
     }
 
     private void loadUserDesktopConfig() {
@@ -77,6 +80,7 @@ public class DashboardPanel extends CommonEventComposite implements IToolsProvid
             DashboardItemData item = items.getAt(i);
             gridStackPanel.addItem(item, this);
         }
+        gridStackPanel.setDesignMode((boolean) btnDesign.getData());
     }
 
 
@@ -132,6 +136,22 @@ public class DashboardPanel extends CommonEventComposite implements IToolsProvid
         dialog.center();
     }
 
+    @UiHandler("btnDesign")
+    public void btnDesignClick(ClickEvent event) {
+        Boolean designMode = (Boolean) btnDesign.getData();
+        if (!designMode) {
+            //当前是展示模式
+            btnDesign.setText("展示模式");
+            btnDesign.setData(true);
+        } else {
+
+            btnDesign.setText("设计模式");
+            btnDesign.setData(false);
+        }
+        gridStackPanel.setDesignMode((Boolean) btnDesign.getData());
+        btnAdd.setEnabled((Boolean) btnDesign.getData());
+    }
+
     private void createWidget(ModuleInfo info) {
         DashboardItemData item = new DashboardItemData();
         item.moduleCode = info.code;
@@ -140,6 +160,7 @@ public class DashboardPanel extends CommonEventComposite implements IToolsProvid
         item.w = 2.;
         item.h = 2.;
         gridStackPanel.addItem(item, this::callback);
+        gridStackPanel.setDesignMode((Boolean) btnDesign.getData());
     }
 
     @Override

@@ -32,6 +32,17 @@
             border: solid 1px #e0e0e0;
         }
 
+        .dashboard-item-hide-header {
+            background-color: white;
+            display: grid;
+            grid-template-rows: 1fr;
+            border: solid 1px #e0e0e0;
+        }
+
+        .design{
+            border: solid 1px skyblue;
+        }
+
         /* 3. 拖拽手柄头部 */
         .dashboard-item-header {
             background: #fafafc;
@@ -47,26 +58,10 @@
             user-select: none;
             flex-shrink: 0;
             box-sizing: border-box;
+            overflow: hidden !important;
         }
 
-        /* 4. 删除按钮 */
-        .dashboard-item-delete-btn {
-            background: transparent;
-            border: none;
-            color: #9ea7b4;
-            font-size: 16px;
-            cursor: pointer;
-            padding: 0 4px;
-        }
 
-        .dashboard-item-delete-btn:hover {
-            color: #f1404b;
-        }
-
-        /*
-           5. 【消灭滚动条的核心点】
-           只拉伸不设固定 100% 高度，改用 Flex 弹性撑满，彻底干掉因 padding 引发的计算溢出
-        */
         :global(.grid-stack-item-content) > div:last-child {
             flex-grow: 1;
             flex-shrink: 1;

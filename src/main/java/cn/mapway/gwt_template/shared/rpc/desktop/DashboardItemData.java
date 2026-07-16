@@ -12,4 +12,5 @@ public class DashboardItemData {
     public Double w;
     public Double h;
     public String parameter;
+    public Boolean showHeader;
 }

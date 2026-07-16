@@ -5,6 +5,7 @@
     <g:LayoutPanel>
         <g:layer left="0" top="0" width="1" height="1">
             <g:HorizontalPanel ui:field="tools">
+                <buttons:AiButton ui:field="btnDesign">设计模式</buttons:AiButton>
                 <buttons:AiButton ui:field="btnAdd">添加组件</buttons:AiButton>
             </g:HorizontalPanel>
         </g:layer>

@@ -57,7 +57,7 @@ public class GridStackPanel extends CommonEventComposite {
         options.animate = true;
 
         options.handle = "." + style.dashboardItemHeader();
-        options.margin = jsinterop.base.Js.asAny(10);
+        options.margin = jsinterop.base.Js.asAny(4);
         gridStack = GridStack.init(options, Js.uncheckedCast(container.getElement()));
         gridStack.onChange(new GridStackNodesHandler() {
             @Override
@@ -111,7 +111,7 @@ public class GridStackPanel extends CommonEventComposite {
 
         module.addModuleCallback(moduleCallback);
 
-        GridStackItemWrapper wrapper = new GridStackItemWrapper(style, module, item.w.intValue(), item.h.byteValue(), item.x.intValue(), item.y.intValue());
+        GridStackItemWrapper wrapper = new GridStackItemWrapper(style, item, module);
         wrapper.setLayout(item);
         wrapper.setTitle(module.getModuleInfo().name);
 
@@ -185,6 +185,18 @@ public class GridStackPanel extends CommonEventComposite {
         }
     }
 
+    public void setDesignMode(boolean designMode) {
+        for (GridStackItemWrapper wrapper : children) {
+            wrapper.setDesignMode(designMode);
+        }
+        if(designMode) {
+            gridStack.enable(true);
+        }
+        else {
+            gridStack.disable(true);
+        }
+    }
+
     interface GridStackPanelUiBinder extends UiBinder<FlowPanel, GridStackPanel> {
     }
 
@@ -194,12 +206,15 @@ public class GridStackPanel extends CommonEventComposite {
         @ClassName("dashboard-item-header")
         String dashboardItemHeader();
 
-        @ClassName("dashboard-item-delete-btn")
-        String dashboardItemDeleteBtn();
 
         String gridContainer();
 
         @ClassName("dashboard-item")
         String dashboardItem();
+
+        @ClassName("dashboard-item-hide-header")
+        String dashboardItemHideHeader();
+
+        String design();
     }
 }

@@ -1,6 +1,7 @@
 package cn.mapway.gwt_template.server.config.startup;
 
 import cn.mapway.biz.core.BizResult;
+import cn.mapway.gwt_template.client.dns.ServiceFrame;
 import cn.mapway.gwt_template.client.repository.RepositoryFrame;
 import cn.mapway.gwt_template.client.workspace.DevWorkspaceFrame;
 import cn.mapway.gwt_template.server.config.AppConfig;
@@ -328,6 +329,7 @@ public class ServerStartedOnce extends ApplicationObjectSupport implements IServ
         //系统管理员拥有组织管理权限
         log.info("[START] 分配系统管理员拥有　系统配置资源");
         rbacResourceService.confirmResourceInRole(RbacFrame.MODULE_CODE, RbacConstant.ROLE_SYS_MAINTAINER);
+        rbacResourceService.confirmResourceInRole(ServiceFrame.MODULE_CODE, RbacConstant.ROLE_SYS_MAINTAINER);
 
         //分配普通用户的权限
         log.info("[START] 分配普通用户拥有　资源");
@@ -339,6 +341,7 @@ public class ServerStartedOnce extends ApplicationObjectSupport implements IServ
         //管理员拥有消息管理角色
         rbacResourceService.assignUserRole(String.valueOf(RbacConstant.SUPER_USER_ID), AppConstant.ROLE_SYS_MESSAGE_MANAGER, false);
         rbacResourceService.assignUserRole(String.valueOf(RbacConstant.SUPER_USER_ID), AppConstant.ROLE_SYS_LDAP_MANAGER, false);
+        rbacResourceService.assignUserRole(String.valueOf(RbacConstant.SUPER_USER_ID), AppConstant.ROLE_SYS_PROJECT_MANAGER, false);
 
 
     }

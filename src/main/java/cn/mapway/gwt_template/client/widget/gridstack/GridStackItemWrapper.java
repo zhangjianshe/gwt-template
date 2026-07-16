@@ -1,22 +1,23 @@
 package cn.mapway.gwt_template.client.widget.gridstack;
 
+import cn.mapway.gwt_template.client.dashboard.WidgetUiConfigPanel;
 import cn.mapway.gwt_template.client.widget.IWidgetConfig;
+import cn.mapway.gwt_template.client.workspace.widget.ActionMenu;
+import cn.mapway.gwt_template.client.workspace.widget.ActionMenuKind;
 import cn.mapway.gwt_template.shared.rpc.desktop.DashboardItemData;
-import cn.mapway.ui.client.fonts.Fonts;
 import cn.mapway.ui.client.mvc.IModule;
 import cn.mapway.ui.client.mvc.ModuleParameter;
 import cn.mapway.ui.client.tools.JSON;
 import cn.mapway.ui.client.util.StringUtil;
-import cn.mapway.ui.client.widget.FontIcon;
+import cn.mapway.ui.client.widget.dialog.Dialog;
 import cn.mapway.ui.shared.CommonEvent;
 import cn.mapway.ui.shared.CommonEventHandler;
 import cn.mapway.ui.shared.HasCommonHandlers;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.Style;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.Widget;
 import elemental2.core.JsObject;
 import elemental2.dom.DomGlobal;
 import elemental2.promise.IThenable;
@@ -25,8 +26,7 @@ import org.jspecify.annotations.Nullable;
 
 public class GridStackItemWrapper extends FlowPanel implements HasCommonHandlers {
     private final IModule module;
-    FlowPanel header;
-    Label titleLabel;
+    GridPanelBar header;
     Widget childWidget;
     CommonEventHandler childWidgetHandler = new CommonEventHandler() {
         @Override
@@ -41,90 +41,41 @@ public class GridStackItemWrapper extends FlowPanel implements HasCommonHandlers
             }
         }
     };
+    FlowPanel contentPanel;
+    GridStackPanel.SStyle style;
+    boolean designMode = false;
     private DashboardItemData dashboardItemData;
-    private final ClickHandler removeWidgetHandler = new ClickHandler() {
-        @Override
-        public void onClick(ClickEvent event) {
-            event.stopPropagation();
-            event.preventDefault();
-            fireEvent(CommonEvent.deleteEvent(dashboardItemData));
-        }
-    };
-    ClickHandler configHandler = new ClickHandler() {
-        @Override
-        public void onClick(ClickEvent event) {
-            event.stopPropagation();
-            event.preventDefault();
-            IWidgetConfig config = (IWidgetConfig) childWidget;
-            JsObject configData;
-            try {
-                configData = Js.uncheckedCast(JSON.parse(dashboardItemData.parameter));
-            } catch (Exception e) {
-                DomGlobal.console.log(this.getClass().getName() + "解析组件参数错误" + e.getMessage());
-                configData = new JsObject();
-            }
-            config.showConfig(configData).then(new IThenable.ThenOnFulfilledCallbackFn<Object, Object>() {
-                @Override
-                public @Nullable IThenable<Object> onInvoke(Object p0) {
-                    dashboardItemData.parameter = JSON.stringify(p0);
-                    ModuleParameter para = new ModuleParameter();
-                    para.put(p0);
-                    module.initialize(null, para);
-                    fireEvent(CommonEvent.configEvent(dashboardItemData));
-                    return null;
-                }
-            });
-        }
-    };
 
-    public GridStackItemWrapper(GridStackPanel.SStyle style, final IModule module, int w, int h, int x, int y) {
+    public GridStackItemWrapper(GridStackPanel.SStyle style, DashboardItemData itemData, IModule module) {
+        this.style = style;
+
+        dashboardItemData = itemData;
         this.module = module;
         childWidget = module.getRootWidget();
         // 设置外层特定类名
         this.setStyleName("grid-stack-item");
 
         Element el = this.getElement();
-        el.setAttribute("gs-w", String.valueOf(w));
-        el.setAttribute("gs-h", String.valueOf(h));
-        if (x >= 0) el.setAttribute("gs-x", String.valueOf(x));
-        if (y >= 0) el.setAttribute("gs-y", String.valueOf(y));
+        el.setAttribute("gs-w", String.valueOf(itemData.w));
+        el.setAttribute("gs-h", String.valueOf(itemData.h));
+        if (itemData.x >= 0) el.setAttribute("gs-x", String.valueOf(itemData.x));
+        if (itemData.y >= 0) el.setAttribute("gs-y", String.valueOf(itemData.y));
 
-        FlowPanel contentPanel = new FlowPanel();
-        contentPanel.setStyleName("grid-stack-item-content " + style.dashboardItem());
-
+        contentPanel = new FlowPanel();
         // 构建拖拽头部
-        header = new FlowPanel();
+        header = new GridPanelBar();
         header.setStyleName(style.dashboardItemHeader());
-
-        titleLabel = new Label("模块组件");
-        header.add(titleLabel);
-
-        HorizontalPanel tools = new HorizontalPanel();
-        tools.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
-        header.add(tools);
-        contentPanel.add(header);
-
-
-        if (childWidget instanceof IWidgetConfig) {
-            FontIcon btnConfig = new FontIcon();
-            btnConfig.setIconUnicode(Fonts.MORE);
-
-            btnConfig.addClickHandler(configHandler);
-            tools.add(btnConfig);
-        }
-
-        Button deleteBtn = new Button("×");
-        deleteBtn.setStyleName(style.dashboardItemDeleteBtn());
-        deleteBtn.addClickHandler(removeWidgetHandler);
-        tools.add(deleteBtn);
-        // 绑定删除按钮事件
-        deleteBtn.addClickHandler(event -> {
-            // 调用父级 GridStackPanel 的物理移除
-            Widget parent = this.getParent();
-            if (parent instanceof GridStackPanel) {
-                ((GridStackPanel) parent).removeItem(childWidget);
+        header.setTitle("模块组件");
+        CommonEventHandler headerHandler = event -> {
+            if (event.isConfig()) {
+                showConfigMenu(event.getValue());
+            } else if (event.isDelete()) {
+                fireEvent(CommonEvent.deleteEvent(dashboardItemData));
             }
-        });
+        };
+        header.addCommonHandler(headerHandler);
+
+        contentPanel.add(header);
 
 
         childWidget.setWidth("100%");
@@ -132,13 +83,109 @@ public class GridStackItemWrapper extends FlowPanel implements HasCommonHandlers
         childWidget.getElement().getStyle().setOverflow(Style.Overflow.AUTO);
         contentPanel.add(childWidget);
 
-        if (childWidget instanceof HasCommonHandlers) {
 
+        if (childWidget instanceof HasCommonHandlers) {
             ((HasCommonHandlers) childWidget).addCommonHandler(childWidgetHandler);
         }
-
+        relayout();
         this.add(contentPanel);
+    }
 
+    private void showConfigMenu(Widget anchor) {
+        ActionMenu actionMenu = new ActionMenu();
+        actionMenu.addCommonHandler(new CommonEventHandler() {
+            @Override
+            public void onCommonEvent(CommonEvent event) {
+                ActionMenu actionMenu = (ActionMenu) event.getSource();
+                if (event.isSelect()) {
+                    ActionMenuKind kind = event.getValue();
+                    switch (kind) {
+                        case AMK_WIDGET_CONFIG:
+                            actionMenu.hide();
+                            doConfig();
+                            break;
+                        case AMK_UI_CONFIG:
+                            doUIConfig();
+                            break;
+                    }
+                    actionMenu.hide();
+                }
+            }
+        });
+        actionMenu.addItem("UI配置", ActionMenuKind.AMK_UI_CONFIG, true);
+        if (childWidget instanceof IWidgetConfig) {
+            actionMenu.addItem("内容配置", ActionMenuKind.AMK_WIDGET_CONFIG, true);
+        }
+        actionMenu.showRelativeTo(anchor);
+    }
+
+    private void doUIConfig() {
+        Dialog<WidgetUiConfigPanel> dialog = WidgetUiConfigPanel.getDialog(true);
+        dialog.addCommonHandler(new CommonEventHandler() {
+            @Override
+            public void onCommonEvent(CommonEvent event) {
+                if (event.isOk()) {
+                    if (dashboardItemData.showHeader) {
+                        relayout();
+                    }
+                    fireEvent(CommonEvent.configEvent(dashboardItemData));
+                }
+                dialog.hide();
+            }
+        });
+        dialog.getContent().setData(dashboardItemData);
+        dialog.center();
+    }
+
+    private void relayout() {
+
+        header.setDesignMode(designMode);
+        if (designMode) {
+            header.setVisible(true);
+            contentPanel.setStyleName("grid-stack-item-content " + style.dashboardItem() + " " + style.design());
+        } else {
+
+            String styleitem = "";
+            if (dashboardItemData.showHeader == null || dashboardItemData.showHeader) {
+                header.setVisible(true);
+                styleitem = style.dashboardItem();
+            } else {
+                header.setVisible(false);
+                styleitem = style.dashboardItemHideHeader();
+            }
+
+            contentPanel.setStyleName("grid-stack-item-content " + styleitem);
+        }
+    }
+
+    private void doConfig() {
+        IWidgetConfig config = (IWidgetConfig) childWidget;
+        if (config == null) {
+            return;
+        }
+        JsObject configData;
+        try {
+            configData = Js.uncheckedCast(JSON.parse(dashboardItemData.parameter));
+        } catch (Exception e) {
+            DomGlobal.console.log(this.getClass().getName() + "解析组件参数错误" + e.getMessage());
+            configData = new JsObject();
+        }
+        config.showConfig(configData).then(new IThenable.ThenOnFulfilledCallbackFn<Object, Object>() {
+            @Override
+            public @Nullable IThenable<Object> onInvoke(Object p0) {
+                dashboardItemData.parameter = JSON.stringify(p0);
+                ModuleParameter para = new ModuleParameter();
+                para.put(p0);
+                module.initialize(null, para);
+                fireEvent(CommonEvent.configEvent(dashboardItemData));
+                return null;
+            }
+        });
+    }
+
+    public void setDesignMode(boolean enterDesignMode) {
+        this.designMode = enterDesignMode;
+        relayout();
 
     }
 
@@ -162,8 +209,7 @@ public class GridStackItemWrapper extends FlowPanel implements HasCommonHandlers
 
     @Override
     public void setTitle(String title) {
-        super.setTitle(title);
-        titleLabel.setText(title);
+        header.setTitle(title);
     }
 
     @Override

@@ -60,4 +60,9 @@ public class GridStack {
     @JsMethod
     public native GridStack offAll();
 
+    @JsMethod
+    public native GridStack enable(boolean recursive);
+
+    @JsMethod
+    public native GridStack disable(boolean recursive);
 }
