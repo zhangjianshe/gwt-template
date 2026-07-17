@@ -42,7 +42,7 @@ public class DashboardButton extends CommonEventComposite implements IData<Dashb
     }
 
     private void toUI() {
-        btnName.setText(entity.getName());
+        btnName.setText("🖥️ " + entity.getName());
     }
 
     interface DashboardButtonUiBinder extends UiBinder<HTMLPanel, DashboardButton> {
