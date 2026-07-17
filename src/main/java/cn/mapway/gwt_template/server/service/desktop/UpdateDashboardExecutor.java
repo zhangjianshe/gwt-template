@@ -55,17 +55,17 @@ public class UpdateDashboardExecutor extends AbstractBizExecutor<UpdateDashboard
             layout.setIcon(Fonts.LAYOUT);
             dao.insert(layout);
             UpdateDashboardResponse response = new UpdateDashboardResponse();
-            response.setLayout(dao.fetch(DashboardEntity.class, layout.getId()));
+            response.setDashboard(dao.fetch(DashboardEntity.class, layout.getId()));
             return BizResult.success(response);
         } else {
             DashboardEntity old = dao.fetch(DashboardEntity.class, layout.getId());
             assertTrue(old != null, "没有需要更新的dashboard");
             assertTrue(old.getUserId().equals(user.getUser().getUserId()), "没有授权更新面板");
-            old.setCreateTime(null);
-            old.setLayout(layout.getLayout());
-            dao.updateIgnoreNull(old);
+
+            layout.setCreateTime(null);
+            dao.updateIgnoreNull(layout);
             UpdateDashboardResponse response = new UpdateDashboardResponse();
-            response.setLayout(dao.fetch(DashboardEntity.class, layout.getId()));
+            response.setDashboard(dao.fetch(DashboardEntity.class, layout.getId()));
             return BizResult.success(response);
         }
     }

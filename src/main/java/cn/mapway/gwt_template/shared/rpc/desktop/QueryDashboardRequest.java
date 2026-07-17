@@ -14,5 +14,6 @@ import java.io.Serializable;
 @Data
 @Doc("QueryDesktopLayoutRequest")
 public class QueryDashboardRequest implements Serializable, IsSerializable {
+    String dashboardId;
     String dashboardName;
 }

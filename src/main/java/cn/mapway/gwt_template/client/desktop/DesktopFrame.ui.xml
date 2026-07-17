@@ -1,37 +1,46 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
              xmlns:g='urn:import:com.google.gwt.user.client.ui'
              xmlns:desktop="urn:import:cn.mapway.gwt_template.client.desktop"
-             xmlns:wiki="urn:import:cn.mapway.gwt_template.client.workspace.wiki"
+             xmlns:buttons="urn:import:cn.mapway.ui.client.widget.buttons"
 >
     <ui:style>
-
         .toolspanel {
             display: flex;
             align-items: center;
             justify-content: flex-end;
             padding: 0 10px;
+        }
+
+        .top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 10px;
+        }
+
+        .hori {
+            display: inline-flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 1rem;
+            height: 100%;
         }</ui:style>
-    <g:LayoutPanel>
-        <g:layer>
-            <g:TabLayoutPanel barHeight="50" ui:field="root">
-                <g:tab>
-                    <g:header>🖥️ 桌面</g:header>
-                    <desktop:DashboardPanel ui:field="dashboard"/>
-                </g:tab>
-                <g:tab>
-                    <g:header>🗓️ 工作日历</g:header>
-                    <g:Label>工作日历</g:Label>
-                </g:tab>
-                <g:tab>
-                    <g:header>✍️ Page editor</g:header>
-                    <g:ScrollPanel>
-                        <wiki:PageEditor ui:field="pageEditor"/>
-                    </g:ScrollPanel>
-                </g:tab>
-            </g:TabLayoutPanel>
+    <g:LayoutPanel ui:field="root">
+        <g:layer left="0" top="0" height="50" right="0">
+            <g:HTMLPanel ui:field="bar" addStyleNames="{style.top}">
+                <g:HTMLPanel addStyleNames="{style.hori}">
+                    <g:HorizontalPanel spacing="4" height="100%" verticalAlignment="middle" ui:field="dashboardList">
+                    </g:HorizontalPanel>
+                    <g:HorizontalPanel spacing="4">
+                        <buttons:AiButton type="success" ui:field="btnAddDashboard">添加</buttons:AiButton>
+                        <buttons:AiButton type="success" ui:field="btnDesign">编辑</buttons:AiButton>
+                    </g:HorizontalPanel>
+                </g:HTMLPanel>
+                <g:HTMLPanel ui:field="toolsPanel" addStyleNames="{style.toolspanel}"/>
+            </g:HTMLPanel>
         </g:layer>
-        <g:layer right="0" top="0" width="400" height="50">
-            <g:HTMLPanel ui:field="toolsPanel" addStyleNames="{style.toolspanel}"/>
+        <g:layer left="0" right="0" bottom="0" top="50">
+            <desktop:DashboardPanel ui:field="dashboard"/>
         </g:layer>
     </g:LayoutPanel>
 </ui:UiBinder>

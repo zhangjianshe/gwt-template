@@ -1,0 +1,33 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+    <ui:style>
+        @eval RADIUS "var(--border-radius)";
+        @eval PRIMARY_COLOR "var(--btn-color-primary)";
+        .box {
+            display: grid;
+            align-items: center;
+            justify-content: center;
+            padding: 0 16px;
+            height: 100%;
+            border-radius: RADIUS;
+            background-color: #f0f0f0;
+        }
+
+        .box:HOVER {
+            background-color: #e0e0e0;
+        }
+
+        .box[select="true"] {
+            background-color: PRIMARY_COLOR;
+            font-weight: bold;
+
+        }
+
+        .box[select="true"] > div {
+            color: white;
+        }
+    </ui:style>
+    <g:HTMLPanel ui:field="root" addStyleNames="{style.box}">
+        <g:Label ui:field="btnName"/>
+    </g:HTMLPanel>
+</ui:UiBinder>

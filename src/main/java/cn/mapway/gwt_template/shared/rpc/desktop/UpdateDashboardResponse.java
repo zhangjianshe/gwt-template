@@ -15,5 +15,5 @@ import java.io.Serializable;
 @Data
 @Doc("SaveDesktopLayoutResponse")
 public class UpdateDashboardResponse implements Serializable, IsSerializable {
-    DashboardEntity layout;
+    DashboardEntity dashboard;
 }

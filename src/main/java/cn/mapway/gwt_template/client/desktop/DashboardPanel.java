@@ -3,6 +3,7 @@ package cn.mapway.gwt_template.client.desktop;
 import cn.mapway.gwt_template.client.ClientContext;
 import cn.mapway.gwt_template.client.dashboard.WidgetExplorer;
 import cn.mapway.gwt_template.client.rpc.AppProxy;
+import cn.mapway.gwt_template.client.widget.gridstack.GridStackItemWrapper;
 import cn.mapway.gwt_template.client.widget.gridstack.GridStackPanel;
 import cn.mapway.gwt_template.shared.db.DashboardEntity;
 import cn.mapway.gwt_template.shared.rpc.desktop.*;
@@ -40,47 +41,26 @@ public class DashboardPanel extends CommonEventComposite implements IToolsProvid
     @UiField
     AiButton btnAdd;
     @UiField
-    AiButton btnDesign;
+    AiButton btnEdit;
+    @UiField
+    AiButton btnDelete;
     DashboardEntity dashboardEntity;
 
     public DashboardPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
-        loadUserDesktopConfig();
-        btnDesign.setData(false);
     }
 
-    private void loadUserDesktopConfig() {
-        QueryDesktopRequest request = new QueryDesktopRequest();
-        request.setFetchShortcut(false);
-        request.setFetchProjects(false);
-        request.setFetchWorkspaces(false);
-        request.setFetchMainBoard(true);
-        AppProxy.get().queryDesktop(request, new AsyncCallback<RpcResult<QueryDesktopResponse>>() {
-            @Override
-            public void onFailure(Throwable caught) {
-                ClientContext.get().toast(0, 0, caught.getMessage());
-            }
-
-            @Override
-            public void onSuccess(RpcResult<QueryDesktopResponse> result) {
-                if (result.isSuccess()) {
-                    renderBoard(result.getData().getDashboard());
-                } else {
-                    ClientContext.get().toast(0, 0, result.getMessage());
-                }
-            }
-        });
-    }
-
-    private void renderBoard(DashboardEntity dashboard) {
+    public void renderBoard(DashboardEntity dashboard) {
+        gridStackPanel.clear();
         dashboardEntity = dashboard;
-        DomGlobal.console.log(dashboard.getLayout());
+        if (dashboard == null) {
+            return;
+        }
         JsArray<DashboardItemData> items = Js.uncheckedCast(JSON.parse(dashboard.getLayout()));
         for (int i = 0; i < items.length; i++) {
             DashboardItemData item = items.getAt(i);
             gridStackPanel.addItem(item, this);
         }
-        gridStackPanel.setDesignMode((boolean) btnDesign.getData());
     }
 
 
@@ -109,6 +89,7 @@ public class DashboardPanel extends CommonEventComposite implements IToolsProvid
                     public void onSuccess(RpcResult<UpdateDashboardResponse> result) {
                         if (result.isSuccess()) {
                             DomGlobal.console.log("save layout success");
+                            fireEvent(CommonEvent.updateEvent(result.getData().getDashboard()));
                         } else {
                             ClientContext.get().toast(0, 0, result.getMessage());
                         }
@@ -136,20 +117,56 @@ public class DashboardPanel extends CommonEventComposite implements IToolsProvid
         dialog.center();
     }
 
-    @UiHandler("btnDesign")
-    public void btnDesignClick(ClickEvent event) {
-        Boolean designMode = (Boolean) btnDesign.getData();
-        if (!designMode) {
-            //当前是展示模式
-            btnDesign.setText("展示模式");
-            btnDesign.setData(true);
-        } else {
 
-            btnDesign.setText("设计模式");
-            btnDesign.setData(false);
+    public void setDesignMode(Boolean designMode) {
+        if (designMode) {
+            btnAdd.setVisible(true);
+            btnDelete.setVisible(true);
+            btnEdit.setVisible(true);
+        } else {
+            btnAdd.setVisible(false);
+            btnDelete.setVisible(false);
+            btnEdit.setVisible(false);
         }
-        gridStackPanel.setDesignMode((Boolean) btnDesign.getData());
-        btnAdd.setEnabled((Boolean) btnDesign.getData());
+        gridStackPanel.setDesignMode(designMode);
+    }
+
+    @UiHandler("btnEdit")
+    public void btnEditClick(ClickEvent event) {
+        Dialog<DashboardEditor> dialog = DashboardEditor.getDialog(true);
+        dialog.addCommonHandler(new CommonEventHandler() {
+            @Override
+            public void onCommonEvent(CommonEvent event) {
+                if (event.isOk()) {
+                    dashboardEntity = event.getValue();
+                    fireEvent(CommonEvent.updateEvent(dashboardEntity));
+                }
+                dialog.hide();
+            }
+        });
+        dialog.getContent().setData(dashboardEntity);
+        dialog.center();
+    }
+
+    @UiHandler("btnDelete")
+    public void btnDeleteClick(ClickEvent event) {
+        DeleteDashboardRequest request = new DeleteDashboardRequest();
+        request.setLayoutId(dashboardEntity.getId());
+        AppProxy.get().deleteDesktopLayout(request, new AsyncCallback<RpcResult<DeleteDashboardResponse>>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                ClientContext.get().toast(0, 0, caught.getMessage());
+            }
+
+            @Override
+            public void onSuccess(RpcResult<DeleteDashboardResponse> result) {
+                if (result.isSuccess()) {
+                    fireEvent(CommonEvent.deleteEvent(request.getLayoutId()));
+                } else {
+                    ClientContext.get().toast(0, 0, result.getMessage());
+                }
+            }
+        });
     }
 
     private void createWidget(ModuleInfo info) {
@@ -159,8 +176,8 @@ public class DashboardPanel extends CommonEventComposite implements IToolsProvid
         item.y = -1.;
         item.w = 2.;
         item.h = 2.;
-        gridStackPanel.addItem(item, this::callback);
-        gridStackPanel.setDesignMode((Boolean) btnDesign.getData());
+        GridStackItemWrapper wrapper = gridStackPanel.addItem(item, this::callback);
+        wrapper.setDesignMode(true);
     }
 
     @Override

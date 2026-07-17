@@ -49,6 +49,13 @@ public class DashboardEntity implements Serializable, IsSerializable {
     @Column(hump = true)
     Timestamp createTime;
 
+
+    @Comment("排序")
+    @ColDefine()
+    @Column(hump = true)
+    @Default("9000")
+    Double rank;
+
     @Comment("layout data")
     @Column(hump = true)
     @ColDefine(type = ColType.TEXT)

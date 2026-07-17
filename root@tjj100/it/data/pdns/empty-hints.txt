@@ -1,2 +1,0 @@
-.                        3600000  IN  NS  fake-root-server.
-fake-root-server.        3600000  IN  A   172.25.0.100

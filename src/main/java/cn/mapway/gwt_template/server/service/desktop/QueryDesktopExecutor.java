@@ -72,7 +72,7 @@ public class QueryDesktopExecutor extends AbstractBizExecutor<QueryDesktopRespon
         }
 
         if (request.isFetchMainBoard()) {
-            String boardName = "MAIN_BOARD";
+            String boardName = "我的桌面";
             Cnd where = Cnd.where(DashboardEntity.FLD_NAME, "=", boardName);
             where.and(DashboardEntity.FLD_USER_ID, "=", user.getUser().getUserId());
             DashboardEntity layout = dao.fetch(DashboardEntity.class, where);
