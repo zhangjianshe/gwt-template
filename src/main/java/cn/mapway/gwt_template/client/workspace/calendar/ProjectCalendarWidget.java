@@ -123,7 +123,7 @@ public class ProjectCalendarWidget extends CommonEventComposite implements ITool
         MessagePanel messagePanel = new MessagePanel();
         messagePanel.setText(message);
         messagePanel.setHeight("200px");
-        eventList.add(messagePanel, "");
+        eventList.add(messagePanel);
     }
 
     private void loadEvents() {

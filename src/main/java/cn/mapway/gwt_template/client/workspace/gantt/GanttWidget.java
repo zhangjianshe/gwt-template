@@ -10,6 +10,7 @@ import cn.mapway.ui.client.widget.dialog.Popup;
 import cn.mapway.ui.shared.CommonEvent;
 import cn.mapway.ui.shared.CommonEventHandler;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.storage.client.Storage;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -20,6 +21,7 @@ import com.google.gwt.user.client.ui.RequiresResize;
  */
 public class GanttWidget extends CommonEventComposite implements RequiresResize, IData<String> {
     private static final GanttWidgetUiBinder ourUiBinder = GWT.create(GanttWidgetUiBinder.class);
+    private static final String KEY_COMMENT_PANEL_SIZE = "project.gantt.comment.size";
     @UiField
     GanttChart chart;
     @UiField
@@ -61,8 +63,7 @@ public class GanttWidget extends CommonEventComposite implements RequiresResize,
         if (event.isUpdate()) {
             DevProjectTaskEntity task = event.getValue();
             chart.getDocument().updateEntity(task);
-        }else if(event.isProgress())
-        {
+        } else if (event.isProgress()) {
             DevProjectTaskEntity task = event.getValue();
             chart.getDocument().updateProgress(task);
         }
@@ -95,6 +96,41 @@ public class GanttWidget extends CommonEventComposite implements RequiresResize,
 
     public void setFocus(boolean b) {
         chart.setFocus(b);
+    }
+
+
+    @Override
+    protected void onUnload() {
+        super.onUnload();
+        double splitterSize = root.getWidgetSize(taskCommentPanel);
+        savePanelSize(splitterSize);
+    }
+
+    @Override
+    protected void onLoad() {
+        super.onLoad();
+        restorePanelSize();
+    }
+
+    private void restorePanelSize() {
+        Storage storage = Storage.getLocalStorageIfSupported();
+        if (storage != null) {
+            String item = storage.getItem(KEY_COMMENT_PANEL_SIZE);
+            try {
+                double size = Double.parseDouble(item);
+                root.setWidgetSize(taskCommentPanel, size);
+            } catch (Exception e) {
+
+            }
+        }
+
+    }
+
+    private void savePanelSize(double splitterSize) {
+        Storage storage = Storage.getLocalStorageIfSupported();
+        if (storage != null) {
+            storage.setItem(KEY_COMMENT_PANEL_SIZE, splitterSize + "");
+        }
     }
 
     interface GanttWidgetUiBinder extends UiBinder<MySplitLayoutPanel, GanttWidget> {

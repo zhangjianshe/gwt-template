@@ -28,6 +28,7 @@ import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.storage.client.Storage;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -35,6 +36,7 @@ import com.google.gwt.user.client.ui.*;
 
 public class ProjectIssueFrame extends CommonEventComposite implements IData<String> {
     private static final ProjectIssueFrameUiBinder ourUiBinder = GWT.create(ProjectIssueFrameUiBinder.class);
+    private static final String KEY_ISSUE_PANEL_SIZE = "issue.panel.size";
     @UiField
     FlexTable table;
     @UiField
@@ -61,6 +63,8 @@ public class ProjectIssueFrame extends CommonEventComposite implements IData<Str
     SearchBox searchBox;
     @UiField
     IssuePanel issuePanel;
+    @UiField
+    SplitLayoutPanel root;
     private int pageSize = 20;
     private int currentPage = 1;
     private String projectId;
@@ -122,6 +126,8 @@ public class ProjectIssueFrame extends CommonEventComposite implements IData<Str
             if (currentPage > 1) reloadAll(currentPage - 1);
         });
         btnNext.addClickHandler(event -> reloadAll(currentPage + 1));
+
+
     }
 
     private void selectRow(int rowIndex) {
@@ -170,6 +176,25 @@ public class ProjectIssueFrame extends CommonEventComposite implements IData<Str
         if (event.isUpdate()) {
             DevProjectIssueEntity issue = event.getValue();
             updateTableRow(issue);
+        } else if (event.isDelete()) {
+            DevProjectIssueEntity issue = event.getValue();
+            deleteTableRow(issue);
+        }
+    }
+
+    private void deleteTableRow(DevProjectIssueEntity issue) {
+        // 将 Entity 绑定到 Row 上（可选，方便后续获取数据）
+        HTMLTable.RowFormatter rowFormatter = table.getRowFormatter();
+        for (int i = 1; i < table.getRowCount(); i++) {
+            // 将 Entity 绑定到 Row 上（可选，方便后续获取数据）
+            Object data = rowFormatter.getElement(i).getPropertyObject("data");
+            if (data instanceof DevProjectIssueEntity) {
+                DevProjectIssueEntity issue2 = (DevProjectIssueEntity) data;
+                if (issue2.getId().equals(issue.getId())) {
+                    table.removeRow(i);
+                    break;
+                }
+            }
         }
     }
 
@@ -320,6 +345,7 @@ public class ProjectIssueFrame extends CommonEventComposite implements IData<Str
 
         double timeSpan = (System.currentTimeMillis() - issue.getCreateTime().getTime()) / 1000.;
         table.setText(row, col++, StringUtil.formatTimeSpan((long) timeSpan));
+        table.getFlexCellFormatter().setHorizontalAlignment(row, col - 1, HasHorizontalAlignment.ALIGN_RIGHT);
 
         // 将 Entity 绑定到 Row 上（可选，方便后续获取数据）
         table.getRowFormatter().getElement(row).setPropertyObject("data", issue);
@@ -370,6 +396,40 @@ public class ProjectIssueFrame extends CommonEventComposite implements IData<Str
         return panel;
     }
 
+    @Override
+    protected void onUnload() {
+        super.onUnload();
+        double splitterSize = root.getWidgetSize(issuePanel);
+        savePanelSize(splitterSize);
+    }
+
+    @Override
+    protected void onLoad() {
+        super.onLoad();
+        restorePanelSize();
+    }
+
+    private void restorePanelSize() {
+        Storage storage = Storage.getLocalStorageIfSupported();
+        if (storage != null) {
+            String item = storage.getItem(KEY_ISSUE_PANEL_SIZE);
+            try {
+                double size = Double.parseDouble(item);
+                root.setWidgetSize(issuePanel, size);
+            } catch (Exception e) {
+
+            }
+        }
+
+    }
+
+    private void savePanelSize(double splitterSize) {
+        Storage storage = Storage.getLocalStorageIfSupported();
+        if (storage != null) {
+            storage.setItem(KEY_ISSUE_PANEL_SIZE, splitterSize + "");
+        }
+    }
+
     interface SStyle extends CssResource {
 
         String dataRow();
@@ -387,6 +447,8 @@ public class ProjectIssueFrame extends CommonEventComposite implements IData<Str
         String pager_box();
 
         String right();
+
+        String scroller();
     }
 
     interface ProjectIssueFrameUiBinder extends UiBinder<SplitLayoutPanel, ProjectIssueFrame> {
