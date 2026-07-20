@@ -6,7 +6,6 @@ import cn.mapway.ui.client.widget.CommonEventComposite;
 import cn.mapway.ui.shared.CommonEvent;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.HTMLPanel;
@@ -22,12 +21,7 @@ public class DashboardButton extends CommonEventComposite implements IData<Dashb
 
     public DashboardButton() {
         initWidget(ourUiBinder.createAndBindUi(this));
-        addDomHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                fireEvent(CommonEvent.selectEvent(entity));
-            }
-        }, ClickEvent.getType());
+        addDomHandler(event -> fireEvent(CommonEvent.selectEvent(entity)), ClickEvent.getType());
     }
 
     @Override

@@ -127,6 +127,8 @@ public class ExportDevProjectTaskExecutor extends AbstractBizExecutor<ExportDevP
             response.setBody(body);
             response.setMimeType("text/html");
             extension = ".html";
+        }else if( "excel".equalsIgnoreCase(type)){
+            return BizResult.error(500, "EXCEL 导出 正在制作");
         } else {
             return BizResult.error(500, "目前仅支持 Markdown 文件的导出");
         }
