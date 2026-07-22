@@ -5,6 +5,7 @@ import cn.mapway.gwt_template.shared.rpc.config.*;
 import cn.mapway.gwt_template.shared.rpc.desktop.*;
 import cn.mapway.gwt_template.shared.rpc.dev.*;
 import cn.mapway.gwt_template.shared.rpc.dns.*;
+import cn.mapway.gwt_template.shared.rpc.docker.*;
 import cn.mapway.gwt_template.shared.rpc.ldap.*;
 import cn.mapway.gwt_template.shared.rpc.log.QueryLogsRequest;
 import cn.mapway.gwt_template.shared.rpc.log.QueryLogsResponse;
@@ -33,6 +34,22 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public interface IAppServerAsync {
 
     ///CODE_GEN_INSERT_POINT///
+	void querySysDir(QuerySysDirRequest request, AsyncCallback<RpcResult<QuerySysDirResponse>> async);
+
+	void restartDockerApp(RestartDockerAppRequest request, AsyncCallback<RpcResult<RestartDockerAppResponse>> async);
+
+	void writeDockerAppResData(WriteDockerAppResDataRequest request, AsyncCallback<RpcResult<WriteDockerAppResDataResponse>> async);
+
+	void readDockerAppResData(ReadDockerAppResDataRequest request, AsyncCallback<RpcResult<ReadDockerAppResDataResponse>> async);
+
+	void queryDockerAppDir(QueryDockerAppDirRequest request, AsyncCallback<RpcResult<QueryDockerAppDirResponse>> async);
+
+	void updateDockerApp(UpdateDockerAppRequest request, AsyncCallback<RpcResult<UpdateDockerAppResponse>> async);
+
+	void deleteDockerApp(DeleteDockerAppRequest request, AsyncCallback<RpcResult<DeleteDockerAppResponse>> async);
+
+	void queryDockerApps(QueryDockerAppsRequest request, AsyncCallback<RpcResult<QueryDockerAppsResponse>> async);
+
 	void deleteDesktopLayout(DeleteDashboardRequest request, AsyncCallback<RpcResult<DeleteDashboardResponse>> async);
 
 	void queryDesktopLayout(QueryDashboardRequest request, AsyncCallback<RpcResult<QueryDashboardResponse>> async);

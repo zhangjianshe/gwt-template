@@ -17,6 +17,7 @@ import cn.mapway.gwt_template.server.service.dns.DeleteDnsExecutor;
 import cn.mapway.gwt_template.server.service.dns.QueryDnsExecutor;
 import cn.mapway.gwt_template.server.service.dns.UpdateDnsExecutor;
 import cn.mapway.gwt_template.server.service.dns.UpdateIpExecutor;
+import cn.mapway.gwt_template.server.service.docker.*;
 import cn.mapway.gwt_template.server.service.ldap.*;
 import cn.mapway.gwt_template.server.service.log.QueryLogsExecutor;
 import cn.mapway.gwt_template.server.service.message.QueryMessageExecutor;
@@ -46,6 +47,7 @@ import cn.mapway.gwt_template.shared.rpc.config.*;
 import cn.mapway.gwt_template.shared.rpc.desktop.*;
 import cn.mapway.gwt_template.shared.rpc.dev.*;
 import cn.mapway.gwt_template.shared.rpc.dns.*;
+import cn.mapway.gwt_template.shared.rpc.docker.*;
 import cn.mapway.gwt_template.shared.rpc.ldap.*;
 import cn.mapway.gwt_template.shared.rpc.log.QueryLogsRequest;
 import cn.mapway.gwt_template.shared.rpc.log.QueryLogsResponse;
@@ -146,6 +148,86 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
     QueryConfigExecutor queryConfigExecutor;
 
     ///CODE_GEN_INSERT_POINT///
+	
+    @Resource
+    QuerySysDirExecutor querySysDirExecutor;
+    @Override
+    public RpcResult<QuerySysDirResponse> querySysDir(QuerySysDirRequest request) {
+        BizResult<QuerySysDirResponse> bizResult = querySysDirExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    RestartDockerAppExecutor restartDockerAppExecutor;
+    @Override
+    public RpcResult<RestartDockerAppResponse> restartDockerApp(RestartDockerAppRequest request) {
+        BizResult<RestartDockerAppResponse> bizResult = restartDockerAppExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    WriteDockerAppResDataExecutor writeDockerAppResDataExecutor;
+    @Override
+    public RpcResult<WriteDockerAppResDataResponse> writeDockerAppResData(WriteDockerAppResDataRequest request) {
+        BizResult<WriteDockerAppResDataResponse> bizResult = writeDockerAppResDataExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    ReadDockerAppResDataExecutor readDockerAppResDataExecutor;
+    @Override
+    public RpcResult<ReadDockerAppResDataResponse> readDockerAppResData(ReadDockerAppResDataRequest request) {
+        BizResult<ReadDockerAppResDataResponse> bizResult = readDockerAppResDataExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    QueryDockerAppDirExecutor queryDockerAppDirExecutor;
+    @Override
+    public RpcResult<QueryDockerAppDirResponse> queryDockerAppDir(QueryDockerAppDirRequest request) {
+        BizResult<QueryDockerAppDirResponse> bizResult = queryDockerAppDirExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    UpdateDockerAppExecutor updateDockerAppExecutor;
+    @Override
+    public RpcResult<UpdateDockerAppResponse> updateDockerApp(UpdateDockerAppRequest request) {
+        BizResult<UpdateDockerAppResponse> bizResult = updateDockerAppExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    DeleteDockerAppExecutor deleteDockerAppExecutor;
+    @Override
+    public RpcResult<DeleteDockerAppResponse> deleteDockerApp(DeleteDockerAppRequest request) {
+        BizResult<DeleteDockerAppResponse> bizResult = deleteDockerAppExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    QueryDockerAppsExecutor queryDockerAppsExecutor;
+    @Override
+    public RpcResult<QueryDockerAppsResponse> queryDockerApps(QueryDockerAppsRequest request) {
+        BizResult<QueryDockerAppsResponse> bizResult = queryDockerAppsExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
 	
     @Resource
     DeleteDashboardExecutor deleteDashboardExecutor;

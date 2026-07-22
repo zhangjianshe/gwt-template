@@ -1,0 +1,47 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:dialog="urn:import:cn.mapway.ui.client.widget.dialog">
+    <ui:style type="cn.mapway.gwt_template.client.docker.SysDirExplorer.SStyle">
+        @eval BK_COLOR_HOVER "var(--color-background-hover)";
+        .pathbar {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 0 10px;
+            gap: 0.2rem;
+            background-color: #f0f0f0;
+        }
+
+        .item {
+            line-height: 28px;
+            cursor: default;
+            user-select: none;
+        }
+
+        .item:HOVER {
+            background-color: BK_COLOR_HOVER;
+            text-decoration: underline;
+        }
+
+        .list {
+            padding: 10px;
+        }
+    </ui:style>
+    <g:DockLayoutPanel>
+        <g:south size="60">
+            <dialog:SaveBar ui:field="saveBar"/>
+        </g:south>
+        <g:north size="40">
+            <g:HTMLPanel ui:field="pathBar" addStyleNames="{style.pathbar}">
+
+            </g:HTMLPanel>
+        </g:north>
+        <g:center>
+            <g:ScrollPanel addStyleNames="{style.list}">
+                <g:HTMLPanel ui:field="list">
+
+                </g:HTMLPanel>
+            </g:ScrollPanel>
+        </g:center>
+    </g:DockLayoutPanel>
+</ui:UiBinder>

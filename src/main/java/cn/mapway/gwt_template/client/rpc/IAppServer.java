@@ -6,6 +6,7 @@ import cn.mapway.gwt_template.shared.rpc.config.*;
 import cn.mapway.gwt_template.shared.rpc.desktop.*;
 import cn.mapway.gwt_template.shared.rpc.dev.*;
 import cn.mapway.gwt_template.shared.rpc.dns.*;
+import cn.mapway.gwt_template.shared.rpc.docker.*;
 import cn.mapway.gwt_template.shared.rpc.ldap.*;
 import cn.mapway.gwt_template.shared.rpc.log.QueryLogsRequest;
 import cn.mapway.gwt_template.shared.rpc.log.QueryLogsResponse;
@@ -35,6 +36,22 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 @RemoteServiceRelativePath(AppConstant.DEFAULT_SERVER_PATH)
 public interface IAppServer extends RemoteService {
     ///CODE_GEN_INSERT_POINT///
+	RpcResult<QuerySysDirResponse> querySysDir(QuerySysDirRequest request);
+
+	RpcResult<RestartDockerAppResponse> restartDockerApp(RestartDockerAppRequest request);
+
+	RpcResult<WriteDockerAppResDataResponse> writeDockerAppResData(WriteDockerAppResDataRequest request);
+
+	RpcResult<ReadDockerAppResDataResponse> readDockerAppResData(ReadDockerAppResDataRequest request);
+
+	RpcResult<QueryDockerAppDirResponse> queryDockerAppDir(QueryDockerAppDirRequest request);
+
+	RpcResult<UpdateDockerAppResponse> updateDockerApp(UpdateDockerAppRequest request);
+
+	RpcResult<DeleteDockerAppResponse> deleteDockerApp(DeleteDockerAppRequest request);
+
+	RpcResult<QueryDockerAppsResponse> queryDockerApps(QueryDockerAppsRequest request);
+
 	RpcResult<DeleteDashboardResponse> deleteDesktopLayout(DeleteDashboardRequest request);
 
 	RpcResult<QueryDashboardResponse> queryDesktopLayout(QueryDashboardRequest request);

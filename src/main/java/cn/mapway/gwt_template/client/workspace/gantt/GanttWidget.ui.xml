@@ -5,7 +5,7 @@
     <ui:style>
     </ui:style>
     <widget:MySplitLayoutPanel ui:field="root" splitterSize="2">
-        <widget:east size="400">
+        <widget:east size="500">
             <task:TaskCommentPanel ui:field="taskCommentPanel"/>
         </widget:east>
         <widget:center>

@@ -25,6 +25,7 @@ public class AppConstant {
     public static final String ROLE_SYS_PROJECT_MANAGER = "ROLE_SYS_PROJECT_MANAGER"; //项目管理角色
     public static final String ROLE_SYS_MESSAGE_MANAGER = "ROLE_SYS_MESSAGE_MANAGER"; //系统消息管理角色
     public static final String ROLE_SYS_LDAP_MANAGER = "ROLE_SYS_LDAP_MANAGER"; //系统LDAP管理角色
+    public static final String ROLE_DOCKER_APP_MANAGER = "ROLE_DOCKER_APP_MANAGER"; //系统DOCKER管理角色
     public static final String USER_IS_PUBLIC_ACCOUNT = "USER_IS_PUBLIC_ACCOUNT"; //用户是一个公共账户
     public static final String TEMP_WORKSPACE_FOLDER_ID = "TEMP_FOLDER";
     public static final String UPLOAD_PREFIX_PROJECT_RESOURCE = "project_resource:";

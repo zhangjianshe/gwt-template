@@ -1,0 +1,17 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:docker="urn:import:cn.mapway.gwt_template.client.docker">
+    <ui:style>
+
+        .left {
+            background-color: #f3f3f3;
+        }</ui:style>
+    <g:DockLayoutPanel>
+        <g:west size="350">
+            <docker:DockerAppList ui:field="list" addStyleNames="{style.left}"/>
+        </g:west>
+        <g:center>
+            <docker:DockerAppResourceExplorer ui:field="explorer"/>
+        </g:center>
+    </g:DockLayoutPanel>
+</ui:UiBinder>
