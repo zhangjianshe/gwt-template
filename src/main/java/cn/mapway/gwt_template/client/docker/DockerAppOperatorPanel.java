@@ -3,8 +3,7 @@ package cn.mapway.gwt_template.client.docker;
 import cn.mapway.gwt_template.client.ClientContext;
 import cn.mapway.gwt_template.client.rpc.AppProxy;
 import cn.mapway.gwt_template.shared.db.DockerAppEntity;
-import cn.mapway.gwt_template.shared.rpc.docker.QueryDockerAppInfoRequest;
-import cn.mapway.gwt_template.shared.rpc.docker.QueryDockerAppInfoResponse;
+import cn.mapway.gwt_template.shared.rpc.docker.*;
 import cn.mapway.ui.client.mvc.Size;
 import cn.mapway.ui.client.tools.IData;
 import cn.mapway.ui.client.util.StringUtil;
@@ -66,6 +65,8 @@ public class DockerAppOperatorPanel extends CommonEventComposite implements Requ
     AiButton btnStop;
     @UiField
     AiButton btnRestart;
+    @UiField
+    AiButton lbTitle;
     AttachAddon currentAttach = null;
     private DockerAppEntity appEntity;
     private EventSource activeLogStream;
@@ -76,11 +77,7 @@ public class DockerAppOperatorPanel extends CommonEventComposite implements Requ
         initWidget(ourUiBinder.createAndBindUi(this));
 
         // 1. 初始化 Terminal 配置
-        TerminalOptions options = new TerminalOptions.Builder()
-                .setAllowProposedApi(false)
-                .setAllowTransparency(false)
-                .setCursorBlink(true)
-                .build();
+        TerminalOptions options = new TerminalOptions.Builder().setAllowProposedApi(false).setAllowTransparency(false).setCursorBlink(true).build();
 
         // 调整字号：从 13 改为 16（或者 18，字号更大更清晰）
         options.fontSize = 16;
@@ -192,7 +189,7 @@ public class DockerAppOperatorPanel extends CommonEventComposite implements Requ
                 if (result.isSuccess()) {
                     console.clear();
                     QueryDockerAppInfoResponse data = result.getData();
-                    lbSize.setText(StringUtil.isNotBlank(data.getTotalSize()) ? data.getTotalSize() : "-");
+                    lbSize.setText("\uD83D\uDDB4" + (StringUtil.isNotBlank(data.getTotalSize()) ? data.getTotalSize() : "-"));
 
                     if (StringUtil.isNotBlank(data.getStatus())) {
                         console.write(normalizeLineBreaks(data.getStatus()));
@@ -244,6 +241,7 @@ public class DockerAppOperatorPanel extends CommonEventComposite implements Requ
             this.currentSelectedService = serviceName;
 
             btnStartService.setText("重启(" + serviceName + ")");
+            btnStartService.setData(serviceName);
             btnExec.setText("调式容器(" + serviceName + ")");
             setControlToolsVisible(true);
 
@@ -263,10 +261,7 @@ public class DockerAppOperatorPanel extends CommonEventComposite implements Requ
         console.writeln(Ansi.warn("[SYS] 正在连接服务 [" + serviceName + "] 的实时日志...\r\n"));
 
         // 2. 拼接 SSE URL (确保 appId 传递正确)
-        String sseUrl = GWT.getHostPageBaseURL() + "api/v1/docker/stream?"
-                + "appId=" + appEntity.getId()
-                + "&service=" + serviceName
-                + "&tail=200";
+        String sseUrl = GWT.getHostPageBaseURL() + "api/v1/docker/stream?" + "appId=" + appEntity.getId() + "&service=" + serviceName + "&tail=200";
 
         try {
             activeLogStream = new EventSource(sseUrl);
@@ -304,10 +299,7 @@ public class DockerAppOperatorPanel extends CommonEventComposite implements Requ
      * 安全断开日志流长连接
      */
     private void stopLogStream() {
-        if (activeLogStream != null) {
-            activeLogStream.close();
-            activeLogStream = null;
-        }
+        closeTerminalWebSocket();
     }
 
     private void setControlToolsVisible(boolean visible) {
@@ -329,6 +321,59 @@ public class DockerAppOperatorPanel extends CommonEventComposite implements Requ
         connectContainerShell(currentSelectedService, shell);
     }
 
+    @UiHandler("btnRestart")
+    public void btnRestartClick(ClickEvent event) {
+        RestartDockerAppRequest request = new RestartDockerAppRequest();
+        request.setDockerAppId(appEntity.getId());
+        request.setAction(DockerAppAction.DAA_RESTART.getAction());
+        executeAction(request);
+    }
+
+    @UiHandler("btnStop")
+    public void btnStopClick(ClickEvent event) {
+        RestartDockerAppRequest request = new RestartDockerAppRequest();
+        request.setDockerAppId(appEntity.getId());
+        request.setAction(DockerAppAction.DAA_SHUTDOWN.getAction());
+        executeAction(request);
+    }
+
+    @UiHandler("btnStartService")
+    public void btnStartServiceClick(ClickEvent event) {
+        RestartDockerAppRequest request = new RestartDockerAppRequest();
+        request.setDockerAppId(appEntity.getId());
+        request.setAction(DockerAppAction.DAA_RESTART.getAction());
+        request.setServiceName((String) btnStartService.getData());
+        executeAction(request);
+    }
+
+    @UiHandler("lbTitle")
+    public void lbTitleClick(ClickEvent event) {
+        setData(appEntity);
+    }
+
+    private void executeAction(RestartDockerAppRequest request) {
+        AppProxy.get().restartDockerApp(request, new AsyncCallback<RpcResult<RestartDockerAppResponse>>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                ClientContext.get().confirm(caught.getMessage());
+            }
+
+            @Override
+            public void onSuccess(RpcResult<RestartDockerAppResponse> result) {
+                if (result.isSuccess()) {
+                    ClientContext.get().toast(0, 0, "操作成功");
+                    loadLog(request.getServiceName());
+                } else {
+                    ClientContext.get().confirm(result.getMessage());
+                }
+            }
+        });
+    }
+
+    private void loadLog(String serviceName) {
+        connectServiceLogs(serviceName);
+    }
+
     /**
      * 连接容器 Shell 终端
      */
@@ -340,8 +385,7 @@ public class DockerAppOperatorPanel extends CommonEventComposite implements Requ
         console.writeln(Ansi.info("[SYS] 正在连接容器 [" + serviceName + "] 的 Shell 终端...\r\n"));
 
         String protocol = DomGlobal.window.location.protocol.startsWith("https") ? "wss://" : "ws://";
-        String wsUrl = protocol + DomGlobal.window.location.host
-                + "/ws/docker/exec/" + appEntity.getId() + "/" + serviceName;
+        String wsUrl = protocol + DomGlobal.window.location.host + "/ws/docker/exec/" + appEntity.getId() + "/" + serviceName;
 
         try {
             // 创建新的 WebSocket 对象
@@ -419,6 +463,10 @@ public class DockerAppOperatorPanel extends CommonEventComposite implements Requ
                 }
             } catch (Exception ignored) {
             }
+        }
+        if (activeLogStream != null) {
+            activeLogStream.close();
+            activeLogStream = null;
         }
     }
 

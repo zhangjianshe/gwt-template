@@ -262,6 +262,7 @@ public class DockerAppController extends ApiBaseController {
         Streams.writeAndClose(resp.getOutputStream(), Streams.fileIn(target));
 
     }
+
     @GetMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter streamDockerLogs(@RequestParam("appId") String appId,
                                        @RequestParam("service") String serviceName,
@@ -335,13 +336,15 @@ public class DockerAppController extends ApiBaseController {
                 if (isRunning.get()) {
                     try {
                         emitter.send(SseEmitter.event().data("\033[31m[ERROR] " + e.getMessage() + "\033[0m"));
-                    } catch (Exception ignored) {}
+                    } catch (Exception ignored) {
+                    }
                 }
             } finally {
                 killProcess(process, isRunning);
                 try {
                     emitter.complete();
-                } catch (Exception ignored) {}
+                } catch (Exception ignored) {
+                }
             }
         });
 
@@ -360,7 +363,9 @@ public class DockerAppController extends ApiBaseController {
         command.add("logs");
         command.add("-f");
         command.add("--tail=" + tail);
-        command.add(serviceName);
+        if (Strings.isNotBlank(serviceName)) {
+            command.add(serviceName);
+        }
         return command;
     }
 
@@ -368,7 +373,8 @@ public class DockerAppController extends ApiBaseController {
         try {
             emitter.send(SseEmitter.event().data("\033[31m[ERROR] " + errorMsg + "\033[0m"));
             emitter.complete();
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
     }
 
     private void killProcess(Process process, AtomicBoolean isRunning) {
