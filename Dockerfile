@@ -1,4 +1,4 @@
-FROM harbor.cangling.cn:22002/cangling/gdal-base:v4.2.31
+FROM harbor.cangling.cn:22002/cangling/gdal-base:v4.2.33
 LABEL authors="satway"
 
 WORKDIR /app
