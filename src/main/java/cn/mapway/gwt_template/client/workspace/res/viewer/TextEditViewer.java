@@ -3,24 +3,19 @@ package cn.mapway.gwt_template.client.workspace.res.viewer;
 import cn.mapway.ace.client.AceCommandDescription;
 import cn.mapway.ace.client.AceEditor;
 import cn.mapway.ace.client.AceEditorMode;
-import cn.mapway.gwt_template.client.ClientContext;
 import cn.mapway.gwt_template.client.js.markdown.ConvertOptions;
 import cn.mapway.gwt_template.client.js.markdown.MarkdownConvert;
-import cn.mapway.gwt_template.client.rpc.AppProxy;
 import cn.mapway.gwt_template.shared.rpc.file.EditableFileSuffix;
-import cn.mapway.gwt_template.shared.rpc.project.UpdateProjectFileRequest;
-import cn.mapway.gwt_template.shared.rpc.project.UpdateProjectFileResponse;
 import cn.mapway.gwt_template.shared.rpc.project.module.PreviewData;
 import cn.mapway.ui.client.mvc.IToolsProvider;
 import cn.mapway.ui.client.widget.CommonEventComposite;
-import cn.mapway.ui.shared.rpc.RpcResult;
+import cn.mapway.ui.shared.CommonEvent;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 
 
@@ -94,25 +89,7 @@ public class TextEditViewer extends CommonEventComposite implements RequiresResi
     }
 
     private void doSave() {
-        UpdateProjectFileRequest request = new UpdateProjectFileRequest();
-        request.setBody(editor.getValue());
-        request.setResourceId(data.getResourceId());
-        request.setFilePathName(data.getFileName());
-        AppProxy.get().updateProjectFile(request, new AsyncCallback<RpcResult<UpdateProjectFileResponse>>() {
-            @Override
-            public void onFailure(Throwable caught) {
-                ClientContext.get().toast(0, 0, caught.getMessage());
-            }
-
-            @Override
-            public void onSuccess(RpcResult<UpdateProjectFileResponse> result) {
-                if (result.isSuccess()) {
-                    ClientContext.get().toast(0, 0, "保存成功");
-                } else {
-                    ClientContext.get().toast(0, 0, result.getMessage());
-                }
-            }
-        });
+        fireEvent(CommonEvent.saveEvent(editor.getValue()));
     }
 
     @Override

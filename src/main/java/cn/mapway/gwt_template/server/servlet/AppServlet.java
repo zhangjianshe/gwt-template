@@ -150,6 +150,26 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
     ///CODE_GEN_INSERT_POINT///
 	
     @Resource
+    QueryDockerAppInfoExecutor queryDockerAppInfoExecutor;
+    @Override
+    public RpcResult<QueryDockerAppInfoResponse> queryDockerAppInfo(QueryDockerAppInfoRequest request) {
+        BizResult<QueryDockerAppInfoResponse> bizResult = queryDockerAppInfoExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    DeleteDirFileExecutor deleteDirFileExecutor;
+    @Override
+    public RpcResult<DeleteDirFileResponse> deleteDirFile(DeleteDirFileRequest request) {
+        BizResult<DeleteDirFileResponse> bizResult = deleteDirFileExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
     QuerySysDirExecutor querySysDirExecutor;
     @Override
     public RpcResult<QuerySysDirResponse> querySysDir(QuerySysDirRequest request) {

@@ -14,4 +14,6 @@ import java.io.Serializable;
 @Data
 @Doc("ReadDockerAppResDataRequest")
 public class ReadDockerAppResDataRequest implements Serializable, IsSerializable {
+    String appId;
+    String filePathName;
 }

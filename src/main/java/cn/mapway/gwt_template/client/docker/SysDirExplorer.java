@@ -27,6 +27,8 @@ import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.Label;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class SysDirExplorer extends CommonEventComposite {
@@ -91,6 +93,12 @@ public class SysDirExplorer extends CommonEventComposite {
                     currentPath = result.getData().getPath();
                     saveBar.enableSave(true);
                     list.clear();
+                    Collections.sort(result.getData().getDirs(), new Comparator<ResItem>() {
+                        @Override
+                        public int compare(ResItem resItem, ResItem t1) {
+                            return resItem.getPathName().compareTo(t1.getPathName());
+                        }
+                    });
                     for (ResItem item : result.getData().getDirs()) {
                         AiLabel label = new AiLabel();
                         label.setStyleName(style.item());

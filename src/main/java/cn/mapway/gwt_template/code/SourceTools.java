@@ -29,7 +29,7 @@ public class SourceTools {
         String packageBean = "cn.mapway.gwt_template.shared.rpc.docker";
         String packageService = "cn.mapway.gwt_template.server.service.docker";
         ArrayList<String> methods = Lang.list(
-                "querySysDir"
+                "queryDockerAppInfo"
         );
         methods.stream().forEach(n -> {
             tools.gen(n, packageBean, packageService);

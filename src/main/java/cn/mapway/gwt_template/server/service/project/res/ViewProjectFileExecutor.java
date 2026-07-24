@@ -78,6 +78,7 @@ public class ViewProjectFileExecutor extends AbstractBizExecutor<ViewProjectFile
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        previewData.setFileName(request.getRelPathName());
         response.setPreviewData(previewData);
         return BizResult.success(response);
 

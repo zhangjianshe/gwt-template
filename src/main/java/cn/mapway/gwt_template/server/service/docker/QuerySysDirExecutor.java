@@ -15,6 +15,7 @@ import org.nutz.json.JsonFormat;
 import org.nutz.lang.Strings;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,12 +28,18 @@ import java.util.List;
 @Component
 @Slf4j
 public class QuerySysDirExecutor extends AbstractBizExecutor<QuerySysDirResponse, QuerySysDirRequest> {
+    @Resource
+    DockerAppService dockerAppService;
+
     @Override
     protected BizResult<QuerySysDirResponse> process(BizContext context, BizRequest<QuerySysDirRequest> bizParam) {
         QuerySysDirRequest request = bizParam.getData();
         log.info("QuerySysDirExecutor {}", Json.toJson(request, JsonFormat.compact()));
         LoginUser user = (LoginUser) context.get(AppConstant.KEY_LOGIN_USER);
-        assertTrue(user.isAdmin(), "没有权限操作");
+
+        assertTrue(dockerAppService.canOperate(user), "没有授权操作");
+
+
         if (Strings.isBlank(request.getPath())) {
             request.setPath("/");
         }

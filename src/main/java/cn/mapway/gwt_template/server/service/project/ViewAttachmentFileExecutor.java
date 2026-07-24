@@ -76,7 +76,9 @@ public class ViewAttachmentFileExecutor extends AbstractBizExecutor<ViewAttachme
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        previewData.setFileName(request.getRelPathName());
         ViewAttachmentFileResponse response = new ViewAttachmentFileResponse();
+
         response.setPreviewData(previewData);
         return BizResult.success(response);
 

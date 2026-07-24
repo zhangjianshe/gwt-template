@@ -5,15 +5,18 @@ import cn.mapway.biz.core.AbstractBizExecutor;
 import cn.mapway.biz.core.BizContext;
 import cn.mapway.biz.core.BizRequest;
 import cn.mapway.biz.core.BizResult;
+import cn.mapway.gwt_template.server.service.docker.DockerAppService;
 import cn.mapway.gwt_template.server.service.project.ProjectService;
 import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.db.DevProjectIssueEntity;
 import cn.mapway.gwt_template.shared.db.DevProjectResourceEntity;
 import cn.mapway.gwt_template.shared.db.DevProjectTaskEntity;
+import cn.mapway.gwt_template.shared.db.DockerAppEntity;
 import cn.mapway.gwt_template.shared.rpc.file.CommonFileUploadRequest;
 import cn.mapway.gwt_template.shared.rpc.file.CommonFileUploadResponse;
 import cn.mapway.gwt_template.shared.rpc.project.module.CommonPermission;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
+import cn.mapway.ui.client.IUserInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.nutz.lang.Files;
 import org.nutz.lang.Streams;
@@ -36,6 +39,8 @@ public class CommonFileUploadExecutor extends AbstractBizExecutor<CommonFileUplo
 
     @Resource
     ProjectService projectService;
+    @Resource
+    DockerAppService dockerAppService;
 
     @Override
     protected BizResult<CommonFileUploadResponse> process(BizContext context, BizRequest<CommonFileUploadRequest> bizParam) {
@@ -65,19 +70,43 @@ public class CommonFileUploadExecutor extends AbstractBizExecutor<CommonFileUplo
             String relativePath = split[1];
 
             return uploadToProjectResourceDirectory(user.getUser().getUserId(), resourceId, relativePath, request);
+        } else if (request.getPath().startsWith(AppConstant.UPLOAD_DOCKER_APP_RESOURCE)) {
+            //  <resourceId>:<relpath>
+            String resourceAndPath = request.getPath().substring(AppConstant.UPLOAD_DOCKER_APP_RESOURCE.length());
+            //向  目录中上传文件
+            String[] split = Strings.split(resourceAndPath, false, ':');
+            if (split.length != 2) {
+                return BizResult.error(500, "上传目标格式错误" + resourceAndPath);
+            }
+            String appId = split[0];
+            String relativePath = split[1];
+
+            return uploadToDockerAppResourceDirectory(user, appId, relativePath, request);
         } else if (request.getPath().startsWith(AppConstant.UPLOAD_PREFIX_ISSUE_ATTACHMENT)) {
             String issueId = request.getPath().substring(AppConstant.UPLOAD_PREFIX_ISSUE_ATTACHMENT.length());
             return uploadToIssueAttachmentDir(user.getUser().getUserId(), issueId, request);
         } else if (request.getPath().startsWith(AppConstant.UPLOAD_PREFIX_TASK_ATTACHMENT)) {
             String taskId = request.getPath().substring(AppConstant.UPLOAD_PREFIX_TASK_ATTACHMENT.length());
             return uploadToTaskAttachmentDir(user.getUser().getUserId(), taskId, request);
-        }else if (request.getPath().startsWith(AppConstant.UPLOAD_PREFIX_TASK_COMMENT)) {
+        } else if (request.getPath().startsWith(AppConstant.UPLOAD_PREFIX_TASK_COMMENT)) {
             String taskId = request.getPath().substring(AppConstant.UPLOAD_PREFIX_TASK_COMMENT.length());
             return uploadToTaskCommentDir(user.getUser().getUserId(), taskId, request);
         } else {
             return BizResult.error(500, "目前、仅支持对项目资源的上传 project_resource:<resourceId>:<relativePath>");
         }
 
+
+    }
+
+    private BizResult<CommonFileUploadResponse> uploadToDockerAppResourceDirectory(IUserInfo user, String appId, String relativePath, CommonFileUploadRequest request) {
+        DockerAppEntity appEntity = dockerAppService.findApp(appId);
+        if (appEntity == null) {
+            return BizResult.error(500, "没有Docker应用" + appId);
+        }
+        if (!dockerAppService.canOperate(user)) {
+            return BizResult.error(500, "没有授权操作");
+        }
+        return dockerAppService.saveFile(appEntity,relativePath,request);
 
     }
 
@@ -92,7 +121,7 @@ public class CommonFileUploadExecutor extends AbstractBizExecutor<CommonFileUplo
         String targetFile = FileCustomUtils.concatPath(path, request.getFile().getOriginalFilename());
 
         File target = new File(targetFile);
-        boolean isMember=projectService.isMemberOfProject(userId, task.getProjectId());
+        boolean isMember = projectService.isMemberOfProject(userId, task.getProjectId());
         if (!isMember) {
             return BizResult.error(500, "只有项目组成员有权限操作");
         }

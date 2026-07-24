@@ -36,6 +36,10 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 @RemoteServiceRelativePath(AppConstant.DEFAULT_SERVER_PATH)
 public interface IAppServer extends RemoteService {
     ///CODE_GEN_INSERT_POINT///
+	RpcResult<QueryDockerAppInfoResponse> queryDockerAppInfo(QueryDockerAppInfoRequest request);
+
+	RpcResult<DeleteDirFileResponse> deleteDirFile(DeleteDirFileRequest request);
+
 	RpcResult<QuerySysDirResponse> querySysDir(QuerySysDirRequest request);
 
 	RpcResult<RestartDockerAppResponse> restartDockerApp(RestartDockerAppRequest request);

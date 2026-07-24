@@ -11,16 +11,41 @@
             background-color: #f0f0f0;
         }
 
-        .link {
-            user-select: text;
-            font-style: italic;
+        /* 超长文本省略 + 手型指针 */
+        .linkStyle {
+            max-width: 400px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        /* 复制按钮样式 */
+        .copyBtn {
+            display: inline-block;
+            margin-left: 8px;
+            cursor: pointer;
+            color: #666;
+            vertical-align: middle;
+            transition: color 0.2s;
+        }
+
+        .copyBtn:hover {
+            color: #1890ff; /* 悬停高亮蓝 */
         }
     </ui:style>
     <g:DockLayoutPanel ui:field="root">
         <g:north size="40">
             <g:HTMLPanel addStyleNames="{style.top}">
                 <widget:Header ui:field="lbName" addStyleNames="ai-code"/>
-                <g:Label ui:field="lbLink" addStyleNames="{style.link}"/>
+                <g:HTMLPanel addStyleNames="url-copy-box">
+                    <g:Label ui:field="lbLink" addStyleNames="{style.linkStyle}"/>
+                    <!-- 复制图标按钮 -->
+                    <g:HTML ui:field="btnCopy" addStyleNames="{style.copyBtn}" title="复制链接">
+                        [复制链接地址]
+                    </g:HTML>
+                </g:HTMLPanel>
                 <g:HorizontalPanel ui:field="toolBar">
                 </g:HorizontalPanel>
             </g:HTMLPanel>

@@ -9,7 +9,6 @@ import cn.mapway.gwt_template.shared.db.DockerAppEntity;
 import cn.mapway.gwt_template.shared.rpc.docker.UpdateDockerAppRequest;
 import cn.mapway.gwt_template.shared.rpc.docker.UpdateDockerAppResponse;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
-import cn.mapway.rbac.server.service.RbacUserService;
 import lombok.extern.slf4j.Slf4j;
 import org.nutz.dao.Dao;
 import org.nutz.json.Json;
@@ -31,7 +30,7 @@ public class UpdateDockerAppExecutor extends AbstractBizExecutor<UpdateDockerApp
     @Resource
     Dao dao;
     @Resource
-    RbacUserService rbacUserService;
+    DockerAppService dockerAppService;
 
     @Override
     protected BizResult<UpdateDockerAppResponse> process(BizContext context, BizRequest<UpdateDockerAppRequest> bizParam) {
@@ -40,8 +39,9 @@ public class UpdateDockerAppExecutor extends AbstractBizExecutor<UpdateDockerApp
         LoginUser user = (LoginUser) context.get(AppConstant.KEY_LOGIN_USER);
         DockerAppEntity appEntity = request.getAppEntity();
         assertNotNull(appEntity, "没有应用信息");
-        BizResult<Boolean> assignRole = rbacUserService.isAssignRole(user, "", AppConstant.ROLE_DOCKER_APP_MANAGER);
-        assertTrue(assignRole.isSuccess() && assignRole.getData() != null && assignRole.getData(), "没有授权操作");
+        // 1. RBAC 权限检查
+        assertTrue(dockerAppService.canOperate(user),"没有授权操作");
+
         if (Strings.isBlank(appEntity.getId())) {
             appEntity.setId(R.UU16());
             assertTrue(Strings.isNotBlank(appEntity.getName()), "没有应用名称");

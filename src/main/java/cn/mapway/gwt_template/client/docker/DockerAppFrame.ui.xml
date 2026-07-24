@@ -1,6 +1,7 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
              xmlns:g='urn:import:com.google.gwt.user.client.ui'
-             xmlns:docker="urn:import:cn.mapway.gwt_template.client.docker">
+             xmlns:docker="urn:import:cn.mapway.gwt_template.client.docker"
+             xmlns:panel="urn:import:cn.mapway.ui.client.widget.panel">
     <ui:style>
 
         .left {
@@ -10,8 +11,19 @@
         <g:west size="350">
             <docker:DockerAppList ui:field="list" addStyleNames="{style.left}"/>
         </g:west>
+
         <g:center>
-            <docker:DockerAppResourceExplorer ui:field="explorer"/>
+            <g:LayoutPanel ui:field="content">
+                <g:layer left="0" top="0" right="0" bottom="0">
+                    <docker:DockerAppResourceExplorer ui:field="explorer" visible="false"/>
+                </g:layer>
+                <g:layer left="0" top="0" right="0" bottom="0">
+                    <docker:DockerAppOperatorPanel ui:field="operatorPanel" visible="false"/>
+                </g:layer>
+                <g:layer>
+                    <panel:MessagePanel ui:field="msgPanel"/>
+                </g:layer>
+            </g:LayoutPanel>
         </g:center>
     </g:DockLayoutPanel>
 </ui:UiBinder>

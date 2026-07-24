@@ -14,4 +14,6 @@ import java.io.Serializable;
 @Data
 @Doc("QueryDockerAppDirRequest")
 public class QueryDockerAppDirRequest implements Serializable, IsSerializable {
+    String dockerAppId;
+    String path;
 }

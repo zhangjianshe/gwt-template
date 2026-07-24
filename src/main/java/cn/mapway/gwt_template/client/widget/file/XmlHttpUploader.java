@@ -8,10 +8,7 @@ import cn.mapway.ui.shared.HasCommonHandlers;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.event.shared.SimpleEventBus;
-import elemental2.dom.Blob;
-import elemental2.dom.File;
-import elemental2.dom.FormData;
-import elemental2.dom.XMLHttpRequest;
+import elemental2.dom.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -43,6 +40,7 @@ public class XmlHttpUploader implements HasCommonHandlers, IData {
         };
         request.onerror = (e) -> {
             transfering = false;
+            DomGlobal.console.error("upload error", e);
             fireEvent(CommonEvent.create(CommonEvent.ERROR, e));
             return true;
         };
@@ -56,6 +54,7 @@ public class XmlHttpUploader implements HasCommonHandlers, IData {
         };
         request.onloadend = (o) -> {
             transfering = false;
+            DomGlobal.console.info("upload end", o);
             CommonEvent event = CommonEvent.create(CommonEvent.LOADEND, o);
             fireEvent(event);
         };

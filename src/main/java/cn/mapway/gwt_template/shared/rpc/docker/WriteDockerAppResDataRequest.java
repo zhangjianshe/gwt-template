@@ -14,4 +14,7 @@ import java.io.Serializable;
 @Data
 @Doc("WriteDockerAppResDataRequest")
 public class WriteDockerAppResDataRequest implements Serializable, IsSerializable {
+    String dockerAppId;
+    String filePathName;
+    String body;
 }

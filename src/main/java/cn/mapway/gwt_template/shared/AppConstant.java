@@ -29,6 +29,7 @@ public class AppConstant {
     public static final String USER_IS_PUBLIC_ACCOUNT = "USER_IS_PUBLIC_ACCOUNT"; //用户是一个公共账户
     public static final String TEMP_WORKSPACE_FOLDER_ID = "TEMP_FOLDER";
     public static final String UPLOAD_PREFIX_PROJECT_RESOURCE = "project_resource:";
+    public static final String UPLOAD_DOCKER_APP_RESOURCE = "docker_app_resource:";
     public static final String UPLOAD_PREFIX_TASK_ATTACHMENT = "task_attachment:";
     public static final String UPLOAD_PREFIX_TASK_COMMENT = "task_comment:";
     public static final String UPLOAD_PREFIX_ISSUE_ATTACHMENT = "issue_attachment:";

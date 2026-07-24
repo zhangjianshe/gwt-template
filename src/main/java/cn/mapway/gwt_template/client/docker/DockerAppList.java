@@ -1,13 +1,16 @@
 package cn.mapway.gwt_template.client.docker;
 
 import cn.mapway.gwt_template.client.ClientContext;
+import cn.mapway.gwt_template.client.resource.AppResource;
 import cn.mapway.gwt_template.client.rpc.AppProxy;
 import cn.mapway.gwt_template.shared.db.DockerAppEntity;
 import cn.mapway.gwt_template.shared.rpc.docker.DeleteDockerAppRequest;
 import cn.mapway.gwt_template.shared.rpc.docker.DeleteDockerAppResponse;
 import cn.mapway.gwt_template.shared.rpc.docker.QueryDockerAppsRequest;
 import cn.mapway.gwt_template.shared.rpc.docker.QueryDockerAppsResponse;
+import cn.mapway.ui.client.fonts.Fonts;
 import cn.mapway.ui.client.widget.CommonEventComposite;
+import cn.mapway.ui.client.widget.FontIcon;
 import cn.mapway.ui.client.widget.buttons.AiButton;
 import cn.mapway.ui.client.widget.buttons.DeleteButton;
 import cn.mapway.ui.client.widget.buttons.EditButton;
@@ -37,11 +40,34 @@ public class DockerAppList extends CommonEventComposite {
     ClickHandler deleteAppHandler = new ClickHandler() {
         @Override
         public void onClick(ClickEvent event) {
+            event.stopPropagation();
+            event.preventDefault();
             DeleteButton source = (DeleteButton) event.getSource();
             DockerAppEntity app = (DockerAppEntity) source.getData();
             confirmDelete(app);
         }
     };
+    private final ClickHandler terminalHandler = new ClickHandler() {
+        @Override
+        public void onClick(ClickEvent event) {
+            event.stopPropagation();
+            event.preventDefault();
+            FontIcon source = (FontIcon) event.getSource();
+            DockerAppEntity app = (DockerAppEntity) source.getData();
+            fireEvent(CommonEvent.detailEvent(app));
+        }
+    };
+    private final ClickHandler explorerHandler = new ClickHandler() {
+        @Override
+        public void onClick(ClickEvent event) {
+            event.stopPropagation();
+            event.preventDefault();
+            FontIcon source = (FontIcon) event.getSource();
+            DockerAppEntity app = (DockerAppEntity) source.getData();
+            fireEvent(CommonEvent.selectEvent(app));
+        }
+    };
+
 
     public DockerAppList() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -60,14 +86,7 @@ public class DockerAppList extends CommonEventComposite {
         });
         dialog.getContent().setData(app);
         dialog.center();
-    }    ClickHandler editHandler = new ClickHandler() {
-        @Override
-        public void onClick(ClickEvent event) {
-            EditButton source = (EditButton) event.getSource();
-            DockerAppEntity app = (DockerAppEntity) source.getData();
-            editApp(app);
-        }
-    };
+    }
 
     public void load() {
         AppProxy.get().queryDockerApps(new QueryDockerAppsRequest(), new AsyncCallback<RpcResult<QueryDockerAppsResponse>>() {
@@ -85,10 +104,19 @@ public class DockerAppList extends CommonEventComposite {
                 }
             }
         });
-    }
+    }    ClickHandler editHandler = new ClickHandler() {
+        @Override
+        public void onClick(ClickEvent event) {
+            event.stopPropagation();
+            event.preventDefault();
+            EditButton source = (EditButton) event.getSource();
+            DockerAppEntity app = (DockerAppEntity) source.getData();
+            editApp(app);
+        }
+    };
 
     private void confirmDelete(DockerAppEntity app) {
-        String msg = "删除应用" + app.getName() + "?";
+        String msg = "删除应用" + app.getName() + "? 此操作只会删除数据库记录 不会删除磁盘文件！";
         ClientContext.get().confirmDelete(msg).then(new IThenable.ThenOnFulfilledCallbackFn<Void, Object>() {
             @Override
             public @Nullable IThenable<Object> onInvoke(Void p0) {
@@ -124,21 +152,35 @@ public class DockerAppList extends CommonEventComposite {
             list.setMessage("清添加应用", 150);
         } else {
             list.setMessage("", 0);
+            String btnStyle = AppResource.INSTANCE.styles().toolButton();
             for (DockerAppEntity app : data.getApps()) {
                 TreeItem treeItem = list.addItem(null, app.getName(), null);
 
 
+                FontIcon btnExplorer = new FontIcon();
+                btnExplorer.addStyleName(btnStyle);
+                btnExplorer.setIconUnicode(Fonts.FILES);
+                btnExplorer.addClickHandler(explorerHandler);
+                btnExplorer.setData(app);
+                treeItem.appendRightWidget(btnExplorer);
+
+                FontIcon btnTerminal = new FontIcon();
+                btnTerminal.addStyleName(btnStyle);
+                btnTerminal.setIconUnicode(Fonts.TERMINAL);
+                btnTerminal.addClickHandler(terminalHandler);
+                btnTerminal.setData(app);
+                treeItem.appendRightWidget(btnTerminal);
+
                 DeleteButton deleteButton = new DeleteButton();
-                treeItem.appendRightWidget(deleteButton);
                 deleteButton.addClickHandler(deleteAppHandler);
                 deleteButton.setData(app);
+                treeItem.appendRightWidget(deleteButton);
 
                 EditButton editButton = new EditButton();
                 editButton.setData(app);
-
                 editButton.addClickHandler(editHandler);
-                treeItem.appendRightWidget(editButton);
                 treeItem.setData(app);
+                treeItem.appendRightWidget(editButton);
             }
         }
     }

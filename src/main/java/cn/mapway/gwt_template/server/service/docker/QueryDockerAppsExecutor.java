@@ -27,12 +27,14 @@ import javax.annotation.Resource;
 public class QueryDockerAppsExecutor extends AbstractBizExecutor<QueryDockerAppsResponse, QueryDockerAppsRequest> {
     @Resource
     Dao dao;
-
+    @Resource
+    DockerAppService dockerAppService;
     @Override
     protected BizResult<QueryDockerAppsResponse> process(BizContext context, BizRequest<QueryDockerAppsRequest> bizParam) {
         QueryDockerAppsRequest request = bizParam.getData();
         log.info("QueryDockerAppsExecutor {}", Json.toJson(request, JsonFormat.compact()));
         LoginUser user = (LoginUser) context.get(AppConstant.KEY_LOGIN_USER);
+        assertTrue(dockerAppService.canOperate(user),"没有授权操作");
         QueryDockerAppsResponse response = new QueryDockerAppsResponse();
         response.setApps(dao.query(DockerAppEntity.class, null));
         return BizResult.success(response);

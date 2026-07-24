@@ -115,6 +115,7 @@ public class MultiFileUploader extends CommonEventComposite implements RequiresR
                 }
                 uploadSummary.setData(summaryData);
             } else if (event.isLoadEnd()) {
+                // TODO 根据传回来的信息 更新UI 有可能上传错误
                 startTransfer();
             } else if (event.isAbort()) {
                 //重新计算进度信息

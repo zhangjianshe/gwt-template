@@ -1,5 +1,6 @@
 @external popup-header, popup-top-panel;
-
+@eval COLOR_HOVER "var(--color-background-hover)";
+@eval BORDER_RADIUS "var(--border-radius)";
 /* 表格基础样式：消除单元格间隙并设置折叠边框 */
 .table {
     width: 100%;
@@ -284,8 +285,9 @@
     justify-content: center;
     width: 26px;
     height: 26px;
+    border-radius: BORDER_RADIUS;
 }
 
 .toolButton:HOVER {
-    background-color: skyblue;
+    background-color: COLOR_HOVER;
 }

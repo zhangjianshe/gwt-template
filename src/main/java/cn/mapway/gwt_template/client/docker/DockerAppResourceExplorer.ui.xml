@@ -1,6 +1,61 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
-             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:view="urn:import:cn.mapway.gwt_template.client.workspace.view"
+             xmlns:widget="urn:import:cn.mapway.ui.client.widget">
+    <ui:style type="cn.mapway.gwt_template.client.docker.DockerAppResourceExplorer.SStyle">
+        @eval BORDER_COLOR "var(--color-border)";
+
+        .pathbar {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+        }
+
+        .top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 8px;
+            border-bottom: solid 1px BORDER_COLOR;
+        }
+
+        .list {
+            padding: 4px;
+        }
+
+        .currentPathItem {
+            color: #262626;
+            font-weight: bold;
+        }
+
+        .link {
+            color: #1890ff;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .link:hover {
+            text-decoration: underline;
+        }
+    </ui:style>
     <g:DockLayoutPanel>
+        <g:north size="50">
+            <g:HTMLPanel addStyleNames="{style.top}">
+                <g:HTMLPanel ui:field="pathBar" addStyleNames="{style.pathbar}"/>
+                <g:HorizontalPanel ui:field="tools" spacing="4">
+                    <widget:FontIcon title="上传文件" ui:field="btnUploader"/>
+                    <widget:FontIcon title="删除文件" ui:field="btnDelete"/>
+                </g:HorizontalPanel>
+            </g:HTMLPanel>
+        </g:north>
+        <g:west size="400">
+            <g:ScrollPanel addStyleNames="ai-border-right">
+                <g:HTMLPanel ui:field="list" addStyleNames="{style.list}"/>
+            </g:ScrollPanel>
+        </g:west>
+        <g:center>
+            <view:FilePreview ui:field="filePreview"/>
+        </g:center>
 
     </g:DockLayoutPanel>
 </ui:UiBinder>
