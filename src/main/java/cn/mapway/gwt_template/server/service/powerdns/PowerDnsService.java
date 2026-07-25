@@ -21,8 +21,9 @@ public class PowerDnsService {
 
             if (powerDnsConfig1 != null && Strings.isNotBlank(powerDnsConfig1.basePath)) {
                 powerDnsConfig = powerDnsConfig1;
-            } else {
-                return BizResult.error(500, "没有配置PowerDNS");
+            }
+            else {
+                powerDnsConfig = systemConfigService.createDefaultPowerDnsConfig();
             }
         }
         return BizResult.success(powerDnsConfig);

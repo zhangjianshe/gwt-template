@@ -5,9 +5,11 @@ import cn.mapway.gwt_template.server.config.AppConfig;
 import cn.mapway.gwt_template.server.config.db.JdbcConfig;
 import cn.mapway.gwt_template.server.config.startup.ApplicationConfig;
 import cn.mapway.gwt_template.server.service.file.FileCustomUtils;
+import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.db.SysConfigEntity;
 import cn.mapway.gwt_template.shared.rpc.app.AppData;
 import cn.mapway.gwt_template.shared.rpc.config.ConfigEnums;
+import cn.mapway.gwt_template.shared.rpc.powerdns.PowerDnsConfig;
 import cn.mapway.gwt_template.shared.rpc.user.ldap.LdapSettings;
 import lombok.extern.slf4j.Slf4j;
 import org.nutz.dao.Dao;
@@ -61,7 +63,7 @@ public class SystemConfigService implements EnvironmentAware {
     public static ApplicationConfig getConfig() {
         try {
             File configFile = getStartupConfigFile();
-            log.info("[START] 读取系统配置文件 {}",Files.getAbsPath(configFile));
+            log.info("[START] 读取系统配置文件 {}", Files.getAbsPath(configFile));
             if (configFile.exists()) {
                 ApplicationConfig config = Json.fromJson(ApplicationConfig.class, Files.read(configFile));
                 if (config == null) {
@@ -72,11 +74,11 @@ public class SystemConfigService implements EnvironmentAware {
                 ApplicationConfig config = createDefaultConfig();
                 // maybe , we have not privilege to write at this position
                 Files.write(configFile, Json.toJson(config));
-                log.info("[START] write 系统配置文件 {}",Files.getAbsPath(configFile));
+                log.info("[START] write 系统配置文件 {}", Files.getAbsPath(configFile));
                 return config;
             }
         } catch (Exception e) {
-            log.error("[START] 系统解析配置文件错误 {}",e.getMessage());
+            log.error("[START] 系统解析配置文件错误 {}", e.getMessage());
             e.printStackTrace();
         }
         return null;
@@ -184,17 +186,30 @@ public class SystemConfigService implements EnvironmentAware {
     }
 
     public LdapSettings createDefaultLdapConfig() {
-        LdapSettings ldapSettings=new LdapSettings();
+        LdapSettings ldapSettings = new LdapSettings();
         ldapSettings.setUrl("ldap://openldap:1389");
         ldapSettings.setBaseDn("dc=tjj,dc=cn");
         ldapSettings.setManagerDn("cn=admin,dc=tjj,dc=cn");
         ldapSettings.setSearchPattern("(&(objectClass=inetOrgPerson)(|(uid={0})(mail={0})))");
         ldapSettings.setManagerPassword("Openldap2025*");
-        SysConfigEntity entity=new SysConfigEntity();
+        SysConfigEntity entity = new SysConfigEntity();
         entity.setKey(ConfigEnums.CONFIG_LDAP.getCode());
         entity.setValue(Json.toJson(ldapSettings));
         entity.setCreateTime(new Timestamp(System.currentTimeMillis()));
         saveOrUpdate(entity);
         return ldapSettings;
+    }
+
+    public PowerDnsConfig createDefaultPowerDnsConfig() {
+        PowerDnsConfig powerDnsConfig = new PowerDnsConfig();
+        powerDnsConfig.basePath = "http://powerdns:8081";
+        powerDnsConfig.token = "let_china_great_again";
+        SysConfigEntity entity = new SysConfigEntity();
+        entity.setKey(AppConstant.KEY_POWER_DNS);
+        entity.setValue(Json.toJson(powerDnsConfig));
+        entity.setCreateTime(new Timestamp(System.currentTimeMillis()));
+        saveOrUpdate(entity);
+        return powerDnsConfig;
+
     }
 }

@@ -49,6 +49,7 @@ public class DockerAppInfoPanel extends CommonEventComposite implements IData<Do
             @Override
             public void onSuccess(RpcResult<QueryDockerAppInfoResponse> result) {
                 if (result.isSuccess()) {
+                    resultPanel.clear();
                     resultPanel.add(new HTML("<pre>" + result.getData().getStatus() + "</pre>"));
                 } else {
                     ClientContext.get().toast(0, 0, result.getMessage());
