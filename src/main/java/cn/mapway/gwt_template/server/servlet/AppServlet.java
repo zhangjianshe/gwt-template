@@ -150,6 +150,16 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
     ///CODE_GEN_INSERT_POINT///
 	
     @Resource
+    QueryDockerServiceInfoExecutor queryDockerServiceInfoExecutor;
+    @Override
+    public RpcResult<QueryDockerServiceInfoResponse> queryDockerServiceInfo(QueryDockerServiceInfoRequest request) {
+        BizResult<QueryDockerServiceInfoResponse> bizResult = queryDockerServiceInfoExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
     QueryDockerAppInfoExecutor queryDockerAppInfoExecutor;
     @Override
     public RpcResult<QueryDockerAppInfoResponse> queryDockerAppInfo(QueryDockerAppInfoRequest request) {

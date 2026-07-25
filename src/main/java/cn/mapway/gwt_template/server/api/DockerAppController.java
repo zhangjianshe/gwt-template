@@ -64,6 +64,22 @@ public class DockerAppController extends ApiBaseController {
     @Resource
     QueryDockerAppInfoExecutor queryDockerAppInfoExecutor;
 
+    @Resource
+    QueryDockerServiceInfoExecutor queryDockerServiceInfoExecutor;
+    /**
+     * QueryDockerServiceInfo
+     *
+     * @param request request
+     * @return data
+     */
+    @Doc(value = "QueryDockerServiceInfo", retClazz = {QueryDockerServiceInfoResponse.class})
+    @RequestMapping(value = "/queryDockerServiceInfo", method = RequestMethod.POST)
+    public RpcResult<QueryDockerServiceInfoResponse> queryDockerServiceInfo(@RequestBody QueryDockerServiceInfoRequest request) {
+        BizResult<QueryDockerServiceInfoResponse> bizResult = queryDockerServiceInfoExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toApiResult(bizResult);
+    }
+
+
     /**
      * QueryDockerAppInfo
      *

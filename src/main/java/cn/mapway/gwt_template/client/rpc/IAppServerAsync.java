@@ -34,6 +34,8 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public interface IAppServerAsync {
 
     ///CODE_GEN_INSERT_POINT///
+	void queryDockerServiceInfo(QueryDockerServiceInfoRequest request, AsyncCallback<RpcResult<QueryDockerServiceInfoResponse>> async);
+
 	void queryDockerAppInfo(QueryDockerAppInfoRequest request, AsyncCallback<RpcResult<QueryDockerAppInfoResponse>> async);
 
 	void deleteDirFile(DeleteDirFileRequest request, AsyncCallback<RpcResult<DeleteDirFileResponse>> async);
