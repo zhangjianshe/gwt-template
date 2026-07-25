@@ -1019,6 +1019,7 @@ body {
     padding: 4px;
     color: var(--color-text-title);
     cursor: default;
+    font-style: italic;
 }
 
 .ai-btn-delete {
@@ -4029,22 +4030,25 @@ ai-steps       end
     overflow: hidden;
     font-size: 14px;
 }
-.attr-table thead th{
-    height:56px;
-    line-height:56px;
-    padding:0 18px;
-    font-size:15px;
-    font-weight:600;
 
-    background:#f8fafc;
-    color:#303133;
+.attr-table thead th {
+    height: 56px;
+    line-height: 56px;
+    padding: 0 18px;
+    font-size: 15px;
+    font-weight: 600;
 
-    border-bottom:2px solid #e5e7eb;
+    background: #f8fafc;
+    color: #303133;
+
+    border-bottom: 2px solid #e5e7eb;
 }
-.attr-table tbody td{
-    height:52px;
-    padding:0 18px;
+
+.attr-table tbody td {
+    height: 52px;
+    padding: 0 18px;
 }
+
 .attr-table tr {
     transition: background .18s ease;
 }
@@ -4111,7 +4115,7 @@ ai-steps       end
 .attr-table textarea:focus,
 .attr-table select:focus {
     border-color: var(--color-main);
-    box-shadow: 0 0 0 3px rgba(57,98,182,.12);
+    box-shadow: 0 0 0 3px rgba(57, 98, 182, .12);
     outline: none;
 }
 

@@ -27,6 +27,8 @@ import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.PasswordTextBox;
+import elemental2.dom.DomGlobal;
 
 import static cn.mapway.gwt_template.client.preference.user.UserEditorPreference.MODULE_CODE;
 
@@ -48,6 +50,8 @@ public class UserEditorPreference extends BaseAbstractModule {
     Label lbName;
     @UiField
     Button btnSave;
+    @UiField
+    PasswordTextBox pwd;
     String relUrl = "";
 
     public UserEditorPreference() {
@@ -66,6 +70,7 @@ public class UserEditorPreference extends BaseAbstractModule {
         IUserInfo userInfo = ClientContext.get().getUserInfo();
         lbName.setText(userInfo.getUserName());
         uploader.setUrl(userInfo.getAvatar());
+        relUrl = userInfo.getAvatar();
 
     }
 
@@ -76,20 +81,21 @@ public class UserEditorPreference extends BaseAbstractModule {
 
     @UiHandler("btnSave")
     public void btnSaveClick(ClickEvent event) {
-        if (StringUtil.isNotBlank(relUrl)) {
-            IUserInfo userInfo = ClientContext.get().getUserInfo();
-            UpdateUserInfoRequest request = new UpdateUserInfoRequest();
-            RbacUserEntity user = new RbacUserEntity();
-            user.setUserId(Long.parseLong(userInfo.getId()));
-            user.setAvatar(relUrl);
-            request.setUser(user);
-            AppProxy.get().updateUserInfo(request, new AsyncAdaptor<RpcResult<UpdateUserInfoResponse>>() {
-                @Override
-                public void onData(RpcResult<UpdateUserInfoResponse> result) {
-                    fireMessage(MessageObject.info(0, "已保存"));
-                }
-            });
+        IUserInfo userInfo = ClientContext.get().getUserInfo();
+        UpdateUserInfoRequest request = new UpdateUserInfoRequest();
+        RbacUserEntity user = new RbacUserEntity();
+        user.setUserId(Long.parseLong(userInfo.getId()));
+        user.setAvatar(relUrl);
+        if (StringUtil.isNotBlank(pwd.getValue())) {
+            user.setPassword(DomGlobal.btoa(pwd.getValue()));
         }
+        request.setUser(user);
+        AppProxy.get().updateUserInfo(request, new AsyncAdaptor<RpcResult<UpdateUserInfoResponse>>() {
+            @Override
+            public void onData(RpcResult<UpdateUserInfoResponse> result) {
+                fireMessage(MessageObject.info(0, "已保存"));
+            }
+        });
     }
 
     @UiHandler("uploader")
