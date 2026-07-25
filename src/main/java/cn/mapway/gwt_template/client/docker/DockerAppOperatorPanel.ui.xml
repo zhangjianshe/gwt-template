@@ -51,13 +51,6 @@
             </g:HTMLPanel>
         </g:north>
 
-        <!-- 左侧导航树 (例如: 日志/控制台/文件/配置) -->
-        <g:west size="160">
-            <g:ScrollPanel addStyleNames="ai-border-right">
-                <tree:Tree ui:field="list"/>
-            </g:ScrollPanel>
-        </g:west>
-
         <!-- 中间终端/主要内容展示区 -->
         <g:center>
             <xterm:TerminalPanel width="100%" height="100%" ui:field="terminal"/>

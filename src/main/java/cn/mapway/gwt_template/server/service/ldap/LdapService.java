@@ -50,6 +50,8 @@ public class LdapService implements IReset {
         LdapSettings settings = systemConfigService.getConfigFromKeyAsObject(ConfigEnums.CONFIG_LDAP.getCode(), LdapSettings.class);
         if (settings == null || Strings.isBlank(settings.getUrl())) {
             log.warn("[LDAP] 没有LDAP配置信息");
+            // 创建一个缺省的LDAP配置信息
+            settings=systemConfigService.createDefaultLdapConfig();
         }
 
         LdapContextSource cs = new LdapContextSource();

@@ -1,17 +1,24 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
              xmlns:g='urn:import:com.google.gwt.user.client.ui'
              xmlns:docker="urn:import:cn.mapway.gwt_template.client.docker"
-             xmlns:panel="urn:import:cn.mapway.ui.client.widget.panel">
+             xmlns:panel="urn:import:cn.mapway.ui.client.widget.panel"
+             xmlns:buttons="urn:import:cn.mapway.ui.client.widget.buttons">
     <ui:style>
 
         .left {
             background-color: #f3f3f3;
         }</ui:style>
     <g:DockLayoutPanel>
+        <g:north size="0">
+            <g:HorizontalPanel spacing="4" ui:field="tools">
+                <buttons:AiButton ui:field="btnAdd" enabled="true">添加应用</buttons:AiButton>
+                <buttons:AiButton ui:field="btnEdit" enabled="false">编辑应用</buttons:AiButton>
+                <buttons:AiButton ui:field="btnDelete" enabled="false">删除应用</buttons:AiButton>
+            </g:HorizontalPanel>
+        </g:north>
         <g:west size="350">
             <docker:DockerAppList ui:field="list" addStyleNames="{style.left}"/>
         </g:west>
-
         <g:center>
             <g:LayoutPanel ui:field="content">
                 <g:layer left="0" top="0" right="0" bottom="0">
@@ -19,6 +26,9 @@
                 </g:layer>
                 <g:layer left="0" top="0" right="0" bottom="0">
                     <docker:DockerAppOperatorPanel ui:field="operatorPanel" visible="false"/>
+                </g:layer>
+                <g:layer left="0" top="0" right="0" bottom="0">
+                    <docker:DockerAppInfoPanel ui:field="dockerAppInfoPanel" visible="false"/>
                 </g:layer>
                 <g:layer>
                     <panel:MessagePanel ui:field="msgPanel"/>

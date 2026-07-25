@@ -4,15 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>index</title>
-    <script src="/js/ace/ace.js"></script>
+    <!-- 去掉开头的 '/' 换成相对路径 -->
+    <script src="js/ace/ace.js"></script>
 
-    <link rel="stylesheet" href="/css/main.css"/>
-    <link rel="stylesheet" href="/css/page.css"/>
-    <link rel="stylesheet" href="/css/markdown.css"/>
-    <link rel="stylesheet" href="/css/xterm.css"/>
-    <script src="/js/markdown.js"></script>
-    <script src="/js/xterm/xterm.js"></script>
-    <script src="/js/app/app.nocache.js?r=${timestamp}"></script>
+    <link rel="stylesheet" href="css/main.css"/>
+    <link rel="stylesheet" href="css/page.css"/>
+    <link rel="stylesheet" href="css/markdown.css"/>
+    <link rel="stylesheet" href="css/xterm.css"/>
+    <script src="js/markdown.js"></script>
+    <script src="js/xterm/xterm.js"></script>
+    <script src="js/app/app.nocache.js?r=${timestamp}"></script>
     <style>
         @font-face {
             font-family: 'Iosevka';

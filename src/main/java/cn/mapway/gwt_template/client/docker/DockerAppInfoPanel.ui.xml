@@ -1,0 +1,16 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+    <ui:style>
+
+    </ui:style>
+    <g:DockLayoutPanel>
+        <g:center>
+            <g:HTMLPanel>
+                <!-- 运行时间-->
+                <!-- 内存-->
+                <!-- 服务状态-->
+                <!-- 各个容器服务的状态-->
+            </g:HTMLPanel>
+        </g:center>
+    </g:DockLayoutPanel>
+</ui:UiBinder>

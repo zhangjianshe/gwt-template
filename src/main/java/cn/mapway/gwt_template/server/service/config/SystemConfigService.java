@@ -8,6 +8,7 @@ import cn.mapway.gwt_template.server.service.file.FileCustomUtils;
 import cn.mapway.gwt_template.shared.db.SysConfigEntity;
 import cn.mapway.gwt_template.shared.rpc.app.AppData;
 import cn.mapway.gwt_template.shared.rpc.config.ConfigEnums;
+import cn.mapway.gwt_template.shared.rpc.user.ldap.LdapSettings;
 import lombok.extern.slf4j.Slf4j;
 import org.nutz.dao.Dao;
 import org.nutz.json.Json;
@@ -22,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -179,5 +181,20 @@ public class SystemConfigService implements EnvironmentAware {
      */
     public String getProjectResourceRootPath() {
         return appConfig.getProjectResRoot();
+    }
+
+    public LdapSettings createDefaultLdapConfig() {
+        LdapSettings ldapSettings=new LdapSettings();
+        ldapSettings.setUrl("ldap://openldap:1389");
+        ldapSettings.setBaseDn("dc=tjj,dc=cn");
+        ldapSettings.setManagerDn("cn=admin,dc=tjj,dc=cn");
+        ldapSettings.setSearchPattern("(&(objectClass=inetOrgPerson)(|(uid={0})(mail={0})))");
+        ldapSettings.setManagerPassword("Openldap2025*");
+        SysConfigEntity entity=new SysConfigEntity();
+        entity.setKey(ConfigEnums.CONFIG_LDAP.getCode());
+        entity.setValue(Json.toJson(ldapSettings));
+        entity.setCreateTime(new Timestamp(System.currentTimeMillis()));
+        saveOrUpdate(entity);
+        return ldapSettings;
     }
 }

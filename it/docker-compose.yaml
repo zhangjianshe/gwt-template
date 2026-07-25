@@ -1,101 +1,68 @@
-networks:
-  it_network:
-    ipam:
-      driver: default
-      config:
-        - subnet: 172.25.0.0/16
 services:
-  powerdns-db:
-    image: hub.cangling.cn/docker/postgres:15-alpine
-    container_name: powerdns-db
+  portal-proxy:
+    image: hub.cangling.cn/cangling/nginx-rtmp:v4.2.33
     restart: unless-stopped
+    ports:
+      - "7700:80"
+      - "7701:81"
+    volumes:
+      - "/etc/localtime:/etc/localtime:ro"
+      - "/etc/timezone:/etc/timezone:ro"
+      - ./nginx/logs:/var/logs/nginx
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/html:/var/www/html
     networks:
-      - it_network
+      - np4-network
+
+  portal-server:
+    image: hub.cangling.cn/cangling/gwt-template:latest
+    expose:
+      - "8080"
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - "/etc/localtime:/etc/localtime:ro"
+      - "/etc/timezone:/etc/timezone:ro"
+      - ./dev/data/app.json:/root/mapway/app.json
+      - app-volume:/data/dev
+      - /opt:/cangling-apps
+    networks:
+      - np4-network
+    depends_on:
+      - portal-db
+
+  portal-db:
+    image: hub.cangling.cn/cangling/postgis:17
+    networks:
+      - np4-network
+    volumes:
+      - postgis-volume:/var/lib/postgresql/data
+      - "/etc/localtime:/etc/localtime:ro"
+      - "/etc/timezone:/etc/timezone:ro"
+    expose:
+      - "5432"
     env_file:
       - .env
     environment:
-      POSTGRES_DB: powerdns
-      POSTGRES_USER: powerdns
-      POSTGRES_PASSWORD: powerdns-security-pwd
-    volumes:
-      - ./data/pdns-db:/var/lib/postgresql/data
-      - ./data/init/01-power-db.sql:/docker-entrypoint-initdb.d/01-pdns-schema.sql:ro
-      - "/etc/localtime:/etc/localtime:ro"
-      - "/etc/timezone:/etc/timezone:ro"
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - ALLOW_IP_RANGE=0.0.0.0/0
+      - POSTGRES_MULTIPLE_EXTENSIONS=postgis,hstore,postgis_topology,postgis_raster,pgrouting
+    restart: unless-stopped
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB} || exit 1" ]
-      interval: 5s # Check every 5 seconds
-      timeout: 5s # Give the check 5 seconds to complete
-      retries: 5 # Try 5 times before marking as 'unhealthy'
-      start_period: 10s # Give the service 10s grace period before counting failures
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
-  # 2. PowerDNS 权威服务器
-  powerdns:
-    image: hub.cangling.cn/docker/powerdns/pdns-auth-48:latest
-    container_name: powerdns
-    restart: unless-stopped
-    networks:
-      it_network:
-        ipv4_address: 172.25.0.100
-    ports:
-      #- "53:53/udp"
-      #- "53:53/tcp"
-      - "8053:8081/tcp" # 暴露 API 端口
-    volumes:
-      - ./data/pdns/pdns.conf:/etc/powerdns/pdns.conf
-      - "/etc/localtime:/etc/localtime:ro"
-      - "/etc/timezone:/etc/timezone:ro"
-    depends_on:
-      - powerdns-db
-  # 3. PowerDNS resolver
-  powerdns-recursor:
-    image: hub.cangling.cn/docker/powerdns/pdns-recursor-48:latest
-    container_name: powerdns-recursor
-    restart: unless-stopped
-    networks:
-      - it_network
-    ports:
-      - "53:53/udp"
-      - "53:53/tcp"
-    volumes:
-      - ./data/pdns/recursor.conf:/etc/powerdns/recursor.conf
-      - ./data/pdns/empty-hints.txt:/etc/powerdns/empty-hints.txt
-      - "/etc/localtime:/etc/localtime:ro"
-      - "/etc/timezone:/etc/timezone:ro"
-    depends_on:
-      - powerdns
-
-  # 3. Step-CA 证书服务
-  step-ca:
-    image: hub.cangling.cn/docker/smallstep/step-ca:latest
-    container_name: step-ca
-    restart: unless-stopped
-    networks:
-      - it_network
-    dns:
-      - 172.25.0.100
-    ports:
-      - "9000:9000/tcp" # 映射 ACME HTTPS 端口
-    volumes:
-      - ./data/step-ca-data:/home/step:rw
-      - "/etc/localtime:/etc/localtime:ro"
-      - "/etc/timezone:/etc/timezone:ro"
-    environment:
-      # 第一次运行时用于自动初始化的环境变量
-      - STEPPATH=/home/step
-      - DOCKER_STEPCA_INIT_NAME=${CA_NAME:-SATWAY_CA}
-      - DOCKER_STEPCA_INIT_DNS_NAMES=step-ca
-      - DOCKER_STEPCA_INIT_REMOTE_MANAGEMENT=false
-      - DOCKER_STEPCA_INIT_PASSWORD=QAZwsx@1234
-      - DOCKER_STEPCA_INIT_ACME=acme
-
-  openldap:
-    user: root
+  portal-openldap:
     image: hub.cangling.cn/cangling/openldap:final
-    container_name: openldap
+    user: "0:0"
     ports:
       - "389:1389"
-    # - "636:1636"
     environment:
       - LDAP_ROOT=dc=tjj,dc=cn
       - LDAP_ADMIN_USERNAME=admin
@@ -107,93 +74,22 @@ services:
       - "/etc/localtime:/etc/localtime:ro"
       - "/etc/timezone:/etc/timezone:ro"
     networks:
-      - it_network
-  dev-db:
-    image: "hub.cangling.cn/cangling/postgis:17"
-    container_name: dev-db
-    networks:
-      - it_network
-    volumes:
-      - ./data/dev/data:/var/lib/postgresql/data
-    expose:
-      - "5432"
-    env_file:
-      - .env
-    environment:
-      - POSTGRES_DB=dev
-      - POSTGRES_USER=cangling
-      - POSTGRES_PASSWORD=cangling-dev
-      - ALLOW_IP_RANGE=0.0.0.0/0
-      - POSTGRES_MULTIPLE_EXTENSIONS=postgis,hstore,postgis_topology,postgis_raster,pgrouting
-      - "/etc/localtime:/etc/localtime:ro"
-      - "/etc/timezone:/etc/timezone:ro"
-    restart: unless-stopped
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB} || exit 1" ]
-      interval: 5s # Check every 5 seconds
-      timeout: 5s # Give the check 5 seconds to complete
-      retries: 5 # Try 5 times before marking as 'unhealthy'
-      start_period: 10s # Give the service 10s grace period before counting failures
-  dev-app:
-    image: "hub.cangling.cn/cangling/gwt-template:latest"
-    container_name: dev-app
-    networks:
-      - it_network
-    expose:
-      - 8080
-    env_file:
-      - .env
-    ports:
-      - "7700:8080"
-    depends_on:
-      dev-db:
-        condition: service_healthy
-    volumes:
-      - ./data/dev/app.json:/root/mapway/app.json
-      - ./data/dev/data:/data/dev
-      - ./data/step-ca-data/certs:/certs:ro
-      - "/etc/localtime:/etc/localtime:ro"
-      - "/etc/timezone:/etc/timezone:ro"
-    restart: unless-stopped
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.dev.rule=Host(`dev.tjj.cn`)"
-      - "traefik.http.routers.dev.entrypoints=websecure"
-      - "traefik.http.routers.dev.tls=true"
-      - "traefik.http.routers.dev.tls.certresolver=powerdns"
-      - "traefik.http.routers.dev.tls.domains[0].main=dev.tjj.cn"
+      - np4-network
 
-      - "traefik.http.routers.dev.service=dev-app"
-      - "traefik.http.services.dev-app.loadbalancer.server.port=8080"
-      - "traefik.tcp.routers.git-shell.rule=HostSNI(`*`)"
-      - "traefik.tcp.routers.git-shell.entrypoints=ssh"
-      - "traefik.tcp.routers.git-shell.service=git-shell"
-      - "traefik.tcp.services.git-shell.loadbalancer.server.port=2222"
+networks:
+  np4-network:
+    external: true
 
-  traefik:
-    image: hub.cangling.cn/docker/library/traefik:v3.7
-    container_name: traefik
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
-      - "636:636"
-      - "7701:8080"
-    networks:
-      - it_network
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./data/traefik-certs:/certs
-      - ./data/traefik/:/etc/traefik/
-      - ./data/step-ca-data/certs:/certs-incoming:ro
-      - "/etc/localtime:/etc/localtime:ro"
-      - "/etc/timezone:/etc/timezone:ro"
-    environment:
-      # 传递环境变量给 YAML 中的 pdns provider 驱动使用
-      - PDNS_API_KEY=let_china_great_again
-      - PDNS_API_URL=http://powerdns:8081
-      - LEGO_CA_CERTIFICATES=/certs-incoming/root_ca.crt
-      - PDNS_VHOST=tjj
-
-    command:
-      - "--configfile=/etc/traefik/traefik.yaml"
+volumes:
+  postgis-volume:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: './dev/postgis'
+  app-volume:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: './dev/data'

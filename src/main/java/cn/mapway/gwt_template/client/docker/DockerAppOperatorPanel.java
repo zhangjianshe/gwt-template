@@ -12,8 +12,6 @@ import cn.mapway.ui.client.widget.CommonEventComposite;
 import cn.mapway.ui.client.widget.buttons.AiButton;
 import cn.mapway.ui.client.widget.dialog.Dialog;
 import cn.mapway.ui.client.widget.dialog.SaveBar;
-import cn.mapway.ui.client.widget.tree.Tree;
-import cn.mapway.ui.client.widget.tree.TreeItem;
 import cn.mapway.ui.shared.CommonEvent;
 import cn.mapway.ui.shared.rpc.RpcResult;
 import cn.mapway.xterm.client.Terminal;
@@ -38,7 +36,7 @@ import elemental2.dom.DomGlobal;
 import elemental2.dom.Element;
 import elemental2.dom.EventSource;
 
-public class DockerAppOperatorPanel extends CommonEventComposite implements RequiresResize, IData<DockerAppEntity> {
+public class DockerAppOperatorPanel extends CommonEventComposite implements RequiresResize, IData<DockerAppData> {
 
     private static final DockerAppOperatorPanelUiBinder ourUiBinder = GWT.create(DockerAppOperatorPanelUiBinder.class);
     private static Dialog<DockerAppOperatorPanel> dialog;
@@ -51,8 +49,6 @@ public class DockerAppOperatorPanel extends CommonEventComposite implements Requ
     TerminalPanel terminal;
     @UiField
     DockLayoutPanel root;
-    @UiField
-    Tree list;
     @UiField
     SStyle style;
     @UiField
@@ -68,6 +64,7 @@ public class DockerAppOperatorPanel extends CommonEventComposite implements Requ
     @UiField
     AiButton lbTitle;
     AttachAddon currentAttach = null;
+    DockerAppData dockerAppData;
     private DockerAppEntity appEntity;
     private EventSource activeLogStream;
     private String currentSelectedService;
@@ -157,13 +154,14 @@ public class DockerAppOperatorPanel extends CommonEventComposite implements Requ
     }
 
     @Override
-    public DockerAppEntity getData() {
-        return appEntity;
+    public DockerAppData getData() {
+        return dockerAppData;
     }
 
     @Override
-    public void setData(DockerAppEntity obj) {
-        this.appEntity = obj;
+    public void setData(DockerAppData obj) {
+        this.appEntity = obj.appEntity;
+        this.dockerAppData = obj;
         toUI();
     }
 
@@ -174,48 +172,55 @@ public class DockerAppOperatorPanel extends CommonEventComposite implements Requ
         if (appEntity == null) {
             return;
         }
+        if (StringUtil.isBlank(dockerAppData.serviceName)) {
+            
+            QueryDockerAppInfoRequest request = new QueryDockerAppInfoRequest();
+            request.setDockerAppId(appEntity.getId());
 
-        QueryDockerAppInfoRequest request = new QueryDockerAppInfoRequest();
-        request.setDockerAppId(appEntity.getId());
-
-        AppProxy.get().queryDockerAppInfo(request, new AsyncCallback<RpcResult<QueryDockerAppInfoResponse>>() {
-            @Override
-            public void onFailure(Throwable caught) {
-                saveBar.msg(caught.getMessage());
-            }
-
-            @Override
-            public void onSuccess(RpcResult<QueryDockerAppInfoResponse> result) {
-                if (result.isSuccess()) {
-                    console.clear();
-                    QueryDockerAppInfoResponse data = result.getData();
-                    lbSize.setText("\uD83D\uDDB4" + (StringUtil.isNotBlank(data.getTotalSize()) ? data.getTotalSize() : "-"));
-
-                    if (StringUtil.isNotBlank(data.getStatus())) {
-                        console.write(normalizeLineBreaks(data.getStatus()));
-                    }
-
-                    if (data.getErrors() != null && !data.getErrors().isEmpty()) {
-                        for (String err : data.getErrors()) {
-                            console.writeln(Ansi.error("[WARN/ERR] " + err));
-                        }
-                    }
-
-                    // 渲染服务列表树
-                    list.clear();
-                    if (data.getServices() != null) {
-                        for (String name : data.getServices()) {
-                            TreeItem treeItem = list.addItem(null, name, "");
-                            treeItem.setData(name);
-                        }
-                    }
-
-                    setControlToolsVisible(false);
-                } else {
-                    saveBar.msg(result.getMessage());
+            AppProxy.get().queryDockerAppInfo(request, new AsyncCallback<RpcResult<QueryDockerAppInfoResponse>>() {
+                @Override
+                public void onFailure(Throwable caught) {
+                    saveBar.msg(caught.getMessage());
                 }
+
+                @Override
+                public void onSuccess(RpcResult<QueryDockerAppInfoResponse> result) {
+                    if (result.isSuccess()) {
+                        console.clear();
+                        QueryDockerAppInfoResponse data = result.getData();
+                        lbSize.setText("\uD83D\uDDB4" + (StringUtil.isNotBlank(data.getTotalSize()) ? data.getTotalSize() : "-"));
+
+                        if (StringUtil.isNotBlank(data.getStatus())) {
+                            console.write(normalizeLineBreaks(data.getStatus()));
+                        }
+
+                        if (data.getErrors() != null && !data.getErrors().isEmpty()) {
+                            for (String err : data.getErrors()) {
+                                console.writeln(Ansi.error("[WARN/ERR] " + err));
+                            }
+                        }
+
+                        setControlToolsVisible(false);
+                    } else {
+                        saveBar.msg(result.getMessage());
+                    }
+                }
+            });
+        } else {
+            if (dockerAppData.serviceName.equals(currentSelectedService)) {
+                return; // 避免重复点击相同的 service 重新建立连接
             }
-        });
+
+            this.currentSelectedService = dockerAppData.serviceName;
+
+            btnStartService.setText("重启(" + currentSelectedService + ")");
+            btnStartService.setData(currentSelectedService);
+            btnExec.setText("调式容器(" + currentSelectedService + ")");
+            setControlToolsVisible(true);
+
+            // 连接并跟踪服务实时日志
+            connectServiceLogs(currentSelectedService);
+        }
     }
 
     @UiHandler("saveBar")
@@ -226,29 +231,6 @@ public class DockerAppOperatorPanel extends CommonEventComposite implements Requ
         }
     }
 
-    @UiHandler("list")
-    public void listCommon(CommonEvent event) {
-        if (event.isSelect()) {
-            TreeItem item = event.getValue();
-            if (item == null || item.getData() == null) {
-                return;
-            }
-            String serviceName = item.getData().toString();
-            if (serviceName.equals(currentSelectedService)) {
-                return; // 避免重复点击相同的 service 重新建立连接
-            }
-
-            this.currentSelectedService = serviceName;
-
-            btnStartService.setText("重启(" + serviceName + ")");
-            btnStartService.setData(serviceName);
-            btnExec.setText("调式容器(" + serviceName + ")");
-            setControlToolsVisible(true);
-
-            // 连接并跟踪服务实时日志
-            connectServiceLogs(serviceName);
-        }
-    }
 
     /**
      * 连接 Docker 服务日志流 (SSE)
@@ -348,7 +330,7 @@ public class DockerAppOperatorPanel extends CommonEventComposite implements Requ
 
     @UiHandler("lbTitle")
     public void lbTitleClick(ClickEvent event) {
-        setData(appEntity);
+        setData(dockerAppData);
     }
 
     private void executeAction(RestartDockerAppRequest request) {
