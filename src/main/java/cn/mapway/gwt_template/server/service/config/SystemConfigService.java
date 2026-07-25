@@ -202,7 +202,7 @@ public class SystemConfigService implements EnvironmentAware {
 
     public PowerDnsConfig createDefaultPowerDnsConfig() {
         PowerDnsConfig powerDnsConfig = new PowerDnsConfig();
-        powerDnsConfig.basePath = "http://powerdns:8081";
+        powerDnsConfig.basePath = "http://it-powerdns:8081";
         powerDnsConfig.token = "let_china_great_again";
         SysConfigEntity entity = new SysConfigEntity();
         entity.setKey(AppConstant.KEY_POWER_DNS);
