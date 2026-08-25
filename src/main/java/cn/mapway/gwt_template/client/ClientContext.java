@@ -13,6 +13,7 @@ import cn.mapway.rbac.shared.RbacConstant;
 import cn.mapway.rbac.shared.ResourceKind;
 import cn.mapway.rbac.shared.db.postgis.RbacUserEntity;
 import cn.mapway.rbac.shared.model.Res;
+import cn.mapway.rbac.shared.model.Role;
 import cn.mapway.rbac.shared.model.UserPermissions;
 import cn.mapway.ui.client.IClientContext;
 import cn.mapway.ui.client.IUserInfo;
@@ -139,6 +140,10 @@ public class ClientContext implements IClientContext, HasCommonHandlers {
         });
     }
 
+    public static String getImageUploader() {
+        return GWT.getHostPageBaseURL() + "fileUpload";
+    }
+
     @Override
     public IUserInfo getUserInfo() {
         return userInfo;
@@ -151,6 +156,14 @@ public class ClientContext implements IClientContext, HasCommonHandlers {
 
     @Override
     public boolean isAssignRole(String roleCode) {
+        if (StringUtil.isBlank(roleCode)) {
+            return false;
+        }
+        for (Role role : userPermissions.roles) {
+            if (roleCode.equals(role.code)) {
+                return true;
+            }
+        }
         return false;
     }
 

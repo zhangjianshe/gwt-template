@@ -4,6 +4,7 @@ import cn.mapway.gwt_template.client.main.MainFrame;
 import cn.mapway.gwt_template.client.resource.AppResource;
 import cn.mapway.gwt_template.client.rpc.AppProxy;
 import cn.mapway.gwt_template.client.user.AppLoginFrame;
+import cn.mapway.gwt_template.client.widget.gridstack.GridStackResourceManager;
 import cn.mapway.gwt_template.shared.rpc.app.AppData;
 import cn.mapway.gwt_template.shared.rpc.config.ConfigEnums;
 import cn.mapway.gwt_template.shared.rpc.config.QueryConfigRequest;
@@ -17,6 +18,7 @@ import cn.mapway.ui.client.mvc.IModule;
 import cn.mapway.ui.client.mvc.ModuleParameter;
 import cn.mapway.ui.client.resource.MapwayResource;
 import cn.mapway.ui.shared.rpc.RpcResult;
+import com.google.gwt.core.client.Callback;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
@@ -36,25 +38,36 @@ public class ClientApp implements EntryPoint {
     public void onModuleLoad() {
         MapwayResource.INSTANCE.css().ensureInjected();
         AppResource.INSTANCE.styles().ensureInjected();
-        QueryConfigRequest request = new QueryConfigRequest();
-        List<String> list = new ArrayList<>();
-        list.add(ConfigEnums.CONFIG_APP.getCode());
-        request.setConfigKeys(list);
-        AppProxy.get().queryConfig(request, new AsyncCallback<RpcResult<QueryConfigResponse>>() {
+        GridStackResourceManager.loadResources(new Callback<Void, Exception>() {
             @Override
-            public void onFailure(Throwable caught) {
-                DomGlobal.console.error(caught.getMessage());
+            public void onFailure(Exception reason) {
+
             }
 
             @Override
-            public void onSuccess(RpcResult<QueryConfigResponse> result) {
-                if (result.isSuccess()) {
-                    readyToStart(result.getData().getAppData());
-                } else {
-                    DomGlobal.console.error(result.getMessage());
-                }
+            public void onSuccess(Void result) {
+                QueryConfigRequest request = new QueryConfigRequest();
+                List<String> list = new ArrayList<>();
+                list.add(ConfigEnums.CONFIG_APP.getCode());
+                request.setConfigKeys(list);
+                AppProxy.get().queryConfig(request, new AsyncCallback<RpcResult<QueryConfigResponse>>() {
+                    @Override
+                    public void onFailure(Throwable caught) {
+                        DomGlobal.console.error(caught.getMessage());
+                    }
+
+                    @Override
+                    public void onSuccess(RpcResult<QueryConfigResponse> result) {
+                        if (result.isSuccess()) {
+                            readyToStart(result.getData().getAppData());
+                        } else {
+                            DomGlobal.console.error(result.getMessage());
+                        }
+                    }
+                });
             }
         });
+
     }
 
     private void readyToStart(AppData appData) {

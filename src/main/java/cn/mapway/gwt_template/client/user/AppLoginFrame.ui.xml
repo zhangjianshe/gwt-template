@@ -1,56 +1,157 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
              xmlns:g='urn:import:com.google.gwt.user.client.ui' xmlns:widget="urn:import:cn.mapway.ui.client.widget">
     <ui:style>
+        /* 🌌 深色毛玻璃登录面板 */
         .login-container {
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 380px;
+            background: rgba(15, 23, 42, 0.55); /* 深色半透明底色 */
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            padding: 35px 40px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.15); /* 极细的微光边框 */
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6),
+            0 0 0 1px rgba(255, 255, 255, 0.05) inset; /* 内发光增强质感 */
+            width: 400px;
             position: absolute;
-            right: 15%;
+            right: 12%;
+            top: 50%;
+            transform: translateY(-50%);
+            box-sizing: border-box;
         }
 
+        /* 标题优化为科技感亮色 */
         h2 {
             text-align: center;
-            margin-bottom: 20px;
+            margin: 0 0 28px 0;
+            color: #f8fafc; /* 替换为纯净的亮灰白色 */
+            font-size: 22px;
+            font-weight: 600;
+            letter-spacing: 2px;
         }
 
         .input-group {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
+            width: 100%;
         }
 
+        /* 标签文字改浅色 */
         .input-group label {
             display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            padding-bottom: 10px;
+            margin-bottom: 8px;
+            font-size: 13px;
+            color: #cbd5e1;
+            font-weight: 500;
         }
 
+        /* 输入框 - 深色模式 */
         .input-group input[type="text"],
-        .input-group input[type="password"] {
+        .input-group input[type="password"],
+        .input-group :value {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box; /* Important for padding not to increase total width */
+            height: 40px;
+            padding: 0 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            background-color: rgba(0, 0, 0, 0.3); /* 深色镂空感 */
+            color: #ffffff; /* 输入文字为纯白 */
+            font-size: 14px;
+            transition: all 0.3s ease-in-out;
+            box-sizing: border-box;
         }
 
-        .login-button {
-            width: 140px;
-            padding: 10px;
-            background-color: #007bff;
-            color: white;
+        /* 输入框 Focus - 霓虹青色发光效果 */
+        .input-group input:focus {
+            border-color: #00E5FF;
+            background-color: rgba(0, 0, 0, 0.5);
+            box-shadow: 0 0 10px rgba(0, 229, 255, 0.25), inset 0 0 5px rgba(0, 229, 255, 0.1);
+            outline: none;
+        }
+
+        .input-group input:focus,
+        .input-group :value:focus { /* 确保 GWT 编译后的伪类或绑定组件也生效 */
+            border-color: #00E5FF;
+            background-color: rgba(15, 23, 42, 0.8); /* 稍微提升一点暗色背景的不透明度，体验更好 */
+            color: #ffffff !important; /* 🌟 核心修改：强制文本保持白色 */
+            box-shadow: 0 0 10px rgba(0, 229, 255, 0.25), inset 0 0 5px rgba(0, 229, 255, 0.1);
+            outline: none;
+        }
+        .line {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 26px;
+            width: 100%;
+        }
+
+        /* 登录按钮 - 科技蓝渐变与发光 */
+        .btn-login {
+            width: 145px;
+            height: 40px;
+            background: linear-gradient(135deg, #0284c7, #2563eb);
+            color: #ffffff;
             border: none;
-            border-radius: 4px;
+            border-radius: 6px;
             cursor: pointer;
-            font-size: 16px;
-            margin-top: 10px;
-            line-height: 14px;
+            font-size: 15px;
+            font-weight: 500;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
         }
 
-        .login-button:hover {
-            background-color: #0056b3;
+        .btn-login:hover {
+            background: linear-gradient(135deg, #0369a1, #1d4ed8);
+            box-shadow: 0 0 15px rgba(37, 99, 235, 0.6); /* 悬浮时发光增强 */
+            transform: translateY(-1px);
+        }
+
+        .btn-login:active {
+            transform: translateY(0);
+        }
+
+        /* 注册按钮 - 幽灵按钮适配暗环境 */
+        .btn-register {
+            width: 145px;
+            height: 40px;
+            background-color: transparent;
+            color: #cbd5e1; /* 浅灰色文字 */
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 500;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-register:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-1px);
+        }
+
+        .btn-register:active {
+            transform: translateY(0);
+        }
+
+        /* 错误提示框 - 适配暗黑风格 */
+        .msg {
+            text-wrap: wrap;
+            word-break: break-all;
+            padding: 10px;
+            line-height: 150%;
+            color: #fca5a5; /* 柔和的红色 */
+            background-color: rgba(127, 29, 29, 0.8); /* 深红色半透明背景 */
+            backdrop-filter: blur(8px);
+            overflow: auto;
+            border: 1px solid rgba(248, 113, 113, 0.4);
+            border-radius: 6px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 10px;
         }
 
         .box {
@@ -69,50 +170,147 @@
             position: relative;
         }
 
-        .msg {
-            text-wrap: wrap;
-            word-break: break-all;
-            padding: 10px;
-            line-height: 150%;
-            color: brown;
-            background-color: white;
-            overflow: auto;
-            border: solid 1px #f0f0f0;
-            border-radius: 10px;
-            box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+        .video-bg {
+            object-fit: cover;
+            object-position: center;
+            width: 100vw;
+            height: 100vh;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* 版本号降低透明度，避免喧宾夺主 */
+        .version {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+            font-family: Iosevka, monospace;
+        }
+
+        .versioninfo {
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 0.9rem;
+            font-family: Iosevka, monospace;
+        }
+
+        /* 证书下载按钮统一深色科技风 */
+        .cert-wrapper {
+            width: 100%;
+            height: 100%;
+            padding: 170px 40px 14px 20px;
+            box-sizing: border-box;
+        }
+
+        .cert {
+            position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 10px;
-        }
-
-        .background {
-            object-fit: cover;
-            object-position: center;
+            border-radius: 6px;
+            border: 1px solid rgba(0, 229, 255, 0.3); /* 霓虹青色边框 */
+            background-color: rgba(15, 23, 42, 0.65); /* 统一深色毛玻璃 */
+            backdrop-filter: blur(8px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease-in-out;
             width: 100%;
-            height: 100%;
+            height: 46px;
+            box-sizing: border-box;
         }
 
-        .version {
-            color: gray;
-            font-size: 0.9rem;
-            font-family: Iosevka;
+        .cert:hover {
+            border-color: #00E5FF;
+            background-color: rgba(0, 229, 255, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.3); /* 悬浮青色荧光 */
         }
 
-        .line {
+        .cert a {
+            color: #00E5FF; /* 文字呼应边框荧光色 */
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: bold;
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            padding: 0 10px;
-        }</ui:style>
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            letter-spacing: 1px;
+            text-shadow: 0 0 5px rgba(0, 229, 255, 0.5); /* 文字微发光 */
+        }
+
+        .cert a:hover {
+            color: #ffffff;
+        }
+
+        /* Tooltip 保持不变，它本来就是暗色的，很搭 */
+        .tooltip-box {
+            position: absolute;
+            bottom: 56px;
+            left: 0;
+            width: 320px;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            padding: 14px;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(8px);
+            transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        .tooltip-box::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 35px;
+            border: 6px solid transparent;
+            border-top-color: rgba(15, 23, 42, 0.95);
+        }
+
+        .cert:hover .tooltip-box {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .tooltip-title {
+            font-size: 13px;
+            font-weight: bold;
+            color: #00E5FF;
+            margin-bottom: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            padding-bottom: 6px;
+        }
+
+        .tooltip-line {
+            font-size: 12px;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.85);
+            margin-bottom: 4px;
+        }
+    </ui:style>
+
     <g:LayoutPanel ui:field="root">
         <g:layer>
-            <g:Image ui:field="background" addStyleNames="{style.background}"/>
+            <g:HTMLPanel width="100%" height="100%">
+                <video autoplay="autoplay" loop="loop" muted="muted" playsinline="playsinline" class="{style.video-bg}">
+                    <source src="video/cover.mp4" type="video/mp4" />
+                    您的浏览器不支持视频背景，请升级浏览器。
+                </video>
+            </g:HTMLPanel>
         </g:layer>
+
         <g:layer>
             <g:HTMLPanel addStyleNames="{style.box1}" ui:field="page">
                 <div class="{style.login-container}">
-                    <h2>苍灵开发平台</h2>
+                    <h2>系统登录</h2>
                     <form method="POST" class="{style.box}">
                         <div class="{style.input-group}">
                             <label for="txtName">用户名</label>
@@ -123,19 +321,38 @@
                             <widget:AiTextBox name="password" ui:field="txtPassword"/>
                         </div>
                         <g:HTMLPanel addStyleNames="{style.line}">
-                            <g:Button addStyleNames="{style.login-button}" ui:field="btnLogin">登录</g:Button>
-                            <g:Button addStyleNames="{style.login-button}" ui:field="btnRegister">注册</g:Button>
+                            <g:Button addStyleNames="{style.btn-login}" ui:field="btnLogin">登录</g:Button>
+                            <g:Button addStyleNames="{style.btn-register}" ui:field="btnRegister">注册</g:Button>
                         </g:HTMLPanel>
                     </form>
                 </div>
-
             </g:HTMLPanel>
         </g:layer>
+
         <g:layer left="100" bottom="100" right="100" height="100">
             <g:Label ui:field="lbMessage" visible="false" addStyleNames="{style.msg}"/>
         </g:layer>
-        <g:layer left="20" bottom="10" width="300" height="30">
-            <g:Label ui:field="lbVersion" addStyleNames="{style.version}"/>
+
+        <g:layer left="0" bottom="50" width="340" height="240">
+            <g:HTMLPanel addStyleNames="{style.cert-wrapper}">
+                <div class="{style.cert}">
+                    <g:Anchor target="_blank" href="/api/v1/traefik/root-ca.crt">🔒 下载 Step-CA 根证书</g:Anchor>
+                    <div class="{style.tooltip-box}">
+                        <div class="{style.tooltip-title}">💡 Step-CA 根证书安装指南</div>
+                        <div class="{style.tooltip-line}">1. 点击左侧按钮下载根证书。</div>
+                        <div class="{style.tooltip-line}">2. 双击打开下载的证书文件。</div>
+                        <div class="{style.tooltip-line}">3. 安装到“受信任的根证书颁发机构”。</div>
+                        <div class="{style.tooltip-line}">4. 重启浏览器即可消除 HTTPS 警告。</div>
+                    </div>
+                </div>
+            </g:HTMLPanel>
+        </g:layer>
+
+        <g:layer right="20" bottom="10" width="300" height="30">
+            <g:HorizontalPanel spacing="4">
+                <g:Label ui:field="lbVersion" addStyleNames="{style.version}"/>
+                <g:Label ui:field="lbVersionInfo" addStyleNames="{style.versioninfo}"/>
+            </g:HorizontalPanel>
         </g:layer>
     </g:LayoutPanel>
 </ui:UiBinder>

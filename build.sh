@@ -1,2 +1,2 @@
 #!/bin/bash
-mvn clean compile gwt:compile package install
+mvn clean compile gwt:compile package install -DskipTests=true

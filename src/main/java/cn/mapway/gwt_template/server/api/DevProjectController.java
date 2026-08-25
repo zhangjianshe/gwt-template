@@ -182,6 +182,21 @@ public class DevProjectController extends ApiBaseController {
 
     @Resource
     QueryPageCommitsExecutor queryPageCommitsExecutor;
+
+    @Resource
+    UpdateProjectTaskCoverExecutor updateProjectTaskCoverExecutor;
+    /**
+     * UpdateProjectTaskCover
+     *
+     * @param request request
+     * @return data
+     */
+    @Doc(value = "UpdateProjectTaskCover", retClazz = {UpdateProjectTaskCoverResponse.class})
+    @RequestMapping(value = "/updateProjectTaskCover", method = RequestMethod.POST)
+    public RpcResult<UpdateProjectTaskCoverResponse> updateProjectTaskCover(@RequestBody UpdateProjectTaskCoverRequest request) {
+        BizResult<UpdateProjectTaskCoverResponse> bizResult = updateProjectTaskCoverExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toApiResult(bizResult);
+    }
     /**
      * QueryPageCommits
      *
@@ -637,7 +652,8 @@ public class DevProjectController extends ApiBaseController {
         resp.setHeader("Content-Disposition", "inline; filename=\"" + URLEncoder.encode(target.getName(), StandardCharsets.UTF_8) + "\"");
 
         // 设置缓存策略：这里设置缓存 1 天，且允许协商缓存
-        resp.setHeader("Cache-Control", "public, max-age=86400");
+        //resp.setHeader("Cache-Control", "public, max-age=86400");
+        resp.setHeader("Cache-Control", "public, max-age=0");
         resp.setDateHeader("Last-Modified", lastModified);
         resp.setHeader("X-Frame-Options", "SAMEORIGIN");
 

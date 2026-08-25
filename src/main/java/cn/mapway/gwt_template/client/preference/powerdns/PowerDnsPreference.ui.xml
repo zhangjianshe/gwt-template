@@ -1,0 +1,82 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui' xmlns:widget="urn:import:cn.mapway.ui.client.widget">
+    <ui:style>
+        .container {
+            padding: 30px;
+            background-color: #ffffff;
+            height: 100%;
+        }
+
+        .formGroup {
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .formLabel {
+            font-size: 14px;
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 8px;
+        }
+
+        .formInput {
+            width: 400px;
+            padding: 10px 12px;
+            font-size: 14px;
+            color: #334155;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .formInput:focus {
+            border-color: #3b82f6;
+        }
+
+        .stylishButton {
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background-color 0.2s ease;
+            margin-top: 10px;
+        }
+
+        .stylishButton:hover {
+            background-color: #2563eb;
+        }
+
+        .sectionTitle {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1e293b;
+            margin-bottom: 24px;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+    </ui:style>
+
+    <g:DockLayoutPanel>
+        <g:center>
+            <g:HTMLPanel addStyleNames="{style.container}">
+                <g:Label text="PowerDNS 基础配置" addStyleNames="{style.sectionTitle}"/>
+                <g:HTMLPanel addStyleNames="{style.formGroup}">
+                    <g:Label text="API 地址 (Base Path)" addStyleNames="{style.formLabel}"/>
+                    <widget:AiTextBox ui:field="txtBasePath" addStyleNames="{style.formInput}"
+                                      placeholder="例如: http://127.0.0.1:8081"/>
+                </g:HTMLPanel>
+
+                <g:HTMLPanel addStyleNames="{style.formGroup}">
+                    <g:Label text="API 密钥 (Token)" addStyleNames="{style.formLabel}"/>
+                    <g:PasswordTextBox ui:field="txtToken" addStyleNames="{style.formInput}"/>
+                </g:HTMLPanel>
+            </g:HTMLPanel>
+        </g:center>
+    </g:DockLayoutPanel>
+</ui:UiBinder>

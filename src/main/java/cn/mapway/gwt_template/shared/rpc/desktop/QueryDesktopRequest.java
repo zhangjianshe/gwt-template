@@ -14,4 +14,8 @@ import java.io.Serializable;
 @Data
 @Doc("QueryDesktopRequest")
 public class QueryDesktopRequest implements Serializable, IsSerializable {
+    boolean fetchMainBoard;
+    boolean fetchShortcut;
+    boolean fetchProjects;
+    boolean fetchWorkspaces;
 }

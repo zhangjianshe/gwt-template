@@ -28,6 +28,7 @@ import javax.naming.NamingEnumeration;
 import javax.naming.directory.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -43,11 +44,14 @@ public class LdapService implements IReset {
     SystemConfigService systemConfigService;
     LdapTemplate ldapTemplate;
 
+
     private LdapContextSource getContextSource() {
 
         LdapSettings settings = systemConfigService.getConfigFromKeyAsObject(ConfigEnums.CONFIG_LDAP.getCode(), LdapSettings.class);
         if (settings == null || Strings.isBlank(settings.getUrl())) {
             log.warn("[LDAP] 没有LDAP配置信息");
+            // 创建一个缺省的LDAP配置信息
+            settings=systemConfigService.createDefaultLdapConfig();
         }
 
         LdapContextSource cs = new LdapContextSource();
@@ -71,6 +75,7 @@ public class LdapService implements IReset {
     public synchronized LdapTemplate getLdapTemplate() {
         if (ldapTemplate == null) {
             ldapTemplate = new LdapTemplate(getContextSource());
+            ldapTemplate.setIgnoreSizeLimitExceededException(true);
         }
         return ldapTemplate;
     }
@@ -109,36 +114,59 @@ public class LdapService implements IReset {
         return values;
     }
 
-    public List<LdapNodeData> getChildren(String parentDn) {
+    public List<LdapNodeData> getChildren(String parentDn, String nameFilter) {
         String[] attrsToFetch = new String[]{"*", "structuralObjectClass", "objectClass"};
-        return getLdapTemplate().search(
-                LdapQueryBuilder.query()
-                        .base(parentDn)
-                        .searchScope(SearchScope.ONELEVEL)
-                        .attributes(attrsToFetch)
-                        .where("objectClass").isPresent(),
-                (ContextMapper<LdapNodeData>) ctx -> {
-                    DirContextAdapter adapter = (DirContextAdapter) ctx;
-                    LdapNodeData node = new LdapNodeData();
 
-                    node.setDn(adapter.getNameInNamespace());
-                    node.setName(adapter.getStringAttribute("ou") != null ?
-                            adapter.getStringAttribute("ou") :
-                            adapter.getStringAttribute("cn"));
-                    // Add logic here to determine if it's a "folder" or "leaf"
-                    node.setFolder(false);
+        // 1. 初始化 queryBuilder 并设置 countLimit 为 100
+        var queryBuilder = LdapQueryBuilder.query()
+                .base(parentDn)
+                .searchScope(SearchScope.ONELEVEL)
+                .countLimit(100) // 🌟 核心修改：限制服务器端最多返回 100 条记录
+                .attributes(attrsToFetch);
 
-                    String[] classes = adapter.getStringAttributes("objectClass");
-                    if (classes != null) {
-                        node.setObjectClasses(Lang.array2list(classes));
-                        node.setFolder(node.getObjectClasses().contains("organizationalUnit"));
+        // 2. 组装过滤条件
+        if (nameFilter != null && !nameFilter.trim().isEmpty()) {
+            String filterValue = "*" + nameFilter.trim() + "*";
+            queryBuilder.where("objectClass").isPresent()
+                    .and(LdapQueryBuilder.query().where("ou").like(filterValue)
+                            .or("cn").like(filterValue));
+        } else {
+            queryBuilder.where("objectClass").isPresent();
+        }
+
+        try {
+            return getLdapTemplate().search(
+                    queryBuilder,
+                    (ContextMapper<LdapNodeData>) ctx -> {
+                        DirContextAdapter adapter = (DirContextAdapter) ctx;
+                        LdapNodeData node = new LdapNodeData();
+
+                        node.setDn(adapter.getNameInNamespace());
+
+                        node.setName(adapter.getStringAttribute("ou") != null ?
+                                adapter.getStringAttribute("ou") :
+                                adapter.getStringAttribute("cn"));
+
+                        node.setFolder(false);
+
+                        String[] classes = adapter.getStringAttributes("objectClass");
+                        if (classes != null) {
+                            node.setObjectClasses(Lang.array2list(classes));
+                            node.setFolder(node.getObjectClasses().contains("organizationalUnit"));
+                        }
+                        String structuralObjectClass = adapter.getStringAttribute("structuralObjectClass");
+                        node.setStructuralObjectClass(structuralObjectClass);
+
+                        return node;
                     }
-                    String structuralObjectClass = adapter.getStringAttribute("structuralObjectClass");
-                    node.setStructuralObjectClass(structuralObjectClass);
-
-                    return node;
-                }
-        );
+            );
+        } catch (org.springframework.ldap.SizeLimitExceededException e) {
+            // 💡 额外注意：有些 LDAP 服务器在触及 countLimit 限制时，会抛出 SizeLimitExceededException。
+            // 如果你只想要前 100 条，而不希望程序报错中断，可以在这里捕获异常，或者通过配置忽略该异常。
+            // 这里的处理取决于你的具体业务场景。
+            log.warn("LDAP 搜索结果超过 100 条限制，仅返回部分数据");
+            return Collections.emptyList(); // 或者返回当前已解析的部分（若使用自定义收集器）
+        }
     }
 
     public LdapNodeData getEntryDetails(String dn) {

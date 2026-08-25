@@ -1,10 +1,12 @@
 package cn.mapway.gwt_template.server.config.startup;
 
 import cn.mapway.biz.core.BizResult;
+import cn.mapway.gwt_template.client.dns.ServiceFrame;
+import cn.mapway.gwt_template.client.docker.DockerAppFrame;
 import cn.mapway.gwt_template.client.repository.RepositoryFrame;
 import cn.mapway.gwt_template.client.workspace.DevWorkspaceFrame;
 import cn.mapway.gwt_template.server.config.AppConfig;
-import cn.mapway.gwt_template.server.rbac.Permissions;
+import cn.mapway.gwt_template.server.service.project.ProjectService;
 import cn.mapway.gwt_template.server.service.user.TokenService;
 import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.rpc.user.ResourcePoint;
@@ -54,6 +56,8 @@ public class ServerStartedOnce extends ApplicationObjectSupport implements IServ
     TokenService tokenService;
     @Resource
     RbacResourceService rbacResourceService;
+    @Resource
+    ProjectService projectService;
 
 
     @Override
@@ -138,7 +142,6 @@ public class ServerStartedOnce extends ApplicationObjectSupport implements IServ
     @Override
     public Collection<Class<?>> getScanPackages() {
         Collection<Class<?>> scans = new HashSet<>();
-        scans.add(Permissions.class);
         return scans;
     }
 
@@ -216,7 +219,19 @@ public class ServerStartedOnce extends ApplicationObjectSupport implements IServ
             rbacUserEntity.setRelId(AppConstant.USER_IS_PUBLIC_ACCOUNT);
             dao.insert(rbacUserEntity);
         }
+        checkSystemProject();
+    }
 
+    /**
+     * 检查全局的项目 这个项目用于系统资料的发布
+     * ADMIN
+     * WORKSPACE
+     * PROJECT  000000
+     * RESOURCEID 000000
+     * index.html
+     */
+    private void checkSystemProject() {
+        projectService.createSystemProject();
     }
 
     private void importAllModules() {
@@ -283,7 +298,7 @@ public class ServerStartedOnce extends ApplicationObjectSupport implements IServ
         //创建一个项目管理员角色
         BizResult<RbacRole> rbacRoleBizResult = rbacResourceService.confirmRoleExist(AppConstant.ROLE_SYS_PROJECT_MANAGER, "项目管理员", "", "", "");
         if (rbacRoleBizResult.isFailed()) {
-            log.error("[START] 项目管理员角色 {}", rbacRoleBizResult.getMessage());
+            log.warn("[START] 项目管理员角色 {}", rbacRoleBizResult.getMessage());
             throw Lang.makeThrow("[START]", rbacRoleBizResult.getMessage());
         }
 
@@ -297,10 +312,18 @@ public class ServerStartedOnce extends ApplicationObjectSupport implements IServ
         //系统LDAP管理角色
         rbacRoleBizResult = rbacResourceService.confirmRoleExist(AppConstant.ROLE_SYS_LDAP_MANAGER, "系统LDAP维护", "ROLE_SYS", "", "");
         if (rbacRoleBizResult.isFailed()) {
-            log.error("[START] 系统LDAP管理角色 {}", rbacRoleBizResult.getMessage());
+            log.warn("[START] 系统LDAP管理角色 {}", rbacRoleBizResult.getMessage());
             throw Lang.makeThrow("[START]", rbacRoleBizResult.getMessage());
         }
         rbacResourceService.confirmResourceInRole("ldap_frame", AppConstant.ROLE_SYS_LDAP_MANAGER);
+
+        //系统Docker app 管理角色
+        rbacRoleBizResult = rbacResourceService.confirmRoleExist(AppConstant.ROLE_DOCKER_APP_MANAGER, "DockerApp维护", "ROLE_SYS", "", "");
+        if (rbacRoleBizResult.isFailed()) {
+            log.warn("[START] 系统Docker app管理角色 {}", rbacRoleBizResult.getMessage());
+            throw Lang.makeThrow("[START]", rbacRoleBizResult.getMessage());
+        }
+        rbacResourceService.confirmResourceInRole(DockerAppFrame.MODULE_CODE, AppConstant.ROLE_DOCKER_APP_MANAGER);
 
 
         //分配项目管理员 创建项目资源
@@ -315,6 +338,7 @@ public class ServerStartedOnce extends ApplicationObjectSupport implements IServ
         //系统管理员拥有组织管理权限
         log.info("[START] 分配系统管理员拥有　系统配置资源");
         rbacResourceService.confirmResourceInRole(RbacFrame.MODULE_CODE, RbacConstant.ROLE_SYS_MAINTAINER);
+        rbacResourceService.confirmResourceInRole(ServiceFrame.MODULE_CODE, RbacConstant.ROLE_SYS_MAINTAINER);
 
         //分配普通用户的权限
         log.info("[START] 分配普通用户拥有　资源");
@@ -326,6 +350,8 @@ public class ServerStartedOnce extends ApplicationObjectSupport implements IServ
         //管理员拥有消息管理角色
         rbacResourceService.assignUserRole(String.valueOf(RbacConstant.SUPER_USER_ID), AppConstant.ROLE_SYS_MESSAGE_MANAGER, false);
         rbacResourceService.assignUserRole(String.valueOf(RbacConstant.SUPER_USER_ID), AppConstant.ROLE_SYS_LDAP_MANAGER, false);
+        rbacResourceService.assignUserRole(String.valueOf(RbacConstant.SUPER_USER_ID), AppConstant.ROLE_SYS_PROJECT_MANAGER, false);
+        rbacResourceService.assignUserRole(String.valueOf(RbacConstant.SUPER_USER_ID), AppConstant.ROLE_DOCKER_APP_MANAGER, false);
 
 
     }

@@ -1,0 +1,38 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui' xmlns:widget="urn:import:cn.mapway.ui.client.widget">
+    <ui:style>
+        @eval HOVER_BACK "var(--color-background-hover)";
+        @eval SELECTED_BACK "var(--color-background-selected)";
+        .box {
+            display: grid;
+            grid-template-rows: 1fr 32px;
+            align-items: center;
+            justify-content: center;
+            width: 120px;
+            height: 120px;
+            border-radius: 6px;
+        }
+
+        .box:HOVER {
+            background-color: HOVER_BACK;
+        }
+
+        .box[select="true"] {
+            background-color: SELECTED_BACK;
+        }
+
+        .icon {
+            font-size: 48px;
+            align-self: center;
+            justify-self: anchor-center;
+        }
+
+        .name {
+            line-height: 42px;
+        }
+    </ui:style>
+    <g:HTMLPanel addStyleNames="{style.box}">
+        <widget:FontIcon ui:field="icon" addStyleNames="{style.icon}"/>
+        <g:Label ui:field="lbName" addStyleNames="{style.name}"/>
+    </g:HTMLPanel>
+</ui:UiBinder>

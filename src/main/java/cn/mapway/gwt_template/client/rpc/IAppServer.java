@@ -1,12 +1,17 @@
 package cn.mapway.gwt_template.client.rpc;
 
 import cn.mapway.gwt_template.shared.AppConstant;
+import cn.mapway.gwt_template.shared.rpc.app.*;
 import cn.mapway.gwt_template.shared.rpc.config.*;
 import cn.mapway.gwt_template.shared.rpc.desktop.*;
 import cn.mapway.gwt_template.shared.rpc.dev.*;
 import cn.mapway.gwt_template.shared.rpc.dns.*;
+import cn.mapway.gwt_template.shared.rpc.docker.*;
 import cn.mapway.gwt_template.shared.rpc.ldap.*;
+import cn.mapway.gwt_template.shared.rpc.log.QueryLogsRequest;
+import cn.mapway.gwt_template.shared.rpc.log.QueryLogsResponse;
 import cn.mapway.gwt_template.shared.rpc.message.*;
+import cn.mapway.gwt_template.shared.rpc.powerdns.*;
 import cn.mapway.gwt_template.shared.rpc.project.*;
 import cn.mapway.gwt_template.shared.rpc.project.res.*;
 import cn.mapway.gwt_template.shared.rpc.project.wiki.*;
@@ -31,43 +36,93 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 @RemoteServiceRelativePath(AppConstant.DEFAULT_SERVER_PATH)
 public interface IAppServer extends RemoteService {
     ///CODE_GEN_INSERT_POINT///
-	RpcResult<TransferRepositoryResponse> transferRepository(TransferRepositoryRequest request);
+	RpcResult<QueryDockerServiceInfoResponse> queryDockerServiceInfo(QueryDockerServiceInfoRequest request);
 
-	RpcResult<QueryUserPermissionInRepoResponse> queryUserPermissionInRepo(QueryUserPermissionInRepoRequest request);
+	RpcResult<QueryDockerAppInfoResponse> queryDockerAppInfo(QueryDockerAppInfoRequest request);
 
-	RpcResult<QueryImagesResponse> queryImages(QueryImagesRequest request);
+	RpcResult<DeleteDirFileResponse> deleteDirFile(DeleteDirFileRequest request);
 
-	RpcResult<QueryPageCommitsResponse> queryPageCommits(QueryPageCommitsRequest request);
+	RpcResult<QuerySysDirResponse> querySysDir(QuerySysDirRequest request);
 
-	RpcResult<QueryPageSectionResponse> queryPageSection(QueryPageSectionRequest request);
+	RpcResult<RestartDockerAppResponse> restartDockerApp(RestartDockerAppRequest request);
 
-	RpcResult<UpdatePageSectionResponse> updatePageSection(UpdatePageSectionRequest request);
+	RpcResult<WriteDockerAppResDataResponse> writeDockerAppResData(WriteDockerAppResDataRequest request);
 
-	RpcResult<LoadPageResponse> loadPage(LoadPageRequest request);
+	RpcResult<ReadDockerAppResDataResponse> readDockerAppResData(ReadDockerAppResDataRequest request);
 
-	RpcResult<QueryPageResponse> queryPage(QueryPageRequest request);
+	RpcResult<QueryDockerAppDirResponse> queryDockerAppDir(QueryDockerAppDirRequest request);
 
-	RpcResult<UpdatePageResponse> updatePage(UpdatePageRequest request);
+	RpcResult<UpdateDockerAppResponse> updateDockerApp(UpdateDockerAppRequest request);
 
-	RpcResult<ViewAttachmentFileResponse> viewAttachmentFile(ViewAttachmentFileRequest request);
+	RpcResult<DeleteDockerAppResponse> deleteDockerApp(DeleteDockerAppRequest request);
 
-	RpcResult<MarkdownToHtmlResponse> markdownToHtml(MarkdownToHtmlRequest request);
+	RpcResult<QueryDockerAppsResponse> queryDockerApps(QueryDockerAppsRequest request);
 
-	RpcResult<DeleteTaskAttachmentsResponse> deleteTaskAttachments(DeleteTaskAttachmentsRequest request);
+	RpcResult<DeleteDashboardResponse> deleteDesktopLayout(DeleteDashboardRequest request);
 
-	RpcResult<UploadTaskAttachmentsResponse> uploadTaskAttachments(UploadTaskAttachmentsRequest request);
+	RpcResult<QueryDashboardResponse> queryDesktopLayout(QueryDashboardRequest request);
 
-	RpcResult<QueryTaskAttachmentsResponse> queryTaskAttachments(QueryTaskAttachmentsRequest request);
+	RpcResult<UpdateDashboardResponse> saveDesktopLayout(UpdateDashboardRequest request);
 
-	RpcResult<UpdateFavoriteProjectResponse> updateFavoriteProject(UpdateFavoriteProjectRequest request);
+	RpcResult<UpdateProjectTaskCoverResponse> updateProjectTaskCover(UpdateProjectTaskCoverRequest request);
 
-	RpcResult<QueryFavoriteProjectResponse> queryFavoriteProject(QueryFavoriteProjectRequest request);
+	RpcResult<DeleteAppServiceResponse> deleteAppService(DeleteAppServiceRequest request);
 
-	RpcResult<AddProjectRepoResponse> addProjectRepo(AddProjectRepoRequest request);
+	RpcResult<UpdateAppServiceResponse> updateAppService(UpdateAppServiceRequest request);
 
-	RpcResult<RemoveProjectRepoResponse> removeProjectRepo(RemoveProjectRepoRequest request);
+	RpcResult<QueryAppServiceResponse> queryAppService(QueryAppServiceRequest request);
 
-	RpcResult<QueryProjectRepoResponse> queryProjectRepo(QueryProjectRepoRequest request);
+    RpcResult<QueryLogsResponse> queryLogs(QueryLogsRequest request);
+
+    RpcResult<QueryRecordsResponse> queryRecords(QueryRecordsRequest request);
+
+    RpcResult<QueryZonesResponse> queryZones(QueryZonesRequest request);
+
+    RpcResult<DeleteRecordResponse> deleteRecord(DeleteRecordRequest request);
+
+    RpcResult<CreateOrUpdateRecordResponse> createOrUpdateRecord(CreateOrUpdateRecordRequest request);
+
+    RpcResult<DeleteZoneResponse> deleteZone(DeleteZoneRequest request);
+
+    RpcResult<CreateZoneResponse> createZone(CreateZoneRequest request);
+
+    RpcResult<TransferRepositoryResponse> transferRepository(TransferRepositoryRequest request);
+
+    RpcResult<QueryUserPermissionInRepoResponse> queryUserPermissionInRepo(QueryUserPermissionInRepoRequest request);
+
+    RpcResult<QueryImagesResponse> queryImages(QueryImagesRequest request);
+
+    RpcResult<QueryPageCommitsResponse> queryPageCommits(QueryPageCommitsRequest request);
+
+    RpcResult<QueryPageSectionResponse> queryPageSection(QueryPageSectionRequest request);
+
+    RpcResult<UpdatePageSectionResponse> updatePageSection(UpdatePageSectionRequest request);
+
+    RpcResult<LoadPageResponse> loadPage(LoadPageRequest request);
+
+    RpcResult<QueryPageResponse> queryPage(QueryPageRequest request);
+
+    RpcResult<UpdatePageResponse> updatePage(UpdatePageRequest request);
+
+    RpcResult<ViewAttachmentFileResponse> viewAttachmentFile(ViewAttachmentFileRequest request);
+
+    RpcResult<MarkdownToHtmlResponse> markdownToHtml(MarkdownToHtmlRequest request);
+
+    RpcResult<DeleteTaskAttachmentsResponse> deleteTaskAttachments(DeleteTaskAttachmentsRequest request);
+
+    RpcResult<UploadTaskAttachmentsResponse> uploadTaskAttachments(UploadTaskAttachmentsRequest request);
+
+    RpcResult<QueryTaskAttachmentsResponse> queryTaskAttachments(QueryTaskAttachmentsRequest request);
+
+    RpcResult<UpdateFavoriteProjectResponse> updateFavoriteProject(UpdateFavoriteProjectRequest request);
+
+    RpcResult<QueryFavoriteProjectResponse> queryFavoriteProject(QueryFavoriteProjectRequest request);
+
+    RpcResult<AddProjectRepoResponse> addProjectRepo(AddProjectRepoRequest request);
+
+    RpcResult<RemoveProjectRepoResponse> removeProjectRepo(RemoveProjectRepoRequest request);
+
+    RpcResult<QueryProjectRepoResponse> queryProjectRepo(QueryProjectRepoRequest request);
 
     RpcResult<DeleteResourceMemberResponse> deleteResourceMember(DeleteResourceMemberRequest request);
 

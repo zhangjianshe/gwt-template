@@ -6,20 +6,27 @@ import cn.mapway.biz.core.BizRequest;
 import cn.mapway.biz.core.BizResult;
 import cn.mapway.gwt_template.server.service.project.ProjectService;
 import cn.mapway.gwt_template.shared.AppConstant;
+import cn.mapway.gwt_template.shared.db.DashboardEntity;
 import cn.mapway.gwt_template.shared.db.DesktopItemEntity;
 import cn.mapway.gwt_template.shared.db.DevProjectEntity;
 import cn.mapway.gwt_template.shared.db.DevWorkspaceEntity;
+import cn.mapway.gwt_template.shared.rpc.desktop.DashboardItemData;
 import cn.mapway.gwt_template.shared.rpc.desktop.QueryDesktopRequest;
 import cn.mapway.gwt_template.shared.rpc.desktop.QueryDesktopResponse;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
+import cn.mapway.rbac.shared.db.postgis.RbacUserEntity;
+import cn.mapway.ui.client.fonts.Fonts;
 import lombok.extern.slf4j.Slf4j;
 import org.nutz.dao.Cnd;
 import org.nutz.dao.Dao;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
+import org.nutz.lang.random.R;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -41,23 +48,56 @@ public class QueryDesktopExecutor extends AbstractBizExecutor<QueryDesktopRespon
         log.info("QueryDesktopExecutor {}", Json.toJson(request, JsonFormat.compact()));
         LoginUser user = (LoginUser) context.get(AppConstant.KEY_LOGIN_USER);
 
-        List<DesktopItemEntity> result = dao.query(DesktopItemEntity.class, Cnd.where(DesktopItemEntity.FLD_USER_ID, "=", user.getUser().getUserId())
-                .or(DesktopItemEntity.FLD_SHARE, "=", true).asc(DesktopItemEntity.FLD_RANK));
-
         QueryDesktopResponse response = new QueryDesktopResponse();
 
-        List<DevWorkspaceEntity> workspaces = projectService.queryMyWorkspaces(user.getUser().getUserId());
-        projectService.fillWorkspaceInfo(workspaces, false);
-        response.setItems(result);
-        response.setWorkspaces(workspaces);
-
-        List<DevProjectEntity> projectEntities = projectService.queryMyProjects(user.getUser().getUserId());
-        log.info("user {} has {} projects", user.getUser().getUserId(), projectEntities.size());
-        for (DevProjectEntity projectEntity : projectEntities) {
-            projectService.fillProjectExtraInformation(projectEntity, user.getUser().getUserId());
+        if (request.isFetchShortcut()) {
+            List<DesktopItemEntity> result = dao.query(DesktopItemEntity.class, Cnd.where(DesktopItemEntity.FLD_USER_ID, "=", user.getUser().getUserId())
+                    .or(DesktopItemEntity.FLD_SHARE, "=", true).asc(DesktopItemEntity.FLD_RANK));
+            response.setItems(result);
         }
 
-        response.setFavoriteProjects(projectEntities);
+
+        if (request.isFetchWorkspaces()) {
+            List<DevWorkspaceEntity> workspaces = projectService.queryMyWorkspaces(user.getUser().getUserId());
+            projectService.fillWorkspaceInfo(workspaces, false);
+            response.setWorkspaces(workspaces);
+        }
+        if (request.isFetchProjects()) {
+            List<DevProjectEntity> projectEntities = projectService.queryMyProjects(user.getUser().getUserId());
+            log.info("user {} has {} projects", user.getUser().getUserId(), projectEntities.size());
+            for (DevProjectEntity projectEntity : projectEntities) {
+                projectService.fillProjectExtraInformation(projectEntity, user.getUser().getUserId());
+            }
+            response.setFavoriteProjects(projectEntities);
+        }
+
+        if (request.isFetchMainBoard()) {
+            String boardName = "我的桌面";
+            Cnd where = Cnd.where(DashboardEntity.FLD_NAME, "=", boardName);
+            where.and(DashboardEntity.FLD_USER_ID, "=", user.getUser().getUserId());
+            DashboardEntity layout = dao.fetch(DashboardEntity.class, where);
+            if (layout == null) {
+                //首次访问 需要创建一个缺省的面板
+                layout = createOne(user.getUser(), boardName);
+            }
+            response.setDashboard(layout);
+        }
         return BizResult.success(response);
+    }
+
+    private DashboardEntity createOne(RbacUserEntity user, String boardName) {
+        DashboardEntity dashboard = new DashboardEntity();
+        dashboard.setId(R.UU16());
+        dashboard.setName(boardName);
+        dashboard.setUserId(user.getUserId());
+        dashboard.setCreateTime(new Timestamp(System.currentTimeMillis()));
+        dashboard.setIcon(Fonts.LAYOUT);
+        dashboard.setSummary("系统创建缺省面板");
+
+        List<DashboardItemData> layouts = new ArrayList<>();
+        String defaultLayout = "[{\"moduleCode\":\"widget_my_projects\",\"x\":0,\"y\":0,\"w\":4,\"h\":11},{\"moduleCode\":\"widget_shortcut\",\"x\":4,\"y\":0,\"w\":8,\"h\":3},{\"moduleCode\":\"widget_iframe\",\"x\":4,\"y\":3,\"w\":8,\"h\":6,\"parameter\":\"{\\\"title\\\":\\\"系统介绍\\\",\\\"url\\\":\\\"api/v1/project/file/000000/index.html\\\"}\"}]";
+        dashboard.setLayout(defaultLayout);
+        dao.insert(dashboard);
+        return dashboard;
     }
 }

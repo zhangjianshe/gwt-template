@@ -98,6 +98,7 @@
                                 <buttons:AiButton ui:field="btnReopen" type="danger">重新打开</buttons:AiButton>
                                 <widget3:Uploader ui:field="btnUploader"/>
                                 <buttons:AiButton ui:field="btnSave" type="warning">更新</buttons:AiButton>
+                                <buttons:AiButton ui:field="btnDelete" type="danger">删除</buttons:AiButton>
                             </g:HTMLPanel>
                         </g:south>
                         <g:south size="0">

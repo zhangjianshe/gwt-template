@@ -53,4 +53,14 @@ public class ProjectMember implements Serializable, IsSerializable {
 
     @ApiField("权限位")
     private String permission;
+
+    public String getName()
+    {
+        if(nickName!=null && !nickName.isEmpty())
+        {
+            return nickName;
+        }
+        return userName;
+    }
+
 }

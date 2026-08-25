@@ -8,9 +8,9 @@
         }
 
         .content {
-            position: absolute;
-            inset: 10px;
-        }</ui:style>
+            padding: 15px;
+        }
+    </ui:style>
     <g:HTMLPanel ui:field="root" addStyleNames="{style.box}">
         <g:HTML ui:field="body" addStyleNames="markdown-body {style.content}">
         </g:HTML>

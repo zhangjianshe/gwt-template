@@ -7,7 +7,7 @@ IMAGE_NAME="hub.cangling.cn/cangling/gwt-template"
 VERSION="1.0"
 
 echo "### Step 1: Maven Build & GWT Compilation ###"
-mvn clean compile gwt:compile package install -DskipTests
+mvn clean compile gwt:compile package install -DskipTests=true
 
 echo "### Step 2: Building Docker Image ###"
 docker build -t ${IMAGE_NAME}:${VERSION} .

@@ -10,6 +10,7 @@
     <inherits name="cn.mapway.ui.MapwayBase"/>
     <inherits name="cn.mapway.ace.Ace"/>
     <inherits name="cn.mapway.rbac.MapwayRbac"/>
+    <inherits name="cn.mapway.xterm.Xterm"/>
     <source path="shared"/>
     <source path="client"/>
     <generate-with

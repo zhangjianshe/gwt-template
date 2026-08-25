@@ -15,6 +15,7 @@ import cn.mapway.ui.client.mvc.BaseAbstractModule;
 import cn.mapway.ui.client.mvc.ModuleInfo;
 import cn.mapway.ui.client.mvc.ModuleParameter;
 import cn.mapway.ui.client.mvc.SwitchModuleData;
+import cn.mapway.ui.client.util.StringUtil;
 import cn.mapway.ui.client.widget.CommonEventComposite;
 import cn.mapway.ui.client.widget.FontIcon;
 import cn.mapway.ui.client.widget.dialog.Dialog;
@@ -147,8 +148,10 @@ public class MainMenuBar extends CommonEventComposite {
         IUserInfo userInfo = ClientContext.get().getUserInfo();
         String user = "<img style='width:50px;height:50px;border-radius:50%' src=" + userInfo.getAvatar() + "/>" + userInfo.getNickName();
         lbUserInfo.setHTML(user);
-        if (ClientContext.get().getAppData().getLogo() != null) {
+        if (StringUtil.isNotBlank(ClientContext.get().getAppData().getLogo())) {
             logo.setUrl(ClientContext.get().getAppData().getLogo());
+        } else {
+            logo.setUrl("img/logo.svg");
         }
         List<Res> userResources = ClientContext.get().findUserResources(ResourceKind.RESOURCE_KIND_FUNCTION);
         List<ModuleInfo> moduleInfos = userResources.stream().map(res -> {

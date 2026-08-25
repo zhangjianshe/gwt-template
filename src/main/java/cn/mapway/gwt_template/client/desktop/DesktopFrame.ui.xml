@@ -1,96 +1,46 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
              xmlns:g='urn:import:com.google.gwt.user.client.ui'
              xmlns:desktop="urn:import:cn.mapway.gwt_template.client.desktop"
-             xmlns:wiki="urn:import:cn.mapway.gwt_template.client.workspace.wiki"
+             xmlns:buttons="urn:import:cn.mapway.ui.client.widget.buttons"
 >
     <ui:style>
-        .box {
+        .toolspanel {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 0 10px;
+        }
+
+        .top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 10px;
+        }
+
+        .hori {
+            display: inline-flex;
+            align-items: center;
+            justify-content: flex-start;
             gap: 1rem;
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-            grid-gap: 26px 30px;
-            justify-items: center;
-            padding: 30px;
-        }
-
-        .box3 {
-            gap: 1rem;
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            grid-gap: 26px 30px;
-            justify-items: center;
-            padding: 30px;
-        }
-
-        .title {
-            margin: 25px;
-        }
-
-        .box1 {
-            padding: 0 50px;
-        }
-
-        .header {
-            font-size: 1.1rem;
-            font-weight: bold;
-        }
-
-        .box2 {
-            gap: 1rem;
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            grid-gap: 26px 30px;
-            justify-items: center;
-            padding: 30px;
-        }
-
-        .right {
-            background-color: whitesmoke;
+            height: 100%;
         }</ui:style>
-    <g:TabLayoutPanel barHeight="50" ui:field="root">
-        <g:tab>
-            <g:header>🖥️ 桌面</g:header>
-            <g:DockLayoutPanel ui:field="desktop">
-                <g:east size="520">
-                    <g:ScrollPanel addStyleNames="{style.right}">
-                        <g:HTMLPanel addStyleNames="{style.box1}">
-                            <g:HTMLPanel addStyleNames="{style.title}">
-                                <g:Label addStyleNames="{style.header}">快捷方式</g:Label>
-                            </g:HTMLPanel>
-                            <g:HTMLPanel ui:field="panel" addStyleNames="{style.box}">
-                                <desktop:DesktopItem ui:field="btnAdd"/>
-                            </g:HTMLPanel>
-                        </g:HTMLPanel>
-                    </g:ScrollPanel>
-                </g:east>
-                <g:center>
-                    <g:ScrollPanel ui:field="content">
-                        <g:HTMLPanel addStyleNames="{style.box1}">
-                            <g:HTMLPanel addStyleNames="{style.title}">
-                                <g:Label addStyleNames="{style.header}">我参与的项目</g:Label>
-                            </g:HTMLPanel>
-                            <g:HTMLPanel ui:field="panelProjects" addStyleNames="{style.box2}">
-                            </g:HTMLPanel>
-
-                            <g:HTMLPanel addStyleNames="{style.title}">
-                                <g:Label addStyleNames="{style.header}">我的项目空间</g:Label>
-                            </g:HTMLPanel>
-                            <g:HTMLPanel ui:field="panelWorkspace" addStyleNames="{style.box3}"/>
-                        </g:HTMLPanel>
-                    </g:ScrollPanel>
-                </g:center>
-            </g:DockLayoutPanel>
-        </g:tab>
-        <g:tab>
-            <g:header>🗓️ 工作日历</g:header>
-            <g:Label>工作日历</g:Label>
-        </g:tab>
-        <g:tab>
-            <g:header>✍️ Page editor</g:header>
-            <g:ScrollPanel>
-                <wiki:PageEditor  ui:field="pageEditor"/>
-            </g:ScrollPanel>
-        </g:tab>
-    </g:TabLayoutPanel>
-
+    <g:LayoutPanel ui:field="root">
+        <g:layer left="0" top="0" height="50" right="0">
+            <g:HTMLPanel ui:field="bar" addStyleNames="{style.top}">
+                <g:HTMLPanel addStyleNames="{style.hori}">
+                    <g:HorizontalPanel spacing="4" height="100%" verticalAlignment="middle" ui:field="dashboardList">
+                    </g:HorizontalPanel>
+                    <g:HorizontalPanel spacing="4">
+                        <buttons:AiButton type="success" ui:field="btnAddDashboard">添加</buttons:AiButton>
+                        <buttons:AiButton type="success" ui:field="btnDesign">编辑</buttons:AiButton>
+                    </g:HorizontalPanel>
+                </g:HTMLPanel>
+                <g:HTMLPanel ui:field="toolsPanel" addStyleNames="{style.toolspanel}"/>
+            </g:HTMLPanel>
+        </g:layer>
+        <g:layer left="0" right="0" bottom="0" top="50">
+            <desktop:DashboardPanel ui:field="dashboard"/>
+        </g:layer>
+    </g:LayoutPanel>
 </ui:UiBinder>

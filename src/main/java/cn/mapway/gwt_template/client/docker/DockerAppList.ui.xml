@@ -1,0 +1,13 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:tree="urn:import:cn.mapway.ui.client.widget.tree">
+    <ui:style>
+    </ui:style>
+    <g:DockLayoutPanel>
+        <g:center>
+            <g:ScrollPanel>
+                <tree:Tree ui:field="list"/>
+            </g:ScrollPanel>
+        </g:center>
+    </g:DockLayoutPanel>
+</ui:UiBinder>

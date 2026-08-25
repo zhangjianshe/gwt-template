@@ -41,7 +41,7 @@ services:
       - app-volume:/data/dev
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/"]
+      test: [ "CMD", "wget", "--spider", "-q", "http://localhost:8080/" ]
       interval: 4s
     labels:
       - "traefik.tcp.routers.git-shell.rule=HostSNI(`*`)"
@@ -63,7 +63,7 @@ services:
       dev-app:
         condition: service_healthy
     labels:
-      - "traefik.enable=true"
+      - "traefik.enable=false"
       - "traefik.http.routers.git.rule=Host(`dev.cangling.cn`)"
       - "traefik.http.routers.git.entrypoints=websecure"
       - "traefik.http.routers.git.tls=true"

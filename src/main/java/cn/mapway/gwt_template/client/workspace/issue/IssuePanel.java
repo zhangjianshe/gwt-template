@@ -37,7 +37,9 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
+import elemental2.promise.IThenable;
 import jsinterop.base.Js;
+import org.jspecify.annotations.Nullable;
 
 public class IssuePanel extends CommonEventComposite implements IData<DevProjectIssueEntity> {
     private static final IssuePanelUiBinder ourUiBinder = GWT.create(IssuePanelUiBinder.class);
@@ -82,6 +84,8 @@ public class IssuePanel extends CommonEventComposite implements IData<DevProject
     Uploader btnUploader;
     @UiField
     DockLayoutPanel top;
+    @UiField
+    AiButton btnDelete;
     MarkdownConvert convert;
     private DevProjectIssueEntity issue;
 
@@ -171,7 +175,7 @@ public class IssuePanel extends CommonEventComposite implements IData<DevProject
         String path = AppConstant.UPLOAD_PREFIX_ISSUE_ATTACHMENT + issue.getId();
         btnUploader.setActionAndPath(AppConstant.DEFAULT_UPLOAD_LOCATION, path);
 
-        editor.setActionAndPath(AppConstant.DEFAULT_UPLOAD_LOCATION,path);
+        editor.setActionAndPath(AppConstant.DEFAULT_UPLOAD_LOCATION, path);
         assignTo.setProjectId(issue.getProjectId());
         loadComments(issue.getId());
     }
@@ -363,6 +367,38 @@ public class IssuePanel extends CommonEventComposite implements IData<DevProject
             }
             markdownBox.setValue(data + link);
         }
+    }
+
+    @UiHandler("btnDelete")
+    public void btnDeleteClick(ClickEvent event) {
+        ClientContext.get().confirmDelete("删除ISSUE" + issue.getName() + "?").then(new IThenable.ThenOnFulfilledCallbackFn<Void, Object>() {
+            @Override
+            public @Nullable IThenable<Object> onInvoke(Void p0) {
+                doDelete(issue);
+                return null;
+            }
+        });
+    }
+
+    private void doDelete(DevProjectIssueEntity issue) {
+        DeleteProjectIssueRequest request = new DeleteProjectIssueRequest();
+        request.setIssusId(issue.getId());
+        AppProxy.get().deleteProjectIssue(request, new AsyncCallback<RpcResult<DeleteProjectIssueResponse>>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                ClientContext.get().toast(0, 0, caught.getMessage());
+            }
+
+            @Override
+            public void onSuccess(RpcResult<DeleteProjectIssueResponse> result) {
+                if (result.isSuccess()) {
+                    fireEvent(CommonEvent.deleteEvent(issue));
+                    setData(null);
+                } else {
+                    ClientContext.get().toast(0, 0, result.getMessage());
+                }
+            }
+        });
     }
 
     private void adjustToDefaultSize(Integer needHeight) {

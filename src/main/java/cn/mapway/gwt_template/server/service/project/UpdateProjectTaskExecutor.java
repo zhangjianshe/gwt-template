@@ -164,7 +164,9 @@ public class UpdateProjectTaskExecutor extends AbstractBizExecutor<UpdateProject
                 boolean isCharger = currentUserId.equals(dbTask.getCharger());
                 boolean parentCharger = projectService.isChargerOfTask(currentUserId, dbTask.getParentId());
 
-                assertTrue(isTaskCreator || isCreator || isCharger || parentCharger, "只有项目创建者或任务负责人可以修改此任务");
+
+
+                assertTrue(operatorPermission.isSecretary()|| isTaskCreator || isCreator || isCharger || parentCharger, "只有项目创建者或任务负责人可以修改此任务");
 
                 // 检查状态流转：如果状态变为 DTS_FINISHED，自动记录结束时间
                 if (task.getStatus() != null && task.getStatus().equals(DevTaskStatus.DTS_FINISHED.getCode())) {

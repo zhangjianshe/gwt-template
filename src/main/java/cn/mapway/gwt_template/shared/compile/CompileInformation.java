@@ -13,4 +13,5 @@ public class CompileInformation {
     public String gitCommit;
     public String gitAuthor;
     public Date gitTime;
+    public String version;
 }

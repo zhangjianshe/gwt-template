@@ -14,5 +14,5 @@ import java.io.Serializable;
 @Data
 @Doc("DeleteUserKeyRequest")
 public class DeleteUserKeyRequest implements Serializable, IsSerializable {
-    String key;
+    String keyId;
 }

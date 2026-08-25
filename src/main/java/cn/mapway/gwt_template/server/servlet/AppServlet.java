@@ -4,23 +4,27 @@ import cn.mapway.biz.core.BizContext;
 import cn.mapway.biz.core.BizRequest;
 import cn.mapway.biz.core.BizResult;
 import cn.mapway.gwt_template.client.rpc.IAppServer;
+import cn.mapway.gwt_template.server.service.app.DeleteAppServiceExecutor;
+import cn.mapway.gwt_template.server.service.app.QueryAppServiceExecutor;
+import cn.mapway.gwt_template.server.service.app.UpdateAppServiceExecutor;
 import cn.mapway.gwt_template.server.service.config.QueryConfigExecutor;
 import cn.mapway.gwt_template.server.service.config.QueryConfigListExecutor;
 import cn.mapway.gwt_template.server.service.config.UpdateConfigExecutor;
 import cn.mapway.gwt_template.server.service.config.UpdateConfigListExecutor;
-import cn.mapway.gwt_template.server.service.desktop.DeleteDesktopExecutor;
-import cn.mapway.gwt_template.server.service.desktop.QueryDesktopExecutor;
-import cn.mapway.gwt_template.server.service.desktop.UpdateDesktopExecutor;
+import cn.mapway.gwt_template.server.service.desktop.*;
 import cn.mapway.gwt_template.server.service.dev.*;
 import cn.mapway.gwt_template.server.service.dns.DeleteDnsExecutor;
 import cn.mapway.gwt_template.server.service.dns.QueryDnsExecutor;
 import cn.mapway.gwt_template.server.service.dns.UpdateDnsExecutor;
 import cn.mapway.gwt_template.server.service.dns.UpdateIpExecutor;
+import cn.mapway.gwt_template.server.service.docker.*;
 import cn.mapway.gwt_template.server.service.ldap.*;
+import cn.mapway.gwt_template.server.service.log.QueryLogsExecutor;
 import cn.mapway.gwt_template.server.service.message.QueryMessageExecutor;
 import cn.mapway.gwt_template.server.service.message.QueryUserMailboxExecutor;
 import cn.mapway.gwt_template.server.service.message.ReadMessageExecutor;
 import cn.mapway.gwt_template.server.service.message.SendMessageExecutor;
+import cn.mapway.gwt_template.server.service.powerdns.*;
 import cn.mapway.gwt_template.server.service.project.*;
 import cn.mapway.gwt_template.server.service.project.res.*;
 import cn.mapway.gwt_template.server.service.project.wiki.*;
@@ -38,12 +42,17 @@ import cn.mapway.gwt_template.server.service.user.UpdateUserInfoExecutor;
 import cn.mapway.gwt_template.server.service.user.login.LoginProvider;
 import cn.mapway.gwt_template.server.service.webhook.*;
 import cn.mapway.gwt_template.shared.AppConstant;
+import cn.mapway.gwt_template.shared.rpc.app.*;
 import cn.mapway.gwt_template.shared.rpc.config.*;
 import cn.mapway.gwt_template.shared.rpc.desktop.*;
 import cn.mapway.gwt_template.shared.rpc.dev.*;
 import cn.mapway.gwt_template.shared.rpc.dns.*;
+import cn.mapway.gwt_template.shared.rpc.docker.*;
 import cn.mapway.gwt_template.shared.rpc.ldap.*;
+import cn.mapway.gwt_template.shared.rpc.log.QueryLogsRequest;
+import cn.mapway.gwt_template.shared.rpc.log.QueryLogsResponse;
 import cn.mapway.gwt_template.shared.rpc.message.*;
+import cn.mapway.gwt_template.shared.rpc.powerdns.*;
 import cn.mapway.gwt_template.shared.rpc.project.*;
 import cn.mapway.gwt_template.shared.rpc.project.res.*;
 import cn.mapway.gwt_template.shared.rpc.project.wiki.*;
@@ -141,45 +150,177 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
     ///CODE_GEN_INSERT_POINT///
 	
     @Resource
-    TransferRepositoryExecutor transferRepositoryExecutor;
+    QueryDockerServiceInfoExecutor queryDockerServiceInfoExecutor;
     @Override
-    public RpcResult<TransferRepositoryResponse> transferRepository(TransferRepositoryRequest request) {
-        BizResult<TransferRepositoryResponse> bizResult = transferRepositoryExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+    public RpcResult<QueryDockerServiceInfoResponse> queryDockerServiceInfo(QueryDockerServiceInfoRequest request) {
+        BizResult<QueryDockerServiceInfoResponse> bizResult = queryDockerServiceInfoExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toRpcResult(bizResult);
     }
 
 
 	
+    @Resource
+    QueryDockerAppInfoExecutor queryDockerAppInfoExecutor;
+    @Override
+    public RpcResult<QueryDockerAppInfoResponse> queryDockerAppInfo(QueryDockerAppInfoRequest request) {
+        BizResult<QueryDockerAppInfoResponse> bizResult = queryDockerAppInfoExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    DeleteDirFileExecutor deleteDirFileExecutor;
+    @Override
+    public RpcResult<DeleteDirFileResponse> deleteDirFile(DeleteDirFileRequest request) {
+        BizResult<DeleteDirFileResponse> bizResult = deleteDirFileExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    QuerySysDirExecutor querySysDirExecutor;
+    @Override
+    public RpcResult<QuerySysDirResponse> querySysDir(QuerySysDirRequest request) {
+        BizResult<QuerySysDirResponse> bizResult = querySysDirExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    RestartDockerAppExecutor restartDockerAppExecutor;
+    @Override
+    public RpcResult<RestartDockerAppResponse> restartDockerApp(RestartDockerAppRequest request) {
+        BizResult<RestartDockerAppResponse> bizResult = restartDockerAppExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    WriteDockerAppResDataExecutor writeDockerAppResDataExecutor;
+    @Override
+    public RpcResult<WriteDockerAppResDataResponse> writeDockerAppResData(WriteDockerAppResDataRequest request) {
+        BizResult<WriteDockerAppResDataResponse> bizResult = writeDockerAppResDataExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    ReadDockerAppResDataExecutor readDockerAppResDataExecutor;
+    @Override
+    public RpcResult<ReadDockerAppResDataResponse> readDockerAppResData(ReadDockerAppResDataRequest request) {
+        BizResult<ReadDockerAppResDataResponse> bizResult = readDockerAppResDataExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    QueryDockerAppDirExecutor queryDockerAppDirExecutor;
+    @Override
+    public RpcResult<QueryDockerAppDirResponse> queryDockerAppDir(QueryDockerAppDirRequest request) {
+        BizResult<QueryDockerAppDirResponse> bizResult = queryDockerAppDirExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    UpdateDockerAppExecutor updateDockerAppExecutor;
+    @Override
+    public RpcResult<UpdateDockerAppResponse> updateDockerApp(UpdateDockerAppRequest request) {
+        BizResult<UpdateDockerAppResponse> bizResult = updateDockerAppExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    DeleteDockerAppExecutor deleteDockerAppExecutor;
+    @Override
+    public RpcResult<DeleteDockerAppResponse> deleteDockerApp(DeleteDockerAppRequest request) {
+        BizResult<DeleteDockerAppResponse> bizResult = deleteDockerAppExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    QueryDockerAppsExecutor queryDockerAppsExecutor;
+    @Override
+    public RpcResult<QueryDockerAppsResponse> queryDockerApps(QueryDockerAppsRequest request) {
+        BizResult<QueryDockerAppsResponse> bizResult = queryDockerAppsExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    DeleteDashboardExecutor deleteDashboardExecutor;
+    @Override
+    public RpcResult<DeleteDashboardResponse> deleteDesktopLayout(DeleteDashboardRequest request) {
+        BizResult<DeleteDashboardResponse> bizResult = deleteDashboardExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    QueryDashboardExecutor queryDashboardExecutor;
+    @Override
+    public RpcResult<QueryDashboardResponse> queryDesktopLayout(QueryDashboardRequest request) {
+        BizResult<QueryDashboardResponse> bizResult = queryDashboardExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    UpdateDashboardExecutor  updateDashboardExecutor;
+    @Override
+    public RpcResult<UpdateDashboardResponse> saveDesktopLayout(UpdateDashboardRequest request) {
+        BizResult<UpdateDashboardResponse> bizResult = updateDashboardExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+	
+    @Resource
+    UpdateProjectTaskCoverExecutor updateProjectTaskCoverExecutor;
+    @Override
+    public RpcResult<UpdateProjectTaskCoverResponse> updateProjectTaskCover(UpdateProjectTaskCoverRequest request) {
+        BizResult<UpdateProjectTaskCoverResponse> bizResult = updateProjectTaskCoverExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+
+
+    @Resource
+    QueryLogsExecutor queryLogsExecutor;
+    @Resource
+    QueryRecordsExecutor queryRecordsExecutor;
+    @Resource
+    QueryZonesExecutor queryZonesExecutor;
+    @Resource
+    DeleteRecordExecutor deleteRecordExecutor;
+    @Resource
+    CreateOrUpdateRecordExecutor createOrUpdateRecordExecutor;
+    @Resource
+    DeleteZoneExecutor deleteZoneExecutor;
+    @Resource
+    CreateZoneExecutor createZoneExecutor;
+    @Resource
+    TransferRepositoryExecutor transferRepositoryExecutor;
     @Resource
     QueryUserPermissionInRepoExecutor queryUserPermissionInRepoExecutor;
-    @Override
-    public RpcResult<QueryUserPermissionInRepoResponse> queryUserPermissionInRepo(QueryUserPermissionInRepoRequest request) {
-        BizResult<QueryUserPermissionInRepoResponse> bizResult = queryUserPermissionInRepoExecutor.execute(getBizContext(), BizRequest.wrap("", request));
-        return toRpcResult(bizResult);
-    }
-
-
-	
     @Resource
     QueryImagesExecutor queryImagesExecutor;
-    @Override
-    public RpcResult<QueryImagesResponse> queryImages(QueryImagesRequest request) {
-        BizResult<QueryImagesResponse> bizResult = queryImagesExecutor.execute(getBizContext(), BizRequest.wrap("", request));
-        return toRpcResult(bizResult);
-    }
-
-
-	
     @Resource
     QueryPageCommitsExecutor queryPageCommitsExecutor;
-    @Override
-    public RpcResult<QueryPageCommitsResponse> queryPageCommits(QueryPageCommitsRequest request) {
-        BizResult<QueryPageCommitsResponse> bizResult = queryPageCommitsExecutor.execute(getBizContext(), BizRequest.wrap("", request));
-        return toRpcResult(bizResult);
-    }
-
-
-
     @Resource
     QueryPageSectionExecutor queryPageSectionExecutor;
     @Resource
@@ -374,6 +515,96 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
     UpdateFavoriteProjectExecutor updateFavoriteProjectExecutor;
     @Resource
     QueryFavoriteProjectExecutor queryFavoriteProjectExecutor;
+    @Resource
+    DeleteAppServiceExecutor deleteAppServiceExecutor;
+    @Resource
+    UpdateAppServiceExecutor updateAppServiceExecutor;
+    @Resource
+    QueryAppServiceExecutor queryAppServiceExecutor;
+
+    @Override
+    public RpcResult<DeleteAppServiceResponse> deleteAppService(DeleteAppServiceRequest request) {
+        BizResult<DeleteAppServiceResponse> bizResult = deleteAppServiceExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<UpdateAppServiceResponse> updateAppService(UpdateAppServiceRequest request) {
+        BizResult<UpdateAppServiceResponse> bizResult = updateAppServiceExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<QueryAppServiceResponse> queryAppService(QueryAppServiceRequest request) {
+        BizResult<QueryAppServiceResponse> bizResult = queryAppServiceExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<QueryLogsResponse> queryLogs(QueryLogsRequest request) {
+        BizResult<QueryLogsResponse> bizResult = queryLogsExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<QueryRecordsResponse> queryRecords(QueryRecordsRequest request) {
+        BizResult<QueryRecordsResponse> bizResult = queryRecordsExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<QueryZonesResponse> queryZones(QueryZonesRequest request) {
+        BizResult<QueryZonesResponse> bizResult = queryZonesExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<DeleteRecordResponse> deleteRecord(DeleteRecordRequest request) {
+        BizResult<DeleteRecordResponse> bizResult = deleteRecordExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<CreateOrUpdateRecordResponse> createOrUpdateRecord(CreateOrUpdateRecordRequest request) {
+        BizResult<CreateOrUpdateRecordResponse> bizResult = createOrUpdateRecordExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<DeleteZoneResponse> deleteZone(DeleteZoneRequest request) {
+        BizResult<DeleteZoneResponse> bizResult = deleteZoneExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<CreateZoneResponse> createZone(CreateZoneRequest request) {
+        BizResult<CreateZoneResponse> bizResult = createZoneExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<TransferRepositoryResponse> transferRepository(TransferRepositoryRequest request) {
+        BizResult<TransferRepositoryResponse> bizResult = transferRepositoryExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<QueryUserPermissionInRepoResponse> queryUserPermissionInRepo(QueryUserPermissionInRepoRequest request) {
+        BizResult<QueryUserPermissionInRepoResponse> bizResult = queryUserPermissionInRepoExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<QueryImagesResponse> queryImages(QueryImagesRequest request) {
+        BizResult<QueryImagesResponse> bizResult = queryImagesExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<QueryPageCommitsResponse> queryPageCommits(QueryPageCommitsRequest request) {
+        BizResult<QueryPageCommitsResponse> bizResult = queryPageCommitsExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
 
     @Override
     public RpcResult<QueryPageSectionResponse> queryPageSection(QueryPageSectionRequest request) {
@@ -1161,8 +1392,8 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
     @Override
     public InputStream findResource(HttpServletRequest request, String moduleBaseURL, String strongName) {
         String path = strongName + ".gwt.rpc";
-        ClassPathResource resource = new ClassPathResource("/static/js/app/"+path);
-        if(resource.exists()){
+        ClassPathResource resource = new ClassPathResource("/static/js/app/" + path);
+        if (resource.exists()) {
             try {
                 return resource.getInputStream();
             } catch (IOException e) {

@@ -1,0 +1,77 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:dialog="urn:import:cn.mapway.ui.client.widget.dialog"
+             xmlns:widget="urn:import:cn.mapway.ui.client.widget">
+    <ui:style>
+        .panel {
+            padding: 20px;
+            min-width: 400px;
+        }
+
+        .row {
+            margin-bottom: 15px;
+        }
+
+        .label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        .input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .buttons {
+            margin-top: 20px;
+            text-align: right;
+        }
+
+        .btn {
+            margin-left: 10px;
+            padding: 8px 20px;
+            cursor: pointer;
+        }
+
+        .save {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+        }
+    </ui:style>
+    <g:DockLayoutPanel>
+        <g:south size="60">
+            <dialog:SaveBar ui:field="saveBar"/>
+        </g:south>
+        <g:center>
+            <g:ScrollPanel>
+                <g:HTMLPanel styleName="{style.panel}">
+                    <div class="{style.row}">
+                        <label class="{style.label}">记录名称 (Name)</label>
+                        <widget:AiTextBox ui:field="txtName"/>
+                    </div>
+
+                    <div class="{style.row}">
+                        <label class="{style.label}">类型 (Type)</label>
+                        <g:ListBox ui:field="lstType" styleName="{style.input}"/>
+                    </div>
+
+                    <div class="{style.row}">
+                        <label class="{style.label}">生存时间 (TTL)</label>
+                        <g:IntegerBox ui:field="txtTtl" styleName="{style.input}"/>
+                    </div>
+
+                    <div class="{style.row}">
+                        <label class="{style.label}">记录内容 (Content - 每行一条)</label>
+                        <g:TextArea ui:field="txtContent" styleName="{style.input}" visibleLines="5"/>
+                    </div>
+                </g:HTMLPanel>
+            </g:ScrollPanel>
+        </g:center>
+    </g:DockLayoutPanel>
+</ui:UiBinder>

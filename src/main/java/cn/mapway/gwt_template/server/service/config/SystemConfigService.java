@@ -2,10 +2,15 @@ package cn.mapway.gwt_template.server.service.config;
 
 import cn.mapway.biz.core.BizResult;
 import cn.mapway.gwt_template.server.config.AppConfig;
+import cn.mapway.gwt_template.server.config.db.JdbcConfig;
 import cn.mapway.gwt_template.server.config.startup.ApplicationConfig;
+import cn.mapway.gwt_template.server.service.file.FileCustomUtils;
+import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.db.SysConfigEntity;
 import cn.mapway.gwt_template.shared.rpc.app.AppData;
 import cn.mapway.gwt_template.shared.rpc.config.ConfigEnums;
+import cn.mapway.gwt_template.shared.rpc.powerdns.PowerDnsConfig;
+import cn.mapway.gwt_template.shared.rpc.user.ldap.LdapSettings;
 import lombok.extern.slf4j.Slf4j;
 import org.nutz.dao.Dao;
 import org.nutz.json.Json;
@@ -17,6 +22,10 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -38,8 +47,11 @@ public class SystemConfigService implements EnvironmentAware {
     @Resource
     AppConfig appConfig;
 
-    private static File getStartupConfigFile() {
-        return new File(CONFIG_ROOT, "app.json");
+    private static File getStartupConfigFile() throws IOException {
+        Path homePath = Paths.get(System.getProperty("user.home"));
+        File file = homePath.toFile();
+        String absPath = FileCustomUtils.concatPath(file.getAbsolutePath(), CONFIG_ROOT, "app.json");
+        return new File(absPath);
     }
 
     /**
@@ -49,16 +61,27 @@ public class SystemConfigService implements EnvironmentAware {
      * @return
      */
     public static ApplicationConfig getConfig() {
-        File configFile = getStartupConfigFile();
-        if (configFile.exists()) {
-            ApplicationConfig config = Json.fromJson(ApplicationConfig.class, Files.read(configFile));
-            return config;
-        } else {
-            ApplicationConfig config = createDefaultConfig();
-            // maybe , we have not privilege to write at this position
-            Files.write(configFile, Json.toJson(config));
-            return config;
+        try {
+            File configFile = getStartupConfigFile();
+            log.info("[START] 读取系统配置文件 {}", Files.getAbsPath(configFile));
+            if (configFile.exists()) {
+                ApplicationConfig config = Json.fromJson(ApplicationConfig.class, Files.read(configFile));
+                if (config == null) {
+                    log.error("配置文件内容不能解析，请删除他 系统重建:{}", Files.getAbsPath(configFile));
+                }
+                return config;
+            } else {
+                ApplicationConfig config = createDefaultConfig();
+                // maybe , we have not privilege to write at this position
+                Files.write(configFile, Json.toJson(config));
+                log.info("[START] write 系统配置文件 {}", Files.getAbsPath(configFile));
+                return config;
+            }
+        } catch (Exception e) {
+            log.error("[START] 系统解析配置文件错误 {}", e.getMessage());
+            e.printStackTrace();
         }
+        return null;
     }
 
     /**
@@ -69,6 +92,12 @@ public class SystemConfigService implements EnvironmentAware {
     private static ApplicationConfig createDefaultConfig() {
         ApplicationConfig config = new ApplicationConfig();
         config.setPort(8080);
+        JdbcConfig jdbcConfig = new JdbcConfig();
+        jdbcConfig.setDriver("org.postgresql.Driver");
+        jdbcConfig.setUrl("jdbc:postgresql://localhost:5432/db");
+        jdbcConfig.setUsername("cangling");
+        jdbcConfig.setPassword("cangling-dev");
+        config.setJdbc(jdbcConfig);
         return config;
     }
 
@@ -154,5 +183,33 @@ public class SystemConfigService implements EnvironmentAware {
      */
     public String getProjectResourceRootPath() {
         return appConfig.getProjectResRoot();
+    }
+
+    public LdapSettings createDefaultLdapConfig() {
+        LdapSettings ldapSettings = new LdapSettings();
+        ldapSettings.setUrl("ldap://openldap:1389");
+        ldapSettings.setBaseDn("dc=tjj,dc=cn");
+        ldapSettings.setManagerDn("cn=admin,dc=tjj,dc=cn");
+        ldapSettings.setSearchPattern("(&(objectClass=inetOrgPerson)(|(uid={0})(mail={0})))");
+        ldapSettings.setManagerPassword("Openldap2025*");
+        SysConfigEntity entity = new SysConfigEntity();
+        entity.setKey(ConfigEnums.CONFIG_LDAP.getCode());
+        entity.setValue(Json.toJson(ldapSettings));
+        entity.setCreateTime(new Timestamp(System.currentTimeMillis()));
+        saveOrUpdate(entity);
+        return ldapSettings;
+    }
+
+    public PowerDnsConfig createDefaultPowerDnsConfig() {
+        PowerDnsConfig powerDnsConfig = new PowerDnsConfig();
+        powerDnsConfig.basePath = "http://it-powerdns:8081";
+        powerDnsConfig.token = "let_china_great_again";
+        SysConfigEntity entity = new SysConfigEntity();
+        entity.setKey(AppConstant.KEY_POWER_DNS);
+        entity.setValue(Json.toJson(powerDnsConfig));
+        entity.setCreateTime(new Timestamp(System.currentTimeMillis()));
+        saveOrUpdate(entity);
+        return powerDnsConfig;
+
     }
 }

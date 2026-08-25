@@ -1,0 +1,30 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:dialog="urn:import:cn.mapway.ui.client.widget.dialog"
+             xmlns:widget="urn:import:cn.mapway.gwt_template.client.widget"
+             xmlns:buttons="urn:import:cn.mapway.ui.client.widget.buttons">
+    <ui:style>
+
+        .row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .box {
+            padding: 20px;
+        }</ui:style>
+    <g:DockLayoutPanel>
+        <g:south size="60">
+            <dialog:SaveBar ui:field="saveBar"/>
+        </g:south>
+        <g:center>
+            <g:HTMLPanel addStyleNames="{style.box}">
+                <g:HTMLPanel addStyleNames="{style.row}">
+                    <widget:Head>显示标题</widget:Head>
+                    <buttons:AiCheckBox ui:field="checkVisible"/>
+                </g:HTMLPanel>
+            </g:HTMLPanel>
+        </g:center>
+    </g:DockLayoutPanel>
+</ui:UiBinder>

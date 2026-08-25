@@ -14,4 +14,5 @@ import java.io.Serializable;
 @Data
 @Doc("DeleteProjectIssueRequest")
 public class DeleteProjectIssueRequest implements Serializable, IsSerializable {
+    String issusId;
 }

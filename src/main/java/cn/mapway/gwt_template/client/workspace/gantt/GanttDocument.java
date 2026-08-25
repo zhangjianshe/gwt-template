@@ -1160,6 +1160,7 @@ public class GanttDocument {
                 updateEntity(parent.getEntity());
             }
         }
+        chart.redraw();
     }
 
 }

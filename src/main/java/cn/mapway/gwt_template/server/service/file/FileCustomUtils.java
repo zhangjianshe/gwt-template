@@ -442,6 +442,8 @@ public class FileCustomUtils {
         PreviewData previewData = new PreviewData();
         String mimetype = Files.probeContentType(file.toPath());
         previewData.setMimeType(mimetype);
+        previewData.setUrl(url);
+        previewData.setSuffixName(org.nutz.lang.Files.getSuffixName(file));
         String suffix = org.nutz.lang.Files.getSuffixName(file).toLowerCase();
         if (EditableFileSuffix.fromSuffix(suffix) != EditableFileSuffix.NONE) {
             previewData.setBody(Files.readString(file.toPath()));
@@ -485,11 +487,36 @@ public class FileCustomUtils {
             previewData.setMimeType(AppConstant.CANGLING_MIME_TYPE);
             previewData.setBody(FileCustomUtils.generateAudioHtml(url));
         } else {
-            previewData.setMimeType(AppConstant.CANGLING_MIME_TYPE);
-            previewData.setBody(FileCustomUtils.generateBinaryHtml(file, url));
+            // 【核心优化点】：在展示 Hex Dump 之前，通过 readMagic 检查前 2 个字节
+            if (file.length() > 0 && file.length() < 3 * 1024 * 1024 && isScriptFile(file)) {
+                // 如果是以 #! 开头的脚本，或者纯可读文本配置文件，作为文本读取
+                previewData.setBody(Files.readString(file.toPath()));
+                previewData.setSuffixName(EditableFileSuffix.SHELL.getSuffix());
+            } else {
+                // 真正的二进制文件才渲染 Hex Dump
+                previewData.setMimeType(AppConstant.CANGLING_MIME_TYPE);
+                previewData.setBody(FileCustomUtils.generateBinaryHtml(file, url));
+            }
         }
         previewData.setFileName(org.nutz.lang.Files.getName(file));
         previewData.setFileSize((double) file.length());
         return previewData;
+    }
+
+    /**
+     * 读取 Magic Number 判断是否为 Shell 脚本/Shebang 文本
+     */
+    public static boolean isScriptFile(File file) {
+        if (file == null || !file.exists() || file.length() < 2) {
+            return false;
+        }
+
+        // 1. 调用已有的 readMagic 方法获取前 2 个字节
+        byte[] magic = readMagic(file.getAbsolutePath(), 2);
+        if (magic != null && magic.length >= 2) {
+            // 0x23 是 '#'，0x21 是 '!'
+            return magic[0] == 0x23 && magic[1] == 0x21; // 触发 Shebang (#!/bin/bash, #!/bin/sh 等)
+        }
+        return false;
     }
 }

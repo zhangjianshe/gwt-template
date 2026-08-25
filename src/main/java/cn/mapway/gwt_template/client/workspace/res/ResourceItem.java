@@ -44,7 +44,7 @@ public class ResourceItem extends CommonEventComposite implements IData<Object> 
                 event.preventDefault();
                 fireEvent(CommonEvent.clickEvent(data));
             }
-        },ClickEvent.getType());
+        }, ClickEvent.getType());
     }
 
     @Override
@@ -65,7 +65,7 @@ public class ResourceItem extends CommonEventComposite implements IData<Object> 
     }
 
     public void setValue(String icon, String name, Widget rightWidget) {
-        lbIcon.getElement().setInnerHTML(Fonts.toHtmlEntity(icon));
+        setIcon(icon);
         lbName.setText(name);
         lbName.setTitle(name);
         right.clear();
@@ -77,9 +77,9 @@ public class ResourceItem extends CommonEventComposite implements IData<Object> 
         lbName.setTitle(name);
         lbName.getElement().getStyle().setColor(color);
     }
-    public void setIcon(String icon)
-    {
-        lbIcon.setText(Fonts.toHtmlEntity(icon));
+
+    public void setIcon(String icon) {
+        lbIcon.getElement().setInnerHTML(Fonts.toHtmlEntity(icon));
     }
 
     public void setSelected(boolean selected) {

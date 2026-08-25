@@ -14,4 +14,7 @@ public class PreviewData implements Serializable, IsSerializable {
     String fileName;
     Double fileSize;
     String resourceId;
+    String url;
+    // 根据内容 判断出来的后缀名称
+    String suffixName;
 }

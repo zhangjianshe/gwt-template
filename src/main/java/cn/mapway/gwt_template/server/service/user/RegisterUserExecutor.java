@@ -8,13 +8,17 @@ import cn.mapway.gwt_template.client.ldap.AttributeKind;
 import cn.mapway.gwt_template.client.ldap.LdapNodeAttribute;
 import cn.mapway.gwt_template.server.service.config.SystemConfigService;
 import cn.mapway.gwt_template.server.service.ldap.LdapService;
+import cn.mapway.gwt_template.server.service.log.SysLogService;
 import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.rpc.config.ConfigEnums;
 import cn.mapway.gwt_template.shared.rpc.ldap.LdapNodeData;
+import cn.mapway.gwt_template.shared.rpc.log.LogAction;
+import cn.mapway.gwt_template.shared.rpc.log.LogLevel;
 import cn.mapway.gwt_template.shared.rpc.user.RegisterUserRequest;
 import cn.mapway.gwt_template.shared.rpc.user.RegisterUserResponse;
 import cn.mapway.gwt_template.shared.rpc.user.ldap.LdapSettings;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
+import cn.mapway.rbac.shared.RbacConstant;
 import lombok.extern.slf4j.Slf4j;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
@@ -36,6 +40,8 @@ public class RegisterUserExecutor extends AbstractBizExecutor<RegisterUserRespon
     SystemConfigService systemConfigService;
     @Resource
     LdapService ldapService;
+    @Resource
+    SysLogService sysLogService;
 
     @Override
     protected BizResult<RegisterUserResponse> process(BizContext context, BizRequest<RegisterUserRequest> bizParam) {
@@ -72,9 +78,15 @@ public class RegisterUserExecutor extends AbstractBizExecutor<RegisterUserRespon
         LdapNodeData node = createLdapNode(request, dn);
         BizResult<LdapNodeData> ldapEntry = ldapService.createLdapEntry(node);
         if (ldapEntry.isSuccess()) {
+            if (user == null) {
+                sysLogService.logAction(LogLevel.INFO, 1L, "自注册", LogAction.USER_REGISTER, ldapEntry.getData().getDn() + ldapEntry.getData().getName());
+            } else {
+                sysLogService.logAction(LogLevel.INFO, user.getUser().getUserId(), userName, LogAction.USER_REGISTER, ldapEntry.getData().getDn() + ldapEntry.getData().getName());
+            }
             return BizResult.success(new RegisterUserResponse());
         } else {
-
+            sysLogService.logAction(LogLevel.ERROR, RbacConstant.SUPER_USER_ID, request.getUser(), LogAction.USER_REGISTER, ldapEntry.getMessage());
+            log.error("[REG] 用户注册错误:{}", ldapEntry.getMessage());
             return ldapEntry.asBizResult();
         }
     }

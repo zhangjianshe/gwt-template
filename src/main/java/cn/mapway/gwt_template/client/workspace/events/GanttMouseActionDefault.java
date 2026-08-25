@@ -68,6 +68,12 @@ public class GanttMouseActionDefault implements IMouseHandler<GanttHitResult> {
                         //将屏幕上的内容输出到图片中
                         chart.exportPicture();
                         break;
+                    case AMK_EXPORT_EXCEL:
+                        String exportExcelUrl = "/api/v1/project/export?projectId=" + URL.encodeQueryString(chart.getProjectId())
+                                + "&type=excel"
+                                + "&_t=" + System.currentTimeMillis();
+                        Window.open(exportExcelUrl, "_blank", "");
+                        break;
                 }
                 if (ganttMenu.isShowing()) {
                     ganttMenu.hide();
@@ -321,6 +327,7 @@ public class GanttMouseActionDefault implements IMouseHandler<GanttHitResult> {
         ganttMenu.addItem(createUnicodeIcon("📥", "导入任务"), ActionMenuKind.AMK_IMPORT_TASK);
         ganttMenu.addItem(createUnicodeIcon("📤", "导出任务"), ActionMenuKind.AMK_EXPORT_TASK);
         ganttMenu.addItem(createUnicodeIcon("🖼️", "导出图片"), ActionMenuKind.AMK_EXPORT_PICTURE);
+        ganttMenu.addItem(createUnicodeIcon("📗", "导出EXCEL"), ActionMenuKind.AMK_EXPORT_EXCEL);
         // 可以加一个分割线符号
         ganttMenu.addSeparator();
         ganttMenu.addItem(createUnicodeIcon("🗑", "删除任务"), ActionMenuKind.AMK_DELETE_TASK);
@@ -330,6 +337,7 @@ public class GanttMouseActionDefault implements IMouseHandler<GanttHitResult> {
         ganttControlMenu.addItem(createUnicodeIcon("📥", "导入任务"), ActionMenuKind.AMK_IMPORT_TASK);
         ganttControlMenu.addItem(createUnicodeIcon("📤", "导出任务"), ActionMenuKind.AMK_EXPORT_TASK);
         ganttControlMenu.addItem(createUnicodeIcon("🖼️", "导出图片"), ActionMenuKind.AMK_EXPORT_PICTURE);
+        ganttControlMenu.addItem(createUnicodeIcon("📗", "导出EXCEL"), ActionMenuKind.AMK_EXPORT_EXCEL);
         ganttControlMenu.addCommonHandler(menuHandler);
     }
 

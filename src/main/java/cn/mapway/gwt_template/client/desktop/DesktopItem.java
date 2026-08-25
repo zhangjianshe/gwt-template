@@ -37,7 +37,6 @@ public class DesktopItem extends CommonEventComposite implements IData<DesktopIt
 
     public DesktopItem() {
         initWidget(ourUiBinder.createAndBindUi(this));
-        addStyleName(AppResource.INSTANCE.styles().box());
         addDomHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {

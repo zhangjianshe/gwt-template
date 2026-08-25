@@ -31,7 +31,8 @@ public class QueryLdapNodeDataExecutor extends AbstractBizExecutor<QueryLdapNode
         LoginUser user = (LoginUser) context.get(AppConstant.KEY_LOGIN_USER);
         assertTrue(Strings.isNotBlank(request.getDn()), "没有DN");
         QueryLdapNodeDataResponse response = new QueryLdapNodeDataResponse();
-        response.setNodes(ldapService.getChildren(request.getDn()));
+
+        response.setNodes(ldapService.getChildren(request.getDn(),request.getNameFilter()));
         response.getNodes().sort((a, b) -> {
             if (a.isFolder() != b.isFolder()) {
                 return a.isFolder() ? -1 : 1;

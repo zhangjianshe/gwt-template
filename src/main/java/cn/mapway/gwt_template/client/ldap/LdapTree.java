@@ -11,6 +11,8 @@ import cn.mapway.ui.client.widget.tree.TreeItem;
 import cn.mapway.ui.shared.CommonEvent;
 import cn.mapway.ui.shared.rpc.RpcResult;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -29,6 +31,12 @@ public class LdapTree extends CommonEventComposite {
 
     public LdapTree() {
         initWidget(ourUiBinder.createAndBindUi(this));
+        searchBox.addValueChangeHandler(new ValueChangeHandler<String>() {
+            @Override
+            public void onValueChange(ValueChangeEvent<String> event) {
+                loadNode(currentSelect);
+            }
+        });
     }
 
     public void loadRoot() {
@@ -60,26 +68,32 @@ public class LdapTree extends CommonEventComposite {
         if (event.isSelect()) {
             TreeItem treeItem = event.getValue();
             currentSelect = treeItem;
-            Object data = treeItem.getData();
-            if (data instanceof RootDse) {
-                RootDse rootDse = (RootDse) data;
-                if (treeItem.getChildren().isEmpty()) {
-                    loadSubNode(treeItem, rootDse.getNamingContexts().get(0));
-                }
-                fireEvent(CommonEvent.selectEvent(rootDse));
-            } else if (data instanceof LdapNodeData) {
-                LdapNodeData nodeData = (LdapNodeData) data;
-                if (nodeData.isFolder() && treeItem.getChildren().isEmpty()) {
-                    loadSubNode(treeItem, nodeData.getDn());
-                }
-                fireEvent(CommonEvent.selectEvent(nodeData));
+            loadNode(currentSelect);
+        }
+    }
+
+    private void loadNode(TreeItem treeItem) {
+        if (treeItem == null) {
+            return;
+        }
+        Object data = treeItem.getData();
+        if (data instanceof RootDse) {
+            RootDse rootDse = (RootDse) data;
+            if (treeItem.getChildren().isEmpty()) {
+                loadSubNode(treeItem, rootDse.getNamingContexts().get(0));
             }
+            fireEvent(CommonEvent.selectEvent(rootDse));
+        } else if (data instanceof LdapNodeData) {
+            LdapNodeData nodeData = (LdapNodeData) data;
+            loadSubNode(treeItem, nodeData.getDn());
+            fireEvent(CommonEvent.selectEvent(nodeData));
         }
     }
 
     private void loadSubNode(TreeItem parentItem, String dn) {
         QueryLdapNodeDataRequest request = new QueryLdapNodeDataRequest();
         request.setDn(dn);
+        request.setNameFilter(searchBox.getValue());
         AppProxy.get().queryLdapNodeData(request, new AsyncAdaptor<RpcResult<QueryLdapNodeDataResponse>>() {
             @Override
             public void onData(RpcResult<QueryLdapNodeDataResponse> result) {

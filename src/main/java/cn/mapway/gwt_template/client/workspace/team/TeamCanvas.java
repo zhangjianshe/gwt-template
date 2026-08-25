@@ -51,7 +51,7 @@ public class TeamCanvas extends CanvasWidget implements IData<String>, HasCommon
     TeamHitResult hitOrigin = new TeamHitResult();
     TeamHitResult hitCurrent = new TeamHitResult();
     TeamHitResult hitLast = new TeamHitResult();
-    ActionMenu menuNode = new ActionMenu();
+    ActionMenu<TeamGroupNode> menuNode = new ActionMenu<TeamGroupNode>();
     ActionMenu menuCanvas = new ActionMenu();
     boolean mouseDown = false;
     CommonEventHandler menuNodeHandler = new CommonEventHandler() {

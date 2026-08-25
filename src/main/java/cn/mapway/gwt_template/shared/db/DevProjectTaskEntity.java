@@ -44,6 +44,7 @@ public class DevProjectTaskEntity implements Serializable, IsSerializable {
     public static final String FLD_INIT_EXPAND = "init_expand";
     public static final String FLD_PROGRESS = "progress";
     public static final String FLD_CATALOG = "catalog";
+    public static final String FLD_COVER = "cover";
 
     @Name
     @Column(FLD_ID)
@@ -144,6 +145,11 @@ public class DevProjectTaskEntity implements Serializable, IsSerializable {
     @Default("0")
     Integer progress;
 
+    @Column(FLD_COVER)
+    @Comment("封面URL")
+    @ColDefine(type = ColType.VARCHAR, width = 512, notNull = false)
+    String cover;
+
 
     String chargeUserName;
     String chargeAvatar;
@@ -152,10 +158,10 @@ public class DevProjectTaskEntity implements Serializable, IsSerializable {
 
     private List<DevProjectTaskEntity> children = new ArrayList<>();
 
-    public long getDuration()
-    {
+    public long getDuration() {
         return getEstimateTime().getTime() - getCreateTime().getTime();
     }
+
     /**
      * 汇总任务进度
      */
@@ -178,7 +184,7 @@ public class DevProjectTaskEntity implements Serializable, IsSerializable {
         } else {
             // 如果子任务都没有工期，退化为算术平均
             int sum = 0;
-            for(DevProjectTaskEntity child : children) sum += child.getProgress();
+            for (DevProjectTaskEntity child : children) sum += child.getProgress();
             this.progress = sum / children.size();
         }
     }

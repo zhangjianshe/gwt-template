@@ -61,7 +61,7 @@ public class CompileGenerator extends Generator {
             sourceWriter.println("}");
 
             // 输出代码方法
-            printFactoryMethod(sourceWriter);
+            printFactoryMethod(sourceWriter, generatorContext);
 
             // 写入磁盘
             sourceWriter.commit(treeLogger);
@@ -72,7 +72,7 @@ public class CompileGenerator extends Generator {
         return composer.getCreatedClassName();
     }
 
-    private void printFactoryMethod(SourceWriter sourceWriter) {
+    private void printFactoryMethod(SourceWriter sourceWriter, GeneratorContext generatorContext) {
         log.info("================ compile info generator===========");
         sourceWriter.println("public CompileInformation compileInfo(){");
         sourceWriter.println(" CompileInformation data=new CompileInformation();");
@@ -109,10 +109,26 @@ public class CompileGenerator extends Generator {
             commitTime = System.currentTimeMillis();
             commitHash = "Unknown";
         }
-        log.info("{} {} {}", commitHash, commitAuthor, commitTime);
+        String version = "Unknown";
+        try (java.io.InputStream is = CompileGenerator.class.getClassLoader().getResourceAsStream("version.txt")) {
+            if (is != null) {
+                try (BufferedReader reader = new BufferedReader(new java.io.InputStreamReader(is, java.nio.charset.StandardCharsets.UTF_8))) {
+                    String line = reader.readLine();
+                    if (line != null) {
+                        version = line.trim();
+                    }
+                }
+            } else {
+                log.warn("version.txt not found in classpath root!");
+            }
+        } catch (Exception e) {
+            log.error("Failed to read version from classpath", e);
+        }
+        log.info("{} {} {} {}", version, commitHash, commitAuthor, commitTime);
         sourceWriter.println("\t data.gitTime= new Date(" + commitTime + "L);");
         sourceWriter.println("\t data.gitCommit= \"" + commitHash + "\";");
         sourceWriter.println("\t data.gitAuthor= \"" + commitAuthor + "\";");
+        sourceWriter.println("\t data.version= \"" + version + "\";");
         sourceWriter.println("\t data.compileTime= new Date(" + System.currentTimeMillis() + "L);");
 
         sourceWriter.println(" return data;");

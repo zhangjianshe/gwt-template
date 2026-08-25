@@ -1,11 +1,16 @@
 package cn.mapway.gwt_template.client.rpc;
 
+import cn.mapway.gwt_template.shared.rpc.app.*;
 import cn.mapway.gwt_template.shared.rpc.config.*;
 import cn.mapway.gwt_template.shared.rpc.desktop.*;
 import cn.mapway.gwt_template.shared.rpc.dev.*;
 import cn.mapway.gwt_template.shared.rpc.dns.*;
+import cn.mapway.gwt_template.shared.rpc.docker.*;
 import cn.mapway.gwt_template.shared.rpc.ldap.*;
+import cn.mapway.gwt_template.shared.rpc.log.QueryLogsRequest;
+import cn.mapway.gwt_template.shared.rpc.log.QueryLogsResponse;
 import cn.mapway.gwt_template.shared.rpc.message.*;
+import cn.mapway.gwt_template.shared.rpc.powerdns.*;
 import cn.mapway.gwt_template.shared.rpc.project.*;
 import cn.mapway.gwt_template.shared.rpc.project.res.*;
 import cn.mapway.gwt_template.shared.rpc.project.wiki.*;
@@ -29,6 +34,56 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public interface IAppServerAsync {
 
     ///CODE_GEN_INSERT_POINT///
+	void queryDockerServiceInfo(QueryDockerServiceInfoRequest request, AsyncCallback<RpcResult<QueryDockerServiceInfoResponse>> async);
+
+	void queryDockerAppInfo(QueryDockerAppInfoRequest request, AsyncCallback<RpcResult<QueryDockerAppInfoResponse>> async);
+
+	void deleteDirFile(DeleteDirFileRequest request, AsyncCallback<RpcResult<DeleteDirFileResponse>> async);
+
+	void querySysDir(QuerySysDirRequest request, AsyncCallback<RpcResult<QuerySysDirResponse>> async);
+
+	void restartDockerApp(RestartDockerAppRequest request, AsyncCallback<RpcResult<RestartDockerAppResponse>> async);
+
+	void writeDockerAppResData(WriteDockerAppResDataRequest request, AsyncCallback<RpcResult<WriteDockerAppResDataResponse>> async);
+
+	void readDockerAppResData(ReadDockerAppResDataRequest request, AsyncCallback<RpcResult<ReadDockerAppResDataResponse>> async);
+
+	void queryDockerAppDir(QueryDockerAppDirRequest request, AsyncCallback<RpcResult<QueryDockerAppDirResponse>> async);
+
+	void updateDockerApp(UpdateDockerAppRequest request, AsyncCallback<RpcResult<UpdateDockerAppResponse>> async);
+
+	void deleteDockerApp(DeleteDockerAppRequest request, AsyncCallback<RpcResult<DeleteDockerAppResponse>> async);
+
+	void queryDockerApps(QueryDockerAppsRequest request, AsyncCallback<RpcResult<QueryDockerAppsResponse>> async);
+
+	void deleteDesktopLayout(DeleteDashboardRequest request, AsyncCallback<RpcResult<DeleteDashboardResponse>> async);
+
+	void queryDesktopLayout(QueryDashboardRequest request, AsyncCallback<RpcResult<QueryDashboardResponse>> async);
+
+	void saveDesktopLayout(UpdateDashboardRequest request, AsyncCallback<RpcResult<UpdateDashboardResponse>> async);
+
+	void updateProjectTaskCover(UpdateProjectTaskCoverRequest request, AsyncCallback<RpcResult<UpdateProjectTaskCoverResponse>> async);
+
+	void deleteAppService(DeleteAppServiceRequest request, AsyncCallback<RpcResult<DeleteAppServiceResponse>> async);
+
+	void updateAppService(UpdateAppServiceRequest request, AsyncCallback<RpcResult<UpdateAppServiceResponse>> async);
+
+	void queryAppService(QueryAppServiceRequest request, AsyncCallback<RpcResult<QueryAppServiceResponse>> async);
+
+	void queryLogs(QueryLogsRequest request, AsyncCallback<RpcResult<QueryLogsResponse>> async);
+
+	void queryRecords(QueryRecordsRequest request, AsyncCallback<RpcResult<QueryRecordsResponse>> async);
+
+	void queryZones(QueryZonesRequest request, AsyncCallback<RpcResult<QueryZonesResponse>> async);
+
+	void deleteRecord(DeleteRecordRequest request, AsyncCallback<RpcResult<DeleteRecordResponse>> async);
+
+	void createOrUpdateRecord(CreateOrUpdateRecordRequest request, AsyncCallback<RpcResult<CreateOrUpdateRecordResponse>> async);
+
+	void deleteZone(DeleteZoneRequest request, AsyncCallback<RpcResult<DeleteZoneResponse>> async);
+
+	void createZone(CreateZoneRequest request, AsyncCallback<RpcResult<CreateZoneResponse>> async);
+
 	void transferRepository(TransferRepositoryRequest request, AsyncCallback<RpcResult<TransferRepositoryResponse>> async);
 
 	void queryUserPermissionInRepo(QueryUserPermissionInRepoRequest request, AsyncCallback<RpcResult<QueryUserPermissionInRepoResponse>> async);

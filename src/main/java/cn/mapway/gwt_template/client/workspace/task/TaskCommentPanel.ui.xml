@@ -92,7 +92,7 @@
     <g:LayoutPanel ui:field="root">
         <g:layer>
             <g:SplitLayoutPanel visible="false" ui:field="main">
-                <g:north size="320">
+                <g:north size="500">
                     <g:DockLayoutPanel ui:field="top">
                         <g:north size="45">
                             <g:HTMLPanel addStyleNames="{style.row}">

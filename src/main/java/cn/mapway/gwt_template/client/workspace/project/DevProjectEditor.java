@@ -1,5 +1,6 @@
 package cn.mapway.gwt_template.client.workspace.project;
 
+import cn.mapway.gwt_template.client.ClientContext;
 import cn.mapway.gwt_template.client.rpc.AppProxy;
 import cn.mapway.gwt_template.client.workspace.WorkspaceFolderDropdown;
 import cn.mapway.gwt_template.client.workspace.widget.SecurityLevelDropdown;
@@ -25,11 +26,12 @@ import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
+import com.google.gwt.user.client.ui.RequiresResize;
 import com.google.gwt.user.client.ui.TextArea;
 
 import java.util.List;
 
-public class DevProjectEditor extends CommonEventComposite implements IData<DevProjectEntity> {
+public class DevProjectEditor extends CommonEventComposite implements RequiresResize, IData<DevProjectEntity> {
     private static final DevProjectEditorUiBinder ourUiBinder = GWT.create(DevProjectEditorUiBinder.class);
     private static Dialog<DevProjectEditor> dialog;
     DevProjectEntity project;
@@ -49,11 +51,13 @@ public class DevProjectEditor extends CommonEventComposite implements IData<DevP
     WorkspaceFolderDropdown ddlFolder;
     @UiField
     SecurityLevelDropdown ddlSecurity;
+    @UiField
+    DockLayoutPanel root;
 
     public DevProjectEditor() {
         initWidget(ourUiBinder.createAndBindUi(this));
         txtColor.asColor();
-        uploader.setAction(GWT.getHostPageBaseURL() + "fileUpload", "project");
+        uploader.setAction(ClientContext.getImageUploader(), "project");
     }
 
     public static Dialog<DevProjectEditor> getDialog(boolean reuse) {
@@ -143,6 +147,11 @@ public class DevProjectEditor extends CommonEventComposite implements IData<DevP
         } else {
             fireEvent(event);
         }
+    }
+
+    @Override
+    public void onResize() {
+        root.onResize();
     }
 
     interface DevProjectEditorUiBinder extends UiBinder<DockLayoutPanel, DevProjectEditor> {

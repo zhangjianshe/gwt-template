@@ -4,15 +4,20 @@
     <g:DockLayoutPanel>
         <g:center>
             <g:VerticalPanel spacing="10">
-                <g:HorizontalPanel>
+                <g:HorizontalPanel verticalAlignment="middle" spacing="4">
                     <widget:Header width="100px">用户名称</widget:Header>
                     <g:Label ui:field="lbName"/>
                 </g:HorizontalPanel>
-                <g:HorizontalPanel>
+                <g:HorizontalPanel verticalAlignment="middle" spacing="4">
+                    <widget:Header width="100px">密码</widget:Header>
+                    <g:PasswordTextBox ui:field="pwd" addStyleNames="ai-input"/>
+                    <g:Label addStyleNames="ai-message">*不填保持空白不会更新密码</g:Label>
+                </g:HorizontalPanel>
+                <g:HorizontalPanel verticalAlignment="middle" spacing="4">
                     <widget:Header width="100px">头像</widget:Header>
                     <widget:ImageUploader ui:field="uploader" height="300px" width="300px"/>
                 </g:HorizontalPanel>
-                <g:HorizontalPanel>
+                <g:HorizontalPanel verticalAlignment="middle" spacing="4">
                     <g:Label width="100px"/>
                     <g:Button ui:field="btnSave">保存</g:Button>
                 </g:HorizontalPanel>

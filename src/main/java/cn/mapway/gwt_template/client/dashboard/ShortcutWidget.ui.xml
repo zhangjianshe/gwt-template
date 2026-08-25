@@ -1,0 +1,18 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+    <ui:style>
+        .root {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            padding: 15px;
+        }
+
+    </ui:style>
+    <g:HTMLPanel>
+        <g:HTMLPanel ui:field="root" addStyleNames="{style.root}">
+
+        </g:HTMLPanel>
+    </g:HTMLPanel>
+</ui:UiBinder>

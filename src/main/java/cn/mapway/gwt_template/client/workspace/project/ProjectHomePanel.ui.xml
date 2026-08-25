@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
              xmlns:g='urn:import:com.google.gwt.user.client.ui'
              xmlns:project="urn:import:cn.mapway.gwt_template.client.workspace.project"
@@ -19,6 +20,10 @@
         <g:layer>
             <g:TabLayoutPanel ui:field="mainTab" barHeight="50">
                 <g:tab>
+                    <g:header>📋 项目大事记</g:header>
+                    <milestone:ProjectCalendarWidget ui:field="projectCalendar"/>
+                </g:tab>
+                <g:tab>
                     <g:header>📅 任务甘特图</g:header>
                     <g:DockLayoutPanel>
                         <g:center>
@@ -26,24 +31,13 @@
                         </g:center>
                     </g:DockLayoutPanel>
                 </g:tab>
+
                 <g:tab>
-                    <g:header>📊 项目概况</g:header>
-                    <g:LayoutPanel>
-                        <g:layer top="15px" bottom="15px" left="15px" right="15px">
-                            <project:ProjectCard ui:field="projectCard"/>
-                        </g:layer>
-                    </g:LayoutPanel>
-                </g:tab>
-                <g:tab>
-                    <g:header>🗓️ 项目日历</g:header>
-                    <milestone:ProjectCalendarWidget ui:field="projectCalendar"/>
-                </g:tab>
-                <g:tab>
-                    <g:header>🐞 项目问题</g:header>
+                    <g:header>🐛 项目问题</g:header>
                     <issue:ProjectIssueFrame ui:field="issuePanel"/>
                 </g:tab>
                 <g:tab>
-                    <g:header>✍️ 项目WIKI</g:header>
+                    <g:header>📖 项目WIKI</g:header>
                     <wiki:WikiFrame ui:field="wikiFrame"/>
                 </g:tab>
 
