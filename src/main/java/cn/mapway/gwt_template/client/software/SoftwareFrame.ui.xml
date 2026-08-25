@@ -1,6 +1,7 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
              xmlns:g='urn:import:com.google.gwt.user.client.ui'
-             xmlns:software="urn:import:cn.mapway.gwt_template.client.software">
+             xmlns:software="urn:import:cn.mapway.gwt_template.client.software"
+             xmlns:buttons="urn:import:cn.mapway.ui.client.widget.buttons">
 
     <g:DockLayoutPanel>
         <g:west size="350">
@@ -9,8 +10,9 @@
             </g:ScrollPanel>
         </g:west>
         <g:north size="0">
-            <g:HorizontalPanel ui:field="tools">
-                <g:Button ui:field="btnCreate">创建软件</g:Button>
+            <g:HorizontalPanel ui:field="tools" space="4" verticalAlignment="middle">
+                <buttons:AiButton ui:field="btnEdit" enabled="false">修改软件</buttons:AiButton>
+                <buttons:AiButton ui:field="btnCreate">创建软件</buttons:AiButton>
             </g:HorizontalPanel>
         </g:north>
         <g:center>

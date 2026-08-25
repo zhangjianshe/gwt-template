@@ -6,6 +6,7 @@ import cn.mapway.ui.client.frame.ToolbarModule;
 import cn.mapway.ui.client.mvc.IModule;
 import cn.mapway.ui.client.mvc.ModuleMarker;
 import cn.mapway.ui.client.mvc.ModuleParameter;
+import cn.mapway.ui.client.widget.buttons.AiButton;
 import cn.mapway.ui.client.widget.dialog.Dialog;
 import cn.mapway.ui.client.widget.tree.TreeItem;
 import cn.mapway.ui.shared.CommonEvent;
@@ -15,7 +16,6 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
-import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 
@@ -36,9 +36,11 @@ public class SoftwareFrame extends ToolbarModule {
     @UiField
     HorizontalPanel tools;
     @UiField
-    Button btnCreate;
+    AiButton btnCreate;
     @UiField
     SoftwareList softwarePanel;
+    @UiField
+    AiButton btnEdit;
 
     public SoftwareFrame() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -59,6 +61,33 @@ public class SoftwareFrame extends ToolbarModule {
 
     @UiHandler("btnCreate")
     public void btnCreateClick(ClickEvent event) {
+        edit(null);
+    }
+
+    @UiHandler("tree")
+    public void treeCommon(CommonEvent event) {
+        if (event.isSelect()) {
+            TreeItem item = event.getValue();
+            SysSoftwareEntity software = (SysSoftwareEntity) item.getData();
+            softwarePanel.setData(software);
+            btnEdit.setEnabled(true);
+            btnEdit.setData(software);
+        }
+    }
+
+    @Override
+    protected void onLoad() {
+        super.onLoad();
+        btnEdit.setEnabled(false);
+    }
+
+    @UiHandler("btnEdit")
+    public void btnEditClick(ClickEvent event) {
+        SysSoftwareEntity software = (SysSoftwareEntity) btnEdit.getData();
+        edit(software);
+    }
+
+    private void edit(SysSoftwareEntity software) {
         Dialog<SoftwareEditor> dialog = SoftwareEditor.getDialog(true);
         dialog.addCommonHandler(new CommonEventHandler() {
             @Override
@@ -69,17 +98,8 @@ public class SoftwareFrame extends ToolbarModule {
                 dialog.hide();
             }
         });
-        dialog.getContent().setData(null);
+        dialog.getContent().setData(software);
         dialog.center();
-    }
-
-    @UiHandler("tree")
-    public void treeCommon(CommonEvent event) {
-        if (event.isSelect()) {
-            TreeItem item = event.getValue();
-            SysSoftwareEntity software = (SysSoftwareEntity) item.getData();
-            softwarePanel.setData(software);
-        }
     }
 
     interface SoftwareFrameUiBinder extends UiBinder<DockLayoutPanel, SoftwareFrame> {

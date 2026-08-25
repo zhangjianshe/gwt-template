@@ -87,8 +87,8 @@ public class SoftwareList extends CommonEventComposite implements IData<SysSoftw
         int col = 0;
         HTMLTable.RowFormatter rowFormatter = list.getRowFormatter();
         HTMLTable.ColumnFormatter columnFormatter = list.getColumnFormatter();
-        columnFormatter.setWidth(col++,"160px");
-        columnFormatter.setWidth(col++,"160px");
+        columnFormatter.setWidth(col++,"300px");
+        columnFormatter.setWidth(col++,"200px");
         columnFormatter.setWidth(col++,"130px");
         columnFormatter.setWidth(col++,"160px");
         columnFormatter.setWidth(col++,"160px");
