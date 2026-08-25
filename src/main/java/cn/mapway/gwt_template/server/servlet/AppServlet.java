@@ -75,14 +75,13 @@ import cn.mapway.ui.server.CheckUserServlet;
 import cn.mapway.ui.shared.CommonConstant;
 import cn.mapway.ui.shared.rpc.RpcResult;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.List;
 
 @Component
@@ -157,6 +156,41 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
         return toRpcResult(bizResult);
     }
 
+    /**
+     * 从 classpath 加载 GWT 序列化策略文件。
+     * <p>
+     * RemoteServiceServlet 默认通过 ServletContext.getResourceAsStream 加载
+     * /&lt;module&gt;/&lt;strongName&gt;.gwt.rpc，但在 Spring Boot 内嵌容器中，
+     * 静态资源位于 classpath 的 static/ 目录下，ServletContext 无法访问，
+     * 导致策略文件找不到并回退到 1.3.3 legacy 策略。这里改为从 classpath 的
+     * static 目录加载对应的 .gwt.rpc 文件。
+     */
+    @Override
+    public InputStream findResource(HttpServletRequest request, String moduleBaseURL, String strongName) {
+        String modulePath = moduleBaseURL;
+        try {
+            modulePath = new URL(moduleBaseURL).getPath();
+        } catch (Exception e) {
+            // moduleBaseURL 可能不是合法的 URL，直接使用原始值
+        }
+        if (modulePath == null) {
+            modulePath = "/";
+        }
+        if (!modulePath.endsWith("/")) {
+            modulePath += "/";
+        }
+        while (modulePath.startsWith("/")) {
+            modulePath = modulePath.substring(1);
+        }
+        String resourcePath = "static/" + modulePath + strongName + ".gwt.rpc";
+        InputStream stream = getClass().getClassLoader().getResourceAsStream(resourcePath);
+        if (stream == null) {
+            log.warn("[SERIALIZATION POLICY] 未在 classpath 中找到序列化策略文件 {}", resourcePath);
+        } else {
+            log.info("[SERIALIZATION POLICY] 从 classpath 加载序列化策略文件 {}", resourcePath);
+        }
+        return stream;
+    }
 
 	
     @Resource
@@ -1389,18 +1423,5 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
 
     }
 
-    @Override
-    public InputStream findResource(HttpServletRequest request, String moduleBaseURL, String strongName) {
-        String path = strongName + ".gwt.rpc";
-        ClassPathResource resource = new ClassPathResource("/static/js/app/" + path);
-        if (resource.exists()) {
-            try {
-                return resource.getInputStream();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        return null;
-    }
 
 }
