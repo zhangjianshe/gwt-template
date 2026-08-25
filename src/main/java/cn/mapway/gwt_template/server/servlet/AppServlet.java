@@ -31,6 +31,7 @@ import cn.mapway.gwt_template.server.service.project.wiki.*;
 import cn.mapway.gwt_template.server.service.repository.*;
 import cn.mapway.gwt_template.server.service.soft.CreateSoftwareExecutor;
 import cn.mapway.gwt_template.server.service.soft.DeleteSoftwareExecutor;
+import cn.mapway.gwt_template.server.service.soft.DeleteSoftwareFileExecutor;
 import cn.mapway.gwt_template.server.service.soft.QuerySoftwareExecutor;
 import cn.mapway.gwt_template.server.service.soft.QuerySoftwareFilesExecutor;
 import cn.mapway.gwt_template.server.service.tools.MarkdownToHtmlExecutor;
@@ -123,6 +124,8 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
     QuerySoftwareExecutor querySoftwareExecutor;
     @Resource
     QuerySoftwareFilesExecutor querySoftwareFilesExecutor;
+    @Resource
+    DeleteSoftwareFileExecutor deleteSoftwareFileExecutor;
     @Resource
     TokenService tokenService;
     @Resource
@@ -1360,6 +1363,12 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
     @Override
     public RpcResult<QuerySoftwareFilesResponse> querySoftwareFiles(QuerySoftwareFilesRequest request) {
         BizResult<QuerySoftwareFilesResponse> bizResult = querySoftwareFilesExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<DeleteSoftwareFileResponse> deleteSoftwareFile(DeleteSoftwareFileRequest request) {
+        BizResult<DeleteSoftwareFileResponse> bizResult = deleteSoftwareFileExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toRpcResult(bizResult);
     }
 

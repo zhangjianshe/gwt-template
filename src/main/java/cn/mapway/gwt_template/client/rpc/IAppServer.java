@@ -322,6 +322,8 @@ public interface IAppServer extends RemoteService {
 
     RpcResult<QuerySoftwareFilesResponse> querySoftwareFiles(QuerySoftwareFilesRequest request);
 
+    RpcResult<DeleteSoftwareFileResponse> deleteSoftwareFile(DeleteSoftwareFileRequest request);
+
     RpcResult<QuerySoftwareResponse> querySoftware(QuerySoftwareRequest request);
 
     RpcResult<DeleteSoftwareResponse> deleteSoftware(DeleteSoftwareRequest request);

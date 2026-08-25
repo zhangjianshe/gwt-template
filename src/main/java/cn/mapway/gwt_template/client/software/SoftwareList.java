@@ -1,21 +1,28 @@
 package cn.mapway.gwt_template.client.software;
 
+import cn.mapway.gwt_template.client.ClientContext;
 import cn.mapway.gwt_template.client.rpc.AppProxy;
 import cn.mapway.gwt_template.client.rpc.AsyncAdaptor;
 import cn.mapway.gwt_template.shared.db.SysSoftwareEntity;
 import cn.mapway.gwt_template.shared.db.SysSoftwareFileEntity;
+import cn.mapway.gwt_template.shared.rpc.soft.DeleteSoftwareFileRequest;
+import cn.mapway.gwt_template.shared.rpc.soft.DeleteSoftwareFileResponse;
 import cn.mapway.gwt_template.shared.rpc.soft.QuerySoftwareFilesRequest;
 import cn.mapway.gwt_template.shared.rpc.soft.QuerySoftwareFilesResponse;
 import cn.mapway.ui.client.tools.IData;
 import cn.mapway.ui.client.util.StringUtil;
 import cn.mapway.ui.client.widget.CommonEventComposite;
 import cn.mapway.ui.client.widget.Header;
+import cn.mapway.ui.client.widget.buttons.DeleteButton;
 import cn.mapway.ui.shared.rpc.RpcResult;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.*;
+import elemental2.promise.IThenable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -72,6 +79,33 @@ public class SoftwareList extends CommonEventComposite implements IData<SysSoftw
         });
     }
 
+    private void doDelete(SysSoftwareFileEntity file) {
+        DeleteSoftwareFileRequest request = new DeleteSoftwareFileRequest();
+        request.setFileId(file.getId());
+        AppProxy.get().deleteSoftwareFile(request, new AsyncAdaptor<RpcResult<DeleteSoftwareFileResponse>>() {
+            @Override
+            public void onData(RpcResult<DeleteSoftwareFileResponse> result) {
+                loadFiles();
+            }
+        });
+    }
+
+    private final ClickHandler confirmDelete = new ClickHandler() {
+        @Override
+        public void onClick(ClickEvent event) {
+            DeleteButton deleteButton = (DeleteButton) event.getSource();
+            SysSoftwareFileEntity file = (SysSoftwareFileEntity) deleteButton.getData();
+            String msg = "删除文件" + file.getName() + "?";
+            ClientContext.get().confirmDelete(msg).then(new IThenable.ThenOnFulfilledCallbackFn<Void, Object>() {
+                @Override
+                public IThenable<Object> onInvoke(Void p0) {
+                    doDelete(file);
+                    return null;
+                }
+            });
+        }
+    };
+
     private void renderFiles(QuerySoftwareFilesResponse data) {
         Map<String, List<SysSoftwareFileEntity>> versions = new HashMap<>();
         for (SysSoftwareFileEntity item : data.getFiles()) {
@@ -86,12 +120,6 @@ public class SoftwareList extends CommonEventComposite implements IData<SysSoftw
         int row = -1;
         int col = 0;
         HTMLTable.RowFormatter rowFormatter = list.getRowFormatter();
-        HTMLTable.ColumnFormatter columnFormatter = list.getColumnFormatter();
-        columnFormatter.setWidth(col++,"300px");
-        columnFormatter.setWidth(col++,"200px");
-        columnFormatter.setWidth(col++,"130px");
-        columnFormatter.setWidth(col++,"160px");
-        columnFormatter.setWidth(col++,"160px");
         for (String version : versions.keySet()) {
             row++;
             col = 0;
@@ -111,6 +139,10 @@ public class SoftwareList extends CommonEventComposite implements IData<SysSoftw
                 anchor.setTarget("_blank");
                 list.setWidget(row, col++, anchor);
                 list.setWidget(row, col++, new Label(item.getSummary()));
+                DeleteButton deleteButton = new DeleteButton();
+                deleteButton.setData(item);
+                deleteButton.addClickHandler(confirmDelete);
+                list.setWidget(row, col++, deleteButton);
                 rowFormatter.setStyleName(row, style.row());
             }
         }

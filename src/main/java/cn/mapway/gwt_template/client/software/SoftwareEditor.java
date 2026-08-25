@@ -53,7 +53,7 @@ public class SoftwareEditor extends CommonEventComposite implements IData<SysSof
 
     @Override
     public Size requireDefaultSize() {
-        return new Size(800, 550);
+        return new Size(600, 450);
     }
 
     @UiHandler("saveBar")
@@ -77,7 +77,7 @@ public class SoftwareEditor extends CommonEventComposite implements IData<SysSof
 
     private void fromUI() {
         software.setName(txtName.getValue());
-        software.setName(txtSummary.getValue());
+        software.setSummary(txtSummary.getValue());
     }
 
     @Override

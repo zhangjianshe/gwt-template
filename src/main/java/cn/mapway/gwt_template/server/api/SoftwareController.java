@@ -26,6 +26,8 @@ public class SoftwareController extends ApiBaseController {
     QuerySoftwareExecutor querySoftwareExecutor;
     @Resource
     QuerySoftwareFilesExecutor querySoftwareFilesExecutor;
+    @Resource
+    DeleteSoftwareFileExecutor deleteSoftwareFileExecutor;
 
     /**
      * UploadSoftwareFile
@@ -89,6 +91,19 @@ public class SoftwareController extends ApiBaseController {
     @RequestMapping(value = "/querySoftwareFiles", method = RequestMethod.POST)
     public RpcResult<QuerySoftwareFilesResponse> querySoftwareFiles(@RequestBody QuerySoftwareFilesRequest request) {
         BizResult<QuerySoftwareFilesResponse> bizResult = querySoftwareFilesExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toApiResult(bizResult);
+    }
+
+    /**
+     * DeleteSoftwareFile
+     *
+     * @param request request
+     * @return data
+     */
+    @Doc(value = "DeleteSoftwareFile", retClazz = {DeleteSoftwareFileResponse.class})
+    @RequestMapping(value = "/deleteSoftwareFile", method = RequestMethod.POST)
+    public RpcResult<DeleteSoftwareFileResponse> deleteSoftwareFile(@RequestBody DeleteSoftwareFileRequest request) {
+        BizResult<DeleteSoftwareFileResponse> bizResult = deleteSoftwareFileExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toApiResult(bizResult);
     }
 

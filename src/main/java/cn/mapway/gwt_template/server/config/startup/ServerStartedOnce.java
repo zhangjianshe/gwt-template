@@ -59,6 +59,10 @@ public class ServerStartedOnce extends ApplicationObjectSupport implements IServ
     @Resource
     ProjectService projectService;
 
+    @Override
+    public String getDatabaseSchema() {
+        return "public";
+    }
 
     @Override
     public <T> T getBean(Class<T> aClass) {

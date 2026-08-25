@@ -58,7 +58,7 @@
                     <g:Label ui:field="lbKey" styleName="{style.key}"/>
                 </g:VerticalPanel>
             </g:HorizontalPanel>
-            <g:FlexTable cellSpacing="0" cellPadding="6" ui:field="list" addStyleNames="{style.list}">
+            <g:FlexTable width="100%" cellSpacing="0" cellPadding="6" ui:field="list" addStyleNames="{style.list}">
 
             </g:FlexTable>
         </g:HTMLPanel>

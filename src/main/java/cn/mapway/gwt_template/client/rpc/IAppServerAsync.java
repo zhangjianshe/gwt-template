@@ -341,5 +341,7 @@ public interface IAppServerAsync {
     /// CODE_GEN_INSERT_POINT///
     void querySoftwareFiles(QuerySoftwareFilesRequest request, AsyncCallback<RpcResult<QuerySoftwareFilesResponse>> async);
 
+    void deleteSoftwareFile(DeleteSoftwareFileRequest request, AsyncCallback<RpcResult<DeleteSoftwareFileResponse>> async);
+
     void login(LoginRequest request, AsyncCallback<RpcResult<LoginResponse>> asyncCallback);
 }
