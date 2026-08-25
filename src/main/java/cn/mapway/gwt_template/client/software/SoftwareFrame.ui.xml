@@ -10,7 +10,7 @@
             </g:ScrollPanel>
         </g:west>
         <g:north size="0">
-            <g:HorizontalPanel ui:field="tools" space="4" verticalAlignment="middle">
+            <g:HorizontalPanel ui:field="tools" spacing="4" verticalAlignment="middle">
                 <buttons:AiButton ui:field="btnEdit" enabled="false">修改软件</buttons:AiButton>
                 <buttons:AiButton ui:field="btnCreate">创建软件</buttons:AiButton>
             </g:HorizontalPanel>
