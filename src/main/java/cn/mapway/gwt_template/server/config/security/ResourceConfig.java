@@ -25,10 +25,22 @@ public class ResourceConfig implements WebMvcConfigurer {
         }
     }
 
+    private String calSoftwarePath() {
+        String path = FileCustomUtils.concatPath(systemConfigService.getUploadRoot(), "software");
+        if (path.endsWith("/")) {
+            return "file:" + path;
+        } else {
+            return "file:" + path + "/";
+        }
+    }
+
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/upload/**")
                 .addResourceLocations(calUploadPath())
+                .setCacheControl(CacheControl.maxAge(365, TimeUnit.DAYS).cachePublic());
+        registry.addResourceHandler("/software/**")
+                .addResourceLocations(calSoftwarePath())
                 .setCacheControl(CacheControl.maxAge(365, TimeUnit.DAYS).cachePublic());
         registry.addResourceHandler("/js/**")
                 .addResourceLocations("/static/js/", "classpath:/static/js/", "classpath:/META-INF/public-web-resources/js/")

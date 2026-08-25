@@ -81,7 +81,7 @@ public class UploadSoftwareFileExecutor extends AbstractBizExecutor<UploadSoftwa
         fileEntity.setLocation("/software/" + targetFileName.substring(targetPath.length()));
         dao.insert(fileEntity);
         UploadSoftwareFileResponse response = new UploadSoftwareFileResponse();
-        response.setUrl("/upload/" + fileEntity.getLocation());
+        response.setUrl(fileEntity.getLocation());
         return BizResult.success(response);
     }
 }

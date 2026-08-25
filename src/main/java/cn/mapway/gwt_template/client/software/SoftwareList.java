@@ -31,6 +31,21 @@ import java.util.Map;
 
 public class SoftwareList extends CommonEventComposite implements IData<SysSoftwareEntity> {
     private static final SoftwareListUiBinder ourUiBinder = GWT.create(SoftwareListUiBinder.class);
+    private final ClickHandler confirmDelete = new ClickHandler() {
+        @Override
+        public void onClick(ClickEvent event) {
+            DeleteButton deleteButton = (DeleteButton) event.getSource();
+            SysSoftwareFileEntity file = (SysSoftwareFileEntity) deleteButton.getData();
+            String msg = "删除文件" + file.getName() + "?";
+            ClientContext.get().confirmDelete(msg).then(new IThenable.ThenOnFulfilledCallbackFn<Void, Object>() {
+                @Override
+                public IThenable<Object> onInvoke(Void p0) {
+                    doDelete(file);
+                    return null;
+                }
+            });
+        }
+    };
     @UiField
     Label lbKey;
     @UiField
@@ -90,22 +105,6 @@ public class SoftwareList extends CommonEventComposite implements IData<SysSoftw
         });
     }
 
-    private final ClickHandler confirmDelete = new ClickHandler() {
-        @Override
-        public void onClick(ClickEvent event) {
-            DeleteButton deleteButton = (DeleteButton) event.getSource();
-            SysSoftwareFileEntity file = (SysSoftwareFileEntity) deleteButton.getData();
-            String msg = "删除文件" + file.getName() + "?";
-            ClientContext.get().confirmDelete(msg).then(new IThenable.ThenOnFulfilledCallbackFn<Void, Object>() {
-                @Override
-                public IThenable<Object> onInvoke(Void p0) {
-                    doDelete(file);
-                    return null;
-                }
-            });
-        }
-    };
-
     private void renderFiles(QuerySoftwareFilesResponse data) {
         Map<String, List<SysSoftwareFileEntity>> versions = new HashMap<>();
         for (SysSoftwareFileEntity item : data.getFiles()) {
@@ -135,7 +134,7 @@ public class SoftwareList extends CommonEventComposite implements IData<SysSoftw
                 list.setWidget(row, col++, new Label(StringUtil.formatFileSize(item.getSize())));
                 list.setWidget(row, col++, new Label(StringUtil.formatDate(item.getCreateTime())));
                 Anchor anchor = new Anchor("下载");
-                anchor.setHref("/upload/" + item.getLocation());
+                anchor.setHref(item.getLocation());
                 anchor.setTarget("_blank");
                 list.setWidget(row, col++, anchor);
                 list.setWidget(row, col++, new Label(item.getSummary()));
