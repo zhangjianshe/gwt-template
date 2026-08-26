@@ -19,6 +19,8 @@ public class SysSoftwareFileEntity implements Serializable, IsSerializable {
     public static final String FLD_SOFTWARE_ID = "software_id";
     public static final String FLD_VERSION = "version";
     public static final String FLD_NAME = "name";
+    public static final String FLD_OS = "os";
+    public static final String FLD_ARCH = "arch";
     public static final String FLD_SUMMARY = "summary";
     public static final String FLD_CREATE_TIME = "create_time";
     @Name
