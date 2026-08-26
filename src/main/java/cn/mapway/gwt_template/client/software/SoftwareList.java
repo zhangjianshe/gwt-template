@@ -24,10 +24,7 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.*;
 import elemental2.promise.IThenable;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class SoftwareList extends CommonEventComposite implements IData<SysSoftwareEntity> {
     private static final SoftwareListUiBinder ourUiBinder = GWT.create(SoftwareListUiBinder.class);
@@ -125,8 +122,14 @@ public class SoftwareList extends CommonEventComposite implements IData<SysSoftw
             Label label = new Label(version);
             label.addStyleName(style.label());
             list.setWidget(row, col++, label);
-
-            for (SysSoftwareFileEntity item : versions.get(version)) {
+            List<SysSoftwareFileEntity> entityList = versions.get(version);
+            Collections.sort(entityList, (o1, o2) -> {
+                if (o1.getArch() == null || o2.getArch() == null) {
+                    return 0;
+                }
+                return o1.getArch().compareTo(o2.getArch());
+            });
+            for (SysSoftwareFileEntity item : entityList) {
                 row++;
                 col = 0;
                 list.setWidget(row, col++, new Header(item.getName()));
