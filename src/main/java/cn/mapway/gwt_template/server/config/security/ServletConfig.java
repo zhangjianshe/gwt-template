@@ -8,10 +8,15 @@ import cn.mapway.rbac.shared.RbacConstant;
 import lombok.extern.slf4j.Slf4j;
 import org.nutz.json.Json;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.web.servlet.MultipartProperties;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.multipart.MultipartResolver;
+import org.springframework.web.multipart.support.StandardServletMultipartResolver;
+import org.springframework.web.servlet.DispatcherServlet;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +50,26 @@ public class ServletConfig {
         srb.setInitParameters(params);
         srb.setLoadOnStartup(1);
         return srb;
+    }
+
+    /**
+     * Skip Spring/Tomcat multipart caching for software upload so the executor
+     * can read the original request stream and write straight to disk.
+     */
+    @Bean(name = DispatcherServlet.MULTIPART_RESOLVER_BEAN_NAME)
+    MultipartResolver multipartResolver(MultipartProperties multipartProperties) {
+        StandardServletMultipartResolver resolver = new StandardServletMultipartResolver() {
+            @Override
+            public boolean isMultipart(HttpServletRequest request) {
+                String uri = request.getRequestURI();
+                if (uri != null && uri.contains("/api/v1/software/upload")) {
+                    return false;
+                }
+                return super.isMultipart(request);
+            }
+        };
+        resolver.setResolveLazily(multipartProperties.isResolveLazily());
+        return resolver;
     }
 
     /**

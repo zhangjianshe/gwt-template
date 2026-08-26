@@ -7,9 +7,11 @@ import cn.mapway.gwt_template.server.service.soft.*;
 import cn.mapway.gwt_template.shared.rpc.soft.*;
 import cn.mapway.ui.shared.rpc.RpcResult;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 
 @RestController
 @Slf4j
@@ -30,14 +32,16 @@ public class SoftwareController extends ApiBaseController {
     DeleteSoftwareFileExecutor deleteSoftwareFileExecutor;
 
     /**
-     * UploadSoftwareFile
+     * UploadSoftwareFile.
+     * Reads the original servlet request stream in the executor; Spring multipart
+     * resolution is skipped for this path so the file is not cached first.
      *
-     * @param request request
+     * @param request original HTTP request
      * @return data
      */
     @Doc(value = "upload", retClazz = {UploadSoftwareFileResponse.class})
-    @PostMapping(value = "/upload")
-    public RpcResult<UploadSoftwareFileResponse> uploadSoftwareFile(UploadSoftwareFileRequest request) {
+    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public RpcResult<UploadSoftwareFileResponse> uploadSoftwareFile(HttpServletRequest request) {
         BizResult<UploadSoftwareFileResponse> bizResult = uploadSoftwareFileExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toApiResult(bizResult);
     }

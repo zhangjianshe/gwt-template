@@ -2,7 +2,6 @@ package cn.mapway.gwt_template.shared.rpc.soft;
 
 import cn.mapway.document.annotation.Doc;
 import lombok.Data;
-import org.springframework.web.multipart.MultipartFile;
 
 /**
  * UploadSoftwareFileRequest
@@ -18,5 +17,4 @@ public class UploadSoftwareFileRequest {
     String summary;
     String os;
     String arch;
-    MultipartFile file;
 }
