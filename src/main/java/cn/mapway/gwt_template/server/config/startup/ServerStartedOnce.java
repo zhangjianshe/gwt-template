@@ -300,7 +300,7 @@ public class ServerStartedOnce extends ApplicationObjectSupport implements IServ
         }
 
         //创建一个项目管理员角色
-        BizResult<RbacRole> rbacRoleBizResult = rbacResourceService.confirmRoleExist(AppConstant.ROLE_SYS_PROJECT_MANAGER, "项目管理员", "", "", "");
+        BizResult<RbacRole> rbacRoleBizResult = rbacResourceService.confirmRoleExist(AppConstant.ROLE_SYS_PROJECT_MANAGER, "项目管理员", "ROLE_SYS", "", "");
         if (rbacRoleBizResult.isFailed()) {
             log.warn("[START] 项目管理员角色 {}", rbacRoleBizResult.getMessage());
             throw Lang.makeThrow("[START]", rbacRoleBizResult.getMessage());
