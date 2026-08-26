@@ -329,6 +329,14 @@ public class ServerStartedOnce extends ApplicationObjectSupport implements IServ
         }
         rbacResourceService.confirmResourceInRole(DockerAppFrame.MODULE_CODE, AppConstant.ROLE_DOCKER_APP_MANAGER);
 
+        //软件管理 色
+        rbacRoleBizResult = rbacResourceService.confirmRoleExist(AppConstant.ROLE_SYS_PROJECT_MANAGER, "软件维护", "ROLE_SYS", "", "");
+        if (rbacRoleBizResult.isFailed()) {
+            log.warn("[START] 软件管理 角色 {}", rbacRoleBizResult.getMessage());
+            throw Lang.makeThrow("[START]", rbacRoleBizResult.getMessage());
+        }
+
+
 
         //分配项目管理员 创建项目资源
         log.info("[START] 分配项目管理员 角色资源");
