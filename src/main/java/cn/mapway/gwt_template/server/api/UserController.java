@@ -3,7 +3,10 @@ package cn.mapway.gwt_template.server.api;
 import cn.mapway.biz.core.BizRequest;
 import cn.mapway.biz.core.BizResult;
 import cn.mapway.document.annotation.Doc;
+import cn.mapway.gwt_template.server.service.user.CreateUserTokenExecutor;
+import cn.mapway.gwt_template.server.service.user.DeleteUserTokenExecutor;
 import cn.mapway.gwt_template.server.service.user.QueryUserInfoExecutor;
+import cn.mapway.gwt_template.server.service.user.QueryUserTokenExecutor;
 import cn.mapway.gwt_template.server.service.user.RegisterUserExecutor;
 import cn.mapway.gwt_template.server.service.user.UpdateUserInfoExecutor;
 import cn.mapway.gwt_template.shared.rpc.user.*;
@@ -26,6 +29,12 @@ public class UserController extends ApiBaseController {
     UpdateUserInfoExecutor updateUserInfoExecutor;
     @Resource
     QueryUserInfoExecutor queryUserInfoExecutor;
+    @Resource
+    QueryUserTokenExecutor queryUserTokenExecutor;
+    @Resource
+    CreateUserTokenExecutor createUserTokenExecutor;
+    @Resource
+    DeleteUserTokenExecutor deleteUserTokenExecutor;
 
     /**
      * RegisterUser
@@ -63,6 +72,45 @@ public class UserController extends ApiBaseController {
     @RequestMapping(value = "/queryUserInfo", method = RequestMethod.POST)
     public RpcResult<QueryUserInfoResponse> queryUserInfo(@RequestBody QueryUserInfoRequest request) {
         BizResult<QueryUserInfoResponse> bizResult = queryUserInfoExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toApiResult(bizResult);
+    }
+
+    /**
+     * QueryUserToken
+     *
+     * @param request request
+     * @return data
+     */
+    @Doc(value = "QueryUserToken", retClazz = {QueryUserTokenResponse.class})
+    @RequestMapping(value = "/queryUserToken", method = RequestMethod.POST)
+    public RpcResult<QueryUserTokenResponse> queryUserToken(@RequestBody QueryUserTokenRequest request) {
+        BizResult<QueryUserTokenResponse> bizResult = queryUserTokenExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toApiResult(bizResult);
+    }
+
+    /**
+     * CreateUserToken
+     *
+     * @param request request
+     * @return data
+     */
+    @Doc(value = "CreateUserToken", retClazz = {CreateUserTokenResponse.class})
+    @RequestMapping(value = "/createUserToken", method = RequestMethod.POST)
+    public RpcResult<CreateUserTokenResponse> createUserToken(@RequestBody CreateUserTokenRequest request) {
+        BizResult<CreateUserTokenResponse> bizResult = createUserTokenExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toApiResult(bizResult);
+    }
+
+    /**
+     * DeleteUserToken
+     *
+     * @param request request
+     * @return data
+     */
+    @Doc(value = "DeleteUserToken", retClazz = {DeleteUserTokenResponse.class})
+    @RequestMapping(value = "/deleteUserToken", method = RequestMethod.POST)
+    public RpcResult<DeleteUserTokenResponse> deleteUserToken(@RequestBody DeleteUserTokenRequest request) {
+        BizResult<DeleteUserTokenResponse> bizResult = deleteUserTokenExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toApiResult(bizResult);
     }
 }

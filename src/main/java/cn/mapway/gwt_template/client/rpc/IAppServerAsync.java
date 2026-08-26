@@ -154,6 +154,12 @@ public interface IAppServerAsync {
 
 	void queryUserInfo(QueryUserInfoRequest request, AsyncCallback<RpcResult<QueryUserInfoResponse>> async);
 
+	void queryUserToken(QueryUserTokenRequest request, AsyncCallback<RpcResult<QueryUserTokenResponse>> async);
+
+	void createUserToken(CreateUserTokenRequest request, AsyncCallback<RpcResult<CreateUserTokenResponse>> async);
+
+	void deleteUserToken(DeleteUserTokenRequest request, AsyncCallback<RpcResult<DeleteUserTokenResponse>> async);
+
 	void queryDevWorkspaceMember(QueryDevWorkspaceMemberRequest request, AsyncCallback<RpcResult<QueryDevWorkspaceMemberResponse>> async);
 
 	void queryProjectActions(QueryProjectActionsRequest request, AsyncCallback<RpcResult<QueryProjectActionsResponse>> async);

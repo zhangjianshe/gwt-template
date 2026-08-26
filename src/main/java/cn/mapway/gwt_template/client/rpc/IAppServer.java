@@ -154,6 +154,12 @@ public interface IAppServer extends RemoteService {
 
     RpcResult<QueryUserInfoResponse> queryUserInfo(QueryUserInfoRequest request);
 
+    RpcResult<QueryUserTokenResponse> queryUserToken(QueryUserTokenRequest request);
+
+    RpcResult<CreateUserTokenResponse> createUserToken(CreateUserTokenRequest request);
+
+    RpcResult<DeleteUserTokenResponse> deleteUserToken(DeleteUserTokenRequest request);
+
     RpcResult<QueryDevWorkspaceMemberResponse> queryDevWorkspaceMember(QueryDevWorkspaceMemberRequest request);
 
     RpcResult<QueryProjectActionsResponse> queryProjectActions(QueryProjectActionsRequest request);

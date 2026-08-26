@@ -11,6 +11,7 @@ import cn.mapway.gwt_template.shared.db.SysSoftwareFileEntity;
 import cn.mapway.gwt_template.shared.rpc.soft.DeleteSoftwareFileRequest;
 import cn.mapway.gwt_template.shared.rpc.soft.DeleteSoftwareFileResponse;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
+import cn.mapway.rbac.server.service.RbacUserService;
 import lombok.extern.slf4j.Slf4j;
 import org.nutz.dao.Dao;
 import org.nutz.json.Json;
@@ -34,12 +35,17 @@ public class DeleteSoftwareFileExecutor extends AbstractBizExecutor<DeleteSoftwa
     @Resource
     SystemConfigService systemConfigService;
 
+    @Resource
+    RbacUserService rbacUserService;
+
     @Override
     protected BizResult<DeleteSoftwareFileResponse> process(BizContext context, BizRequest<DeleteSoftwareFileRequest> bizParam) {
         DeleteSoftwareFileRequest request = bizParam.getData();
         log.info("DeleteSoftwareFileExecutor {}", Json.toJson(request, JsonFormat.compact()));
         LoginUser user = (LoginUser) context.get(AppConstant.KEY_LOGIN_USER);
         assertTrue(Strings.isNotBlank(request.getFileId()), "没有文件ID");
+        BizResult<Boolean> canDelete = rbacUserService.isAssignRole(user, "", AppConstant.ROLE_SOFTWARE_MANAGER);
+        assertTrue(canDelete.isSuccess() && canDelete.getData(),"没有授权操作");
 
         SysSoftwareFileEntity fileEntity = dao.fetch(SysSoftwareFileEntity.class, request.getFileId());
         assertNotNull(fileEntity, "没有文件信息" + request.getFileId());

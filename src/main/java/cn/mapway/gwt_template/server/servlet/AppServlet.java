@@ -36,7 +36,10 @@ import cn.mapway.gwt_template.server.service.soft.QuerySoftwareExecutor;
 import cn.mapway.gwt_template.server.service.soft.QuerySoftwareFilesExecutor;
 import cn.mapway.gwt_template.server.service.tools.MarkdownToHtmlExecutor;
 import cn.mapway.gwt_template.server.service.tools.QueryImagesExecutor;
+import cn.mapway.gwt_template.server.service.user.CreateUserTokenExecutor;
+import cn.mapway.gwt_template.server.service.user.DeleteUserTokenExecutor;
 import cn.mapway.gwt_template.server.service.user.QueryUserInfoExecutor;
+import cn.mapway.gwt_template.server.service.user.QueryUserTokenExecutor;
 import cn.mapway.gwt_template.server.service.user.RegisterUserExecutor;
 import cn.mapway.gwt_template.server.service.user.TokenService;
 import cn.mapway.gwt_template.server.service.user.UpdateUserInfoExecutor;
@@ -414,6 +417,12 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
     ImportDevProjectTaskExecutor importDevProjectTaskExecutor;
     @Resource
     QueryUserInfoExecutor queryUserInfoExecutor;
+    @Resource
+    QueryUserTokenExecutor queryUserTokenExecutor;
+    @Resource
+    CreateUserTokenExecutor createUserTokenExecutor;
+    @Resource
+    DeleteUserTokenExecutor deleteUserTokenExecutor;
     @Resource
     QueryDevWorkspaceMemberExecutor queryDevWorkspaceMemberExecutor;
     @Resource
@@ -820,6 +829,24 @@ public class AppServlet extends CheckUserServlet<LoginUser> implements IAppServe
     @Override
     public RpcResult<QueryUserInfoResponse> queryUserInfo(QueryUserInfoRequest request) {
         BizResult<QueryUserInfoResponse> bizResult = queryUserInfoExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<QueryUserTokenResponse> queryUserToken(QueryUserTokenRequest request) {
+        BizResult<QueryUserTokenResponse> bizResult = queryUserTokenExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<CreateUserTokenResponse> createUserToken(CreateUserTokenRequest request) {
+        BizResult<CreateUserTokenResponse> bizResult = createUserTokenExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toRpcResult(bizResult);
+    }
+
+    @Override
+    public RpcResult<DeleteUserTokenResponse> deleteUserToken(DeleteUserTokenRequest request) {
+        BizResult<DeleteUserTokenResponse> bizResult = deleteUserTokenExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toRpcResult(bizResult);
     }
 
