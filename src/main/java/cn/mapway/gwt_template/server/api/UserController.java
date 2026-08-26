@@ -27,7 +27,7 @@ public class UserController extends ApiBaseController {
 
     @Resource
     RegisterUserExecutor registerUserExecutor;
-    @Resource
+    @Resource(name = "apiLoginExecutor")
     LoginExecutor loginExecutor;
     @Resource
     UpdateUserInfoExecutor updateUserInfoExecutor;

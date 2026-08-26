@@ -24,7 +24,7 @@ import javax.annotation.Resource;
  *
  * @author zhangjianshe <zhangjianshe@gmail.com>
  */
-@Component
+@Component(value = "apiLoginExecutor")
 @Slf4j
 public class LoginExecutor extends AbstractBizExecutor<LoginResult, LoginRequest> {
     @Resource

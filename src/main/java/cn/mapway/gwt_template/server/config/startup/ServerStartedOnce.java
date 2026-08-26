@@ -372,6 +372,7 @@ public class ServerStartedOnce extends ApplicationObjectSupport implements IServ
         rbacResourceService.assignUserRole(String.valueOf(RbacConstant.SUPER_USER_ID), AppConstant.ROLE_SYS_PROJECT_MANAGER, false);
         rbacResourceService.assignUserRole(String.valueOf(RbacConstant.SUPER_USER_ID), AppConstant.ROLE_DOCKER_APP_MANAGER, false);
         rbacResourceService.assignUserRole(String.valueOf(RbacConstant.SUPER_USER_ID), AppConstant.ROLE_SOFTWARE_MANAGER, false);
+        rbacResourceService.assignUserRole(String.valueOf(RbacConstant.SUPER_USER_ID), AppConstant.ROLE_HOST_PUBLIC, false);
 
 
     }
