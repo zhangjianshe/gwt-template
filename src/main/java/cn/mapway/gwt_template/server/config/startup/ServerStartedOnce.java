@@ -336,6 +336,13 @@ public class ServerStartedOnce extends ApplicationObjectSupport implements IServ
             throw Lang.makeThrow("[START]", rbacRoleBizResult.getMessage());
         }
 
+        //公共主机共享访问角色
+        rbacRoleBizResult = rbacResourceService.confirmRoleExist(AppConstant.ROLE_HOST_PUBLIC, "公共主机共享", "ROLE_SYS", "", "");
+        if (rbacRoleBizResult.isFailed()) {
+            log.warn("[START] 公共主机共享角色 {}", rbacRoleBizResult.getMessage());
+            throw Lang.makeThrow("[START]", rbacRoleBizResult.getMessage());
+        }
+
 
 
         //分配项目管理员 创建项目资源

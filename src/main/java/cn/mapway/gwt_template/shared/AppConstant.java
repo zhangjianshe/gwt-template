@@ -27,6 +27,7 @@ public class AppConstant {
     public static final String ROLE_SYS_LDAP_MANAGER = "ROLE_SYS_LDAP_MANAGER"; //系统LDAP管理角色
     public static final String ROLE_DOCKER_APP_MANAGER = "ROLE_DOCKER_APP_MANAGER"; //系统DOCKER管理角色
     public static final String ROLE_SOFTWARE_MANAGER = "ROLE_SOFTWARE_MANAGER"; //系统软件管理员角色
+    public static final String ROLE_HOST_PUBLIC = "ROLE_HOST_PUBLIC"; //公共主机共享访问角色
 
     public static final String USER_IS_PUBLIC_ACCOUNT = "USER_IS_PUBLIC_ACCOUNT"; //用户是一个公共账户
 
