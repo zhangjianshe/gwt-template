@@ -300,7 +300,7 @@ public class ServerStartedOnce extends ApplicationObjectSupport implements IServ
         }
 
         //创建一个项目管理员角色
-        BizResult<RbacRole> rbacRoleBizResult = rbacResourceService.confirmRoleExist(AppConstant.ROLE_SYS_PROJECT_MANAGER, "项目管理员", "ROLE_SYS", "", "");
+        BizResult<RbacRole> rbacRoleBizResult = rbacResourceService.confirmRoleExist(AppConstant.ROLE_SYS_PROJECT_MANAGER, "项目管理", "ROLE_SYS", "", "");
         if (rbacRoleBizResult.isFailed()) {
             log.warn("[START] 项目管理员角色 {}", rbacRoleBizResult.getMessage());
             throw Lang.makeThrow("[START]", rbacRoleBizResult.getMessage());
@@ -330,7 +330,7 @@ public class ServerStartedOnce extends ApplicationObjectSupport implements IServ
         rbacResourceService.confirmResourceInRole(DockerAppFrame.MODULE_CODE, AppConstant.ROLE_DOCKER_APP_MANAGER);
 
         //软件管理 色
-        rbacRoleBizResult = rbacResourceService.confirmRoleExist(AppConstant.ROLE_SYS_PROJECT_MANAGER, "软件维护", "ROLE_SYS", "", "");
+        rbacRoleBizResult = rbacResourceService.confirmRoleExist(AppConstant.ROLE_SOFTWARE_MANAGER, "软件维护", "ROLE_SYS", "", "");
         if (rbacRoleBizResult.isFailed()) {
             log.warn("[START] 软件管理 角色 {}", rbacRoleBizResult.getMessage());
             throw Lang.makeThrow("[START]", rbacRoleBizResult.getMessage());
