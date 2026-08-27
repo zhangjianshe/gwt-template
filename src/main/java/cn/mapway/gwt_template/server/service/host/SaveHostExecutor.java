@@ -9,6 +9,7 @@ import cn.mapway.gwt_template.shared.db.CanglingHostEntity;
 import cn.mapway.gwt_template.shared.rpc.host.SaveHostRequest;
 import cn.mapway.gwt_template.shared.rpc.host.SaveHostResponse;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
+import cn.mapway.rbac.server.service.RbacUserService;
 import lombok.extern.slf4j.Slf4j;
 import org.nutz.dao.Dao;
 import org.nutz.lang.Strings;
@@ -28,6 +29,8 @@ import java.sql.Timestamp;
 public class SaveHostExecutor extends AbstractBizExecutor<SaveHostResponse, SaveHostRequest> {
     @Resource
     Dao dao;
+    @Resource
+    RbacUserService rbacUserService;
 
     @Override
     protected BizResult<SaveHostResponse> process(BizContext context, BizRequest<SaveHostRequest> bizParam) {
@@ -61,6 +64,11 @@ public class SaveHostExecutor extends AbstractBizExecutor<SaveHostResponse, Save
         }
 
         if (Strings.isBlank(host.getId())) {
+            if (host.getIsPublic() > 0) {
+                // 公共主机只能是有权限的人上传
+                BizResult<Boolean> role = rbacUserService.isAssignRole(user, "", AppConstant.ROLE_SAVE_PUBLIC_HOST);
+                assertTrue(role.isSuccess() && role.getData(), "没有保存公共主机的权限");
+            }
             host.setId(R.UU16());
             host.setUserId(user.getUser().getUserId());
             host.setCreateTime(now);
@@ -71,11 +79,16 @@ public class SaveHostExecutor extends AbstractBizExecutor<SaveHostResponse, Save
             assertNotNull(existing, "主机不存在");
             assertTrue(existing.getUserId() != null && existing.getUserId().equals(user.getUser().getUserId()),
                     "只能修改自己的主机");
+            if (existing.getIsPublic() != null && existing.getIsPublic() > 0) {
+                BizResult<Boolean> role = rbacUserService.isAssignRole(user, "", AppConstant.ROLE_SAVE_PUBLIC_HOST);
+                assertTrue(role.isSuccess() && role.getData(), "没有保存公共主机的权限");
+            }
             // 归属与创建时间不可被客户端覆盖。
             host.setUserId(existing.getUserId());
             host.setCreateTime(existing.getCreateTime());
             host.setUpdateTime(now);
-            dao.update(host);
+            host.setIsPublic(null); // 不允许变更主机类型
+            dao.updateIgnoreNull(host);
         }
 
         SaveHostResponse response = new SaveHostResponse();

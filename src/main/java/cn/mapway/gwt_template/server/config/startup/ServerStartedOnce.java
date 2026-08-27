@@ -337,12 +337,17 @@ public class ServerStartedOnce extends ApplicationObjectSupport implements IServ
         }
 
         //公共主机共享访问角色
-        rbacRoleBizResult = rbacResourceService.confirmRoleExist(AppConstant.ROLE_HOST_PUBLIC, "公共主机共享", "ROLE_SYS", "", "");
+        rbacRoleBizResult = rbacResourceService.confirmRoleExist(AppConstant.ROLE_HOST_PUBLIC, "查询公共主机", "ROLE_SYS", "", "查询公共主机");
         if (rbacRoleBizResult.isFailed()) {
             log.warn("[START] 公共主机共享角色 {}", rbacRoleBizResult.getMessage());
             throw Lang.makeThrow("[START]", rbacRoleBizResult.getMessage());
         }
-
+        //保存公共主机访问角色
+        rbacRoleBizResult = rbacResourceService.confirmRoleExist(AppConstant.ROLE_SAVE_PUBLIC_HOST, "保存公共主机", "ROLE_SYS", "", "保存公共主机");
+        if (rbacRoleBizResult.isFailed()) {
+            log.warn("[START] 保存公共主机角色 {}", rbacRoleBizResult.getMessage());
+            throw Lang.makeThrow("[START]", rbacRoleBizResult.getMessage());
+        }
 
 
         //分配项目管理员 创建项目资源
@@ -373,6 +378,7 @@ public class ServerStartedOnce extends ApplicationObjectSupport implements IServ
         rbacResourceService.assignUserRole(String.valueOf(RbacConstant.SUPER_USER_ID), AppConstant.ROLE_DOCKER_APP_MANAGER, false);
         rbacResourceService.assignUserRole(String.valueOf(RbacConstant.SUPER_USER_ID), AppConstant.ROLE_SOFTWARE_MANAGER, false);
         rbacResourceService.assignUserRole(String.valueOf(RbacConstant.SUPER_USER_ID), AppConstant.ROLE_HOST_PUBLIC, false);
+        rbacResourceService.assignUserRole(String.valueOf(RbacConstant.SUPER_USER_ID), AppConstant.ROLE_SAVE_PUBLIC_HOST, false);
 
 
     }
