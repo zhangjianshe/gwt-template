@@ -79,20 +79,25 @@ public class SaveHostExecutor extends AbstractBizExecutor<SaveHostResponse, Save
             assertNotNull(existing, "主机不存在");
             assertTrue(existing.getUserId() != null && existing.getUserId().equals(user.getUser().getUserId()),
                     "只能修改自己的主机");
-            if (existing.getIsPublic() != null && existing.getIsPublic() > 0) {
-                BizResult<Boolean> role = rbacUserService.isAssignRole(user, "", AppConstant.ROLE_SAVE_PUBLIC_HOST);
-                assertTrue(role.isSuccess() && role.getData(), "没有保存公共主机的权限");
-            }
+
             // 归属与创建时间不可被客户端覆盖。
             host.setUserId(existing.getUserId());
             host.setCreateTime(existing.getCreateTime());
             host.setUpdateTime(now);
-            host.setIsPublic(null); // 不允许变更主机类型
+
+            // 自己创建的主机可以修改全部信息（含是否公开）。
+            // 设为公开属于特权操作，需要具备保存公共主机的角色。
+            if (host.getIsPublic() != null && host.getIsPublic() > 0) {
+                BizResult<Boolean> role = rbacUserService.isAssignRole(user, "", AppConstant.ROLE_SAVE_PUBLIC_HOST);
+                assertTrue(role.isSuccess() && role.getData(), "没有保存公共主机的权限");
+            }
             dao.updateIgnoreNull(host);
         }
 
         SaveHostResponse response = new SaveHostResponse();
-        response.setHost(dao.fetch(CanglingHostEntity.class, host.getId()));
+        CanglingHostEntity saved = dao.fetch(CanglingHostEntity.class, host.getId());
+        saved.setMine(true);
+        response.setHost(saved);
         return BizResult.success(response);
     }
 }

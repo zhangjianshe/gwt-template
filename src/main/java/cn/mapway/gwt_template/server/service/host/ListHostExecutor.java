@@ -55,6 +55,10 @@ public class ListHostExecutor extends AbstractBizExecutor<HostListResponse, Host
                 CanglingHostEntity.class,
                 where.desc(CanglingHostEntity.FLD_UPDATE_TIME));
 
+        for (CanglingHostEntity host : hosts) {
+            host.setMine(host.getUserId() != null && host.getUserId().equals(userId));
+        }
+
         HostListResponse response = new HostListResponse();
         response.setHosts(hosts);
         return BizResult.success(response);

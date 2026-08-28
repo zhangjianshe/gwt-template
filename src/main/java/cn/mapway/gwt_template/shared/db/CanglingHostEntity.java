@@ -111,4 +111,10 @@ public class CanglingHostEntity implements Serializable, IsSerializable {
     @Column("update_time")
     @Comment("更新时间")
     private Timestamp updateTime;
+
+    /**
+     * 是否属于当前登录用户。仅列表/保存接口计算返回，不是数据库字段。
+     */
+    @Readonly
+    private Boolean mine;
 }
