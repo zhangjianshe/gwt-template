@@ -55,6 +55,8 @@
                 <g:VerticalPanel spacing="4">
                     <g:Label ui:field="lbName" addStyleNames="{style.name}"/>
                     <g:Label ui:field="lbSummary" addStyleNames="{style.summary}"/>
+                    <g:Label ui:field="lbSet" addStyleNames="{style.summary}"/>
+                    <g:Label ui:field="lbCode" addStyleNames="{style.summary}"/>
                     <g:Label ui:field="lbKey" styleName="{style.key}"/>
                 </g:VerticalPanel>
             </g:HorizontalPanel>

@@ -10,6 +10,7 @@ import cn.mapway.gwt_template.shared.rpc.soft.CreateSoftwareRequest;
 import cn.mapway.gwt_template.shared.rpc.soft.CreateSoftwareResponse;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
 import lombok.extern.slf4j.Slf4j;
+import org.nutz.dao.Cnd;
 import org.nutz.dao.Dao;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
@@ -49,13 +50,33 @@ public class CreateSoftwareExecutor extends AbstractBizExecutor<CreateSoftwareRe
             if (Strings.isBlank(software.getSummary())) {
                 software.setSummary(software.getName());
             }
+            applySetAndCode(software, true);
             dao.insert(software);
         } else {
+            applySetAndCode(software, false);
             software.setToken(null);
             dao.updateIgnoreNull(software);
         }
         CreateSoftwareResponse response = new CreateSoftwareResponse();
         response.setSoftware(dao.fetch(SysSoftwareEntity.class, software.getId()));
         return BizResult.success(response);
+    }
+
+    private void applySetAndCode(SysSoftwareEntity software, boolean creating) {
+        String setName = SoftwareStorage.normalizeSet(software.getSoftwareSet());
+        assertTrue(!setName.contains("/") && !setName.contains("\\") && !setName.contains(".."), "软件集名称不合法");
+        software.setSoftwareSet(setName);
+
+        String code = SoftwareStorage.normalizeCode(software.getCode());
+        if (Strings.isBlank(code)) {
+            code = SoftwareStorage.fallbackCode(software.getName(), software.getId());
+        }
+        assertTrue(SoftwareStorage.isValidCode(code), "code 只能是字母、数字、点、下划线或中划线，且用作磁盘目录名");
+        SysSoftwareEntity existing = dao.fetch(SysSoftwareEntity.class,
+                Cnd.where(SysSoftwareEntity.FLD_CODE, "=", code));
+        if (existing != null && (creating || !existing.getId().equals(software.getId()))) {
+            assertTrue(false, "code 已被使用: " + code);
+        }
+        software.setCode(code);
     }
 }

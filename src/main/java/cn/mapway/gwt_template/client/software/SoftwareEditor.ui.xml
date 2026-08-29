@@ -31,6 +31,14 @@
                     <widget:TextBox ui:field="txtName"/>
                 </g:HTMLPanel>
                 <g:HTMLPanel addStyleNames="{style.box}">
+                    <g:Label addStyleNames="{style.left}">软件集</g:Label>
+                    <widget:TextBox ui:field="txtSoftwareSet"/>
+                </g:HTMLPanel>
+                <g:HTMLPanel addStyleNames="{style.box}">
+                    <g:Label addStyleNames="{style.left}">code</g:Label>
+                    <widget:TextBox ui:field="txtCode"/>
+                </g:HTMLPanel>
+                <g:HTMLPanel addStyleNames="{style.box}">
                     <g:Label addStyleNames="{style.left}">说明</g:Label>
                     <widget:TextBox ui:field="txtSummary"/>
                 </g:HTMLPanel>

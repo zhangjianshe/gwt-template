@@ -68,6 +68,11 @@ public class SoftwareFrame extends ToolbarModule {
     public void treeCommon(CommonEvent event) {
         if (event.isSelect()) {
             TreeItem item = event.getValue();
+            if (!(item.getData() instanceof SysSoftwareEntity)) {
+                btnEdit.setEnabled(false);
+                btnEdit.setData(null);
+                return;
+            }
             SysSoftwareEntity software = (SysSoftwareEntity) item.getData();
             softwarePanel.setData(software);
             btnEdit.setEnabled(true);

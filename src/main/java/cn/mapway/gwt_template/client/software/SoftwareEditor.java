@@ -28,10 +28,16 @@ public class SoftwareEditor extends CommonEventComposite implements IData<SysSof
     TextBox txtName;
     @UiField
     TextBox txtSummary;
+    @UiField
+    TextBox txtSoftwareSet;
+    @UiField
+    TextBox txtCode;
     private SysSoftwareEntity software;
 
     public SoftwareEditor() {
         initWidget(ourUiBinder.createAndBindUi(this));
+        txtSoftwareSet.getElement().setAttribute("placeholder", "相同名称的软件打包在一起");
+        txtCode.getElement().setAttribute("placeholder", "磁盘目录名，字母数字._-");
     }
 
     public static Dialog<SoftwareEditor> getDialog(boolean reuse) {
@@ -53,7 +59,7 @@ public class SoftwareEditor extends CommonEventComposite implements IData<SysSof
 
     @Override
     public Size requireDefaultSize() {
-        return new Size(600, 450);
+        return new Size(600, 520);
     }
 
     @UiHandler("saveBar")
@@ -78,6 +84,8 @@ public class SoftwareEditor extends CommonEventComposite implements IData<SysSof
     private void fromUI() {
         software.setName(txtName.getValue());
         software.setSummary(txtSummary.getValue());
+        software.setSoftwareSet(txtSoftwareSet.getValue());
+        software.setCode(txtCode.getValue());
     }
 
     @Override
@@ -96,8 +104,14 @@ public class SoftwareEditor extends CommonEventComposite implements IData<SysSof
     }
 
     private void toUI() {
-        txtName.setValue(software.getName());
-        txtSummary.setValue(software.getSummary());
+        txtName.setValue(nullToEmpty(software.getName()));
+        txtSummary.setValue(nullToEmpty(software.getSummary()));
+        txtSoftwareSet.setValue(nullToEmpty(software.getSoftwareSet()));
+        txtCode.setValue(nullToEmpty(software.getCode()));
+    }
+
+    private String nullToEmpty(String value) {
+        return value == null ? "" : value;
     }
 
     interface SoftwareEditorUiBinder extends UiBinder<DockLayoutPanel, SoftwareEditor> {

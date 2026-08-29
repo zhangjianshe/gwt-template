@@ -52,6 +52,10 @@ public class SoftwareList extends CommonEventComposite implements IData<SysSoftw
     @UiField
     Label lbSummary;
     @UiField
+    Label lbSet;
+    @UiField
+    Label lbCode;
+    @UiField
     FlexTable list;
     @UiField
     SStyle style;
@@ -76,6 +80,8 @@ public class SoftwareList extends CommonEventComposite implements IData<SysSoftw
         lbKey.setText(software.getToken());
         lbName.setText(software.getName());
         lbSummary.setText(software.getSummary());
+        lbSet.setText("软件集: " + (software.getSoftwareSet() == null || software.getSoftwareSet().isEmpty() ? "未分组" : software.getSoftwareSet()));
+        lbCode.setText("code: " + (software.getCode() == null || software.getCode().isEmpty() ? "-" : software.getCode()));
         icon.setUrl(software.getLogo());
         loadFiles();
     }
@@ -135,6 +141,11 @@ public class SoftwareList extends CommonEventComposite implements IData<SysSoftw
                 list.setWidget(row, col++, new Header(item.getName()));
                 list.setWidget(row, col++, new Label(item.getOs() + "/" + item.getArch()));
                 list.setWidget(row, col++, new Label(StringUtil.formatFileSize(item.getSize())));
+                Label hashLabel = new Label(shortHash(item.getHash()));
+                if (item.getHash() != null && !item.getHash().isEmpty()) {
+                    hashLabel.setTitle(item.getHash());
+                }
+                list.setWidget(row, col++, hashLabel);
                 list.setWidget(row, col++, new Label(StringUtil.formatDate(item.getCreateTime())));
                 Anchor anchor = new Anchor("下载");
                 anchor.setHref(item.getLocation());
@@ -148,6 +159,13 @@ public class SoftwareList extends CommonEventComposite implements IData<SysSoftw
                 rowFormatter.setStyleName(row, style.row());
             }
         }
+    }
+
+    private String shortHash(String hash) {
+        if (hash == null || hash.isEmpty()) {
+            return "-";
+        }
+        return hash.length() > 12 ? hash.substring(0, 12) : hash;
     }
 
     interface SStyle extends CssResource {

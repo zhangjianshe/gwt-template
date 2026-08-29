@@ -113,7 +113,7 @@ public class UploadSoftwareFileExecutor extends AbstractBizExecutor<UploadSoftwa
 
             String targetPath = FileCustomUtils.concatPath(systemConfigService.getUploadRoot(), "software");
             Files.createDirIfNoExists(targetPath);
-            String versionPath = FileCustomUtils.concatPath(targetPath, software.getId(), form.getVersion());
+            String versionPath = FileCustomUtils.concatPath(targetPath, SoftwareStorage.diskDirName(software), form.getVersion());
             Files.createDirIfNoExists(versionPath);
 
             SysSoftwareFileEntity existing = findExisting(software.getId(), form);
@@ -143,6 +143,13 @@ public class UploadSoftwareFileExecutor extends AbstractBizExecutor<UploadSoftwa
 
             long size = targetFile.length();
             String location = toSoftwareLocation(targetPath, targetFile);
+            String hash;
+            try {
+                hash = SoftwareStorage.sha256Hex(targetFile);
+            } catch (Exception e) {
+                log.error("hash software file failed", e);
+                return BizResult.error(500, "计算文件哈希失败");
+            }
 
             UploadSoftwareFileResponse response = new UploadSoftwareFileResponse();
             if (existing != null) {
@@ -151,6 +158,7 @@ public class UploadSoftwareFileExecutor extends AbstractBizExecutor<UploadSoftwa
                 existing.setOs(form.getOs());
                 existing.setArch(form.getArch());
                 existing.setSummary(form.getSummary());
+                existing.setHash(hash);
                 existing.setCreateTime(new Timestamp(System.currentTimeMillis()));
                 dao.update(existing);
                 log.info("software file exists, overwrite {} {}", form.getName(), location);
@@ -169,6 +177,7 @@ public class UploadSoftwareFileExecutor extends AbstractBizExecutor<UploadSoftwa
             fileEntity.setVersion(form.getVersion());
             fileEntity.setCreateTime(new Timestamp(System.currentTimeMillis()));
             fileEntity.setLocation(location);
+            fileEntity.setHash(hash);
             dao.insert(fileEntity);
             response.setUrl(fileEntity.getLocation());
             return BizResult.success(response);
@@ -204,7 +213,7 @@ public class UploadSoftwareFileExecutor extends AbstractBizExecutor<UploadSoftwa
                 return new File(FileCustomUtils.concatPath(systemConfigService.getUploadRoot(), existing.getLocation()));
             }
         }
-        String versionPath = FileCustomUtils.concatPath(systemConfigService.getUploadRoot(), "software", software.getId(), form.getVersion());
+        String versionPath = FileCustomUtils.concatPath(systemConfigService.getUploadRoot(), "software", SoftwareStorage.diskDirName(software), form.getVersion());
         return new File(versionPath, diskName);
     }
 

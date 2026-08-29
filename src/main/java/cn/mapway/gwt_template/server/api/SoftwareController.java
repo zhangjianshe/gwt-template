@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
+@Doc(value = "软件仓库", group = "软件")
 @RestController
 @Slf4j
 @RequestMapping("/api/v1/software")
@@ -30,6 +31,8 @@ public class SoftwareController extends ApiBaseController {
     QuerySoftwareFilesExecutor querySoftwareFilesExecutor;
     @Resource
     DeleteSoftwareFileExecutor deleteSoftwareFileExecutor;
+    @Resource
+    QuerySoftwareSetManifestExecutor querySoftwareSetManifestExecutor;
 
     /**
      * UploadSoftwareFile.
@@ -108,6 +111,30 @@ public class SoftwareController extends ApiBaseController {
     @RequestMapping(value = "/deleteSoftwareFile", method = RequestMethod.POST)
     public RpcResult<DeleteSoftwareFileResponse> deleteSoftwareFile(@RequestBody DeleteSoftwareFileRequest request) {
         BizResult<DeleteSoftwareFileResponse> bizResult = deleteSoftwareFileExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toApiResult(bizResult);
+    }
+
+    /**
+     * Open software-set manifest used by cangling-keeper to compare and sync files.
+     */
+    @Doc(value = "QuerySoftwareSetManifest", retClazz = {QuerySoftwareSetManifestResponse.class})
+    @GetMapping(value = "/manifest")
+    public RpcResult<QuerySoftwareSetManifestResponse> manifest(@RequestParam("set") String set) {
+        QuerySoftwareSetManifestRequest request = new QuerySoftwareSetManifestRequest();
+        request.setSet(set);
+        BizResult<QuerySoftwareSetManifestResponse> bizResult =
+                querySoftwareSetManifestExecutor.execute(getBizContext(), BizRequest.wrap("", request));
+        return toApiResult(bizResult);
+    }
+
+    /**
+     * Open software-set manifest (POST form).
+     */
+    @Doc(value = "QuerySoftwareSetManifestPost", retClazz = {QuerySoftwareSetManifestResponse.class})
+    @RequestMapping(value = "/querySoftwareSetManifest", method = RequestMethod.POST)
+    public RpcResult<QuerySoftwareSetManifestResponse> querySoftwareSetManifest(@RequestBody QuerySoftwareSetManifestRequest request) {
+        BizResult<QuerySoftwareSetManifestResponse> bizResult =
+                querySoftwareSetManifestExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toApiResult(bizResult);
     }
 

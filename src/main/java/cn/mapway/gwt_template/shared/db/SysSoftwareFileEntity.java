@@ -23,6 +23,8 @@ public class SysSoftwareFileEntity implements Serializable, IsSerializable {
     public static final String FLD_ARCH = "arch";
     public static final String FLD_SUMMARY = "summary";
     public static final String FLD_CREATE_TIME = "create_time";
+    public static final String FLD_HASH = "hash";
+    public static final String FLD_LOCATION = "location";
     @Name
     @ColDefine(width = 128, notNull = true)
     @Comment("ID")
@@ -68,6 +70,11 @@ public class SysSoftwareFileEntity implements Serializable, IsSerializable {
     @ColDefine(type = ColType.VARCHAR, width = 1024)
     @Comment("SUMMARY")
     String summary;
+
+    @Column
+    @ColDefine(type = ColType.VARCHAR, width = 64)
+    @Comment("文件SHA-256哈希")
+    String hash;
 
     @Column("create_time")
     @Comment("create_time")
