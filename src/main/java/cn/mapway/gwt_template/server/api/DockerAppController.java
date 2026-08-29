@@ -5,13 +5,13 @@ import cn.mapway.biz.core.BizResult;
 import cn.mapway.document.annotation.Doc;
 import cn.mapway.gwt_template.server.service.docker.*;
 import cn.mapway.gwt_template.server.service.file.FileCustomUtils;
+import cn.mapway.gwt_template.server.service.file.FileRangeDownload;
 import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.db.DockerAppEntity;
 import cn.mapway.gwt_template.shared.rpc.docker.*;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
 import cn.mapway.ui.shared.rpc.RpcResult;
 import lombok.extern.slf4j.Slf4j;
-import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -256,27 +256,9 @@ public class DockerAppController extends ApiBaseController {
             resp.getWriter().println("not found");
             return;
         }
-        // 1. 获取文件最后修改时间
-        long lastModified = target.lastModified();
-        // 2. 协商缓存检查
-        long ifModifiedSince = req.getDateHeader("If-Modified-Since");
-        if (ifModifiedSince != -1 && (ifModifiedSince / 1000 == lastModified / 1000)) {
-            resp.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
-            return;
-        }
-        // 3. 设置响应头
-        resp.setContentType(Files.probeContentType(target.toPath()));
-        resp.setContentLength((int) target.length());
-        resp.setHeader("Content-Disposition", "inline; filename=\"" + URLEncoder.encode(target.getName(), StandardCharsets.UTF_8) + "\"");
-
-        // 设置缓存策略：这里设置缓存 1 天，且允许协商缓存
-        resp.setHeader("Cache-Control", "public, max-age=86400");
-        resp.setDateHeader("Last-Modified", lastModified);
-        resp.setHeader("X-Frame-Options", "SAMEORIGIN");
-
-        resp.setStatus(HttpServletResponse.SC_OK);
-        Streams.writeAndClose(resp.getOutputStream(), Streams.fileIn(target));
-
+        String type = Files.probeContentType(target.toPath());
+        String filename = URLEncoder.encode(target.getName(), StandardCharsets.UTF_8).replace("+", "%20");
+        FileRangeDownload.send(target, req, resp, type, "inline; filename=\"" + filename + "\"", "public, max-age=86400");
     }
 
     @GetMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)

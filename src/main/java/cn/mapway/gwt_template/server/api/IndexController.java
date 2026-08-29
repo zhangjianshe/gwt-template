@@ -103,6 +103,6 @@ public class IndexController extends ApiBaseController{
         String fileName = gitPath.contains("/") ? gitPath.substring(gitPath.lastIndexOf("/") + 1) : gitPath;
         response.setHeader("Content-Disposition", "inline; filename=\"" + fileName + "\"");
 
-        gitRepoService.writeFileContentToStream(owner, projectName, gitPath,ref,response.getOutputStream());
+        gitRepoService.writeFileContentToStream(owner, projectName, gitPath, ref, request, response);
     }
 }

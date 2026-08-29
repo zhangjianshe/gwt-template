@@ -4,6 +4,7 @@ import cn.mapway.biz.core.BizResult;
 import cn.mapway.gwt_template.client.user.CommonMessage;
 import cn.mapway.gwt_template.client.user.GitNotifyMessage;
 import cn.mapway.gwt_template.server.config.AppConfig;
+import cn.mapway.gwt_template.server.service.file.FileRangeDownload;
 import cn.mapway.gwt_template.server.config.websocket.GitNotifyWebSocket;
 import cn.mapway.gwt_template.server.service.config.SystemConfigService;
 import cn.mapway.gwt_template.shared.AppConstant;
@@ -30,8 +31,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -288,6 +292,17 @@ public class GitRepoService {
     }
 
     public void writeFileContentToStream(String owner, String repoName, String path, String ref, OutputStream out) {
+        writeFileContentToStream(owner, repoName, path, ref, null, null, out);
+    }
+
+    public void writeFileContentToStream(String owner, String repoName, String path, String ref,
+                                         HttpServletRequest req, HttpServletResponse resp) {
+        writeFileContentToStream(owner, repoName, path, ref, req, resp, null);
+    }
+
+    private void writeFileContentToStream(String owner, String repoName, String path, String ref,
+                                          HttpServletRequest req, HttpServletResponse resp,
+                                          OutputStream out) {
         String finalRepoName = repoName.endsWith(".git") ? repoName : repoName + ".git";
         File repoDir = new File(appConfig.getRepoRoot(), owner + "/" + finalRepoName);
 
@@ -303,17 +318,70 @@ public class GitRepoService {
                 treeWalk.setRecursive(true);
                 treeWalk.setFilter(PathFilter.create(path));
 
-                if (treeWalk.next()) {
-                    ObjectId objectId = treeWalk.getObjectId(0);
-                    ObjectLoader loader = repository.open(objectId);
-
-                    // Use loader.copyTo(out) for efficient memory usage
-                    loader.copyTo(out);
+                if (!treeWalk.next()) {
+                    return;
+                }
+                ObjectId objectId = treeWalk.getObjectId(0);
+                ObjectLoader loader = repository.open(objectId);
+                long length = loader.getSize();
+                long start = 0;
+                long end = Math.max(0, length - 1);
+                boolean partial = false;
+                if (req != null && resp != null) {
+                    resp.setHeader("Accept-Ranges", "bytes");
+                    String rangeHeader = req.getHeader("Range");
+                    if (rangeHeader != null && rangeHeader.startsWith("bytes=")) {
+                        FileRangeDownload.ByteRange range =
+                                FileRangeDownload.parseRange(rangeHeader.substring("bytes=".length()), length);
+                        if (range == null) {
+                            resp.setHeader("Content-Range", "bytes */" + length);
+                            resp.setStatus(HttpServletResponse.SC_REQUESTED_RANGE_NOT_SATISFIABLE);
+                            return;
+                        }
+                        start = range.start;
+                        end = range.end;
+                        partial = true;
+                    }
+                    long contentLength = length == 0 ? 0 : (end - start + 1);
+                    resp.setHeader("Content-Length", Long.toString(contentLength));
+                    if (partial) {
+                        resp.setHeader("Content-Range", "bytes " + start + "-" + end + "/" + length);
+                        resp.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
+                    }
+                    out = resp.getOutputStream();
+                }
+                try (InputStream in = loader.openStream()) {
+                    skipFully(in, start);
+                    long remaining = length == 0 ? 0 : (end - start + 1);
+                    byte[] buf = new byte[64 * 1024];
+                    while (remaining > 0) {
+                        int n = in.read(buf, 0, (int) Math.min(buf.length, remaining));
+                        if (n < 0) {
+                            break;
+                        }
+                        out.write(buf, 0, n);
+                        remaining -= n;
+                    }
                     out.flush();
                 }
             }
         } catch (Exception e) {
             log.error("[GIT] Raw content streaming error: {}", e.getMessage());
+        }
+    }
+
+    private static void skipFully(InputStream in, long skip) throws IOException {
+        long left = skip;
+        while (left > 0) {
+            long n = in.skip(left);
+            if (n <= 0) {
+                if (in.read() < 0) {
+                    return;
+                }
+                left--;
+            } else {
+                left -= n;
+            }
         }
     }
 
