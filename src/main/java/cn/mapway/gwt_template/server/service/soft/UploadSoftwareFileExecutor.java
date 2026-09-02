@@ -4,6 +4,7 @@ import cn.mapway.biz.core.AbstractBizExecutor;
 import cn.mapway.biz.core.BizContext;
 import cn.mapway.biz.core.BizRequest;
 import cn.mapway.biz.core.BizResult;
+import cn.mapway.gwt_template.server.config.AppConfig;
 import cn.mapway.gwt_template.server.service.config.SystemConfigService;
 import cn.mapway.gwt_template.server.service.file.FileCustomUtils;
 import cn.mapway.gwt_template.shared.AppConstant;
@@ -39,12 +40,14 @@ import java.sql.Timestamp;
 @Component
 @Slf4j
 public class UploadSoftwareFileExecutor extends AbstractBizExecutor<UploadSoftwareFileResponse, HttpServletRequest> {
-    private static final long MAX_UPLOAD_BYTES = 1000L * 1024 * 1024;
 
     @Resource
     Dao dao;
     @Resource
     SystemConfigService systemConfigService;
+
+    @Resource
+    AppConfig appConfig;
 
     @Override
     protected BizResult<UploadSoftwareFileResponse> process(BizContext context, BizRequest<HttpServletRequest> bizParam) {
@@ -62,8 +65,8 @@ public class UploadSoftwareFileExecutor extends AbstractBizExecutor<UploadSoftwa
         try {
             ServletFileUpload upload = new ServletFileUpload();
             upload.setHeaderEncoding("UTF-8");
-            upload.setFileSizeMax(MAX_UPLOAD_BYTES);
-            upload.setSizeMax(MAX_UPLOAD_BYTES);
+            upload.setFileSizeMax(appConfig.getSoftwareUploadMaxBytes());
+            upload.setSizeMax(appConfig.getSoftwareUploadMaxBytes());
             upload.setFileCountMax(32);
             FileItemIterator iter = upload.getItemIterator(httpRequest);
             while (iter.hasNext()) {

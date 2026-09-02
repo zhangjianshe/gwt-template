@@ -16,4 +16,5 @@ public class AppConfig {
     private Integer sshPort;
     private String uploadRoot;
     private String projectResRoot;
+    private Long softwareUploadMaxBytes;
 }
