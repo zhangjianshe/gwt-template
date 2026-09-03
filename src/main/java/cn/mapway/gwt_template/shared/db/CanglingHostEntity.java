@@ -27,6 +27,7 @@ public class CanglingHostEntity implements Serializable, IsSerializable {
     public static final String FLD_NAME = "name";
     public static final String FLD_HOSTNAME = "hostname";
     public static final String FLD_PORT = "port";
+    public static final String FLD_UPDATE_PORT = "update_port";
     public static final String FLD_USERNAME = "username";
     public static final String FLD_AUTH_METHOD = "auth_method";
     public static final String FLD_PASSWORD = "password";
@@ -61,6 +62,12 @@ public class CanglingHostEntity implements Serializable, IsSerializable {
     @ColDefine(type = ColType.INT, notNull = true)
     @Comment("SSH端口")
     private Integer port;
+
+    @Column("update_port")
+    @ColDefine(type = ColType.INT, notNull = true)
+    @Default("5400")
+    @Comment("cangling-update 服务端口")
+    private Integer updatePort;
 
     @Column
     @ColDefine(type = ColType.VARCHAR, width = 256, notNull = true)
