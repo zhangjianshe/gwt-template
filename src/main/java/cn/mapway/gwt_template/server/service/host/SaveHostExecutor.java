@@ -56,6 +56,9 @@ public class SaveHostExecutor extends AbstractBizExecutor<SaveHostResponse, Save
         if (host.getUpdatePort() == null || host.getUpdatePort() <= 0) {
             host.setUpdatePort(5400);
         }
+        if (Strings.isBlank(host.getUpdateRole())) {
+            host.setUpdateRole("standalone");
+        }
         if (host.getInjectRemotePort() == null || host.getInjectRemotePort() <= 0) {
             host.setInjectRemotePort(7890);
         }
