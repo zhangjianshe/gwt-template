@@ -130,6 +130,10 @@ public class XmlHttpUploader implements HasCommonHandlers, IData {
         simpleEventBus.fireEvent(event);
     }
 
+    public XMLHttpRequest getRequest() {
+        return request;
+    }
+
     public boolean isTransfering() {
         return transfering;
     }

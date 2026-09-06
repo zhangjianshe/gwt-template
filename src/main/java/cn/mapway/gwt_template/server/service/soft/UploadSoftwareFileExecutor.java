@@ -13,6 +13,7 @@ import cn.mapway.gwt_template.shared.db.SysSoftwareFileEntity;
 import cn.mapway.gwt_template.shared.rpc.soft.UploadSoftwareFileRequest;
 import cn.mapway.gwt_template.shared.rpc.soft.UploadSoftwareFileResponse;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
+import cn.mapway.rbac.server.service.RbacUserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.FileItemStream;
@@ -48,11 +49,18 @@ public class UploadSoftwareFileExecutor extends AbstractBizExecutor<UploadSoftwa
 
     @Resource
     AppConfig appConfig;
+    @Resource
+    RbacUserService rbacUserService;
 
     @Override
     protected BizResult<UploadSoftwareFileResponse> process(BizContext context, BizRequest<HttpServletRequest> bizParam) {
         HttpServletRequest httpRequest = bizParam.getData();
         LoginUser user = (LoginUser) context.get(AppConstant.KEY_LOGIN_USER);
+        assertNotNull(user, "没有授权操作");
+        if (!user.isAdmin()) {
+            BizResult<Boolean> canUpload = rbacUserService.isAssignRole(user, "", AppConstant.ROLE_SOFTWARE_MANAGER);
+            assertTrue(canUpload.isSuccess() && Boolean.TRUE.equals(canUpload.getData()), "只有管理员可以上传软件文件");
+        }
         if (httpRequest == null || !ServletFileUpload.isMultipartContent(httpRequest)) {
             return BizResult.error(500, "没有文件 file 字段");
         }

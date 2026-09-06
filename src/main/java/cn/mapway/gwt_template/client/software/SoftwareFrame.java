@@ -1,5 +1,7 @@
 package cn.mapway.gwt_template.client.software;
 
+import cn.mapway.gwt_template.client.ClientContext;
+import cn.mapway.gwt_template.shared.AppConstant;
 import cn.mapway.gwt_template.shared.db.SysSoftwareEntity;
 import cn.mapway.ui.client.fonts.Fonts;
 import cn.mapway.ui.client.frame.ToolbarModule;
@@ -41,6 +43,8 @@ public class SoftwareFrame extends ToolbarModule {
     SoftwareList softwarePanel;
     @UiField
     AiButton btnEdit;
+    @UiField
+    AiButton btnUpload;
 
     public SoftwareFrame() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -54,9 +58,16 @@ public class SoftwareFrame extends ToolbarModule {
     @Override
     public boolean initialize(IModule parentModule, ModuleParameter parameter) {
         super.initialize(parentModule, parameter);
+        boolean canUpload = canUploadSoftware();
+        btnUpload.setVisible(canUpload);
         updateTools(tools);
         tree.load();
         return true;
+    }
+
+    private boolean canUploadSoftware() {
+        return ClientContext.get().isAdmin()
+                || ClientContext.get().isAssignRole(AppConstant.ROLE_SOFTWARE_MANAGER);
     }
 
     @UiHandler("btnCreate")
@@ -71,12 +82,16 @@ public class SoftwareFrame extends ToolbarModule {
             if (!(item.getData() instanceof SysSoftwareEntity)) {
                 btnEdit.setEnabled(false);
                 btnEdit.setData(null);
+                btnUpload.setEnabled(false);
+                btnUpload.setData(null);
                 return;
             }
             SysSoftwareEntity software = (SysSoftwareEntity) item.getData();
             softwarePanel.setData(software);
             btnEdit.setEnabled(true);
             btnEdit.setData(software);
+            btnUpload.setEnabled(canUploadSoftware());
+            btnUpload.setData(software);
         }
     }
 
@@ -84,6 +99,31 @@ public class SoftwareFrame extends ToolbarModule {
     protected void onLoad() {
         super.onLoad();
         btnEdit.setEnabled(false);
+        btnUpload.setEnabled(false);
+    }
+
+    @UiHandler("btnUpload")
+    public void btnUploadClick(ClickEvent event) {
+        if (!canUploadSoftware()) {
+            ClientContext.get().toast(0, 0, "只有管理员可以上传");
+            return;
+        }
+        SysSoftwareEntity software = (SysSoftwareEntity) btnUpload.getData();
+        if (software == null) {
+            return;
+        }
+        Dialog<SoftwareFileUploader> uploadDialog = SoftwareFileUploader.getDialog(true);
+        uploadDialog.addCommonHandler(new CommonEventHandler() {
+            @Override
+            public void onCommonEvent(CommonEvent event) {
+                if (event.isOk()) {
+                    softwarePanel.setData(software);
+                }
+                uploadDialog.hide();
+            }
+        });
+        uploadDialog.getContent().setData(software);
+        uploadDialog.center();
     }
 
     @UiHandler("btnEdit")
