@@ -68,6 +68,7 @@ public class LoginExecutor extends AbstractBizExecutor<LoginResult, LoginRequest
         out.setToken(entity.getToken());
         out.setUserName(entity.getUserName());
         out.setNickName(entity.getNickName());
+        out.setUserId(entity.getUserId());
         return BizResult.success(out);
     }
 }

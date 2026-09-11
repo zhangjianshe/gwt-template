@@ -17,4 +17,5 @@ public class LoginResult implements Serializable, IsSerializable {
     String token;
     String userName;
     String nickName;
+    Long userId;
 }

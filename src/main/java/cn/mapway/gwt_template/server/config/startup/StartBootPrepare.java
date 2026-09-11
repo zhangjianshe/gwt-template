@@ -262,6 +262,7 @@ public class StartBootPrepare implements ApplicationContextAware {
         //Docker APP
         checkAndCreate(DockerAppEntity.class);
         checkAndCreate(CanglingHostEntity.class);
+        checkAndCreate(CanglingTunnelEntity.class);
 
 
         log.info("[DB] 完成数据库表的初始化");
