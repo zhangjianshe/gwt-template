@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 
 @Doc(value = "软件仓库", group = "软件")
 @RestController
@@ -21,6 +22,8 @@ public class SoftwareController extends ApiBaseController {
 
     @Resource
     UploadSoftwareFileExecutor uploadSoftwareFileExecutor;
+    @Resource
+    ResumableSoftwareUploadService resumableSoftwareUploadService;
     @Resource
     CreateSoftwareExecutor createSoftwareExecutor;
     @Resource
@@ -47,6 +50,40 @@ public class SoftwareController extends ApiBaseController {
     public RpcResult<UploadSoftwareFileResponse> uploadSoftwareFile(HttpServletRequest request) {
         BizResult<UploadSoftwareFileResponse> bizResult = uploadSoftwareFileExecutor.execute(getBizContext(), BizRequest.wrap("", request));
         return toApiResult(bizResult);
+    }
+
+    /** Initialize a durable, resumable upload session. */
+    @Doc(value = "InitializeUpload2", retClazz = {UploadSoftwareFile2Response.class})
+    @PostMapping(value = "/upload2/init", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public RpcResult<UploadSoftwareFile2Response> initializeUpload2(@RequestBody UploadSoftwareFile2Request request) {
+        return toApiResult(resumableSoftwareUploadService.init(getBizContext(), request));
+    }
+
+    /** Return the last fsynced offset; clients resume from receivedSize. */
+    @Doc(value = "Upload2Status", retClazz = {UploadSoftwareFile2Response.class})
+    @GetMapping(value = "/upload2/{uploadId}")
+    public RpcResult<UploadSoftwareFile2Response> upload2Status(@PathVariable("uploadId") String uploadId) {
+        return toApiResult(resumableSoftwareUploadService.status(getBizContext(), uploadId));
+    }
+
+    /** Append one raw binary chunk at the server-confirmed offset. */
+    @Doc(value = "Upload2Chunk", retClazz = {UploadSoftwareFile2Response.class})
+    @PutMapping(value = "/upload2/{uploadId}/chunk", consumes = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    public RpcResult<UploadSoftwareFile2Response> upload2Chunk(
+            @PathVariable("uploadId") String uploadId,
+            @RequestParam("offset") long offset,
+            @RequestParam("size") long size,
+            @RequestHeader("X-Chunk-SHA256") String chunkSha256,
+            HttpServletRequest request) throws IOException {
+        return toApiResult(resumableSoftwareUploadService.appendChunk(
+                getBizContext(), uploadId, offset, size, chunkSha256, request.getInputStream()));
+    }
+
+    /** Verify the whole file, atomically publish it and update the database. */
+    @Doc(value = "CompleteUpload2", retClazz = {UploadSoftwareFile2Response.class})
+    @PostMapping(value = "/upload2/{uploadId}/complete")
+    public RpcResult<UploadSoftwareFile2Response> completeUpload2(@PathVariable("uploadId") String uploadId) {
+        return toApiResult(resumableSoftwareUploadService.complete(getBizContext(), uploadId));
     }
 
     /**
