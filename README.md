@@ -16,6 +16,7 @@
 - [构建与运行](#构建与运行)
 - [部署](#部署)
 - [配置说明](#配置说明)
+- [软件文件分段上传 API](#软件文件分段上传-api)
 - [辅助脚本](#辅助脚本)
 - [版本发布](#版本发布)
 - [许可证](#许可证)
@@ -271,6 +272,161 @@ docker-compose up -d
 | `management.health.ldap.enabled` | `false` | LDAP 健康检查开关 |
 
 > 应用启动时会调用 `StartBootPrepare.prepare()`，从 `/mapway/app.json`（容器内挂载）读取运行时配置。
+
+---
+
+## 软件文件分段上传 API
+
+`upload2` 用于上传大文件，支持中断后从服务端已经确认的位置继续上传。原来的
+`POST /api/v1/software/upload` multipart 接口保持不变，仍可用于小文件。
+
+### 基本规则
+
+- 所有请求都需要携带 `API-TOKEN` 请求头，调用用户必须是管理员或软件管理员。
+- 客户端先初始化上传任务，保存返回的 `uploadId`，随后按顺序上传分段。
+- 单个分段最大为 `16777216` 字节（16 MiB），不能并行或越序上传。
+- 每段需要提供该段的 SHA256；完成时服务端还会校验整个文件的 SHA256。
+- `receivedSize` 表示服务端已经写盘、执行 `fsync` 并持久化确认的字节数。中断后必须从该偏移继续。
+- 同一个分段因网络中断而重复提交是安全的，服务端会比较请求内容和磁盘内容的 SHA256。
+- 未完成任务保存在 `${UPLOAD_ROOT}/software/.upload2/<uploadId>`，超过 24 小时后清理。
+- 完整文件校验成功后，服务端才会原子替换正式文件并更新数据库。
+
+以下示例使用这些变量：
+
+```bash
+API_BASE="https://dev.cangling.cn/api/v1/software/upload2"
+API_TOKEN="${DEV_API_TOKEN}"
+SOFTWARE_TOKEN="6e087b2973c14a7fa2bfc0421bb36cc1"
+FILE="./example.tar.gz"
+FILE_NAME=$(basename "$FILE")
+FILE_SIZE=$(stat -c %s "$FILE")
+FILE_SHA256=$(sha256sum "$FILE" | awk '{print $1}')
+```
+
+示例需要安装 `curl`、`jq`、`sha256sum`、`stat` 和 GNU `dd`。
+
+### 1. 初始化上传任务
+
+```bash
+INIT_RESPONSE=$(curl -ksS -X POST "$API_BASE/init" \
+  -H "API-TOKEN: $API_TOKEN" \
+  -H "Content-Type: application/json" \
+  --data "$(jq -n \
+    --arg token "$SOFTWARE_TOKEN" \
+    --arg version "latest" \
+    --arg name "$FILE_NAME" \
+    --arg fileName "$FILE_NAME" \
+    --arg summary "manual upload" \
+    --arg os "all" \
+    --arg arch "all" \
+    --arg sha256 "$FILE_SHA256" \
+    --argjson totalSize "$FILE_SIZE" \
+    '{token:$token, version:$version, name:$name, fileName:$fileName,
+      summary:$summary, os:$os, arch:$arch, totalSize:$totalSize,
+      sha256:$sha256}')")
+
+UPLOAD_ID=$(printf '%s' "$INIT_RESPONSE" | jq -r '.data.uploadId')
+CHUNK_SIZE=$(printf '%s' "$INIT_RESPONSE" | jq -r '.data.chunkSize')
+printf '%s\n' "$UPLOAD_ID" > "${FILE}.upload2-id"
+```
+
+初始化字段：
+
+| 字段 | 必填 | 说明 |
+| --- | --- | --- |
+| `token` | 是 | 软件记录的 token，不是登录用户的 `API-TOKEN` |
+| `version` | 是 | 软件版本，不能包含路径分隔符或 `..` |
+| `name` | 是 | 数据库中记录的软件文件名，也是同版本文件的匹配字段 |
+| `fileName` | 否 | 磁盘文件名；为空时使用 `name` |
+| `summary` | 否 | 文件说明 |
+| `os` | 是 | 操作系统标识，例如 `all` |
+| `arch` | 是 | 架构标识，例如 `all`、`amd64`、`arm64` |
+| `totalSize` | 是 | 完整文件字节数 |
+| `sha256` | 是 | 完整文件的 64 位十六进制 SHA256 |
+
+响应的 `data` 包含：
+
+```json
+{
+  "uploadId": "32位上传任务ID",
+  "chunkSize": 16777216,
+  "totalSize": 123456789,
+  "receivedSize": 0,
+  "completed": false,
+  "url": ""
+}
+```
+
+### 2. 查询进度并确定续传位置
+
+```bash
+UPLOAD_ID=$(cat "${FILE}.upload2-id")
+STATUS_RESPONSE=$(curl -ksS \
+  -H "API-TOKEN: $API_TOKEN" \
+  "$API_BASE/$UPLOAD_ID")
+
+OFFSET=$(printf '%s' "$STATUS_RESPONSE" | jq -r '.data.receivedSize')
+CHUNK_SIZE=$(printf '%s' "$STATUS_RESPONSE" | jq -r '.data.chunkSize')
+echo "服务器已接收 $OFFSET / $FILE_SIZE 字节"
+```
+
+客户端重新启动或网络恢复后，不要使用本地估算的进度，应重新查询并从服务端返回的
+`receivedSize` 继续。
+
+### 3. 上传一个分段
+
+下面示例从 `OFFSET` 开始生成一个临时分段并上传：
+
+```bash
+REMAINING=$((FILE_SIZE - OFFSET))
+SIZE=$CHUNK_SIZE
+if [ "$REMAINING" -lt "$SIZE" ]; then
+  SIZE=$REMAINING
+fi
+
+CHUNK_FILE=$(mktemp)
+trap 'rm -f "$CHUNK_FILE"' EXIT
+dd if="$FILE" of="$CHUNK_FILE" \
+  iflag=skip_bytes,count_bytes skip="$OFFSET" count="$SIZE" status=none
+CHUNK_SHA256=$(sha256sum "$CHUNK_FILE" | awk '{print $1}')
+
+curl -k --fail-with-body --progress-bar -X PUT \
+  "$API_BASE/$UPLOAD_ID/chunk?offset=$OFFSET&size=$SIZE" \
+  -H "API-TOKEN: $API_TOKEN" \
+  -H "Content-Type: application/octet-stream" \
+  -H "X-Chunk-SHA256: $CHUNK_SHA256" \
+  --data-binary "@$CHUNK_FILE"
+
+rm -f "$CHUNK_FILE"
+trap - EXIT
+```
+
+上传成功后响应中的 `receivedSize` 会增加 `SIZE`。继续查询状态和上传下一段，直到
+`receivedSize == totalSize`。如果请求结果未知，可查询状态；若偏移量没有增加，重新发送
+同一分段即可。
+
+### 4. 完成并发布文件
+
+所有字节上传完成后调用：
+
+```bash
+curl -ksS --fail-with-body -X POST \
+  -H "API-TOKEN: $API_TOKEN" \
+  "$API_BASE/$UPLOAD_ID/complete" | jq
+```
+
+服务端将重新计算完整文件 SHA256。成功响应中 `completed` 为 `true`，`url` 是最终软件
+文件地址。重复调用完成接口是幂等的。
+
+### 错误与恢复
+
+| 情况 | 处理方式 |
+| --- | --- |
+| 返回偏移量不匹配 | 查询状态并从返回的 `receivedSize` 继续 |
+| 分段 SHA256 失败 | 从原文件重新生成并重传该段 |
+| 完整文件 SHA256 失败 | 检查本地文件是否变化；需要重新初始化上传任务 |
+| 客户端或网络中断 | 保留 `${FILE}.upload2-id`，恢复后查询状态并续传 |
+| 上传任务不存在或已过期 | 重新调用初始化接口 |
 
 ---
 
