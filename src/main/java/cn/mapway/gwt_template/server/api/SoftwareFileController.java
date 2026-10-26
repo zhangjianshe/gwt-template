@@ -61,6 +61,19 @@ public class SoftwareFileController {
 
         String filename = URLEncoder.encode(target.getName(), StandardCharsets.UTF_8).replace("+", "%20");
         String disposition = "inline; filename=\"" + filename + "\"";
-        FileRangeDownload.send(target, req, resp, null, disposition, "public, max-age=31536000, no-transform");
+        FileRangeDownload.send(target, req, resp, null, disposition, cacheControlFor(rel));
+    }
+
+    /**
+     * Files below a {@code latest} directory are replaced in place by releases,
+     * so clients must revalidate them instead of keeping the old binary for a
+     * year. Versioned release directories remain safe to cache long term.
+     */
+    static String cacheControlFor(String relativePath) {
+        String normalized = "/" + relativePath.replace('\\', '/') + "/";
+        if (normalized.contains("/latest/")) {
+            return "no-cache, no-transform, must-revalidate";
+        }
+        return "public, max-age=31536000, no-transform, immutable";
     }
 }
