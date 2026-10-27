@@ -8,13 +8,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.HandlerMapping;
+import org.springframework.web.util.UriUtils;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
-import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
@@ -39,7 +39,7 @@ public class SoftwareFileController {
         String prefix = "/software/";
         int idx = fullPath.indexOf(prefix);
         String rel = idx >= 0 ? fullPath.substring(idx + prefix.length()) : "";
-        rel = URLDecoder.decode(rel, StandardCharsets.UTF_8);
+        rel = decodeRelativePath(rel);
         if (rel.trim().isEmpty() || rel.contains("..")) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             resp.setContentType("text/plain;charset=UTF-8");
@@ -75,5 +75,13 @@ public class SoftwareFileController {
             return "no-cache, no-transform, must-revalidate";
         }
         return "public, max-age=31536000, no-transform, immutable";
+    }
+
+    /**
+     * Decode an URL path without applying HTML form rules. In a path a literal
+     * '+' is a plus character, not a space (for example k3s version rc1+k3s1).
+     */
+    static String decodeRelativePath(String relativePath) {
+        return UriUtils.decode(relativePath, StandardCharsets.UTF_8);
     }
 }
