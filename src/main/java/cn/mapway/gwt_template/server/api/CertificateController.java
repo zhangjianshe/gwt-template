@@ -9,8 +9,12 @@ import javax.annotation.Resource;
 public class CertificateController extends ApiBaseController {
     @Resource ListCertificateExecutor listCertificateExecutor;
     @Resource SaveCertificateExecutor saveCertificateExecutor;
+    @Resource ListPublicCertificateExecutor listPublicCertificateExecutor;
     @GetMapping("/list") public RpcResult<CertificateListResponse> list() {
         return toApiResult(listCertificateExecutor.execute(getBizContext(), BizRequest.wrap("", new CertificateListRequest())));
+    }
+    @GetMapping("/public-list") public RpcResult<PublicCertificateListResponse> publicList() {
+        return toApiResult(listPublicCertificateExecutor.execute(getBizContext(), BizRequest.wrap("", new CertificateListRequest())));
     }
     @PostMapping("/save") public RpcResult<SaveCertificateResponse> save(@RequestBody SaveCertificateRequest request) {
         return toApiResult(saveCertificateExecutor.execute(getBizContext(), BizRequest.wrap("", request)));
