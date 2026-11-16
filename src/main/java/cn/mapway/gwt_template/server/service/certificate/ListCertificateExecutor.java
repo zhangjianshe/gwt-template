@@ -18,6 +18,7 @@ import java.sql.Timestamp;
         assertNotNull(user, "请先登录"); assertNotNull(user.getUser(), "请先登录");
 
         CertificateListResponse response = new CertificateListResponse();
+        response.setServerVersion(cn.mapway.gwt_template.server.service.tools.Versions.getVersion().trim());
         response.setCertificates(dao.query(CanglingCertificateEntity.class, Cnd.where("user_id", "=", user.getUser().getUserId()).asc("name")));
         return BizResult.success(response);
 

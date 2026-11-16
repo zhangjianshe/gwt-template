@@ -182,6 +182,9 @@ public class StartBootPrepare implements ApplicationContextAware {
         } else {
             log.info("[DB] 系统数据库当前版本{}", DB_VERSION);
         }
+        // Independent additive tables must also be created on existing installations
+        // whose full database version is already current.
+        checkAndCreate(CanglingCertificateEntity.class);
     }
 
     private void checkAllViews(FileSqlManager sqlManager) {
@@ -263,7 +266,6 @@ public class StartBootPrepare implements ApplicationContextAware {
         checkAndCreate(DockerAppEntity.class);
         checkAndCreate(CanglingHostEntity.class);
         checkAndCreate(CanglingTunnelEntity.class);
-        checkAndCreate(CanglingCertificateEntity.class);
 
 
         log.info("[DB] 完成数据库表的初始化");
