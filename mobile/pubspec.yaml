@@ -1,7 +1,7 @@
 name: cangling_mobile
 description: Cangling development platform mobile client.
 publish_to: none
-version: 0.2.1+3
+version: 0.2.2+4
 environment:
   sdk: '>=3.14.0 <4.0.0'
   flutter: '>=3.50.0'
