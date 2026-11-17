@@ -59,10 +59,27 @@ public class SoftwareList extends CommonEventComposite implements IData<SysSoftw
     FlexTable list;
     @UiField
     SStyle style;
+    @UiField FlowPanel details;
+    @UiField FlowPanel filters;
+    @UiField ListBox osFilter;
+    @UiField ListBox archFilter;
+    @UiField Label status;
+    @UiField Button retry;
+    private int sortColumn = 0;
+    private boolean sortAscending = true;
+    private int requestSequence;
+    private List<SysSoftwareFileEntity> files = new ArrayList<>();
     private SysSoftwareEntity software;
 
     public SoftwareList() {
         initWidget(ourUiBinder.createAndBindUi(this));
+        osFilter.getElement().setAttribute("aria-label", "筛选操作系统");
+        archFilter.getElement().setAttribute("aria-label", "筛选架构");
+        status.getElement().setAttribute("role", "status");
+        osFilter.addChangeHandler(event -> renderFiles());
+        archFilter.addChangeHandler(event -> renderFiles());
+        retry.addClickHandler(event -> loadFiles());
+        setData(null);
     }
 
     @Override
@@ -73,6 +90,16 @@ public class SoftwareList extends CommonEventComposite implements IData<SysSoftw
     @Override
     public void setData(SysSoftwareEntity obj) {
         software = obj;
+        requestSequence++;
+        list.removeAllRows();
+        files.clear();
+        retry.setVisible(false);
+        details.setVisible(obj != null);
+        filters.setVisible(false);
+        if (obj == null) {
+            status.setText("请选择左侧软件查看可下载文件");
+            return;
+        }
         toUI();
     }
 
@@ -87,30 +114,61 @@ public class SoftwareList extends CommonEventComposite implements IData<SysSoftw
     }
 
     private void loadFiles() {
+        if (software == null) { return; }
+        final int sequence = ++requestSequence;
+        list.removeAllRows();
+        files.clear();
+        filters.setVisible(false);
+        retry.setVisible(false);
+        status.setText("正在加载文件…");
         QuerySoftwareFilesRequest request = new QuerySoftwareFilesRequest();
         request.setSoftwareId(software.getId());
         AppProxy.get().querySoftwareFiles(request, new AsyncAdaptor<RpcResult<QuerySoftwareFilesResponse>>() {
             @Override
             public void onData(RpcResult<QuerySoftwareFilesResponse> result) {
-                renderFiles(result.getData());
+                if (sequence != requestSequence) { return; }
+                files = result.getData().getFiles() == null ? new ArrayList<>() : new ArrayList<>(result.getData().getFiles());
+                fillFilter(osFilter, true);
+                fillFilter(archFilter, false);
+                filters.setVisible(!files.isEmpty());
+                renderFiles();
             }
+            @Override
+            public void onFailure(Throwable caught) {
+                if (sequence != requestSequence) { return; }
+                super.onFailure(caught);
+                status.setText("文件加载失败，请重试");
+                retry.setVisible(true);
+            }
+
+            @Override
+            public boolean onError(RpcResult<QuerySoftwareFilesResponse> result) {
+                if (sequence != requestSequence) { return true; }
+                onFailure(new Exception(result.getMessage()));
+                return true;
+            }
+
         });
     }
 
     private void doDelete(SysSoftwareFileEntity file) {
+        final String softwareId = software == null ? null : software.getId();
         DeleteSoftwareFileRequest request = new DeleteSoftwareFileRequest();
         request.setFileId(file.getId());
         AppProxy.get().deleteSoftwareFile(request, new AsyncAdaptor<RpcResult<DeleteSoftwareFileResponse>>() {
             @Override
             public void onData(RpcResult<DeleteSoftwareFileResponse> result) {
-                loadFiles();
+                if (software != null && software.getId().equals(softwareId)) {
+                    loadFiles();
+                }
             }
         });
     }
 
-    private void renderFiles(QuerySoftwareFilesResponse data) {
+    private void renderFiles() {
         Map<String, List<SysSoftwareFileEntity>> versions = new HashMap<>();
-        for (SysSoftwareFileEntity item : data.getFiles()) {
+        for (SysSoftwareFileEntity item : files) {
+            if (!matches(osFilter, item.getOs()) || !matches(archFilter, item.getArch())) { continue; }
             List<SysSoftwareFileEntity> list = versions.get(item.getVersion());
             if (list == null) {
                 list = new ArrayList<>();
@@ -119,22 +177,49 @@ public class SoftwareList extends CommonEventComposite implements IData<SysSoftw
             list.add(item);
         }
         list.removeAllRows();
-        int row = -1;
+        String[] headings = {"文件名称", "系统 / 架构", "文件大小", "校验值", "更新时间", "下载", "说明", "操作"};
+        String[] widths = {"25%", "12%", "8%", "11%", "15%", "5%", "19%", "5%"};
+        for (int i = 0; i < headings.length; i++) {
+            if (i == 0 || i == 2 || i == 4) {
+                final int column = i;
+                boolean active = sortColumn == column;
+                Button sort = new Button(headings[i] + (active ? (sortAscending ? " ↑" : " ↓") : " ↕"));
+                sort.setStyleName(style.sortButton());
+                sort.setTitle("按" + headings[i] + (active && sortAscending ? "降序" : "升序") + "排列");
+                sort.getElement().setAttribute("aria-label", sort.getTitle());
+                sort.addClickHandler(event -> {
+                    sortAscending = sortColumn == column ? !sortAscending : true;
+                    sortColumn = column;
+                    renderFiles();
+                    Widget heading = list.getWidget(0, column);
+                    if (heading instanceof Button) { ((Button) heading).setFocus(true); }
+                });
+                list.setWidget(0, i, sort);
+                list.getCellFormatter().getElement(0, i).setAttribute("aria-sort",
+                        active ? (sortAscending ? "ascending" : "descending") : "none");
+            } else {
+                list.setText(0, i, headings[i]);
+            }
+            list.getCellFormatter().setWidth(0, i, widths[i]);
+            list.getCellFormatter().getElement(0, i).setAttribute("role", "columnheader");
+        }
+        list.getRowFormatter().setStyleName(0, style.heading());
+        status.setText(files.isEmpty() ? "暂无文件" : versions.isEmpty() ? "没有符合筛选条件的文件" : "");
+        int row = 0;
         int col = 0;
         HTMLTable.RowFormatter rowFormatter = list.getRowFormatter();
-        for (String version : versions.keySet()) {
+        List<String> versionNames = new ArrayList<>(versions.keySet());
+        Collections.sort(versionNames, Comparator.nullsLast(Comparator.reverseOrder()));
+        if (versionNames.remove("latest")) { versionNames.add(0, "latest"); }
+        for (String version : versionNames) {
             row++;
             col = 0;
             Label label = new Label(version);
             label.addStyleName(style.label());
             list.setWidget(row, col++, label);
+            list.getFlexCellFormatter().setColSpan(row, 0, 8);
             List<SysSoftwareFileEntity> entityList = versions.get(version);
-            Collections.sort(entityList, (o1, o2) -> {
-                if (o1.getArch() == null || o2.getArch() == null) {
-                    return 0;
-                }
-                return o1.getArch().compareTo(o2.getArch());
-            });
+            Collections.sort(entityList, this::compareFiles);
             for (SysSoftwareFileEntity item : entityList) {
                 row++;
                 col = 0;
@@ -161,6 +246,54 @@ public class SoftwareList extends CommonEventComposite implements IData<SysSoftw
         }
     }
 
+    private int compareFiles(SysSoftwareFileEntity first, SysSoftwareFileEntity second) {
+        int comparison;
+        if (sortColumn == 2) {
+            if (first.getSize() == null || second.getSize() == null) {
+                return compareMissing(first.getSize(), second.getSize());
+            }
+            comparison = first.getSize().compareTo(second.getSize());
+        } else if (sortColumn == 4) {
+            if (first.getCreateTime() == null || second.getCreateTime() == null) {
+                return compareMissing(first.getCreateTime(), second.getCreateTime());
+            }
+            comparison = Long.compare(first.getCreateTime().getTime(), second.getCreateTime().getTime());
+        } else {
+            if (first.getName() == null || second.getName() == null) {
+                return compareMissing(first.getName(), second.getName());
+            }
+            comparison = first.getName().compareToIgnoreCase(second.getName());
+        }
+        if (comparison != 0) { return sortAscending ? comparison : -comparison; }
+        String firstName = first.getName() == null ? "" : first.getName();
+        String secondName = second.getName() == null ? "" : second.getName();
+        return firstName.compareToIgnoreCase(secondName);
+    }
+
+    // Missing values remain at the end in either direction.
+    private int compareMissing(Object first, Object second) {
+        return first == null ? (second == null ? 0 : 1) : -1;
+    }
+
+    private void fillFilter(ListBox box, boolean os) {
+        String previous = box.getSelectedIndex() < 0 ? "" : box.getSelectedValue();
+        Set<String> values = new TreeSet<>();
+        for (SysSoftwareFileEntity file : files) {
+            String value = os ? file.getOs() : file.getArch();
+            if (value != null && !value.isEmpty()) { values.add(value); }
+        }
+        box.clear();
+        box.addItem("全部", "");
+        for (String value : values) {
+            box.addItem(value, value);
+            if (value.equals(previous)) { box.setSelectedIndex(box.getItemCount() - 1); }
+        }
+    }
+
+    private boolean matches(ListBox box, String value) {
+        return box.getSelectedValue().isEmpty() || box.getSelectedValue().equals(value);
+    }
+
     private String shortHash(String hash) {
         if (hash == null || hash.isEmpty()) {
             return "-";
@@ -170,6 +303,13 @@ public class SoftwareList extends CommonEventComposite implements IData<SysSoftw
 
     interface SStyle extends CssResource {
 
+        String sortButton();
+        String heading();
+        String infoBar();
+        String filterLabel();
+        String filterSelect();
+        String filters();
+        String status();
         String summary();
 
         String name();

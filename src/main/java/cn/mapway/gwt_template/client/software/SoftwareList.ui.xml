@@ -2,7 +2,7 @@
              xmlns:g='urn:import:com.google.gwt.user.client.ui'>
     <ui:style type="cn.mapway.gwt_template.client.software.SoftwareList.SStyle">
         .box {
-            padding: 10px;
+            padding: 16px 24px;
         }
 
         .name {
@@ -21,9 +21,49 @@
             padding: 5px 10px;
         }
 
-        .list {
-
+        .list { table-layout: fixed; min-width: 1080px; border-collapse: collapse; }
+        .list td { overflow-wrap: anywhere; border-bottom: 1px solid #dbe4f0; }
+        .heading td {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            background: #f1f5f9;
+            color: #475569;
+            font-size: 13px;
+            font-weight: 600;
+            line-height: 20px;
+            padding: 12px 10px;
+            white-space: nowrap;
+            box-shadow: inset 0 -1px 0 #dbe4f0;
         }
+        .heading td:first-child { border-radius: 6px 0 0 0; }
+        .heading td:last-child { border-radius: 0 6px 0 0; }
+        .heading td:nth-child(3) { text-align: right; }
+        .heading td:nth-child(6), .heading td:last-child { text-align: center; }
+        .row td { padding: 10px; }
+        .row td:nth-child(3) { text-align: right; white-space: nowrap; }
+        .row td:nth-child(6), .row td:last-child { text-align: center; }
+        .sortButton {
+            display: block;
+            width: 100%;
+            padding: 0;
+            border: 0;
+            background: transparent;
+            color: inherit;
+            font: inherit;
+            line-height: inherit;
+            text-align: inherit;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+        .sortButton:hover { color: var(--color-main); }
+        .sortButton:focus-visible { outline: 2px solid var(--color-main); outline-offset: 4px; border-radius: 2px; }
+        .infoBar { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; margin-bottom: 16px; }
+        .filters { margin-left: auto; display: flex; gap: 12px; align-items: center; justify-content: flex-end; flex-wrap: wrap; }
+        .filterLabel { color: #64748b; white-space: nowrap; font-size: 13px; }
+        .filterSelect { width: 140px; box-sizing: border-box; appearance: auto; -webkit-appearance: menulist; padding: 0 8px; cursor: pointer; }
+        .filterSelect:focus { border-color: var(--color-main); outline: 2px solid #dbeafe; outline-offset: 1px; }
+        .status { color: #64748b; padding: 16px 0; }
 
         .lh {
             line-height: 36px;
@@ -50,6 +90,8 @@
     </ui:style>
     <g:ScrollPanel>
         <g:HTMLPanel addStyleNames="{style.box}">
+            <g:FlowPanel addStyleNames="{style.infoBar}">
+            <g:FlowPanel ui:field="details">
             <g:HorizontalPanel verticalAlignment="middle" spacing="10">
                 <g:Image ui:field="icon" width="46px" height="46px"/>
                 <g:VerticalPanel spacing="4">
@@ -60,6 +102,14 @@
                     <g:Label ui:field="lbKey" styleName="{style.key}"/>
                 </g:VerticalPanel>
             </g:HorizontalPanel>
+            </g:FlowPanel>
+            <g:FlowPanel ui:field="filters" addStyleNames="{style.filters}">
+                <g:Label addStyleNames="{style.filterLabel}">操作系统</g:Label><g:ListBox ui:field="osFilter" addStyleNames="ai-input {style.filterSelect}"/>
+                <g:Label addStyleNames="{style.filterLabel}">架构</g:Label><g:ListBox ui:field="archFilter" addStyleNames="ai-input {style.filterSelect}"/>
+            </g:FlowPanel>
+            </g:FlowPanel>
+            <g:Label ui:field="status" addStyleNames="{style.status}"/>
+            <g:Button ui:field="retry" visible="false">重新加载</g:Button>
             <g:FlexTable width="100%" cellSpacing="0" cellPadding="6" ui:field="list" addStyleNames="{style.list}">
 
             </g:FlexTable>

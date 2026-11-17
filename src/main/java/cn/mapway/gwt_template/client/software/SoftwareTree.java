@@ -23,6 +23,24 @@ import java.util.List;
 import java.util.Map;
 
 public class SoftwareTree extends Tree {
+    private List<SysSoftwareEntity> softwares = new ArrayList<>();
+    private String filter = "";
+    private String selectedId;
+
+    public void setFilter(String text) {
+        filter = nullToEmpty(text).trim().toLowerCase();
+        renderData();
+    }
+
+    public void rememberSelection(SysSoftwareEntity software) {
+        selectedId = software == null ? null : software.getId();
+    }
+
+    public void load(String softwareId) {
+        selectedId = softwareId;
+        load();
+    }
+
     private void doDelete(SysSoftwareEntity software) {
         DeleteSoftwareRequest request = new DeleteSoftwareRequest();
         request.setSoftwareId(software.getId());
@@ -52,18 +70,20 @@ public class SoftwareTree extends Tree {
         AppProxy.get().querySoftware(new QuerySoftwareRequest(), new AsyncAdaptor<RpcResult<QuerySoftwareResponse>>() {
             @Override
             public void onData(RpcResult<QuerySoftwareResponse> result) {
-                renderData(result.getData());
+                softwares = result.getData().getSoftwares();
+                renderData();
             }
         });
     }
 
-    private void renderData(QuerySoftwareResponse data) {
+    private void renderData() {
+        clearSelected();
         clear();
-        if (data.getSoftwares() == null) {
+        if (softwares == null) {
             return;
         }
         Map<String, TreeItem> groups = new LinkedHashMap<>();
-        List<SysSoftwareEntity> list = new ArrayList<>(data.getSoftwares());
+        List<SysSoftwareEntity> list = new ArrayList<>(softwares);
         list.sort((a, b) -> {
             int c = nullToEmpty(a.getSoftwareSet()).compareToIgnoreCase(nullToEmpty(b.getSoftwareSet()));
             if (c != 0) {
@@ -72,6 +92,10 @@ public class SoftwareTree extends Tree {
             return nullToEmpty(a.getName()).compareToIgnoreCase(nullToEmpty(b.getName()));
         });
         for (SysSoftwareEntity software : list) {
+            String searchable = nullToEmpty(software.getName()) + " " + nullToEmpty(software.getCode()) + " " + nullToEmpty(software.getSoftwareSet());
+            if (!searchable.toLowerCase().contains(filter)) {
+                continue;
+            }
             String setName = nullToEmpty(software.getSoftwareSet());
             if (setName.isEmpty()) {
                 setName = "未分组";
@@ -93,6 +117,9 @@ public class SoftwareTree extends Tree {
                 item.appendRightWidget(deleteButton);
             }
             item.setData(software);
+            if (software.getId().equals(selectedId)) {
+                setValue(item, false);
+            }
         }
         for (TreeItem group : groups.values()) {
             group.setOpen(true, false);

@@ -34,6 +34,8 @@ public class SoftwareFrame extends ToolbarModule {
     public static final String MODULE_CODE = "software_frame";
     private static final SoftwareFrameUiBinder ourUiBinder = GWT.create(SoftwareFrameUiBinder.class);
     @UiField
+    cn.mapway.gwt_template.client.widget.TextBox search;
+    @UiField
     SoftwareTree tree;
     @UiField
     HorizontalPanel tools;
@@ -48,6 +50,11 @@ public class SoftwareFrame extends ToolbarModule {
 
     public SoftwareFrame() {
         initWidget(ourUiBinder.createAndBindUi(this));
+        search.getElement().setAttribute("placeholder", "搜索软件名称、code 或软件集");
+        search.getElement().setAttribute("aria-label", "搜索软件");
+        search.getElement().setAttribute("style", "margin:12px;width:calc(100% - 24px);box-sizing:border-box;");
+        search.addValueChangeHandler(event -> tree.setFilter(event.getValue()));
+        search.addKeyUpHandler(event -> tree.setFilter(search.getValue()));
     }
 
     @Override
@@ -80,6 +87,8 @@ public class SoftwareFrame extends ToolbarModule {
         if (event.isSelect()) {
             TreeItem item = event.getValue();
             if (!(item.getData() instanceof SysSoftwareEntity)) {
+                tree.rememberSelection(null);
+                softwarePanel.setData(null);
                 btnEdit.setEnabled(false);
                 btnEdit.setData(null);
                 btnUpload.setEnabled(false);
@@ -87,6 +96,7 @@ public class SoftwareFrame extends ToolbarModule {
                 return;
             }
             SysSoftwareEntity software = (SysSoftwareEntity) item.getData();
+            tree.rememberSelection(software);
             softwarePanel.setData(software);
             btnEdit.setEnabled(true);
             btnEdit.setData(software);
@@ -112,12 +122,14 @@ public class SoftwareFrame extends ToolbarModule {
         if (software == null) {
             return;
         }
-        Dialog<SoftwareFileUploader> uploadDialog = SoftwareFileUploader.getDialog(true);
+        Dialog<SoftwareFileUploader> uploadDialog = SoftwareFileUploader.getDialog(false);
         uploadDialog.addCommonHandler(new CommonEventHandler() {
             @Override
             public void onCommonEvent(CommonEvent event) {
                 if (event.isOk()) {
-                    softwarePanel.setData(software);
+                    if (softwarePanel.getData() != null && software.getId().equals(softwarePanel.getData().getId())) {
+                        softwarePanel.setData(softwarePanel.getData());
+                    }
                 }
                 uploadDialog.hide();
             }
@@ -133,12 +145,20 @@ public class SoftwareFrame extends ToolbarModule {
     }
 
     private void edit(SysSoftwareEntity software) {
-        Dialog<SoftwareEditor> dialog = SoftwareEditor.getDialog(true);
+        Dialog<SoftwareEditor> dialog = SoftwareEditor.getDialog(false);
         dialog.addCommonHandler(new CommonEventHandler() {
             @Override
             public void onCommonEvent(CommonEvent event) {
                 if (event.isOk()) {
-                    tree.load();
+                    SysSoftwareEntity saved = event.getValue();
+                    search.setValue("");
+                    tree.setFilter("");
+                    tree.load(saved.getId());
+                    softwarePanel.setData(saved);
+                    btnEdit.setData(saved);
+                    btnEdit.setEnabled(true);
+                    btnUpload.setData(saved);
+                    btnUpload.setEnabled(canUploadSoftware());
                 }
                 dialog.hide();
             }
