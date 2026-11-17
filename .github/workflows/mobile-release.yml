@@ -1,0 +1,96 @@
+name: Mobile release
+
+on:
+  push:
+    tags:
+      - 'mobile-v*.*.*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing mobile release tag (e.g. mobile-v0.2.2)'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mobile-release
+  cancel-in-progress: false
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - name: Validate tag input
+        working-directory: .
+        run: |
+          [[ "$RELEASE_TAG" =~ ^mobile-v[0-9]+\.[0-9]+\.[0-9]+$ ]]
+      - uses: actions/checkout@v4
+        with:
+          ref: refs/tags/${{ env.RELEASE_TAG }}
+      - name: Verify version and required secrets
+        env:
+          SOFTWARE_TOKEN: ${{ secrets.MOBILE_SOFTWARE_TOKEN }}
+          API_TOKEN: ${{ secrets.MOBILE_API_TOKEN }}
+          KEYSTORE: ${{ secrets.MOBILE_KEYSTORE_BASE64 }}
+          STORE_PASSWORD: ${{ secrets.MOBILE_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.MOBILE_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.MOBILE_KEY_PASSWORD }}
+        run: |
+          python3 - <<'PY'
+          import os, re
+          from pathlib import Path
+          match = re.search(r'^version: (\d+\.\d+\.\d+)\+(\d+)$', Path('pubspec.yaml').read_text(), re.M)
+          assert match and os.environ['RELEASE_TAG'] == 'mobile-v' + match[1], 'Tag/pubspec version mismatch'
+          for key in ['SOFTWARE_TOKEN', 'API_TOKEN', 'KEYSTORE', 'STORE_PASSWORD', 'KEY_ALIAS', 'KEY_PASSWORD']:
+              assert os.environ.get(key), f'Missing required secret: {key}'
+          PY
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.50.0'
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: dart format --output=none --set-exit-if-changed lib test integration_test
+      - run: flutter analyze
+      - run: flutter test
+      - run: python3 tool/test_release.py
+      - name: Restore fixed signing key
+        env:
+          KEYSTORE_BASE64: ${{ secrets.MOBILE_KEYSTORE_BASE64 }}
+        run: |
+          umask 077
+          printf '%s' "$KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/mobile-release.keystore"
+      - name: Build signed APK
+        env:
+          MOBILE_REQUIRE_SIGNING: 'true'
+          MOBILE_KEYSTORE_PATH: ${{ runner.temp }}/mobile-release.keystore
+          MOBILE_KEYSTORE_PASSWORD: ${{ secrets.MOBILE_KEYSTORE_PASSWORD }}
+          MOBILE_KEY_ALIAS: ${{ secrets.MOBILE_KEY_ALIAS }}
+          MOBILE_KEY_PASSWORD: ${{ secrets.MOBILE_KEY_PASSWORD }}
+        run: ./tool/build.sh apk --release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cangling-${{ env.RELEASE_TAG }}
+          path: mobile/build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
+      - name: Upload to software repository and verify download
+        env:
+          SOFTWARE_TOKEN: ${{ secrets.MOBILE_SOFTWARE_TOKEN }}
+          API_TOKEN: ${{ secrets.MOBILE_API_TOKEN }}
+          RELEASE_NOTES: 'cangling mobile ${{ env.RELEASE_TAG }}'
+        run: python3 tool/publish_android.py
+      - name: Remove signing key
+        if: always()
+        run: rm -f "$RUNNER_TEMP/mobile-release.keystore"

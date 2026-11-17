@@ -1,0 +1,32 @@
+name: cangling_mobile
+description: Cangling development platform mobile client.
+publish_to: none
+version: 0.2.1+3
+environment:
+  sdk: '>=3.14.0 <4.0.0'
+  flutter: '>=3.50.0'
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  material_ui: ^1.11.1
+  http: ^1.2.2
+  flutter_secure_storage: ^9.2.4
+  shared_preferences: ^2.3.3
+  url_launcher: ^6.3.1
+  cupertino_ui: ^1.1.7
+  sqflite: ^2.4.6
+  path: ^1.9.1
+  package_info_plus: ^9.0.1
+dev_dependencies:
+  integration_test:
+    sdk: flutter
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  sqflite_common_ffi: ^2.4.7
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/branding/app-icon.png
