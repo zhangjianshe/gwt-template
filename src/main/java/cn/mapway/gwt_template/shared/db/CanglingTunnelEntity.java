@@ -32,6 +32,15 @@ public class CanglingTunnelEntity implements Serializable, IsSerializable {
     @ColDefine(type = ColType.VARCHAR, width = 256, notNull = true)
     private String name;
 
+    @Column("tunnel_type")
+    @ColDefine(type = ColType.VARCHAR, width = 16, notNull = true)
+    @Default("ssh")
+    private String tunnelType;
+
+    @Column("websocket_url")
+    @ColDefine(type = ColType.TEXT)
+    private String websocketUrl;
+
     @Column
     @ColDefine(type = ColType.VARCHAR, width = 16, notNull = true)
     @Default("local")
