@@ -149,3 +149,5 @@ iOS 后续需接入 TestFlight/App Store。当前 release 使用开发机 debug 
 本地可设置同名签名环境变量 `MOBILE_KEYSTORE_PATH`、`MOBILE_KEYSTORE_PASSWORD`、`MOBILE_KEY_ALIAS`、`MOBILE_KEY_PASSWORD`；`MOBILE_REQUIRE_SIGNING=true` 时禁止缺少证书。
 
 移动端 CI 使用 JDK 21 运行 Gradle/Android lint（AGP 9.3 的分析器使用 Java 21 API），Java/Kotlin 应用代码仍以 Java 17 为编译目标。
+
+若云端已构建签名 APK，但上传网络失败，可手动运行 **Mobile upload retry**，填写原 `Mobile release` 的 run ID 和同一 mobile 标签。它先检查公网连接，再下载该次 Actions 附件并上传，避免重新编译。

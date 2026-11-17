@@ -1,0 +1,67 @@
+name: Mobile upload retry
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Mobile tag matching the compiled artifact'
+        required: true
+        type: string
+      run_id:
+        description: 'Mobile release run containing the signed APK artifact'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      RELEASE_TAG: ${{ inputs.tag }}
+      SOURCE_RUN: ${{ inputs.run_id }}
+    steps:
+      - name: Validate inputs and source build
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          [[ "$RELEASE_TAG" =~ ^mobile-v[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          [[ "$SOURCE_RUN" =~ ^[0-9]+$ ]]
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$SOURCE_RUN" > /tmp/source-run.json
+          python3 - <<'PY'
+          import json
+          source = json.load(open('/tmp/source-run.json'))
+          assert source['name'] == 'Mobile release', 'Artifact must come from Mobile release'
+          PY
+      - uses: actions/checkout@v4
+        with:
+          ref: refs/tags/${{ inputs.tag }}
+      - name: Verify tag version
+        run: |
+          python3 - <<'PY'
+          import os, re
+          from pathlib import Path
+          match = re.search(r'^version: (\d+\.\d+\.\d+)\+(\d+)$', Path('mobile/pubspec.yaml').read_text(), re.M)
+          assert match and os.environ['RELEASE_TAG'] == 'mobile-v' + match[1]
+          PY
+      - name: Check public repository connection
+        run: |
+          curl --connect-timeout 20 --max-time 40 --fail --silent --show-error \
+            'https://soft.cangling.cn:22002/api/v1/software/manifest?set=system' -o /tmp/manifest.json
+          printf 'connect-timeout = 30\n' > "$HOME/.curlrc"
+      - uses: actions/download-artifact@v4
+        with:
+          name: cangling-${{ inputs.tag }}
+          path: mobile/build/app/outputs/flutter-apk
+          run-id: ${{ inputs.run_id }}
+          github-token: ${{ github.token }}
+      - name: Publish existing signed APK and verify download
+        working-directory: mobile
+        env:
+          SOFTWARE_TOKEN: ${{ secrets.MOBILE_SOFTWARE_TOKEN }}
+          API_TOKEN: ${{ secrets.MOBILE_API_TOKEN }}
+          RELEASE_NOTES: 'cangling mobile ${{ inputs.tag }}'
+        run: python3 tool/publish_android.py
