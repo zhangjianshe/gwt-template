@@ -147,3 +147,5 @@ iOS 后续需接入 TestFlight/App Store。当前 release 使用开发机 debug 
 为兼容已分发的 0.2.x APK，当前固定签名沿用开发机现有 debug 证书（不是每个 runner 临时生成的 debug key）。这是开发分发流程；正式生产签名需单独规划迁移，否则已安装用户无法直接覆盖升级。
 证书通过环境变量传给 Gradle，工作流结束清理临时文件；PR 和 Mobile checks 不读取发布 Secrets。
 本地可设置同名签名环境变量 `MOBILE_KEYSTORE_PATH`、`MOBILE_KEYSTORE_PASSWORD`、`MOBILE_KEY_ALIAS`、`MOBILE_KEY_PASSWORD`；`MOBILE_REQUIRE_SIGNING=true` 时禁止缺少证书。
+
+移动端 CI 使用 JDK 21 运行 Gradle/Android lint（AGP 9.3 的分析器使用 Java 21 API），Java/Kotlin 应用代码仍以 Java 17 为编译目标。
