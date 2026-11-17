@@ -28,7 +28,8 @@ with tempfile.TemporaryDirectory(prefix='mobile-publish-') as directory:
     directory = Path(directory)
     (directory / 'token').write_text(token)
     config = directory / 'curl.conf'
-    lines = [f'url = "{server}/api/v1/software/upload"', 'silent', 'show-error', 'max-time = 900',
+    lines = [f'url = "{server}/api/v1/software/upload"', 'silent', 'show-error', 'connect-timeout = 30', 'max-time = 900',
+             'retry = 2', 'retry-delay = 5', 'retry-connrefused',
              f'form = "token=<{directory}/token"']
     api_token = os.environ.get('API_TOKEN')
     if api_token:
@@ -37,7 +38,9 @@ with tempfile.TemporaryDirectory(prefix='mobile-publish-') as directory:
     config.chmod(0o600)
     result = subprocess.run(['curl', '--config', str(config), '-F', f'version={version}',
         '-F', f'name={name}', '-F', f'summary={summary}', '-F', 'os=android', '-F', 'arch=all',
-        '-F', f'file=@{apk};filename={name}'], capture_output=True, text=True, check=True)
+        '-F', f'file=@{apk};filename={name}'], capture_output=True, text=True)
+    if result.returncode:
+        raise SystemExit(f'Upload transport failed (curl {result.returncode}): {result.stderr.strip()}')
     response = json.loads(result.stdout)
     if response.get('code') != 200:
         raise SystemExit(f"Upload rejected: {response.get('code')} {response.get('message')}")
