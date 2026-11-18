@@ -187,6 +187,12 @@ public class StartBootPrepare implements ApplicationContextAware {
         checkAndCreate(CanglingCertificateEntity.class);
         checkAndCreate(DriveEntryEntity.class);
         checkAndCreate(DriveTokenEntity.class);
+        checkAndCreate(DriveUploadEntity.class);
+        checkAndCreate(DriveBlobEntity.class);
+        checkAndCreate(DriveDirectoryStatsEntity.class);
+        checkAndCreate(DriveDeleteTaskEntity.class);
+        // Nutz column migration does not add new indexes to an existing table.
+        dao.execute(Sqls.create("CREATE INDEX IF NOT EXISTS idx_drive_entry_blob ON drive_entry (blob_id)"));
     }
 
     private void checkAllViews(FileSqlManager sqlManager) {

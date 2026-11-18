@@ -3,6 +3,7 @@ package cn.mapway.gwt_template.server.api;
 import cn.mapway.document.annotation.Doc;
 import cn.mapway.gwt_template.server.service.drive.DriveException;
 import cn.mapway.gwt_template.server.service.drive.DriveService;
+import cn.mapway.gwt_template.server.service.drive.DriveResumableUploadService;
 import cn.mapway.gwt_template.server.service.file.FileRangeDownload;
 import cn.mapway.gwt_template.server.service.user.TokenService;
 import cn.mapway.gwt_template.shared.rpc.user.module.LoginUser;
@@ -21,6 +22,8 @@ import java.util.*;
 @RequestMapping("/api/v1/drive")
 public class DriveController {
     @Resource DriveService driveService;
+    @Resource cn.mapway.gwt_template.server.service.drive.DriveDeleteTaskService deleteTasks;
+    @Resource DriveResumableUploadService resumableUploads;
     @Resource TokenService tokenService;
 
     public static class DirectoryRequest {
@@ -55,12 +58,33 @@ public class DriveController {
         return RpcResult.create(200, "操作成功", value);
     }
 
+    @PostMapping("/delete-tasks")
+    public RpcResult<?> createDeleteTask(@RequestBody cn.mapway.gwt_template.server.service.drive.DriveDeleteTaskService.Request body,HttpServletRequest request,HttpServletResponse response){
+        if(driveToken(request)!=null)throw new DriveException(403,"批量删除需要管理员登录");
+        requireAdmin();return ok(deleteTasks.create(body,tokenService.requestUser().getUser().getUserId()),response);
+    }
+    @GetMapping("/delete-tasks/{id}")
+    public RpcResult<?> deleteTask(@PathVariable String id,HttpServletRequest request,HttpServletResponse response){
+        if(driveToken(request)!=null)throw new DriveException(403,"查询删除任务需要管理员登录");
+        requireAdmin();return ok(deleteTasks.status(id,tokenService.requestUser().getUser().getUserId()),response);
+    }
+
     @GetMapping("/entries")
     public RpcResult<?> list(@RequestParam(defaultValue="root") String parentId,
                              @RequestParam(defaultValue="1") int page,
                              @RequestParam(defaultValue="200") int pageSize,
                              HttpServletRequest request, HttpServletResponse response) {
         return ok(driveService.list(parentId, driveToken(request), admin(request), page, pageSize), response);
+    }
+
+    @GetMapping("/directories/{id}/statistics")
+    public RpcResult<?> statistics(@PathVariable String id, HttpServletRequest request, HttpServletResponse response) {
+        return ok(driveService.statistics(id, driveToken(request), admin(request)), response);
+    }
+
+    @PostMapping("/directories/{id}/statistics/recalculate")
+    public RpcResult<?> recalculateStatistics(@PathVariable String id, HttpServletRequest request, HttpServletResponse response) {
+        return ok(driveService.recalibrateStatistics(id, driveToken(request), admin(request)), response);
     }
 
     @PostMapping("/directories")
@@ -74,6 +98,32 @@ public class DriveController {
                                HttpServletRequest request, HttpServletResponse response) throws IOException {
         return ok(driveService.upload(parentId, name, driveToken(request), admin(request),
                 request.getInputStream(), request.getContentLengthLong()), response);
+    }
+
+    @PostMapping("/uploads")
+    public RpcResult<?> initUpload(@RequestBody DriveResumableUploadService.InitRequest body,
+                                   HttpServletRequest request, HttpServletResponse response) throws IOException {
+        return ok(resumableUploads.init(body, driveToken(request), admin(request)), response);
+    }
+    @GetMapping("/uploads/{id}")
+    public RpcResult<?> uploadStatus(@PathVariable String id, HttpServletRequest request, HttpServletResponse response) throws IOException {
+        return ok(resumableUploads.status(id, driveToken(request), admin(request)), response);
+    }
+    @PutMapping(value="/uploads/{id}/chunk", consumes=MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    public RpcResult<?> uploadChunk(@PathVariable String id, @RequestParam long offset, @RequestParam long size,
+                                    @RequestHeader("X-Chunk-SHA256") String sha256,
+                                    HttpServletRequest request, HttpServletResponse response) throws IOException {
+        return ok(resumableUploads.append(id, offset, size, sha256, request.getContentLengthLong(),
+                request.getInputStream(), driveToken(request), admin(request)), response);
+    }
+    @PostMapping("/uploads/{id}/complete")
+    public RpcResult<?> completeUpload(@PathVariable String id, HttpServletRequest request, HttpServletResponse response) throws IOException {
+        return ok(resumableUploads.complete(id, driveToken(request), admin(request)), response);
+    }
+    @DeleteMapping("/uploads/{id}")
+    public RpcResult<?> cancelUpload(@PathVariable String id, HttpServletRequest request, HttpServletResponse response) throws IOException {
+        resumableUploads.cancel(id, driveToken(request), admin(request));
+        return ok(Collections.singletonMap("cancelled", true), response);
     }
 
     @RequestMapping(value="/files/{id}/content", method={RequestMethod.GET, RequestMethod.HEAD})

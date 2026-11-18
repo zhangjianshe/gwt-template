@@ -1,0 +1,53 @@
+.drive-page{background:#fff;color:#1e293b;isolation:isolate}
+.drive-sidebar{border-right:1px solid #dbe4f0;background:#f8fafc}
+.drive-sidebar .gwt-Tree{padding:12px;box-sizing:border-box}
+.drive-sidebar .gwt-TreeItem{padding:7px 8px;border-radius:4px;cursor:pointer}
+.drive-sidebar .gwt-TreeItem-selected{background:#e8effd;color:#365bae}
+.drive-section{font-size:16px;font-weight:600;padding:14px 16px}
+.drive-heading{padding:16px 24px}
+.drive-crumbs{display:flex;align-items:center;gap:10px;white-space:nowrap;overflow:auto;font-size:16px}
+.drive-crumbs a{cursor:pointer}
+.drive-separator,.drive-muted{color:#64748b}
+.drive-state{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:13px}
+.drive-error{color:#be123c;white-space:pre-wrap}
+.drive-table{table-layout:fixed;min-width:760px;border-collapse:collapse}
+.drive-table td{padding:12px 14px;border-bottom:1px solid #e2e8f0;overflow-wrap:anywhere;font-size:13px}
+.drive-table a{cursor:pointer;color:#365bae}
+.drive-table-head td{position:sticky;top:0;z-index:1;background:#f1f5f9;color:#475569;font-weight:700;white-space:nowrap}
+.drive-table tr:hover:not(.drive-table-head){background:#f8fafc}
+.drive-row-actions{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.drive-row-actions button{font-size:12px}
+.drive-empty td{text-align:center;padding:50px;color:#64748b}
+.drive-footer{display:flex;align-items:center;justify-content:flex-end;gap:12px;padding:10px 24px;border-top:1px solid #dbe4f0;color:#64748b;box-sizing:border-box}
+.drive-upload-state{display:flex;align-items:center;gap:10px;padding:0 24px;font-size:12px;color:#64748b}
+.drive-upload-state .gwt-Label{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.drive-dialog{z-index:5000;background:#fff;border:1px solid #dbe4f0;border-radius:8px;box-shadow:0 20px 60px #0f172a30;max-width:calc(100vw - 40px)}
+.drive-dialog .Caption{padding:16px 24px;font-size:18px;font-weight:700;background:#f1f5f9;cursor:move}
+.drive-form{width:500px;max-width:calc(100vw - 88px);padding:16px 24px;box-sizing:border-box}
+.drive-form>.gwt-Label,.drive-form>.gwt-CheckBox{display:block;margin:0 0 12px}
+.drive-form .ai-input{box-sizing:border-box;margin:8px 0 12px}
+.drive-dialog-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:20px;padding-top:14px;border-top:1px solid #dbe4f0}
+.drive-token-dialog .drive-form{width:850px}
+.drive-token-dialog .drive-table{min-width:700px}
+.drive-token-dialog .drive-table td{padding:9px 8px}
+.drive-permissions{display:flex;align-items:center;gap:18px;margin:12px 0}
+.drive-secret{padding:12px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:6px;margin-top:12px}
+.drive-secret textarea{box-sizing:border-box;font-family:monospace;resize:vertical;margin:10px 0}
+.drive-token-dialog .drive-section{padding:12px 0}
+.drive-form .drive-muted{font-size:13px;line-height:1.7}
+.drive-table a.drive-download{display:inline-flex;align-items:center;justify-content:center;min-width:50px;height:32px;padding:0 10px;border-radius:4px;background:#4163b7;color:#fff;text-decoration:none;box-sizing:border-box}
+.drive-sidebar .gwt-TreeItem .gwt-Label{display:inline;line-height:24px}
+
+.drive-dialog-glass{z-index:4900;background:rgba(15,23,42,.35)}
+
+.drive-entry-name{display:flex;align-items:center;gap:9px;min-width:0}
+.drive-entry-name .drive-entry-icon{flex:0 0 28px;width:28px;font-size:24px;line-height:28px;text-align:center}
+.drive-entry-name .drive-entry-folder{color:#d49a25}
+.drive-entry-name .drive-entry-file{color:#64748b}
+.drive-entry-name .drive-entry-text{min-width:0;overflow-wrap:anywhere;font-family:inherit;font-size:14px;font-weight:400;line-height:24px;color:inherit}
+
+.drive-entry-name a.drive-entry-text:hover{color:#365bae;text-decoration:underline}
+.drive-list-table .drive-size{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.drive-list-table .drive-selection{text-align:center}
+.drive-list-table .drive-selection input{width:16px;height:16px;cursor:pointer}
+.drive-delete-names{max-height:180px;overflow:auto;border:1px solid #dbe4f0;padding:10px;margin-bottom:12px;overflow-wrap:anywhere}
