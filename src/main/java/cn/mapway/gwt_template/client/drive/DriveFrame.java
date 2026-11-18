@@ -2,11 +2,14 @@ package cn.mapway.gwt_template.client.drive;
 
 import cn.mapway.gwt_template.client.ClientContext;
 import cn.mapway.gwt_template.client.widget.TextBox;
+import cn.mapway.rbac.client.user.SearchUserPanel;
+import cn.mapway.rbac.shared.db.postgis.RbacUserEntity;
 import cn.mapway.ui.client.fonts.Fonts;
 import cn.mapway.ui.client.frame.ToolbarModule;
 import cn.mapway.ui.client.mvc.*;
 import cn.mapway.ui.client.widget.FontIcon;
 import cn.mapway.ui.client.widget.buttons.AiButton;
+import cn.mapway.ui.client.widget.dialog.Dialog;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Style.Unit;
@@ -1188,8 +1191,10 @@ public class DriveFrame extends ToolbarModule {
     final Node folder;
     final FlowPanel body = form();
     final FlexTable grants = new FlexTable();
-    final TextBox query = new TextBox();
-    final ListBox users = new ListBox();
+    final Label selectedUser = label("尚未选择用户", "drive-muted");
+    String selectedUserId = "";
+    Dialog<SearchUserPanel> picker;
+    final AiButton grantSelected = button("保存授权", this::saveSelected);
     final CheckBox read = new CheckBox("读"), write = new CheckBox("写"), remove = new CheckBox("删除");
     final Label message = label("", "drive-error");
     int generation;
@@ -1199,74 +1204,70 @@ public class DriveFrame extends ToolbarModule {
       this.folder = folder;
       setText("共享目录给用户");
       styleDialog(this);
+      addStyleName("drive-share-dialog");
       setWidget(body);
       body.add(label(path(folder), "drive-section"));
       body.add(label("授权对本目录及全部子目录生效；只有所有者或管理员可以管理授权。", "drive-muted"));
       grants.setStyleName("drive-table");
+      grants.setWidth("100%");
       ScrollPanel list = new ScrollPanel(grants);
-      list.setHeight("220px");
+      list.setStyleName("drive-share-grants");
       body.add(list);
-      query.setWidth("100%");
-      query.getElement().setAttribute("placeholder", "输入登录用户名搜索");
-      query.getElement().setAttribute("aria-label", "搜索共享用户");
-      body.add(query);
-      body.add(
-          button(
-              "搜索用户",
-              () -> {
-                final int version = generation;
-                DriveApi.request(
-                    "GET",
-                    "/directories/"
-                        + folder.id
-                        + "/share-candidates?query="
-                        + URL.encodeQueryString(query.getValue().trim()),
-                    null,
-                    new DriveApi.Callback() {
-                      public void success(JSONObject data) {
-                        if (!isShowing() || version != generation) return;
-                        users.clear();
-                        JSONArray values = DriveApi.array(data, "users");
-                        for (int i = 0; i < values.size(); i++) {
-                          JSONObject user = values.get(i).isObject();
-                          users.addItem(
-                              DriveApi.string(user, "userName")
-                                  + " "
-                                  + DriveApi.string(user, "nickName"),
-                              DriveApi.string(user, "userId"));
-                        }
-                        message.setText(values.size() == 0 ? "没有匹配的用户" : "请选择用户和权限");
-                      }
-
-                      public void failure(String error) {
-                        if (isShowing()) message.setText(error);
-                      }
-                    });
-              }));
-      users.setWidth("100%");
-      users.getElement().setAttribute("aria-label", "被授权用户");
-      body.add(users);
+      FlowPanel userRow = new FlowPanel();
+      userRow.setStyleName("drive-share-user");
+      selectedUser.getElement().setAttribute("aria-live", "polite");
+      userRow.add(selectedUser);
+      userRow.add(button("选择用户", this::chooseUser));
+      body.add(userRow);
       read.setValue(true);
       FlowPanel rights = new FlowPanel();
       rights.setStyleName("drive-permissions");
       rights.add(read);
       rights.add(write);
       rights.add(remove);
-      rights.add(
-          button(
-              "保存授权",
-              () -> {
-                if (users.getSelectedIndex() < 0) {
-                  message.setText("请先搜索并选择用户");
-                  return;
-                }
-                save(users.getSelectedValue(), read, write, remove);
-              }));
+      rights.addStyleName("drive-share-new-permissions");
+      grantSelected.setEnabled(false);
+      rights.add(grantSelected);
       body.add(rights);
       body.add(message);
       FlowPanel footer = actions();
       footer.add(button("关闭", this::hide));
       body.add(footer);
+    }
+
+    void saveSelected() {
+      if (selectedUserId.isEmpty()) {
+        message.setText("请先选择用户");
+        return;
+      }
+      save(selectedUserId, read, write, remove);
+    }
+
+    void chooseUser() {
+      if (picker != null && picker.isShowing()) return;
+      final Dialog<SearchUserPanel> dialog = SearchUserPanel.getDialog(false);
+      picker = dialog;
+      dialog.addStyleName("drive-share-user-picker");
+      dialog.getElement().getStyle().setZIndex(5200);
+      dialog.setGlassStyleName("drive-share-user-picker-glass");
+      dialog.setPixelSize(
+          Math.max(240, Math.min(520, com.google.gwt.user.client.Window.getClientWidth() - 48)),
+          Math.max(240, Math.min(560, com.google.gwt.user.client.Window.getClientHeight() - 64)));
+      dialog.addCommonHandler(event -> {
+        if (event.isOk() && isShowing()) {
+          RbacUserEntity user = event.getValue();
+          if (user != null && user.getUserId() != null) {
+            selectedUserId = user.getUserId().toString();
+            selectedUser.setText(user.getUserName() + "（" + selectedUserId + "）");
+            grantSelected.setEnabled(true);
+            message.setText("");
+          }
+        }
+        dialog.hide();
+        if (picker == dialog) picker = null;
+      });
+      dialog.getContent().search("");
+      dialog.center();
     }
 
     void showCentered() {
@@ -1277,6 +1278,10 @@ public class DriveFrame extends ToolbarModule {
     @Override
     public void hide() {
       generation++;
+      if (picker != null) {
+        picker.hide();
+        picker = null;
+      }
       super.hide();
     }
 
@@ -1322,6 +1327,10 @@ public class DriveFrame extends ToolbarModule {
               grants.setText(0, 0, "用户");
               grants.setText(0, 1, "读 / 写 / 删除");
               grants.setText(0, 2, "操作");
+              grants.getRowFormatter().setStyleName(0, "drive-table-head");
+              grants.getCellFormatter().setWidth(0, 0, "34%");
+              grants.getCellFormatter().setWidth(0, 1, "32%");
+              grants.getCellFormatter().setWidth(0, 2, "34%");
               if (values.size() == 0) grants.setText(1, 0, "尚未共享给其他用户");
               for (int i = 0; i < values.size(); i++) {
                 JSONObject grant = values.get(i).isObject();
@@ -1333,11 +1342,13 @@ public class DriveFrame extends ToolbarModule {
                 w.setValue((mask & 2) != 0);
                 d.setValue((mask & 4) != 0);
                 FlowPanel rights = new FlowPanel();
+                rights.setStyleName("drive-permissions");
                 rights.add(r);
                 rights.add(w);
                 rights.add(d);
                 grants.setWidget(i + 1, 1, rights);
                 FlowPanel actions = new FlowPanel();
+                actions.setStyleName("drive-row-actions");
                 actions.add(button("保存", () -> save(userId, r, w, d)));
                 actions.add(button("撤销", () -> mutate("DELETE", userId, null)));
                 grants.setWidget(i + 1, 2, actions);

@@ -51,3 +51,18 @@
 .drive-list-table .drive-selection{text-align:center}
 .drive-list-table .drive-selection input{width:16px;height:16px;cursor:pointer}
 .drive-delete-names{max-height:180px;overflow:auto;border:1px solid #dbe4f0;padding:10px;margin-bottom:12px;overflow-wrap:anywhere}
+
+.drive-share-dialog .drive-form{width:720px;max-width:calc(100vw - 48px);max-height:calc(100vh - 120px);overflow-y:auto}
+.drive-share-dialog .drive-section{padding:4px 0 12px;font-size:18px;font-weight:600}
+.drive-share-dialog .drive-table{min-width:0;width:100%;table-layout:fixed}
+.drive-share-dialog .drive-table td{padding:10px 8px;vertical-align:middle}
+.drive-share-dialog .drive-table-head td{white-space:normal}
+.drive-share-dialog .drive-permissions{flex-wrap:wrap;gap:10px;margin:0}
+.drive-share-dialog .drive-permissions .gwt-CheckBox{white-space:nowrap}
+.drive-share-grants{max-height:260px;margin:12px 0 20px}
+.drive-share-user{display:flex;align-items:center;gap:12px;margin:12px 0}
+.drive-share-user>.gwt-Label{flex:1;min-width:0;overflow-wrap:anywhere}
+.drive-share-dialog .drive-share-new-permissions{margin:12px 0}
+.drive-share-new-permissions button{margin-left:auto}
+.drive-share-user-picker-glass{z-index:5100;background:rgba(15,23,42,.35)}
+@media(max-width:480px){.drive-share-dialog .drive-form{padding:12px 16px}.drive-share-dialog .drive-table td{padding:8px 4px}.drive-share-dialog .drive-permissions{gap:6px}}
