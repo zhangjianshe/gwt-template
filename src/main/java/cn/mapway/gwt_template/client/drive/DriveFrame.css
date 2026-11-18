@@ -19,7 +19,7 @@
 .drive-row-actions button{font-size:12px}
 .drive-empty td{text-align:center;padding:50px;color:#64748b}
 .drive-footer{display:flex;align-items:center;justify-content:flex-end;gap:12px;padding:10px 24px;border-top:1px solid #dbe4f0;color:#64748b;box-sizing:border-box}
-.drive-upload-state{display:flex;align-items:center;gap:10px;padding:0 24px;font-size:12px;color:#64748b}
+.drive-upload-state{display:flex;align-items:center;flex:1;min-width:0;gap:10px;font-size:12px;color:#64748b}
 .drive-upload-state .gwt-Label{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 .drive-dialog{z-index:5000;background:#fff;border:1px solid #dbe4f0;border-radius:8px;box-shadow:0 20px 60px #0f172a30;max-width:calc(100vw - 40px)}
 .drive-dialog .Caption{padding:16px 24px;font-size:18px;font-weight:700;background:#f1f5f9;cursor:move}

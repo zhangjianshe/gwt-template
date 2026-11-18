@@ -138,7 +138,7 @@ public class DriveFrame extends ToolbarModule {
     uploadState.setStyleName("drive-upload-state");
     uploadState.add(uploadLabel);
     uploadState.add(cancelUpload);
-    content.addSouth(uploadState, 40);
+    footer.insert(uploadState, 0);
     table.setStyleName("drive-table");
     table.addStyleName("drive-list-table");
     table.setWidth("100%");
