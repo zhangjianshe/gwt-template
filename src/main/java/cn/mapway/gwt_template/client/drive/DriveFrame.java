@@ -123,6 +123,7 @@ public class DriveFrame extends ToolbarModule {
     heading.add(crumbs);
     FlowPanel state = new FlowPanel();
     state.setStyleName("drive-state");
+    status.getElement().getStyle().setProperty("userSelect", "text");
     state.add(status);
     state.add(retry);
     heading.add(state);
@@ -428,7 +429,12 @@ public class DriveFrame extends ToolbarModule {
               loadPage(Math.max(1, (total + 99) / 100), background);
               return;
             }
-            status.setText("共 " + total + " 项 · 共享权限对授权目录及其子目录生效");
+            status.setText(
+                "共 "
+                    + total
+                    + " 项"
+                    + ("root".equals(current.id) ? "" : " · 目录 ID：" + current.id)
+                    + " · 共享权限对授权目录及其子目录生效");
             JSONValue saved = data.get("directoryStatistics");
             JSONObject sizes =
                 saved != null && saved.isObject() != null ? saved.isObject() : new JSONObject();
