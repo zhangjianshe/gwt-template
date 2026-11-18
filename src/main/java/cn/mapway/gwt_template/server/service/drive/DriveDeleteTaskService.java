@@ -73,6 +73,12 @@ public class DriveDeleteTaskService {
   }
 
   public synchronized Map<String, Object> create(Request request, long owner) {
+    return create(request, new DriveAccess(owner, true, null));
+  }
+
+  public synchronized Map<String, Object> create(Request request, DriveAccess access) {
+    if (access.token != null || access.userId == null) throw new DriveException(401, "批量删除需要登录");
+    long owner = access.userId;
     if (request == null || request.ids == null || request.ids.isEmpty() || request.ids.size() > 100)
       throw new DriveException(400, "每次请选择1至100项");
     if (dao.count(
@@ -86,6 +92,7 @@ public class DriveDeleteTaskService {
     List<Item> items = new ArrayList<>();
     for (String id : request.ids) {
       if (!ids.add(id)) throw new DriveException(400, "选择项重复");
+      driveService.authorize(id, access, DriveService.DELETE);
       DriveEntryEntity entry = driveService.entry(id);
       Item item = new Item();
       item.id = id;
@@ -125,7 +132,7 @@ public class DriveDeleteTaskService {
     task.setUpdatedTime(task.getCreatedTime());
     dao.insert(task);
     try {
-      executor.execute(() -> run(task, items));
+      executor.execute(() -> run(task, items, access));
     } catch (RejectedExecutionException failure) {
       task.setState("INTERRUPTED");
       save(task);
@@ -149,7 +156,7 @@ public class DriveDeleteTaskService {
     return task;
   }
 
-  private void run(DriveDeleteTaskEntity task, List<Item> items) {
+  private void run(DriveDeleteTaskEntity task, List<Item> items, DriveAccess access) {
     try {
       task.setState("RUNNING");
       save(task);
@@ -172,8 +179,7 @@ public class DriveDeleteTaskService {
           driveService.delete(
               item.id,
               Boolean.TRUE.equals(task.getRecursive()),
-              null,
-              true,
+              access,
               (p, done, total) -> {
                 long now = System.currentTimeMillis();
                 if (!phase[0].equals(p) || now - last[0] >= 200 || done == total) {

@@ -39,6 +39,7 @@ class DriveDeleteTaskTest {
         new Class<?>[] {
           DriveEntryEntity.class,
           DriveTokenEntity.class,
+          DriveUserGrantEntity.class,
           DriveBlobEntity.class,
           DriveDirectoryStatsEntity.class,
           DriveDeleteTaskEntity.class
@@ -171,8 +172,7 @@ class DriveDeleteTaskTest {
         .delete(
             eq(one.getId()),
             anyBoolean(),
-            isNull(),
-            eq(true),
+            any(DriveAccess.class),
             any(DriveService.DeleteProgress.class));
     Map<String, Object> task = tasks.create(request(false, one.getId()), 1L);
     assertTrue(started.await(5, TimeUnit.SECONDS));
@@ -194,7 +194,7 @@ class DriveDeleteTaskTest {
   }
 
   @Test
-  void controllerRequiresAdminAndNeverAllowsOtherOwner() throws Exception {
+  void controllerRequiresLoginAndNeverAllowsOtherOwner() throws Exception {
     DriveEntryEntity file = file(folder.getId(), "one");
     TokenService users = mock(TokenService.class);
     DriveController controller = new DriveController();
@@ -206,6 +206,8 @@ class DriveDeleteTaskTest {
         .andExpect(status().isUnauthorized());
     LoginUser user = mock(LoginUser.class);
     when(users.requestUser()).thenReturn(user);
+    RbacUserEntity ordinary = new RbacUserEntity(); ordinary.setUserId(2L);
+    when(user.getUser()).thenReturn(ordinary);
     mvc.perform(post("/api/v1/drive/delete-tasks").contentType("application/json").content(body))
         .andExpect(status().isForbidden());
     RbacUserEntity entity = new RbacUserEntity();

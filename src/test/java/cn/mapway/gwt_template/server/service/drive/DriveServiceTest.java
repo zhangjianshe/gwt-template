@@ -41,6 +41,7 @@ class DriveServiceTest {
     dao.create(cn.mapway.gwt_template.shared.db.DriveDirectoryStatsEntity.class, false);
     dao.create(cn.mapway.gwt_template.shared.db.DriveBlobEntity.class, false);
     dao.create(DriveTokenEntity.class, false);
+    dao.create(cn.mapway.gwt_template.shared.db.DriveUserGrantEntity.class, false);
     service = new DriveService();
     service.dao = dao;
     service.appConfig = new AppConfig();
@@ -48,6 +49,9 @@ class DriveServiceTest {
     users = mock(TokenService.class);
     admin = mock(LoginUser.class);
     when(admin.isAdmin()).thenReturn(true);
+    cn.mapway.rbac.shared.db.postgis.RbacUserEntity adminUser = new cn.mapway.rbac.shared.db.postgis.RbacUserEntity();
+    adminUser.setUserId(1L);
+    when(admin.getUser()).thenReturn(adminUser);
     DriveController controller = new DriveController();
     ReflectionTestUtils.setField(controller, "driveService", service);
     ReflectionTestUtils.setField(controller, "tokenService", users);

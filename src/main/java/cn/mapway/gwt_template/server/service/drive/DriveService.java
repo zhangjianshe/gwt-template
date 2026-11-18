@@ -6,6 +6,7 @@ import cn.mapway.gwt_template.shared.db.DriveBlobEntity;
 import cn.mapway.gwt_template.shared.db.DriveDirectoryStatsEntity;
 import cn.mapway.gwt_template.shared.db.DriveEntryEntity;
 import cn.mapway.gwt_template.shared.db.DriveTokenEntity;
+import cn.mapway.gwt_template.shared.db.DriveUserGrantEntity;
 import java.io.*;
 import java.nio.file.*;
 import java.security.*;
@@ -52,26 +53,130 @@ public class DriveService {
     return entry;
   }
 
-  /** An explicitly supplied drive token always takes priority over an admin session. */
-  public synchronized void authorize(String targetId, String token, boolean admin, int permission) {
-    if (token == null && admin) return;
-    if (token == null || !token.matches("drv_[a-f0-9]{64}"))
-      throw new DriveException(401, "需要有效的网盘token");
-    DriveTokenEntity grant =
-        dao.fetch(DriveTokenEntity.class, Cnd.where("token_hash", "=", hash(token)));
-    if (grant == null) throw new DriveException(401, "网盘token无效或已撤销");
-    if ((grant.getPermissions() & permission) != permission)
-      throw new DriveException(403, "token没有此操作权限");
-    String current = targetId;
+  /** Explicit directory tokens never inherit permissions from the login session. */
+  public synchronized void authorize(String targetId, DriveAccess access, int permission) {
+    if ((permissions(targetId, access) & permission) != permission)
+      throw new DriveException(403, "没有此操作权限或目标不在授权范围内");
+  }
+
+  public synchronized int permissions(String targetId, DriveAccess access) {
+    if (access.token == null && access.admin) return READ | WRITE | DELETE;
+    DriveTokenEntity token = null;
+    if (access.token != null) {
+      if (!access.token.matches("drv_[a-f0-9]{64}")) throw new DriveException(401, "网盘token无效");
+      token = dao.fetch(DriveTokenEntity.class, Cnd.where("token_hash", "=", hash(access.token)));
+      if (token == null) throw new DriveException(401, "网盘token无效或已撤销");
+    } else if (access.userId == null) throw new DriveException(401, "请先登录或提供目录token");
+    if (ROOT.equals(targetId)) return token == null ? READ | WRITE : 0;
+    int result = 0;
     Set<String> visited = new HashSet<>();
-    while (current != null
-        && !ROOT.equals(current)
-        && visited.add(current)
-        && visited.size() <= 128) {
-      if (current.equals(grant.getDirectoryId())) return;
-      current = entry(current).getParentId();
+    for (String current = targetId; current != null && !ROOT.equals(current); ) {
+      if (!visited.add(current) || visited.size() > 128) throw new DriveException(409, "目录结构异常");
+      DriveEntryEntity value = entry(current);
+      if (token != null) {
+        if (current.equals(token.getDirectoryId())) return token.getPermissions();
+      } else {
+        if (access.userId.equals(value.getOwnerId())) return READ | WRITE | DELETE;
+        DriveUserGrantEntity grant =
+            dao.fetch(
+                DriveUserGrantEntity.class,
+                Cnd.where("directory_id", "=", current).and("user_id", "=", access.userId));
+        if (grant != null) result |= grant.getPermissions();
+      }
+      current = value.getParentId();
     }
-    throw new DriveException(403, "目标不在token授权目录内");
+    return result;
+  }
+
+  public synchronized boolean canManage(String id, DriveAccess access) {
+    if (ROOT.equals(id) || access.token != null) return false;
+    DriveEntryEntity value = entry(id);
+    return access.admin || (access.userId != null && access.userId.equals(value.getOwnerId()));
+  }
+
+  public synchronized void requireManager(String id, DriveAccess access) {
+    if (access.token == null && !access.admin && access.userId == null)
+      throw new DriveException(401, "请先登录");
+    if (!canManage(id, access)) throw new DriveException(403, "只有目录所有者或管理员可以管理授权");
+    directory(id);
+  }
+
+  public synchronized List<DriveUserGrantEntity> userGrants(String id, DriveAccess access) {
+    requireManager(id, access);
+    return dao.query(
+        DriveUserGrantEntity.class, Cnd.where("directory_id", "=", id).asc("create_time"));
+  }
+
+  public synchronized List<Map<String, Object>> shareViews(String id, DriveAccess access) {
+    List<Map<String, Object>> result = new ArrayList<>();
+    for (DriveUserGrantEntity grant : userGrants(id, access)) {
+      cn.mapway.rbac.shared.db.postgis.RbacUserEntity user =
+          dao.fetch(cn.mapway.rbac.shared.db.postgis.RbacUserEntity.class, grant.getUserId());
+      Map<String, Object> row = new LinkedHashMap<>();
+      row.put("userId", grant.getUserId().toString());
+      row.put("permissions", grant.getPermissions());
+      row.put("userName", user == null ? "已删除用户" : user.getUserName());
+      result.add(row);
+    }
+    return result;
+  }
+
+  public synchronized DriveUserGrantEntity grantUser(
+      String id, long userId, int mask, DriveAccess access) {
+    requireManager(id, access);
+    validPermissions(mask);
+    cn.mapway.rbac.shared.db.postgis.RbacUserEntity user =
+        dao.fetch(cn.mapway.rbac.shared.db.postgis.RbacUserEntity.class, userId);
+    if (user == null || "2".equals(user.getDelFlag()) || "1".equals(user.getStatus()))
+      throw new DriveException(400, "目标用户不存在或已停用");
+    if (Objects.equals(entry(id).getOwnerId(), userId)) throw new DriveException(400, "无需给目录所有者授权");
+    DriveUserGrantEntity grant =
+        dao.fetch(
+            DriveUserGrantEntity.class,
+            Cnd.where("directory_id", "=", id).and("user_id", "=", userId));
+    if (grant == null) {
+      grant = new DriveUserGrantEntity();
+      grant.setId(id());
+      grant.setDirectoryId(id);
+      grant.setUserId(userId);
+      grant.setGrantedBy(access.userId);
+      grant.setCreateTime(new Timestamp(System.currentTimeMillis()));
+      grant.setPermissions(mask);
+      dao.insert(grant);
+    } else {
+      grant.setPermissions(mask);
+      grant.setGrantedBy(access.userId);
+      dao.update(grant);
+    }
+    return grant;
+  }
+
+  public synchronized void revokeUser(String id, long userId, DriveAccess access) {
+    requireManager(id, access);
+    dao.clear(
+        DriveUserGrantEntity.class, Cnd.where("directory_id", "=", id).and("user_id", "=", userId));
+  }
+
+  public synchronized List<Map<String, Object>> shareCandidates(
+      String id, String query, DriveAccess access) {
+    requireManager(id, access);
+    if (query == null || query.trim().isEmpty() || query.length() > 100)
+      throw new DriveException(400, "请输入用户名称（最多100字）");
+    List<Map<String, Object>> result = new ArrayList<>();
+    // Only return the minimum identity fields. Never serialize the user entity/password.
+    for (cn.mapway.rbac.shared.db.postgis.RbacUserEntity user :
+        dao.query(
+            cn.mapway.rbac.shared.db.postgis.RbacUserEntity.class,
+            Cnd.where("user_name", "like", "%" + query.trim() + "%").asc("user_id"),
+            dao.createPager(1, 30))) {
+      if ("2".equals(user.getDelFlag()) || "1".equals(user.getStatus())) continue;
+      Map<String, Object> row = new LinkedHashMap<>();
+      row.put("userId", user.getUserId().toString());
+      row.put("userName", user.getUserName());
+      row.put("nickName", user.getNickName());
+      result.add(row);
+    }
+    return result;
   }
 
   void directory(String id) {
@@ -80,18 +185,52 @@ public class DriveService {
   }
 
   public synchronized Map<String, Object> list(
-      String parent, String token, boolean admin, int page, int pageSize) {
-    authorize(parent, token, admin, READ);
+      String parent, DriveAccess access, int page, int pageSize) {
+    return list(
+        parent, access, page, pageSize, access.userId == null && access.admin ? "all" : "mine");
+  }
+
+  public synchronized Map<String, Object> list(
+      String parent, DriveAccess access, int page, int pageSize, String scope) {
+    authorize(parent, access, READ);
     directory(parent);
+    if (!Arrays.asList("mine", "shared", "all").contains(scope))
+      throw new DriveException(400, "网盘视图无效");
+    if ("all".equals(scope) && (access.token != null || !access.admin))
+      throw new DriveException(403, "只有管理员可以查看全部网盘");
     if (page < 1 || pageSize < 1 || pageSize > 1000 || page > 1000000)
       throw new DriveException(400, "分页参数超出范围");
     Cnd condition = Cnd.where("parent_id", "=", parent);
+    if (ROOT.equals(parent) && !"all".equals(scope)) {
+      if (access.token != null || access.userId == null) throw new DriveException(401, "请先登录");
+      if ("mine".equals(scope)) condition.and("owner_id", "=", access.userId);
+      else {
+        List<String> shared = new ArrayList<>();
+        for (DriveUserGrantEntity grant :
+            dao.query(DriveUserGrantEntity.class, Cnd.where("user_id", "=", access.userId))) {
+          if ((grant.getPermissions() & READ) != 0) shared.add(grant.getDirectoryId());
+        }
+        condition =
+            Cnd.where("id", "in", shared.isEmpty() ? Collections.singletonList("-") : shared);
+      }
+    }
     int total = dao.count(DriveEntryEntity.class, condition);
     condition.desc("directory").asc("name").asc("id");
     Map<String, Object> result = new LinkedHashMap<>();
     List<DriveEntryEntity> entries =
         dao.query(DriveEntryEntity.class, condition, dao.createPager(page, pageSize));
     result.put("entries", entries);
+    result.put("permissions", permissions(parent, access));
+    result.put("manage", !ROOT.equals(parent) && canManage(parent, access));
+    Map<String, Integer> entryPermissions = new LinkedHashMap<>();
+    for (DriveEntryEntity value : entries) {
+      boolean owns =
+          access.token == null
+              && (access.admin
+                  || (access.userId != null && access.userId.equals(value.getOwnerId())));
+      entryPermissions.put(value.getId(), owns ? 7 : permissions(value.getId(), access));
+    }
+    result.put("entryPermissions", entryPermissions);
     List<String> ids = new ArrayList<>();
     for (DriveEntryEntity value : entries)
       if (Boolean.TRUE.equals(value.getDirectory())) ids.add(value.getId());
@@ -163,8 +302,10 @@ public class DriveService {
     return result;
   }
 
-  public synchronized Map<String, Object> statistics(String id, String token, boolean admin) {
-    authorize(id, token, admin, READ);
+  public synchronized Map<String, Object> statistics(String id, DriveAccess access) {
+    authorize(id, access, READ);
+    if (ROOT.equals(id) && (access.token != null || !access.admin))
+      throw new DriveException(403, "请选择具体目录统计");
     directory(id);
     DriveDirectoryStatsEntity value = counters(id);
     if (!Boolean.TRUE.equals(value.getInitialized()) && !"FAILED".equals(value.getState()))
@@ -172,9 +313,10 @@ public class DriveService {
     return statisticsResponse(counters(id));
   }
 
-  public synchronized Map<String, Object> recalibrateStatistics(
-      String id, String token, boolean admin) {
-    authorize(id, token, admin, READ);
+  public synchronized Map<String, Object> recalibrateStatistics(String id, DriveAccess access) {
+    authorize(id, access, READ);
+    if (ROOT.equals(id) && (access.token != null || !access.admin))
+      throw new DriveException(403, "请选择具体目录统计");
     directory(id);
     queueStatistics(id);
     return statisticsResponse(counters(id));
@@ -297,34 +439,39 @@ public class DriveService {
   }
 
   void available(String parent, String name) {
+    available(parent, name, DriveAccess.legacy(null, true));
+  }
+
+  void available(String parent, String name, DriveAccess access) {
     directory(parent);
     // Check depth before creating another child directory.
     int depth = 0;
     for (String current = parent; !ROOT.equals(current); current = entry(current).getParentId()) {
       if (++depth >= 128) throw new DriveException(409, "目录深度不能超过127层");
     }
-    if (dao.count(
-            DriveEntryEntity.class, Cnd.where("parent_id", "=", parent).and("name", "=", name))
-        > 0) throw new DriveException(409, "同名文件或目录已存在");
+    Cnd names = Cnd.where("parent_id", "=", parent).and("name", "=", name);
+    if (ROOT.equals(parent)) names.and("owner_id", "=", access.userId);
+    if (dao.count(DriveEntryEntity.class, names) > 0) throw new DriveException(409, "同名文件或目录已存在");
   }
 
-  private DriveEntryEntity newEntry(String parent, String name, boolean dir) {
+  private DriveEntryEntity newEntry(String parent, String name, boolean dir, DriveAccess access) {
     DriveEntryEntity entry = new DriveEntryEntity();
     entry.setId(id());
     entry.setParentId(parent);
     entry.setName(name);
     entry.setDirectory(dir);
     entry.setSize(0L);
+    entry.setOwnerId(ROOT.equals(parent) ? access.userId : entry(parent).getOwnerId());
+    entry.setCreatedBy(access.token == null ? access.userId : null);
     entry.setCreateTime(new Timestamp(System.currentTimeMillis()));
     return entry;
   }
 
-  public synchronized DriveEntryEntity mkdir(
-      String parent, String name, String token, boolean admin) {
-    authorize(parent, token, admin, WRITE);
+  public synchronized DriveEntryEntity mkdir(String parent, String name, DriveAccess access) {
+    authorize(parent, access, WRITE);
     validName(name);
-    available(parent, name);
-    DriveEntryEntity value = newEntry(parent, name, true);
+    available(parent, name, access);
+    DriveEntryEntity value = newEntry(parent, name, true, access);
     Trans.exec(() -> {
       dao.insert(value);
       DriveDirectoryStatsEntity own = counters(value.getId());
@@ -357,19 +504,14 @@ public class DriveService {
   }
 
   public synchronized DriveEntryEntity upload(
-      String parent,
-      String name,
-      String token,
-      boolean admin,
-      InputStream input,
-      long declaredLength)
+      String parent, String name, DriveAccess access, InputStream input, long declaredLength)
       throws IOException {
-    authorize(parent, token, admin, WRITE);
+    authorize(parent, access, WRITE);
     validName(name);
-    available(parent, name);
+    available(parent, name, access);
     long maximum = uploadLimit();
     if (declaredLength > maximum) throw new DriveException(413, "文件超出上传大小限制");
-    DriveEntryEntity entry = newEntry(parent, name, false);
+    DriveEntryEntity entry = newEntry(parent, name, false, access);
     Path temporary = Files.createTempFile(storage(), ".upload-", ".part");
 
     try {
@@ -387,7 +529,7 @@ public class DriveService {
       }
       if (declaredLength >= 0 && declaredLength != size) throw new DriveException(400, "上传未完整传输");
       return publishUpload(
-          parent, name, token, admin, entry.getId(), temporary, size, hex(digest.digest()));
+          parent, name, access, entry.getId(), temporary, size, hex(digest.digest()));
     } finally {
       Files.deleteIfExists(temporary);
     }
@@ -409,14 +551,13 @@ public class DriveService {
   synchronized DriveEntryEntity publishUpload(
       String parent,
       String name,
-      String token,
-      boolean admin,
+      DriveAccess access,
       String entryId,
       Path source,
       long size,
       String digest)
       throws IOException {
-    authorize(parent, token, admin, WRITE);
+    authorize(parent, access, WRITE);
     DriveEntryEntity existing = dao.fetch(DriveEntryEntity.class, entryId);
     if (existing != null) {
       if (!parent.equals(existing.getParentId())
@@ -425,9 +566,9 @@ public class DriveService {
           || size != existing.getSize()) throw new DriveException(409, "上传记录与已发布文件不匹配");
       return existing;
     }
-    available(parent, name);
+    available(parent, name, access);
     Path target = ensureContent(source, digest, size);
-    DriveEntryEntity entry = newEntry(parent, name, false);
+    DriveEntryEntity entry = newEntry(parent, name, false, access);
     entry.setId(entryId);
     entry.setSize(size);
     entry.setSha256(digest);
@@ -443,8 +584,8 @@ public class DriveService {
     return entry;
   }
 
-  public synchronized File download(String fileId, String token, boolean admin) throws IOException {
-    authorize(fileId, token, admin, READ);
+  public synchronized File download(String fileId, DriveAccess access) throws IOException {
+    authorize(fileId, access, READ);
     if (Boolean.TRUE.equals(entry(fileId).getDirectory()))
       throw new DriveException(400, "目录不能作为文件下载");
     DriveEntryEntity value = entry(fileId);
@@ -467,16 +608,16 @@ public class DriveService {
       }
   }
 
-  public synchronized int delete(String entryId, boolean recursive, String token, boolean admin)
+  public synchronized int delete(String entryId, boolean recursive, DriveAccess access)
       throws IOException {
-    return delete(entryId, recursive, token, admin, null);
+    return delete(entryId, recursive, access, null);
   }
 
   public synchronized int delete(
-      String entryId, boolean recursive, String token, boolean admin, DeleteProgress progress)
+      String entryId, boolean recursive, DriveAccess access, DeleteProgress progress)
       throws IOException {
     if (ROOT.equals(entryId)) throw new DriveException(400, "不能删除虚拟根目录");
-    authorize(entryId, token, admin, DELETE);
+    authorize(entryId, access, DELETE);
     List<DriveEntryEntity> entries = new ArrayList<>();
     entries.add(entry(entryId));
     Set<String> visited = new HashSet<>();
@@ -525,6 +666,7 @@ public class DriveService {
         if ((entries.size() - 1 - i) % 100 == 0)
           reportDeleteProgress(progress, "DELETING", entries.size() - 1 - i, entries.size());
         dao.clear(DriveTokenEntity.class, Cnd.where("directory_id", "=", value.getId()));
+        dao.clear(DriveUserGrantEntity.class, Cnd.where("directory_id", "=", value.getId()));
         dao.delete(DriveEntryEntity.class, value.getId());
         dao.delete(DriveDirectoryStatsEntity.class, value.getId());
       }
@@ -710,7 +852,7 @@ public class DriveService {
     }
   }
 
-  private static String hash(String value) {
+  static String hash(String value) {
     return hex(sha256().digest(value.getBytes(java.nio.charset.StandardCharsets.UTF_8)));
   }
 
@@ -718,5 +860,68 @@ public class DriveService {
     StringBuilder result = new StringBuilder();
     for (byte b : bytes) result.append(String.format("%02x", b & 255));
     return result.toString();
+  }
+
+  public synchronized void authorize(String targetId, String token, boolean admin, int permission) {
+    authorize(targetId, DriveAccess.legacy(token, admin), permission);
+  }
+
+  public synchronized Map<String, Object> list(
+      String parent, String token, boolean admin, int page, int pageSize) {
+    return list(parent, DriveAccess.legacy(token, admin), page, pageSize);
+  }
+
+  public synchronized Map<String, Object> statistics(String id, String token, boolean admin) {
+    return statistics(id, DriveAccess.legacy(token, admin));
+  }
+
+  public synchronized Map<String, Object> recalibrateStatistics(
+      String id, String token, boolean admin) {
+    return recalibrateStatistics(id, DriveAccess.legacy(token, admin));
+  }
+
+  public synchronized DriveEntryEntity mkdir(
+      String parent, String name, String token, boolean admin) {
+    return mkdir(parent, name, DriveAccess.legacy(token, admin));
+  }
+
+  public synchronized DriveEntryEntity upload(
+      String parent,
+      String name,
+      String token,
+      boolean admin,
+      InputStream input,
+      long declaredLength)
+      throws IOException {
+    return upload(parent, name, DriveAccess.legacy(token, admin), input, declaredLength);
+  }
+
+  synchronized DriveEntryEntity publishUpload(
+      String parent,
+      String name,
+      String token,
+      boolean admin,
+      String entryId,
+      Path source,
+      long size,
+      String digest)
+      throws IOException {
+    return publishUpload(
+        parent, name, DriveAccess.legacy(token, admin), entryId, source, size, digest);
+  }
+
+  public synchronized File download(String fileId, String token, boolean admin) throws IOException {
+    return download(fileId, DriveAccess.legacy(token, admin));
+  }
+
+  public synchronized int delete(String entryId, boolean recursive, String token, boolean admin)
+      throws IOException {
+    return delete(entryId, recursive, DriveAccess.legacy(token, admin));
+  }
+
+  public synchronized int delete(
+      String entryId, boolean recursive, String token, boolean admin, DeleteProgress progress)
+      throws IOException {
+    return delete(entryId, recursive, DriveAccess.legacy(token, admin), progress);
   }
 }

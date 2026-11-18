@@ -3,7 +3,6 @@ package cn.mapway.gwt_template.server.service.drive;
 import cn.mapway.gwt_template.shared.db.DriveEntryEntity;
 import cn.mapway.gwt_template.shared.db.DriveUploadEntity;
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.security.*;
 import java.sql.Timestamp;
@@ -52,16 +51,11 @@ public class DriveResumableUploadService {
     return path;
   }
 
-  private String owner(String token, boolean admin) {
-    if (token == null && admin) return "admin";
-    return hex(digest().digest(token.getBytes(StandardCharsets.UTF_8)));
-  }
-
-  private DriveUploadEntity owned(String id, String token, boolean admin) {
+  private DriveUploadEntity owned(String id, DriveAccess access) {
     DriveUploadEntity value = dao.fetch(DriveUploadEntity.class, id);
     if (value == null) throw new DriveException(404, "上传会话不存在或已过期");
-    driveService.authorize(value.getParentId(), token, admin, DriveService.WRITE);
-    if (!owner(token, admin).equals(value.getOwner()))
+    driveService.authorize(value.getParentId(), access, DriveService.WRITE);
+    if (!access.uploadOwner().equals(value.getOwner()))
       throw new DriveException(404, "上传会话不存在或不属于当前凭证");
     if (value.getUpdateTime().getTime() < System.currentTimeMillis() - TTL)
       throw new DriveException(410, "上传会话已过期，请重新上传");
@@ -69,10 +63,9 @@ public class DriveResumableUploadService {
     return value;
   }
 
-  public Map<String, Object> init(InitRequest request, String token, boolean admin)
-      throws IOException {
+  public Map<String, Object> init(InitRequest request, DriveAccess access) throws IOException {
     if (request == null) throw new DriveException(400, "缺少上传参数");
-    driveService.authorize(request.parentId, token, admin, DriveService.WRITE);
+    driveService.authorize(request.parentId, access, DriveService.WRITE);
     DriveService.validName(request.name);
     if (request.totalSize == null
         || request.totalSize < 0
@@ -84,7 +77,7 @@ public class DriveResumableUploadService {
         request.uploadId == null ? UUID.randomUUID().toString().replace("-", "") : request.uploadId;
     synchronized (lock(id)) {
       if (dao.fetch(DriveUploadEntity.class, id) != null) {
-        DriveUploadEntity existing = owned(id, token, admin);
+        DriveUploadEntity existing = owned(id, access);
         if (!existing.getParentId().equals(request.parentId)
             || !existing.getName().equals(request.name)
             || !existing.getTotalSize().equals(request.totalSize)
@@ -93,7 +86,7 @@ public class DriveResumableUploadService {
         return response(existing);
       }
       synchronized (driveService) {
-        driveService.available(request.parentId, request.name);
+        driveService.available(request.parentId, request.name, access);
       }
       Path file = part(id);
       if (Files.exists(file) && Files.size(file) != 0)
@@ -108,16 +101,16 @@ public class DriveResumableUploadService {
       value.setTotalSize(request.totalSize);
       value.setReceivedSize(0L);
       value.setCompleted(false);
-      value.setOwner(owner(token, admin));
+      value.setOwner(access.uploadOwner());
       value.setUpdateTime(new Timestamp(System.currentTimeMillis()));
       dao.insert(value);
       return response(value);
     }
   }
 
-  public Map<String, Object> status(String id, String token, boolean admin) throws IOException {
+  public Map<String, Object> status(String id, DriveAccess access) throws IOException {
     synchronized (lock(id)) {
-      return response(owned(id, token, admin));
+      return response(owned(id, access));
     }
   }
 
@@ -128,11 +121,10 @@ public class DriveResumableUploadService {
       String sha,
       long contentLength,
       InputStream input,
-      String token,
-      boolean admin)
+      DriveAccess access)
       throws IOException {
     synchronized (lock(id)) {
-      DriveUploadEntity value = owned(id, token, admin);
+      DriveUploadEntity value = owned(id, access);
       if (published(value) != null) return response(value);
       if (offset < 0
           || size < 1
@@ -198,9 +190,9 @@ public class DriveResumableUploadService {
     }
   }
 
-  public Map<String, Object> complete(String id, String token, boolean admin) throws IOException {
+  public Map<String, Object> complete(String id, DriveAccess access) throws IOException {
     synchronized (lock(id)) {
-      DriveUploadEntity value = owned(id, token, admin);
+      DriveUploadEntity value = owned(id, access);
       if (published(value) != null) return response(value);
       if (value.getCompleted()) throw new DriveException(404, "已完成的上传文件已被删除");
       if (!value.getReceivedSize().equals(value.getTotalSize()))
@@ -222,8 +214,7 @@ public class DriveResumableUploadService {
       driveService.publishUpload(
           value.getParentId(),
           value.getName(),
-          token,
-          admin,
+          access,
           value.getEntryId(),
           source,
           value.getTotalSize(),
@@ -236,9 +227,9 @@ public class DriveResumableUploadService {
     }
   }
 
-  public void cancel(String id, String token, boolean admin) throws IOException {
+  public void cancel(String id, DriveAccess access) throws IOException {
     synchronized (lock(id)) {
-      DriveUploadEntity value = owned(id, token, admin);
+      DriveUploadEntity value = owned(id, access);
       Files.deleteIfExists(part(id));
       dao.delete(DriveUploadEntity.class, id);
       // Cancelling an upload session never deletes a published drive entry.
@@ -307,5 +298,35 @@ public class DriveResumableUploadService {
     StringBuilder result = new StringBuilder();
     for (byte b : bytes) result.append(String.format("%02x", b & 255));
     return result.toString();
+  }
+
+  public Map<String, Object> init(InitRequest request, String token, boolean admin)
+      throws IOException {
+    return init(request, DriveAccess.legacy(token, admin));
+  }
+
+  public Map<String, Object> status(String id, String token, boolean admin) throws IOException {
+    return status(id, DriveAccess.legacy(token, admin));
+  }
+
+  public Map<String, Object> append(
+      String id,
+      long offset,
+      long size,
+      String sha,
+      long contentLength,
+      InputStream input,
+      String token,
+      boolean admin)
+      throws IOException {
+    return append(id, offset, size, sha, contentLength, input, DriveAccess.legacy(token, admin));
+  }
+
+  public Map<String, Object> complete(String id, String token, boolean admin) throws IOException {
+    return complete(id, DriveAccess.legacy(token, admin));
+  }
+
+  public void cancel(String id, String token, boolean admin) throws IOException {
+    cancel(id, DriveAccess.legacy(token, admin));
   }
 }

@@ -4,17 +4,20 @@
 
 ## 授权与目录规则
 
-- 管理员使用现有登录会话或 `API-TOKEN` 用户凭证，可管理所有目录与目录 token。普通用户的登录身份不自动授予网盘权限。
+- 登录会话或 `API-TOKEN` 确定当前用户；`owner_id` 表示目录/文件归属，`created_by` 记录创建人。普通用户可访问自己的网盘，以及按用户 ID 授权给自己的目录子树。请求中的 `ownerId`、`createdBy` 不作为身份来源。
+- “我的网盘”（`scope=mine`，缺省）只列当前用户的顶层内容；“共享给我”（`scope=shared`）列直接授予读权限的目录入口，允许从嵌套目录进入，不暴露其父目录和兄弟目录；“全部网盘”（`scope=all`）仅管理员可用。分页和数量均在过滤后计算。
+- 所有者拥有读、写、删除及授权管理权限。用户共享的读、写、删除权限独立，对子树继承；多个有效共享的权限取并集。共享用户不能转授权或创建目录 token。
+- 在共享目录内创建的内容继承目录归属人，另记录实际创建者；撤销共享后，创建者不会因为上传过文件而保留权限。目录所有者与管理员可配置用户共享及目录 token。
 - 网盘调用使用 `X-Drive-Token: drv_...`，也可使用 `Authorization: Bearer drv_...`。不要把 token 放在 URL 参数里。
 - 每个真实目录允许多个 token；每个 token 的读、写、删除权限独立，可任意组合。父目录 token 对整棵子树生效，子目录 token 不允许访问父目录或其他目录。
 - 显式提供网盘 token 时，文件操作始终受该 token 限制，即使浏览器同时存在管理员会话，也不会自动扩大权限。
-- 管理接口只认管理员身份，网盘 token 不能创建或修改其他 token。
+- 授权管理接口只认目录所有者或管理员的用户身份；显式提供目录 token 时不能管理用户共享或 token，即使同时有管理员登录会话。
 - token 原文只在创建时返回一次。数据库只保存 SHA-256 摘要，列表不会返回 token 原文或摘要；遗失原文时请创建新 token 并撤销旧 token。
 - 更新权限或撤销后，新请求立即按新授权执行；已经开始的下载不强制中断。
-- `root` 是虚拟根目录，仅管理员可列举并创建顶层目录，不允许删除或直接分配 token。使用者拿到具体目录 ID 和相应 token 后访问该目录。
+- `root` 是虚拟根目录，按上述视图过滤列表；登录用户可在自己的根目录创建内容，不允许删除 root 或给 root 分配 token。普通用户不能查询 root 的全局统计；应选择实际目录统计。不同用户可以创建同名顶层目录，用户自己的同级名称仍唯一。
 - 目录最大深度 127 层。同一目录内名称区分大小写且唯一，文件和子目录也不能重名。中文、空格、`+` 可用于名称，禁止路径分隔符、`.` / `..`、控制字符及首尾空白。
 - 上传不会覆盖同名内容，重名返回 409。删除旧文件需要独立的删除权限。
-- 非空目录默认不删除。只有显式 `recursive=true` 才删除整棵子树，并撤销该子树的全部 token。单次递归删除最多处理 100,000 个条目。
+- 非空目录默认不删除。只有显式 `recursive=true` 才删除整棵子树，并撤销该子树的全部用户共享和 token。单次递归删除最多处理 100,000 个条目。
 
 ## 接口
 
@@ -23,17 +26,17 @@ JSON 成功响应沿用项目的 `{code:200,message:"操作成功",data:...}`，
 
 | 方法 | 路径 | 参数 / JSON | 权限 |
 | --- | --- | --- | --- |
-| GET | `/entries` | `parentId`（默认 root）、`page`（默认 1）、`pageSize`（默认 200，最大 1000） | 读 |
+| GET | `/entries` | `parentId`（默认 root）、`scope`（mine/shared/all）、`page`（默认 1）、`pageSize`（默认 200，最大 1000） | 读 |
 | GET | `/directories/{id}/statistics` | 读取已保存的递归统计；首次缺失时异步初始化；支持管理员查询 root | 读 |
 | POST | `/directories/{id}/statistics/recalculate` | 异步校准，立即返回状态；重复请求合并 | 读 |
 | POST | `/directories` | `{"parentId":"目录ID或root","name":"目录名"}` | 父目录写 |
 | PUT | `/files` | URL 参数 `parentId`、`name`；`Content-Type: application/octet-stream`，请求体为文件原始内容 | 父目录写 |
 | GET / HEAD | `/files/{id}/content` | 可带 `Range`、`If-Range` | 文件所属子树读 |
 | DELETE | `/entries/{id}` | 可选 `recursive=true` | 目标删除 |
-| GET | `/directories/{id}/tokens` | 无 | 管理员 |
-| POST | `/directories/{id}/tokens` | `{"name":"自动备份","read":true,"write":true,"delete":false}` | 管理员 |
-| PATCH | `/directories/{id}/tokens/{tokenId}` | `{"read":true,"write":false,"delete":false}`，完整替换权限组合 | 管理员 |
-| DELETE | `/directories/{id}/tokens/{tokenId}` | 无 | 管理员 |
+| GET | `/directories/{id}/tokens` | 无 | 所有者或管理员 |
+| POST | `/directories/{id}/tokens` | `{"name":"自动备份","read":true,"write":true,"delete":false}` | 所有者或管理员 |
+| PATCH | `/directories/{id}/tokens/{tokenId}` | `{"read":true,"write":false,"delete":false}`，完整替换权限组合 | 所有者或管理员 |
+| DELETE | `/directories/{id}/tokens/{tokenId}` | 无 | 所有者或管理员 |
 
 目录列表 `data` 返回 `entries`、`directoryStatistics`、`total`、`page`、`pageSize`，目录排前、名称升序。
 每个条目包含 `id`、`parentId`、`name`、`directory`、`size`、`sha256`、`createTime`；目录大小为 0，文件摘要为 SHA-256。
@@ -107,17 +110,35 @@ app:
 
 验证命令：`mvn -Dtest=DriveServiceTest test`。覆盖权限隔离、子树边界、token 摘要与撤销、上传大小/中断/重名、符号链接拒绝、递归删除、HTTP 授权与 Range/HEAD 下载。
 
+## 用户共享与升级
+
+| 方法 | 路径 | 请求 / 响应 | 权限 |
+| --- | --- | --- | --- |
+| GET | `/directories/{id}/share-candidates?query=登录用户名` | 最多 30 位有效用户，仅返回 userId、userName、nickName | 所有者或管理员 |
+| GET | `/directories/{id}/shares` | `data.shares`，含用户及 permissions | 所有者或管理员 |
+| PUT | `/directories/{id}/shares/{userId}` | `{"read":true,"write":false,"delete":false}`；完整替换直接授权 | 所有者或管理员 |
+| DELETE | `/directories/{id}/shares/{userId}` | 撤销该目录的直接授权；祖先/其他目录授权仍可独立生效 | 所有者或管理员 |
+
+共享列表和候选用户中的 userId 以字符串返回，避免浏览器丢失长整数精度。文件列表另返回 `permissions`（当前目录）、`manage`（是否可管理授权）和 `entryPermissions`（当前页每项的权限位），前端据此控制操作；后端在每次实际操作中独立校验，不依赖前端隐藏按钮。
+
+分片上传会话绑定用户 ID（目录 token 会话继续绑定 token 摘要）；即便拥有相同目录权限，也不能使用另一个用户的上传会话。查询、续传、完成和取消均重新验证当前权限。批量删除需要登录，对全部目标先鉴权，执行时再校验权限，排队期间被撤销授权的目标不会按管理员身份删除。
+
+服务启动时增加 `owner_id`、`created_by` 和 `drive_user_grant` 表，并将同级名称索引更新为按归属人隔离。历史记录不自动归到任何普通用户名下，仍只有管理员或原目录 token 可访问；管理员可显式共享这些历史目录。原目录 token 和文件内容不变。旧版统一 `admin` 凭证创建的未完成分片会话不会自动归给任一用户，升级后请重新创建上传会话，遗留分片按原 TTL 清理。
+
+验证：`mvn -Dtest=DriveServiceTest,DriveResumableUploadTest,DriveDeleteTaskTest,DriveUserAccessTest test`，包含跨用户隔离、共享/撤销、token 优先级、Range/HEAD、分片会话越权、排队删除重验和历史记录迁移。
+
 ## GWT 网盘管理页面
 
-前端模块代码为 `drive_frame`，名称为“网盘”。GWT 编译会将其加入模块清单，服务端重启后导入功能资源，管理员可从顶部菜单进入。
+前端模块代码为 `drive_frame`，名称为“网盘”。GWT 编译会将其加入模块清单，服务端重启后导入功能资源，获授该模块入口的登录用户可从顶部菜单进入。
 
+- 使用“我的网盘”“共享给我”两个页签；管理员额外显示“全部网盘”。“共享授权”可搜索用户、设置读写删除权限和撤销共享。
 - 左侧按需加载目录树；右侧面包屑支持返回上级，文件列表按每页 100 项分页。
 - 新建目录、上传和删除成功后自动刷新当前列表；目录变化同时刷新目录树。
 - 上传支持多选文件、逐个传输、进度与取消。使用原始字节流 PUT，与 HTTP API 一致，不覆盖同名内容。
 - 下载为同源原生下载链接，使用当前登录会话，凭证不会附加到 URL；文件由服务端流式发送。
 - 删除非空目录需在确认框中显式勾选递归删除；错误保留在确认框内，便于调整后重试。
 - “目录 token”显示名称和权限，不显示既有原文；支持创建、复制新 token、修改权限和确认撤销。关闭弹窗清空新 token 的展示内容。
-- 首次进入虚拟根目录时只允许新建目录；选择实际目录后启用上传与 token 管理。非管理员页面显示说明，不发起管理请求。
+- 根目录可新建自己的目录；选择实际目录后按权限启用上传、删除、统计。共享和 token 管理仅对所有者与管理员启用。切换账号或页签时清空旧列表和选择状态。
 - 目录请求和分页请求带有视图版本检查，较早的响应不会覆盖当前目录；失败时提供重试入口。
 
 编译验证：`mvn -DskipTests compile gwt:compile -Dgwt.forceCompilation=true`。模块使用 GWT JSON 组件，已在 `ClientApp.gwt.xml` 中显式继承。
@@ -212,7 +233,7 @@ python3 tools/drive-sync.py --source ~/dev/cangling-repo \
 
 列表第一列支持当前页全选、取消和部分选中状态；切换目录/分页会清空选择，统计自动刷新保留仍存在的选项。顶部“删除”按钮显示所选数量；确认弹窗列出名称，删除非空目录必须显式勾选递归。创建时间显示相对时间，悬停显示原时间，大小列右对齐。
 
-管理员 POST `/api/v1/drive/delete-tasks`，请求为 `{"ids":["条目ID"],"recursive":false}`。每次最多 100 项，拒绝重复项和目录/子项重叠选择；每个用户同时只允许一个未完成任务，服务端队列有界。返回任务 ID 和一次展示的 `watchToken`。GET `/api/v1/drive/delete-tasks/{id}` 仅允许提交该任务的管理员查询；目录 token 不能用于这两个接口。
+登录用户 POST `/api/v1/drive/delete-tasks`（须拥有每个目标的删除权限），请求为 `{"ids":["条目ID"],"recursive":false}`。每次最多 100 项，拒绝重复项和目录/子项重叠选择；每个用户同时只允许一个未完成任务，服务端队列有界。返回任务 ID 和一次展示的 `watchToken`。GET `/api/v1/drive/delete-tasks/{id}` 仅允许提交该任务的用户查询；目录 token 不能用于这两个接口。
 
 连接同源 WSS `/ws/drive-delete` 后，首条消息发送 `{"taskId":"任务ID","watchToken":"订阅凭证"}`，凭证不进入 URL。服务端校验摘要和 24 小时有效期后立即推送快照，随后推送单调递增 `version`、state、processed/total、succeeded/failed、currentName、phase、entryProcessed/entryTotal 和逐项结果；不广播给其他用户。慢连接合并待发快照，避免积压。未授权订阅关闭连接，不发送任务信息。
 

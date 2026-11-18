@@ -187,10 +187,16 @@ public class StartBootPrepare implements ApplicationContextAware {
         checkAndCreate(CanglingCertificateEntity.class);
         checkAndCreate(DriveEntryEntity.class);
         checkAndCreate(DriveTokenEntity.class);
+        checkAndCreate(cn.mapway.gwt_template.shared.db.DriveUserGrantEntity.class);
         checkAndCreate(DriveUploadEntity.class);
         checkAndCreate(DriveBlobEntity.class);
         checkAndCreate(DriveDirectoryStatsEntity.class);
         checkAndCreate(DriveDeleteTaskEntity.class);
+        // Create the new constraint before removing the former global namespace.
+        dao.execute(Sqls.create("CREATE UNIQUE INDEX IF NOT EXISTS idx_drive_owner_parent_name ON drive_entry (parent_id, name, owner_id)"));
+        dao.execute(Sqls.create("DROP INDEX IF EXISTS idx_drive_parent_name"));
+        dao.execute(Sqls.create("CREATE INDEX IF NOT EXISTS idx_drive_entry_owner ON drive_entry (owner_id)"));
+        dao.execute(Sqls.create("CREATE INDEX IF NOT EXISTS idx_drive_grant_user ON drive_user_grant (user_id)"));
         // Nutz column migration does not add new indexes to an existing table.
         dao.execute(Sqls.create("CREATE INDEX IF NOT EXISTS idx_drive_entry_blob ON drive_entry (blob_id)"));
     }

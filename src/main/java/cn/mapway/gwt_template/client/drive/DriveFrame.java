@@ -37,7 +37,12 @@ public class DriveFrame extends ToolbarModule {
   private final Label pageLabel = new Label();
   private final Label uploadLabel = new Label();
   private final FlexTable table = new FlexTable();
-  private final Node rootNode = new Node("root", "全部目录", null);
+  private Node rootNode = new Node("root", "我的网盘", null);
+  private final TabLayoutPanel modes = new TabLayoutPanel(36, Unit.PX);
+  private String scope = "mine";
+  private boolean ready, manageable;
+  private int currentPermissions;
+  private JSONObject entryPermissions = new JSONObject();
   private Node current = rootNode;
   private int page = 1, total, requestVersion, lifecycle;
   private String renderedDirectory, renderedJson;
@@ -62,6 +67,7 @@ public class DriveFrame extends ToolbarModule {
   private final AiButton create = button("新建目录", this::mkdir);
   private final AiButton upload = button("上传文件", this::chooseFiles);
   private final AiButton statistics = button("大小统计", this::showStatistics);
+  private final AiButton shares = button("共享授权", this::manageShares);
   private final AiButton tokens = button("目录 token", this::manageTokens);
   private final AiButton retry = button("重试", () -> loadPage(page));
   private final AiButton previous = button("上一页", () -> loadPage(page - 1));
@@ -134,7 +140,15 @@ public class DriveFrame extends ToolbarModule {
     table.setWidth("100%");
     content.add(new ScrollPanel(table));
     layout.add(content);
-    initWidget(layout);
+    modes.add(new SimpleLayoutPanel(), "我的网盘");
+    modes.add(new SimpleLayoutPanel(), "共享给我");
+    modes.addSelectionHandler(event -> {
+      ((SimpleLayoutPanel) modes.getWidget(event.getSelectedItem())).setWidget(layout);
+      if (ready) resetView();
+    });
+    modes.selectTab(0);
+    ((SimpleLayoutPanel) modes.getWidget(0)).setWidget(layout);
+    initWidget(modes);
     tree.addSelectionHandler(event -> {
       Object data = event.getSelectedItem().getUserObject();
       if (data instanceof Node && !((Node) data).id.equals(current.id))
@@ -176,25 +190,47 @@ public class DriveFrame extends ToolbarModule {
     renderedDirectory = null;
     renderedJson = null;
     lifecycle++;
-    updateTools(create, upload, deleteSelected, statistics, tokens, button("刷新", this::refresh));
-    updateActions();
-    if (!ClientContext.get().isAdmin()) {
-      status.setText("请使用管理员账号访问网盘管理；目录 token 可通过 HTTP 接口使用。");
-      table.removeAllRows();
-      return true;
-    }
-    refreshTree();
-    navigate(current);
+    updateTools(
+        create, upload, deleteSelected, statistics, shares, tokens, button("刷新", this::refresh));
+    ready = false;
+    if (ClientContext.get().isAdmin() && modes.getWidgetCount() == 2)
+      modes.add(new SimpleLayoutPanel(), "全部网盘");
+    if (!ClientContext.get().isAdmin() && modes.getWidgetCount() == 3) modes.remove(2);
+    modes.selectTab(0);
+    ready = true;
+    resetView();
     return true;
   }
 
+  private void resetView() {
+    scope =
+        modes.getSelectedIndex() == 1 ? "shared" : modes.getSelectedIndex() == 2 ? "all" : "mine";
+    rootNode =
+        new Node(
+            "root", "shared".equals(scope) ? "共享给我" : "all".equals(scope) ? "全部网盘" : "我的网盘", null);
+    current = rootNode;
+    lifecycle++;
+    requestVersion++;
+    currentPermissions = 0;
+    manageable = false;
+    selectedEntries.clear();
+    pageSelections.clear();
+    entryPermissions = new JSONObject();
+    renderedDirectory = null;
+    renderedJson = null;
+    table.removeAllRows();
+    refreshTree();
+    navigate(rootNode);
+  }
+
   private void updateActions() {
-    boolean admin = ClientContext.get().isAdmin();
     updateSelection();
-    create.setEnabled(admin);
-    upload.setEnabled(admin && !transferring && !"root".equals(current.id));
-    statistics.setEnabled(admin);
-    tokens.setEnabled(admin && !"root".equals(current.id));
+    boolean root = "root".equals(current.id);
+    create.setEnabled((currentPermissions & 2) != 0 && !(root && "shared".equals(scope)));
+    upload.setEnabled((currentPermissions & 2) != 0 && !transferring && !root);
+    statistics.setEnabled((currentPermissions & 1) != 0 && (!root || "all".equals(scope)));
+    tokens.setEnabled(manageable);
+    shares.setEnabled(manageable);
     upload.setTitle("root".equals(current.id) ? "请先选择或创建一个目录" : "上传文件到当前目录");
   }
 
@@ -238,7 +274,12 @@ public class DriveFrame extends ToolbarModule {
       TreeItem item, Node node, int number, List<Node> children, int generation, int version) {
     DriveApi.request(
         "GET",
-        "/entries?parentId=" + URL.encodeQueryString(node.id) + "&pageSize=1000&page=" + number,
+        "/entries?scope="
+            + scope
+            + "&parentId="
+            + URL.encodeQueryString(node.id)
+            + "&pageSize=1000&page="
+            + number,
         null,
         new DriveApi.Callback() {
           private boolean valid() {
@@ -298,6 +339,8 @@ public class DriveFrame extends ToolbarModule {
 
   private void navigate(Node node, boolean expand) {
     current = node;
+    currentPermissions = 0;
+    manageable = false;
     updateActions();
     crumbs.clear();
     List<Node> path = new ArrayList<>();
@@ -321,7 +364,6 @@ public class DriveFrame extends ToolbarModule {
   }
 
   private void refresh() {
-    if (!ClientContext.get().isAdmin()) return;
     refreshTree();
     loadPage(page);
   }
@@ -341,7 +383,6 @@ public class DriveFrame extends ToolbarModule {
 
   private void loadPage(int wanted, boolean background) {
     directorySizeRefresh.cancel();
-    if (!ClientContext.get().isAdmin()) return;
     page = Math.max(1, wanted);
     int version = ++requestVersion;
     if (!background) {
@@ -357,17 +398,34 @@ public class DriveFrame extends ToolbarModule {
     }
     DriveApi.request(
         "GET",
-        "/entries?parentId=" + URL.encodeQueryString(current.id) + "&pageSize=100&page=" + page,
+        "/entries?scope="
+            + scope
+            + "&parentId="
+            + URL.encodeQueryString(current.id)
+            + "&pageSize=100&page="
+            + page,
         null,
         new DriveApi.Callback() {
           public void success(JSONObject data) {
             if (version != requestVersion) return;
+            currentPermissions = (int) DriveApi.number(data, "permissions");
+            manageable =
+                data.get("manage") != null
+                    && data.get("manage").isBoolean() != null
+                    && data.get("manage").isBoolean().booleanValue();
+            entryPermissions =
+                data.get("entryPermissions") == null
+                    ? new JSONObject()
+                    : data.get("entryPermissions").isObject();
+            for (String id : new ArrayList<>(selectedEntries.keySet()))
+              if (!canDelete(id)) selectedEntries.remove(id);
+            updateActions();
             total = (int) DriveApi.number(data, "total");
             if (page > 1 && (page - 1) * 100 >= total) {
               loadPage(Math.max(1, (total + 99) / 100), background);
               return;
             }
-            status.setText("共 " + total + " 项 · 目录 token 对所属目录及全部子目录生效");
+            status.setText("共 " + total + " 项 · 共享权限对授权目录及其子目录生效");
             JSONValue saved = data.get("directoryStatistics");
             JSONObject sizes =
                 saved != null && saved.isObject() != null ? saved.isObject() : new JSONObject();
@@ -396,6 +454,11 @@ public class DriveFrame extends ToolbarModule {
 
           public void failure(String message) {
             if (version != requestVersion) return;
+            currentPermissions = 0;
+            manageable = false;
+            entryPermissions = new JSONObject();
+            selectedEntries.clear();
+            updateActions();
             status.setStyleName("drive-error");
             status.setText(background ? message : message + "；当前保留上次列表，请重试");
             retry.setVisible(true);
@@ -429,7 +492,7 @@ public class DriveFrame extends ToolbarModule {
       for (int i = 0; i < entries.size(); i++) {
         JSONObject entry = entries.get(i).isObject();
         String id = DriveApi.string(entry, "id");
-        if (Boolean.TRUE.equals(event.getValue())) selectedEntries.put(id, entry);
+        if (Boolean.TRUE.equals(event.getValue()) && canDelete(id)) selectedEntries.put(id, entry);
         else selectedEntries.remove(id);
       }
       updateSelection();
@@ -457,11 +520,12 @@ public class DriveFrame extends ToolbarModule {
           .getItem(0)
           .setAttribute("aria-label", "选择「" + DriveApi.string(entry, "name") + "」");
       selected.addValueChangeHandler(event -> {
-        if (Boolean.TRUE.equals(event.getValue())) selectedEntries.put(id, entry);
+        if (Boolean.TRUE.equals(event.getValue()) && canDelete(id)) selectedEntries.put(id, entry);
         else selectedEntries.remove(id);
         updateSelection();
       });
       pageSelections.put(id, selected);
+      selected.setEnabled(canDelete(id));
       table.setWidget(row, 0, selected);
       table.getCellFormatter().addStyleName(row, 0, "drive-selection");
       String name = DriveApi.string(entry, "name");
@@ -486,6 +550,13 @@ public class DriveFrame extends ToolbarModule {
         value.setTitle("SHA-256: " + DriveApi.string(entry, "sha256"));
         value.addStyleName("drive-entry-text");
         nameCell.add(value);
+      }
+      if ("root".equals(current.id) && !"mine".equals(scope)) {
+        String owner =
+            entry.get("ownerId") == null || entry.get("ownerId").isNull() != null
+                ? "历史未归属"
+                : "所有者 ID：" + entry.get("ownerId").toString();
+        nameCell.add(label(owner, "drive-muted"));
       }
       table.setWidget(row, 1, nameCell);
       if (dir) pending |= updateDirectorySize(row, entry, directoryStatistics);
@@ -548,10 +619,14 @@ public class DriveFrame extends ToolbarModule {
     return pending;
   }
 
+  private boolean canDelete(String id) {
+    return entryPermissions != null && (((int) DriveApi.number(entryPermissions, id)) & 4) != 0;
+  }
+
   private void updateSelection() {
     for (Map.Entry<String, CheckBox> item : pageSelections.entrySet()) {
       item.getValue().setValue(selectedEntries.containsKey(item.getKey()), false);
-      item.getValue().setEnabled(!deleting);
+      item.getValue().setEnabled(!deleting && canDelete(item.getKey()));
     }
     if (selectAll != null) {
       int count = selectedEntries.size(), total = pageSelections.size();
@@ -561,8 +636,7 @@ public class DriveFrame extends ToolbarModule {
           selectAll.getElement().getElementsByTagName("input").getItem(0);
       if (input != null) input.setPropertyBoolean("indeterminate", count > 0 && count < total);
     }
-    deleteSelected.setEnabled(
-        ClientContext.get().isAdmin() && (deleting || !selectedEntries.isEmpty()));
+    deleteSelected.setEnabled(deleting || !selectedEntries.isEmpty());
     deleteSelected.setText(
         deleting
             ? "删除进度"
@@ -1103,6 +1177,178 @@ public class DriveFrame extends ToolbarModule {
     updateActions();
     uploadLabel.setText(message);
     if (current.id.equals(target.id)) loadPage(1);
+  }
+
+  private void manageShares() {
+    if (!manageable) return;
+    new ShareDialog(current).showCentered();
+  }
+
+  private class ShareDialog extends DialogBox {
+    final Node folder;
+    final FlowPanel body = form();
+    final FlexTable grants = new FlexTable();
+    final TextBox query = new TextBox();
+    final ListBox users = new ListBox();
+    final CheckBox read = new CheckBox("读"), write = new CheckBox("写"), remove = new CheckBox("删除");
+    final Label message = label("", "drive-error");
+    int generation;
+
+    ShareDialog(Node folder) {
+      super(false, true);
+      this.folder = folder;
+      setText("共享目录给用户");
+      styleDialog(this);
+      setWidget(body);
+      body.add(label(path(folder), "drive-section"));
+      body.add(label("授权对本目录及全部子目录生效；只有所有者或管理员可以管理授权。", "drive-muted"));
+      grants.setStyleName("drive-table");
+      ScrollPanel list = new ScrollPanel(grants);
+      list.setHeight("220px");
+      body.add(list);
+      query.setWidth("100%");
+      query.getElement().setAttribute("placeholder", "输入登录用户名搜索");
+      query.getElement().setAttribute("aria-label", "搜索共享用户");
+      body.add(query);
+      body.add(
+          button(
+              "搜索用户",
+              () -> {
+                final int version = generation;
+                DriveApi.request(
+                    "GET",
+                    "/directories/"
+                        + folder.id
+                        + "/share-candidates?query="
+                        + URL.encodeQueryString(query.getValue().trim()),
+                    null,
+                    new DriveApi.Callback() {
+                      public void success(JSONObject data) {
+                        if (!isShowing() || version != generation) return;
+                        users.clear();
+                        JSONArray values = DriveApi.array(data, "users");
+                        for (int i = 0; i < values.size(); i++) {
+                          JSONObject user = values.get(i).isObject();
+                          users.addItem(
+                              DriveApi.string(user, "userName")
+                                  + " "
+                                  + DriveApi.string(user, "nickName"),
+                              DriveApi.string(user, "userId"));
+                        }
+                        message.setText(values.size() == 0 ? "没有匹配的用户" : "请选择用户和权限");
+                      }
+
+                      public void failure(String error) {
+                        if (isShowing()) message.setText(error);
+                      }
+                    });
+              }));
+      users.setWidth("100%");
+      users.getElement().setAttribute("aria-label", "被授权用户");
+      body.add(users);
+      read.setValue(true);
+      FlowPanel rights = new FlowPanel();
+      rights.setStyleName("drive-permissions");
+      rights.add(read);
+      rights.add(write);
+      rights.add(remove);
+      rights.add(
+          button(
+              "保存授权",
+              () -> {
+                if (users.getSelectedIndex() < 0) {
+                  message.setText("请先搜索并选择用户");
+                  return;
+                }
+                save(users.getSelectedValue(), read, write, remove);
+              }));
+      body.add(rights);
+      body.add(message);
+      FlowPanel footer = actions();
+      footer.add(button("关闭", this::hide));
+      body.add(footer);
+    }
+
+    void showCentered() {
+      center();
+      load();
+    }
+
+    @Override
+    public void hide() {
+      generation++;
+      super.hide();
+    }
+
+    void save(String userId, CheckBox r, CheckBox w, CheckBox d) {
+      if (!selected(r, w, d)) {
+        message.setText("至少选择一项权限；移除权限请使用撤销");
+        return;
+      }
+      mutate("PUT", userId, permissions(r, w, d));
+    }
+
+    void mutate(String method, String userId, JSONObject request) {
+      final int version = generation;
+      DriveApi.request(
+          method,
+          "/directories/" + folder.id + "/shares/" + URL.encodeQueryString(userId),
+          request,
+          new DriveApi.Callback() {
+            public void success(JSONObject data) {
+              if (isShowing() && version == generation) {
+                message.setText("授权已更新");
+                load();
+              }
+            }
+
+            public void failure(String error) {
+              if (isShowing() && version == generation) message.setText(error);
+            }
+          });
+    }
+
+    void load() {
+      final int version = ++generation;
+      DriveApi.request(
+          "GET",
+          "/directories/" + folder.id + "/shares",
+          null,
+          new DriveApi.Callback() {
+            public void success(JSONObject data) {
+              if (!isShowing() || version != generation) return;
+              grants.removeAllRows();
+              JSONArray values = DriveApi.array(data, "shares");
+              grants.setText(0, 0, "用户");
+              grants.setText(0, 1, "读 / 写 / 删除");
+              grants.setText(0, 2, "操作");
+              if (values.size() == 0) grants.setText(1, 0, "尚未共享给其他用户");
+              for (int i = 0; i < values.size(); i++) {
+                JSONObject grant = values.get(i).isObject();
+                final String userId = DriveApi.string(grant, "userId");
+                int mask = (int) DriveApi.number(grant, "permissions");
+                grants.setText(i + 1, 0, DriveApi.string(grant, "userName") + " (" + userId + ")");
+                CheckBox r = new CheckBox("读"), w = new CheckBox("写"), d = new CheckBox("删除");
+                r.setValue((mask & 1) != 0);
+                w.setValue((mask & 2) != 0);
+                d.setValue((mask & 4) != 0);
+                FlowPanel rights = new FlowPanel();
+                rights.add(r);
+                rights.add(w);
+                rights.add(d);
+                grants.setWidget(i + 1, 1, rights);
+                FlowPanel actions = new FlowPanel();
+                actions.add(button("保存", () -> save(userId, r, w, d)));
+                actions.add(button("撤销", () -> mutate("DELETE", userId, null)));
+                grants.setWidget(i + 1, 2, actions);
+              }
+            }
+
+            public void failure(String error) {
+              if (isShowing() && version == generation) message.setText(error);
+            }
+          });
+    }
   }
 
   private void manageTokens() {

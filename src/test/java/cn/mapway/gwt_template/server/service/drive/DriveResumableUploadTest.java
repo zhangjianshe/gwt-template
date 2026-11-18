@@ -42,6 +42,7 @@ class DriveResumableUploadTest {
     drive.dao.create(cn.mapway.gwt_template.shared.db.DriveDirectoryStatsEntity.class, false);
     drive.dao.create(cn.mapway.gwt_template.shared.db.DriveBlobEntity.class, false);
     drive.dao.create(DriveTokenEntity.class, false);
+    drive.dao.create(cn.mapway.gwt_template.shared.db.DriveUserGrantEntity.class, false);
     drive.dao.create(DriveUploadEntity.class, false);
     root = drive.mkdir("root", "sync", null, true);
     token = grant(3);

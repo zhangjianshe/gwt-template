@@ -9,8 +9,8 @@ import org.nutz.dao.entity.annotation.*;
 @Table("drive_entry")
 @TableIndexes({
   @Index(
-      name = "idx_drive_parent_name",
-      fields = {"parentId", "name"},
+      name = "idx_drive_owner_parent_name",
+      fields = {"parentId", "name", "ownerId"},
       unique = true),
   @Index(
       name = "idx_drive_entry_blob",
@@ -45,6 +45,12 @@ public class DriveEntryEntity {
   @Column("blob_id")
   @ColDefine(width = 64)
   private String blobId;
+
+  @Column("owner_id")
+  private Long ownerId;
+
+  @Column("created_by")
+  private Long createdBy;
 
   @Column("create_time")
   private Timestamp createTime;
