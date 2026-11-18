@@ -185,6 +185,8 @@ public class StartBootPrepare implements ApplicationContextAware {
         // Independent additive tables must also be created on existing installations
         // whose full database version is already current.
         checkAndCreate(CanglingCertificateEntity.class);
+        checkAndCreate(DriveEntryEntity.class);
+        checkAndCreate(DriveTokenEntity.class);
     }
 
     private void checkAllViews(FileSqlManager sqlManager) {

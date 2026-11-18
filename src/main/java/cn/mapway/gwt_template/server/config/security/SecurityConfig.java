@@ -64,6 +64,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/terminal/**").permitAll()
                 .antMatchers("/fileUpload").permitAll()
                 .antMatchers("/api/v1/user/registerUser").permitAll()
+                // Drive endpoints enforce their own directory-scoped credentials.
+                .antMatchers("/api/v1/drive/**").permitAll()
                 .antMatchers("/api/v1/software/manifest").permitAll()
                 .antMatchers("/api/v1/software/querySoftwareSetManifest").permitAll()
                 .antMatchers("/software/**").permitAll()

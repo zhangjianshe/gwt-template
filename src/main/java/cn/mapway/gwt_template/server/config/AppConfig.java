@@ -17,4 +17,6 @@ public class AppConfig {
     private String uploadRoot;
     private String projectResRoot;
     private Long softwareUploadMaxBytes;
+    private String driveRoot;
+    private Long driveUploadMaxBytes;
 }

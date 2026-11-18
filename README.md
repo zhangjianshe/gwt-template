@@ -483,3 +483,5 @@ GitHub Actions（`.github/workflows`）在推送 `v*.*.*` 标签时，会自动�
 `mobile/` 为独立 Flutter Android / iOS 客户端，接入现有 HTTP API，不参与 Maven 构建。启动与功能说明见 [mobile/README.md](mobile/README.md)。
 
 移动端独立发布：`./release-mobile.sh --dry-run` 预览，`./release-mobile.sh` 递增移动端版本并推送 `mobile-vX.Y.Z` 标签，由 **Mobile release** 自动编译、上传 APK。服务端仍使用 `./release.sh` 和 `vX.Y.Z` 标签。详见 [移动端发布说明](mobile/README.md)。
+
+网盘 HTTP 模块：独立目录树、流式上传、鉴权下载及多 token 读/写/删除权限。接口和配置见 [网盘 API](doc/drive-api.md)。
